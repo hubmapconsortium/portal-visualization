@@ -1,5 +1,6 @@
 {
   "data_types": ["celldive_deepcell"],
+  "metadata": {"dag_provenance_list": []},
   "files": [
     {
       "rel_path": "anndata-zarr/reg001_S20030086_region_001_expr-anndata.zarr/.zgroup"

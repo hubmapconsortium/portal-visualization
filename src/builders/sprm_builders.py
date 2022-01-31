@@ -1,4 +1,5 @@
 import re
+from pathlib import Path
 
 from flask import current_app
 from vitessce import (
@@ -13,7 +14,10 @@ from vitessce import (
 
 from .base_builders import ConfCells, ViewConfBuilder
 from ..utils import get_matches
-from ..paths import SPRM_JSON_DIR, STITCHED_REGEX, CODEX_TILE_DIR, TILE_REGEX, STITCHED_IMAGE_DIR
+from ..paths import (
+    SPRM_JSON_DIR, STITCHED_REGEX, CODEX_TILE_DIR,
+    TILE_REGEX, STITCHED_IMAGE_DIR, SPRM_PYRAMID_SUBDIR, IMAGE_PYRAMID_DIR
+)
 from .imaging_builders import ImagePyramidViewConfBuilder
 
 
@@ -231,8 +235,8 @@ class MultiImageSPRMAnndataViewConfBuilder(ViewConfBuilder):
     used for datasets with multiple regions.
     """
 
-    def __init__(self, entity, groups_token, is_mock=False):
-        super().__init__(entity, groups_token, is_mock)
+    def __init__(self, entity, groups_token):
+        super().__init__(entity, groups_token)
         self._expression_id = 'expr'
         self._mask_id = 'mask'
         self._image_pyramid_subdir = SPRM_PYRAMID_SUBDIR
@@ -262,7 +266,6 @@ class MultiImageSPRMAnndataViewConfBuilder(ViewConfBuilder):
             vc = SPRMAnnDataViewConfBuilder(
                 entity=self._entity,
                 groups_token=self._groups_token,
-                is_mock=self._is_mock,
                 base_name=id,
                 imaging_path=self._image_pyramid_subdir,
                 mask_path=self._mask_pyramid_subdir,
@@ -287,8 +290,8 @@ class StitchedCytokitSPRMViewConfBuilder(MultiImageSPRMAnndataViewConfBuilder):
     """
 
     # Need to override base class settings due to different directory structure
-    def __init__(self, entity, groups_token, is_mock=False):
-        super().__init__(entity, groups_token, is_mock)
+    def __init__(self, entity, groups_token):
+        super().__init__(entity, groups_token)
         self._image_pyramid_subdir = STITCHED_IMAGE_DIR
         # The ids don't match exactly with the replacement because all image files have
         # stitched_expressions appended while the subdirectory only has /stitched/
@@ -329,4 +332,3 @@ class TiledSPRMViewConfBuilder(ViewConfBuilder):
                 raise CytokitSPRMViewConfigError(message)
             confs.append(conf)
         return ConfCells(confs, None)
-
