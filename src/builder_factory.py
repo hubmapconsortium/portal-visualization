@@ -3,7 +3,8 @@ from hubmap_commons.type_client import TypeClient
 
 from .builders.base_builders import NullViewConfBuilder
 from .builders.sprm_builders import (
-    StitchedCytokitSPRMViewConfBuilder, TiledSPRMViewConfBuilder
+    StitchedCytokitSPRMViewConfBuilder, TiledSPRMViewConfBuilder,
+    MultiImageSPRMAnndataViewConfBuilder
 )
 from .builders.imaging_builders import (
     SeqFISHViewConfBuilder, IMSViewConfBuilder, ImagePyramidViewConfBuilder
@@ -16,7 +17,8 @@ from .builders.scatterplot_builders import (
 )
 from .assays import (
     SEQFISH,
-    MALDI_IMS
+    MALDI_IMS,
+    CELLDIVE_DEEPCELL
 )
 
 
@@ -46,6 +48,8 @@ def get_view_config_builder(entity):
     dag_names = [dag['name']
                  for dag in entity['metadata']['dag_provenance_list'] if 'name' in dag]
     if "is_image" in hints:
+        if CELLDIVE_DEEPCELL in assay_names:
+            return MultiImageSPRMAnndataViewConfBuilder
         if "codex" in hints:
             if ('sprm-to-anndata.cwl' in dag_names):
                 return StitchedCytokitSPRMViewConfBuilder
