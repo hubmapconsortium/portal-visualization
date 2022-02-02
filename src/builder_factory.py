@@ -17,9 +17,9 @@ from .assays import (
 )
 
 
-def get_view_config_builder(entity, assay_map):
+def get_view_config_builder(entity, get_assay):
     data_types = entity["data_types"]
-    assay_objs = [assay_map[dt] for dt in data_types]
+    assay_objs = [get_assay(dt) for dt in data_types]
     assay_names = [assay.name for assay in assay_objs]
     hints = [hint for assay in assay_objs for hint in assay.vitessce_hints]
     dag_names = [dag['name']
