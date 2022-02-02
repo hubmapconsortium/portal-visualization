@@ -1,14 +1,12 @@
 import urllib
 from collections import namedtuple
 
-from flask import current_app
-
 
 ConfCells = namedtuple('ConfCells', ['conf', 'cells'])
 
 
 class NullViewConfBuilder():
-    def __init__(self, entity, groups_token, **kwargs):
+    def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
         # Just so it has the same signature as the other builders
         pass
 
@@ -17,7 +15,7 @@ class NullViewConfBuilder():
 
 
 class ViewConfBuilder:
-    def __init__(self, entity, groups_token, **kwargs):
+    def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
         """Object for building the vitessce configuration.
         :param dict entity: Entity response from search index (from the entity API)
         :param str groups_token: Groups token for use in authenticating API
@@ -29,6 +27,7 @@ class ViewConfBuilder:
 
         self._uuid = entity["uuid"]
         self._groups_token = groups_token
+        self._assets_endpoint = assets_endpoint
         self._entity = entity
         self._files = []
 
@@ -73,8 +72,7 @@ class ViewConfBuilder:
         'https://example.com/uuid/rel_path/to/clusters.ome.tiff?token=groups_token'
 
         """
-        assets_endpoint = current_app.config["ASSETS_ENDPOINT"]
-        base_url = urllib.parse.urljoin(assets_endpoint, f"{self._uuid}/{rel_path}")
+        base_url = urllib.parse.urljoin(self._assets_endpoint, f"{self._uuid}/{rel_path}")
         token_param = urllib.parse.urlencode({"token": self._groups_token})
         return f"{base_url}?{token_param}" if use_token else base_url
 

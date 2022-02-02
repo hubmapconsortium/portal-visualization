@@ -64,9 +64,9 @@ class SPRMJSONViewConfBuilder(SPRMViewConfBuilder):
     https://portal.hubmapconsortium.org/browse/dataset/dc31a6d06daa964299224e9c8d6cafb3
     """
 
-    def __init__(self, entity, groups_token, **kwargs):
+    def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
         # All "file" Vitessce objects that do not have wrappers.
-        super().__init__(entity, groups_token, **kwargs)
+        super().__init__(entity, groups_token, assets_endpoint, **kwargs)
         # These are both something like R001_X009_Y009 because
         # there is no mask used here or shared name with the mask data.
         self._base_name = kwargs["base_name"]
@@ -142,8 +142,8 @@ class SPRMAnnDataViewConfBuilder(SPRMViewConfBuilder):
     of the image and mask relative to image_pyramid_regex
     """
 
-    def __init__(self, entity, groups_token, **kwargs):
-        super().__init__(entity, groups_token, **kwargs)
+    def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
+        super().__init__(entity, groups_token, assets_endpoint, **kwargs)
         self._base_name = kwargs["base_name"]
         self._mask_name = kwargs["mask_name"]
         self._image_name = kwargs["image_name"]
@@ -241,6 +241,7 @@ class StitchedCytokitSPRMViewConfBuilder(ViewConfBuilder):
             vc = SPRMAnnDataViewConfBuilder(
                 entity=self._entity,
                 groups_token=self._groups_token,
+                assets_endpoint=self._assets_endpoint,
                 base_name=region,
                 imaging_path=STITCHED_IMAGE_DIR,
                 mask_path=STITCHED_IMAGE_DIR.replace('expressions', 'mask'),
@@ -265,11 +266,8 @@ class TiledSPRMViewConfBuilder(ViewConfBuilder):
 
     def get_conf_cells(self):
         file_paths_found = [file["rel_path"] for file in self._entity["files"]]
-        found_tiles = get_matches(
-            file_paths_found,
-            TILE_REGEX) or get_matches(
-            file_paths_found,
-            STITCHED_REGEX)
+        found_tiles = (get_matches(file_paths_found, TILE_REGEX)
+                       or get_matches(file_paths_found, STITCHED_REGEX))
         if len(found_tiles) == 0:
             message = f'Cytokit SPRM assay with uuid {self._uuid} has no matching tiles'
             raise FileNotFoundError(message)
@@ -278,6 +276,7 @@ class TiledSPRMViewConfBuilder(ViewConfBuilder):
             vc = SPRMJSONViewConfBuilder(
                 entity=self._entity,
                 groups_token=self._groups_token,
+                assets_endpoint=self._assets_endpoint,
                 base_name=tile,
                 imaging_path=CODEX_TILE_DIR
             )
