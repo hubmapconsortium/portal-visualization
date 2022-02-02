@@ -14,14 +14,10 @@ assert len(entity_paths) > 0
 
 type_client = TypeClient('https://search.api.hubmapconsortium.org')
 assay_map = {assay.name: assay for assay in type_client.iterAssays()}
-# if _assays is None:
-#     # iterAssays does not include deprecated assay names...
-#     _assays = {assay.name: assay for assay in type_client.iterAssays()}
+special_cases = ['MALDI-IMS-neg']  # TODO: How can we avoid pre-specifying this?
+for name in special_cases:
+    assay_map[name] = type_client.getAssayType(name)
 
-# if data_type not in _assays:
-#     # ... but getAssayType does handle deprecated names:
-#     _assays[data_type] = type_client.getAssayType(data_type)
-# return _assays[data_type]
 
 @pytest.mark.parametrize(
     "entity_path", entity_paths, ids=lambda path: f'{path.parent.name}/{path.name}')
