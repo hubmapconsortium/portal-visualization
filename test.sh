@@ -15,5 +15,5 @@ flake8 || die "Try: autopep8 --in-place --aggressive -r . --exclude $EXCLUDE"
 end flake8
 
 start pytest
-PYTHONPATH=. pytest .
+PYTHONPATH=. pytest . -vv
 end pytest

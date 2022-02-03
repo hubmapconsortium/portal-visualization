@@ -1,6 +1,3 @@
-from flask import current_app
-from hubmap_commons.type_client import TypeClient
-
 from .builders.base_builders import NullViewConfBuilder
 from .builders.sprm_builders import (
     StitchedCytokitSPRMViewConfBuilder, TiledSPRMViewConfBuilder
@@ -20,27 +17,9 @@ from .assays import (
 )
 
 
-_assays = None
-
-
-def _get_assay(data_type):
-    "Return the assay class for the given data type"
-    global _assays
-
-    type_client = TypeClient(current_app.config["TYPE_SERVICE_ENDPOINT"])
-    if _assays is None:
-        # iterAssays does not include deprecated assay names...
-        _assays = {assay.name: assay for assay in type_client.iterAssays()}
-
-    if data_type not in _assays:
-        # ... but getAssayType does handle deprecated names:
-        _assays[data_type] = type_client.getAssayType(data_type)
-    return _assays[data_type]
-
-
-def get_view_config_builder(entity):
+def get_view_config_builder(entity, get_assay):
     data_types = entity["data_types"]
-    assay_objs = [_get_assay(dt) for dt in data_types]
+    assay_objs = [get_assay(dt) for dt in data_types]
     assay_names = [assay.name for assay in assay_objs]
     hints = [hint for assay in assay_objs for hint in assay.vitessce_hints]
     dag_names = [dag['name']
