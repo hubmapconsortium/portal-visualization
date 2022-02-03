@@ -16,6 +16,10 @@
       {
         "name": "anndata-to-ui.cwl", 
         "origin": "https://github.com/hubmapconsortium/portal-containers"
+      },
+      {
+        "name": "...", 
+        "origin": "...azimuth-annotate..."
       }
     ]
   },
