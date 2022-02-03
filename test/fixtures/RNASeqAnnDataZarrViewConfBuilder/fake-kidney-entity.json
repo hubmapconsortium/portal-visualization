@@ -1,7 +1,5 @@
 {
-  "data_types": [
-    "salmon_rnaseq_slideseq"
-  ],
+  "data_types": ["salmon_rnaseq_10x"],
   "files": [
     {
       "description": "AnnData Zarr store for storing and visualizing single cell sequencing outputs of UMAP/clustering analysis.", 
@@ -12,9 +10,7 @@
       "type": "unknown"
     }
   ],
-  "mapped_data_types": [
-    "Slide-seq [Salmon]"
-  ], 
+  "mapped_data_types": [], 
   "metadata": {
     "dag_provenance_list": [
       {
@@ -24,8 +20,8 @@
     ]
   },
   "origin_sample": {
-    "mapped_organ": "Something else"
+    "mapped_organ": "Kidney ... Bean!"
   },
   "status": "Published", 
-  "uuid": "ea4cfecb8495b36694d9a951510dc3c6"
+  "uuid": "based on ea4cfecb8495b36694d9a951510dc3c6"
 }

@@ -18,7 +18,10 @@
         "origin": "https://github.com/hubmapconsortium/portal-containers"
       }
     ]
-  }, 
+  },
+  "origin_sample": {
+    "mapped_organ": "Something else"
+  },
   "status": "Published", 
   "uuid": "based on ea4cfecb8495b36694d9a951510dc3c6"
 }

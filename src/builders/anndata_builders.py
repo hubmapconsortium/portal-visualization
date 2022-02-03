@@ -36,7 +36,10 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         cell_set_obs_names = ["Leiden"]
         dags = [dag
                 for dag in self._entity['metadata']['dag_provenance_list'] if 'name' in dag]
-        if(any(['azimuth-annotate' in dag['origin'] for dag in dags])):
+        if (
+            'Kidney' in self._entity['origin_sample']['mapped_organ']
+            and any(['azimuth-annotate' in dag['origin'] for dag in dags])
+        ):
             cell_set_obs.append("predicted.ASCT.celltype")
             cell_set_obs_names.append("Predicted ASCT Cell Type")
         dataset = vc.add_dataset(name=self._uuid).add_object(AnnDataWrapper(
