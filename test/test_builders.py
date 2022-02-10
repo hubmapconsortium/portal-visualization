@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from os import environ
 
 import pytest
 
@@ -26,7 +27,11 @@ def test_entity_to_vitessce_conf(entity_path):
     Builder = get_view_config_builder(entity, get_assay)
     assert Builder.__name__ == entity_path.parent.name
 
-    builder = Builder(entity, 'groups_token', 'https://assets.test.hubmapconsortium.org')
+    # TODO: Envvars should go away when we've sorted out
+    # the network issues and can instead mock requests.
+    groups_token = environ.get('GROUPS_TOKEN', 'groups-token')
+    assets_url = environ.get('ASSETS_URL', 'http://example.com')
+    builder = Builder(entity, groups_token, assets_url)
     conf = builder.get_conf_cells().conf
 
     conf_expected_path = entity_path.parent / entity_path.name.replace('-entity', '-conf')
