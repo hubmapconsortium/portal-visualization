@@ -1,2 +1,6 @@
 vitessce==0.1.0a12
 hubmap-commons==2.0.12
+zarr==2.10.3
+fsspec==2021.11.1 # zarr requirement
+requests==2.27.1 # fsspec requirement
+aiohttp==3.8.1 # fsspec requirement
