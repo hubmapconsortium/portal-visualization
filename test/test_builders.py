@@ -26,7 +26,7 @@ def test_entity_to_vitessce_conf(entity_path):
     Builder = get_view_config_builder(entity, get_assay)
     assert Builder.__name__ == entity_path.parent.name
 
-    builder = Builder(entity, 'groups_token', 'https://example.com/')
+    builder = Builder(entity, 'groups_token', 'https://assets.test.hubmapconsortium.org')
     conf = builder.get_conf_cells().conf
 
     conf_expected_path = entity_path.parent / entity_path.name.replace('-entity', '-conf')
