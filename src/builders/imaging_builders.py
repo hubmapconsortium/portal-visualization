@@ -23,7 +23,9 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
 
         >>> from pprint import pprint
         >>> vc = AbstractImagingViewConfBuilder(
-        ...   entity={ "uuid": "uuid" }, groups_token='groups_token')
+        ...   entity={ "uuid": "uuid" },
+        ...   groups_token='groups_token',
+        ...   assets_endpoint='https://example.com')
         >>> pprint(vc._get_img_and_offset_url("rel_path/to/clusters.ome.tiff", "rel_path/to"))
         ('https://example.com/uuid/rel_path/to/clusters.ome.tiff?token=groups_token',\n\
          'https://example.com/uuid/output_offsets/clusters.offsets.json?token=groups_token')

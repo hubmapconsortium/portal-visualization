@@ -21,7 +21,9 @@ class ViewConfBuilder:
         :param str groups_token: Groups token for use in authenticating API
 
         >>> vc = ViewConfBuilder(
-        ...     entity={"uuid": "uuid"}, groups_token='groups_token')
+        ...   entity={ "uuid": "uuid" },
+        ...   groups_token='groups_token',
+        ...   assets_endpoint='https://example.com')
 
         """
 
@@ -41,7 +43,9 @@ class ViewConfBuilder:
 
         >>> from pprint import pprint
         >>> vc = ViewConfBuilder(
-        ...   entity={"uuid": "uuid"}, groups_token='groups_token')
+        ...   entity={ "uuid": "uuid" },
+        ...   groups_token='groups_token',
+        ...   assets_endpoint='https://example.com')
         >>> file = { 'data_type': 'CELLS', 'file_type': 'cells.json', 'rel_path': 'cells.json' }
         >>> pprint(vc._replace_url_in_file(file))
         {'data_type': 'CELLS',\n\
@@ -63,7 +67,9 @@ class ViewConfBuilder:
 
         >>> from pprint import pprint
         >>> vc = ViewConfBuilder(
-        ...   entity={"uuid": "uuid"}, groups_token='groups_token')
+        ...   entity={ "uuid": "uuid" },
+        ...   groups_token='groups_token',
+        ...   assets_endpoint='https://example.com')
         >>> vc._build_assets_url("rel_path/to/clusters.ome.tiff")
         'https://example.com/uuid/rel_path/to/clusters.ome.tiff?token=groups_token'
 
@@ -77,13 +83,19 @@ class ViewConfBuilder:
         This is needed for non-public zarr stores because the client forms URLs for zarr chunks,
         not the above _build_assets_url function.
 
-        >>> entity = {"uuid": "uuid", "status": "QA"}
-        >>> vc = ViewConfBuilder(entity=entity, groups_token='groups_token')
+        >>> vc = ViewConfBuilder(
+        ...   entity={"uuid": "uuid", "status": "QA"},
+        ...   groups_token='groups_token',
+        ...   assets_endpoint='https://example.com')
         >>> vc._get_request_init()
         {'headers': {'Authorization': 'Bearer groups_token'}}
-        >>> entity = {"uuid": "uuid", "status": "Published"}
-        >>> vc = ViewConfBuilder(entity=entity, groups_token='groups_token')
-        >>> assert vc._get_request_init() is None # None because dataset is Published (public)
+
+        >>> vc = ViewConfBuilder(
+        ...   entity={"uuid": "uuid", "status": "Published"},
+        ...   groups_token='groups_token',
+        ...   assets_endpoint='https://example.com')
+        >>> repr(vc._get_request_init())
+        'None'
         """
         if self._entity["status"] == "Published":
             # Extra headers outside of a select few cause extra CORS-preflight requests which
@@ -97,8 +109,10 @@ class ViewConfBuilder:
         """Get all rel_path keys from the entity dict.
 
         >>> files = [{ "rel_path": "path/to/file" }, { "rel_path": "path/to/other_file" }]
-        >>> entity = {"uuid": "uuid", "files": files}
-        >>> vc = ViewConfBuilder(entity=entity, groups_token='groups_token')
+        >>> vc = ViewConfBuilder(
+        ...   entity={"uuid": "uuid", "files": files},
+        ...   groups_token='groups_token',
+        ...   assets_endpoint='https://example.com')
         >>> vc._get_file_paths()
         ['path/to/file', 'path/to/other_file']
         """
