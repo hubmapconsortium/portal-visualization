@@ -46,6 +46,10 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
             if response.ok:
                 cell_set_obs.append("predicted.ASCT.celltype")
                 cell_set_obs_names.append("Predicted ASCT Cell Type")
+            elif response.status_code != 404:
+                # 404 is fine, but anything else is unexpected.
+                # Often the case that groups token is bad.
+                response.raise_for_status()
         dataset = vc.add_dataset(name=self._uuid).add_object(AnnDataWrapper(
             adata_url=adata_url,
             mappings_obsm=["X_umap"],
