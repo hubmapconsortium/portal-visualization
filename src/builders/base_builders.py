@@ -40,12 +40,10 @@ class ViewConfBuilder:
         :rtype: dict The file with rel_path replaced by url
 
         >>> from pprint import pprint
-        >>> from .doctest_utils import app_context
-        >>> with app_context():
-        ...   vc = ViewConfBuilder(
-        ...     entity={"uuid": "uuid"}, groups_token='groups_token')
-        ...   file = { 'data_type': 'CELLS', 'file_type': 'cells.json', 'rel_path': 'cells.json' }
-        ...   pprint(vc._replace_url_in_file(file))
+        >>> vc = ViewConfBuilder(
+        ...   entity={"uuid": "uuid"}, groups_token='groups_token')
+        >>> file = { 'data_type': 'CELLS', 'file_type': 'cells.json', 'rel_path': 'cells.json' }
+        >>> pprint(vc._replace_url_in_file(file))
         {'data_type': 'CELLS',\n\
          'file_type': 'cells.json',\n\
          'url': 'https://example.com/uuid/cells.json?token=groups_token'}
@@ -64,11 +62,9 @@ class ViewConfBuilder:
         :rtype: dict The file with rel_path replaced by url
 
         >>> from pprint import pprint
-        >>> from .doctest_utils import app_context
-        >>> with app_context():
-        ...   vc = ViewConfBuilder(
-        ...     entity={"uuid": "uuid"}, groups_token='groups_token')
-        ...   vc._build_assets_url("rel_path/to/clusters.ome.tiff")
+        >>> vc = ViewConfBuilder(
+        ...   entity={"uuid": "uuid"}, groups_token='groups_token')
+        >>> vc._build_assets_url("rel_path/to/clusters.ome.tiff")
         'https://example.com/uuid/rel_path/to/clusters.ome.tiff?token=groups_token'
 
         """
