@@ -12,8 +12,7 @@ from src.builder_factory import get_view_config_builder
 
 @dataclass
 class MockResponse:
-    ok: bool
-    status_code: int
+    content: str
 
 
 entity_paths = list((Path(__file__).parent / 'fixtures').glob("*/*-entity.json"))
@@ -40,9 +39,9 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
     assets_url = environ.get('ASSETS_URL', 'https://example.com')
     if 'ASSETS_URL' not in environ:
         mock_response = (
-            MockResponse(ok=True, status_code=200)
+            MockResponse(content=b'\x01')
             if 'http200' in entity_path.name else
-            MockResponse(ok=False, status_code=404)
+            MockResponse(content=b'something else')
         )
         mocker.patch('requests.get', return_value=mock_response)
 
