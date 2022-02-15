@@ -40,9 +40,11 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
             dag for dag in self._entity['metadata']['dag_provenance_list']
             if 'name' in dag]
         if(any(['azimuth-annotate' in dag['origin'] for dag in dags])):
+            request_init = self._get_request_init() or {}
+            headers = request_init.get('headers', {})
             response = requests.get(
                 f'{adata_url}/uns/annotation_metadata/is_annotated/0',
-                headers=self._get_request_init()['headers'])
+                headers=headers)
             if response.content == b'\x01':
                 cell_set_obs.append("predicted.ASCT.celltype")
                 cell_set_obs_names.append("Predicted ASCT Cell Type")
