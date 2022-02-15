@@ -1,4 +1,4 @@
-import zarr
+import requests
 
 from vitessce import (
     VitessceConfig,
@@ -36,20 +36,20 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         # or AnnData default (like X_umap or X).
         cell_set_obs = ["leiden"]
         cell_set_obs_names = ["Leiden"]
-        dags = [dag
-                for dag in self._entity['metadata']['dag_provenance_list'] if 'name' in dag]
+        dags = [
+            dag for dag in self._entity['metadata']['dag_provenance_list']
+            if 'name' in dag]
         if(any(['azimuth-annotate' in dag['origin'] for dag in dags])):
-            z = zarr.open(
-                f'{adata_url}/uns/annotation_metadata/is_annotated',
-                mode='r',
-                storage_options={
-                    'client_kwargs': self._get_request_init()
-                }
-            )
-            is_azimuth_annotated = z[()]
-            if(is_azimuth_annotated):
+            response = requests.get(
+                f'{adata_url}/uns/annotation_metadata/is_annotated/0',
+                headers=self._get_request_init()['headers'])
+            if response.ok:
                 cell_set_obs.append("predicted.ASCT.celltype")
                 cell_set_obs_names.append("Predicted ASCT Cell Type")
+            elif response.status_code != 404:
+                # 404 is fine, but anything else is unexpected.
+                # Often the case that groups token is bad.
+                response.raise_for_status()
         dataset = vc.add_dataset(name=self._uuid).add_object(AnnDataWrapper(
             adata_url=adata_url,
             mappings_obsm=["X_umap"],
