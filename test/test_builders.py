@@ -39,8 +39,12 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
     groups_token = environ.get('GROUPS_TOKEN', 'groups_token')
     assets_url = environ.get('ASSETS_URL', 'https://example.com')
     if 'ASSETS_URL' not in environ:
-        mocker.patch('requests.get',
-                     return_value=MockResponse(ok=True, status_code=200))
+        mock_response = (
+            MockResponse(ok=True, status_code=200)
+            if 'http200' in entity_path.name else
+            MockResponse(ok=False, status_code=404)
+        )
+        mocker.patch('requests.get', return_value=mock_response)
 
     builder = Builder(entity, groups_token, assets_url)
     conf = builder.get_conf_cells().conf
