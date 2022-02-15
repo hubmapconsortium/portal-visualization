@@ -1,12 +1,19 @@
 import json
 from pathlib import Path
 from os import environ
+from dataclasses import dataclass
 
 import pytest
 
 from hubmap_commons.type_client import TypeClient
 
 from src.builder_factory import get_view_config_builder
+
+
+@dataclass
+class MockResponse:
+    ok: bool
+    status_code: int
 
 
 entity_paths = list((Path(__file__).parent / 'fixtures').glob("*/*-entity.json"))
@@ -22,15 +29,19 @@ def get_assay(name):
 
 @pytest.mark.parametrize(
     "entity_path", entity_paths, ids=lambda path: f'{path.parent.name}/{path.name}')
-def test_entity_to_vitessce_conf(entity_path):
+def test_entity_to_vitessce_conf(entity_path, mocker):
     entity = json.loads(entity_path.read_text())
     Builder = get_view_config_builder(entity, get_assay)
     assert Builder.__name__ == entity_path.parent.name
 
-    # TODO: Envvars should go away when we've sorted out
-    # the network issues and can instead mock requests.
-    groups_token = environ.get('GROUPS_TOKEN', 'groups-token')
-    assets_url = environ.get('ASSETS_URL', 'http://example.com')
+    # Envvars should not be set during normal test runs,
+    # but to test the end-to-end integration, they are useful.
+    groups_token = environ.get('GROUPS_TOKEN', 'groups_token')
+    assets_url = environ.get('ASSETS_URL', 'https://example.com')
+    if 'ASSETS_URL' not in environ:
+        mocker.patch('requests.get',
+                     return_value=MockResponse(ok=True, status_code=200))
+
     builder = Builder(entity, groups_token, assets_url)
     conf = builder.get_conf_cells().conf
 
