@@ -1,6 +1,5 @@
 import re
 
-from flask import current_app
 from vitessce import (
     VitessceConfig,
     MultiImageWrapper,
@@ -107,7 +106,6 @@ class SPRMJSONViewConfBuilder(SPRMViewConfBuilder):
                 path = file["rel_path"]
                 if path not in file_paths_found:
                     message = f'SPRM file {path} with uuid "{self._uuid}" not found as expected.'
-                    current_app.logger.error(message)
                     raise FileNotFoundError(message)
                 dataset_file = self._replace_url_in_file(file)
                 dataset = dataset.add_file(**(dataset_file))
