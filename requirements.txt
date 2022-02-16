@@ -1,2 +1,3 @@
 vitessce==0.1.0a12
 hubmap-commons==2.0.12
+requests==2.27.1
