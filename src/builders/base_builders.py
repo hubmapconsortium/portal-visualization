@@ -1,5 +1,6 @@
 import urllib
 from collections import namedtuple
+from abc import ABC, abstractmethod
 
 
 ConfCells = namedtuple('ConfCells', ['conf', 'cells'])
@@ -14,17 +15,11 @@ class NullViewConfBuilder():
         return ConfCells(None, None)
 
 
-class ViewConfBuilder:
+class ViewConfBuilder(ABC):
     def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
         """Object for building the vitessce configuration.
         :param dict entity: Entity response from search index (from the entity API)
         :param str groups_token: Groups token for use in authenticating API
-
-        >>> vc = ViewConfBuilder(
-        ...   entity={ "uuid": "uuid" },
-        ...   groups_token='groups_token',
-        ...   assets_endpoint='https://example.com')
-
         """
 
         self._uuid = entity["uuid"]
@@ -33,8 +28,9 @@ class ViewConfBuilder:
         self._entity = entity
         self._files = []
 
+    @abstractmethod
     def get_conf_cells(self):  # pragma: no cover
-        raise NotImplementedError
+        raise NotImplementedError()
 
     def _replace_url_in_file(self, file):
         """Replace url in incoming file object
@@ -42,7 +38,7 @@ class ViewConfBuilder:
         :rtype: dict The file with rel_path replaced by url
 
         >>> from pprint import pprint
-        >>> vc = ViewConfBuilder(
+        >>> vc = _ConcreteBuilder(
         ...   entity={ "uuid": "uuid" },
         ...   groups_token='groups_token',
         ...   assets_endpoint='https://example.com')
@@ -66,7 +62,7 @@ class ViewConfBuilder:
         :rtype: dict The file with rel_path replaced by url
 
         >>> from pprint import pprint
-        >>> vc = ViewConfBuilder(
+        >>> vc = _ConcreteBuilder(
         ...   entity={ "uuid": "uuid" },
         ...   groups_token='groups_token',
         ...   assets_endpoint='https://example.com')
@@ -83,14 +79,14 @@ class ViewConfBuilder:
         This is needed for non-public zarr stores because the client forms URLs for zarr chunks,
         not the above _build_assets_url function.
 
-        >>> vc = ViewConfBuilder(
+        >>> vc = _ConcreteBuilder(
         ...   entity={"uuid": "uuid", "status": "QA"},
         ...   groups_token='groups_token',
         ...   assets_endpoint='https://example.com')
         >>> vc._get_request_init()
         {'headers': {'Authorization': 'Bearer groups_token'}}
 
-        >>> vc = ViewConfBuilder(
+        >>> vc = _ConcreteBuilder(
         ...   entity={"uuid": "uuid", "status": "Published"},
         ...   groups_token='groups_token',
         ...   assets_endpoint='https://example.com')
@@ -109,7 +105,7 @@ class ViewConfBuilder:
         """Get all rel_path keys from the entity dict.
 
         >>> files = [{ "rel_path": "path/to/file" }, { "rel_path": "path/to/other_file" }]
-        >>> vc = ViewConfBuilder(
+        >>> vc = _ConcreteBuilder(
         ...   entity={"uuid": "uuid", "files": files},
         ...   groups_token='groups_token',
         ...   assets_endpoint='https://example.com')
@@ -117,3 +113,8 @@ class ViewConfBuilder:
         ['path/to/file', 'path/to/other_file']
         """
         return [file["rel_path"] for file in self._entity["files"]]
+
+
+class _ConcreteBuilder(ViewConfBuilder):  # pragma: no cover
+    def get_conf_cells(self):
+        pass

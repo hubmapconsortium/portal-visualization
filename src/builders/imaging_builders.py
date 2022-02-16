@@ -22,7 +22,10 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
         :rtype: tuple The image url and the offsets url
 
         >>> from pprint import pprint
-        >>> vc = AbstractImagingViewConfBuilder(
+        >>> class ConcreteBuilder(AbstractImagingViewConfBuilder):
+        ...     def get_conf_cells(self):
+        ...         pass
+        >>> vc = ConcreteBuilder(
         ...   entity={ "uuid": "uuid" },
         ...   groups_token='groups_token',
         ...   assets_endpoint='https://example.com')
