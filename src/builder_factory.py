@@ -14,8 +14,7 @@ from .builders.scatterplot_builders import (
 )
 from .assays import (
     SEQFISH,
-    MALDI_IMS,
-    CELLDIVE_DEEPCELL
+    MALDI_IMS
 )
 
 
