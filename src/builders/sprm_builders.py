@@ -291,8 +291,8 @@ class StitchedCytokitSPRMViewConfBuilder(MultiImageSPRMAnndataViewConfBuilder):
     """
 
     # Need to override base class settings due to different directory structure
-    def __init__(self, entity, groups_token):
-        super().__init__(entity, groups_token)
+    def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
+        super().__init__(entity, groups_token, assets_endpoint, **kwargs)
         self._image_pyramid_subdir = STITCHED_IMAGE_DIR
         # The ids don't match exactly with the replacement because all image files have
         # stitched_expressions appended while the subdirectory only has /stitched/
