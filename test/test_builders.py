@@ -14,6 +14,7 @@ from src.builder_factory import get_view_config_builder
 class MockResponse:
     content: str
 
+
 good_entity_paths = list((Path(__file__).parent / 'good-fixtures').glob("*/*-entity.json"))
 assert len(good_entity_paths) > 0
 

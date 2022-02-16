@@ -25,7 +25,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         zarr_path = 'hubmap_ui/anndata-zarr/secondary_analysis.zarr'
         file_paths_found = [file["rel_path"] for file in self._entity["files"]]
         # Use .zgroup file as proxy for whether or not the zarr store is present.
-        if f'{zarr_path}/.zgroup' not in file_paths_found:  # pragma: no cover
+        if f'{zarr_path}/.zgroup' not in file_paths_found:
             message = f'RNA-seq assay with uuid {self._uuid} has no matching .zarr store'
             raise FileNotFoundError(message)
         vc = VitessceConfig(name=self._uuid)
