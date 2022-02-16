@@ -1,3 +1,5 @@
+import requests
+
 from vitessce import (
     VitessceConfig,
     AnnDataWrapper,
@@ -23,7 +25,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         zarr_path = 'hubmap_ui/anndata-zarr/secondary_analysis.zarr'
         file_paths_found = [file["rel_path"] for file in self._entity["files"]]
         # Use .zgroup file as proxy for whether or not the zarr store is present.
-        if f'{zarr_path}/.zgroup' not in file_paths_found:
+        if f'{zarr_path}/.zgroup' not in file_paths_found:  # pragma: no cover
             message = f'RNA-seq assay with uuid {self._uuid} has no .zarr store at {zarr_path}'
             raise FileNotFoundError(message)
         vc = VitessceConfig(name=self._uuid)
@@ -34,11 +36,18 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         # or AnnData default (like X_umap or X).
         cell_set_obs = ["leiden"]
         cell_set_obs_names = ["Leiden"]
-        dags = [dag
-                for dag in self._entity['metadata']['dag_provenance_list'] if 'name' in dag]
-        if(any(['azimuth-annotate' in dag['origin'] for dag in dags])):
-            cell_set_obs.append("predicted.ASCT.celltype")
-            cell_set_obs_names.append("Predicted ASCT Cell Type")
+        dags = [
+            dag for dag in self._entity['metadata']['dag_provenance_list']
+            if 'name' in dag]
+        if(any(['azimuth-annotate' in dag['origin'] for dag in dags])):  # pragma: no cover
+            request_init = self._get_request_init() or {}
+            headers = request_init.get('headers', {})
+            response = requests.get(
+                f'{adata_url}/uns/annotation_metadata/is_annotated/0',
+                headers=headers)
+            if response.content == b'\x01':
+                cell_set_obs.append("predicted.ASCT.celltype")
+                cell_set_obs_names.append("Predicted ASCT Cell Type")
         dataset = vc.add_dataset(name=self._uuid).add_object(AnnDataWrapper(
             adata_url=adata_url,
             mappings_obsm=["X_umap"],

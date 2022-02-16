@@ -22,11 +22,11 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
         :rtype: tuple The image url and the offsets url
 
         >>> from pprint import pprint
-        >>> from .doctest_utils import app_context
-        >>> with app_context():
-        ...   vc = AbstractImagingViewConfBuilder(
-        ...     entity={ "uuid": "uuid" }, groups_token='groups_token')
-        ...   pprint(vc._get_img_and_offset_url("rel_path/to/clusters.ome.tiff", "rel_path/to"))
+        >>> vc = AbstractImagingViewConfBuilder(
+        ...   entity={ "uuid": "uuid" },
+        ...   groups_token='groups_token',
+        ...   assets_endpoint='https://example.com')
+        >>> pprint(vc._get_img_and_offset_url("rel_path/to/clusters.ome.tiff", "rel_path/to"))
         ('https://example.com/uuid/rel_path/to/clusters.ome.tiff?token=groups_token',\n\
          'https://example.com/uuid/output_offsets/clusters.offsets.json?token=groups_token')
 
@@ -69,7 +69,7 @@ class ImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
             )
             if 'separate/' not in path  # Excluse separate/* in MALDI-IMS
         ]
-        if len(found_images) == 0:
+        if len(found_images) == 0:  # pragma: no cover
             message = (
                 f"Image pyramid assay with uuid {self._uuid} has no matching files"
             )
@@ -125,7 +125,7 @@ class SeqFISHViewConfBuilder(AbstractImagingViewConfBuilder):
             ]
         )
         found_images = get_matches(file_paths_found, full_seqfish_reqex)
-        if len(found_images) == 0:
+        if len(found_images) == 0:  # pragma: no cover
             message = f'seqFish assay with uuid {self._uuid} has no matching files'
             raise FileNotFoundError(message)
         # Get all files grouped by PosN names.
