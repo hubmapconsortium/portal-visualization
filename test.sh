@@ -15,6 +15,6 @@ flake8 || die "Try: autopep8 --in-place --aggressive -r . --exclude $EXCLUDE"
 end flake8
 
 start pytest
-PYTHONPATH=. coverage run -m pytest . -vv --doctest-modules
-coverage report --fail-under 90  # TODO: Ratchet this up.
+PYTHONPATH=. coverage run --module pytest . -vv --doctest-modules
+coverage report --show-missing --fail-under 90  # TODO: Ratchet this up.
 end pytest
