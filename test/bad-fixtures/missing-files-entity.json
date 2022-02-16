@@ -1,0 +1,10 @@
+{
+    "data_types": [
+        "sn_atac_seq"
+    ],
+    "status": "QA",
+    "files": [
+    ],
+    "uuid": "210d118a14c8624b6bb9610a9062656e",
+    "metadata": {"dag_provenance_list": []}
+}
