@@ -16,5 +16,5 @@ end flake8
 
 start pytest
 PYTHONPATH=. coverage run --module pytest . -vv --doctest-modules
-coverage report --show-missing --fail-under 90  # TODO: Ratchet this up.
+coverage report --show-missing --fail-under 100
 end pytest

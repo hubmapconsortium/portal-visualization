@@ -69,7 +69,7 @@ class ImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
             )
             if 'separate/' not in path  # Excluse separate/* in MALDI-IMS
         ]
-        if len(found_images) == 0:
+        if len(found_images) == 0:  # pragma: no cover
             message = (
                 f"Image pyramid assay with uuid {self._uuid} has no matching files"
             )
@@ -125,7 +125,7 @@ class SeqFISHViewConfBuilder(AbstractImagingViewConfBuilder):
             ]
         )
         found_images = get_matches(file_paths_found, full_seqfish_reqex)
-        if len(found_images) == 0:
+        if len(found_images) == 0:  # pragma: no cover
             message = f'seqFish assay with uuid {self._uuid} has no matching files'
             raise FileNotFoundError(message)
         # Get all files grouped by PosN names.

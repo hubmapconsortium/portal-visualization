@@ -33,7 +33,7 @@ class ViewConfBuilder:
         self._entity = entity
         self._files = []
 
-    def get_conf_cells(self):
+    def get_conf_cells(self):  # pragma: no cover
         raise NotImplementedError
 
     def _replace_url_in_file(self, file):

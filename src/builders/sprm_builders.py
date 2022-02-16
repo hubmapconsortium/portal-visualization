@@ -37,7 +37,7 @@ class SPRMViewConfBuilder(ImagePyramidViewConfBuilder):
         """
         file_paths_found = self._get_file_paths()
         found_image_files = get_matches(file_paths_found, path_regex)
-        if len(found_image_files) != 1:
+        if len(found_image_files) != 1:  # pragma: no cover
             message = f'Found {len(found_image_files)} image files for SPRM uuid "{self._uuid}".'
             raise FileNotFoundError(message)
         found_image_file = found_image_files[0]
@@ -101,7 +101,7 @@ class SPRMJSONViewConfBuilder(SPRMViewConfBuilder):
         if self._files[0]["rel_path"] not in file_paths_found:
             vc = self._setup_view_config_raster(vc, dataset, disable_3d=[self._image_name])
         # This tile has segmentations so show the analysis results.
-        else:
+        else:  # pragma: no cover
             for file in self._files:
                 path = file["rel_path"]
                 if path not in file_paths_found:
@@ -114,7 +114,8 @@ class SPRMJSONViewConfBuilder(SPRMViewConfBuilder):
             )
         return ConfCells(vc.to_dict(), None)
 
-    def _setup_view_config_raster_cellsets_expression_segmentation(self, vc, dataset):
+    def _setup_view_config_raster_cellsets_expression_segmentation(
+            self, vc, dataset):  # pragma: no cover
         vc.add_view(dataset, cm.SPATIAL, x=3, y=0, w=7, h=8)
         vc.add_view(dataset, cm.DESCRIPTION, x=0, y=8, w=3, h=4)
         vc.add_view(dataset, cm.LAYER_CONTROLLER, x=0, y=0, w=3, h=8).set_props(
@@ -168,7 +169,7 @@ class SPRMAnnDataViewConfBuilder(SPRMViewConfBuilder):
         file_paths_found = self._get_file_paths()
         zarr_path = f"anndata-zarr/{self._image_name}-anndata.zarr"
         # Use the group as a proxy for presence of the rest of the zarr store.
-        if f"{zarr_path}/.zgroup" not in file_paths_found:
+        if f"{zarr_path}/.zgroup" not in file_paths_found:  # pragma: no cover
             message = f"SPRM assay with uuid {self._uuid} has no matching .zarr store"
             raise FileNotFoundError(message)
         adata_url = self._build_assets_url(zarr_path, use_token=False)
@@ -230,7 +231,7 @@ class StitchedCytokitSPRMViewConfBuilder(ViewConfBuilder):
         file_paths_found = [file["rel_path"] for file in self._entity["files"]]
         found_regions = get_matches(file_paths_found, STITCHED_REGEX)
         if len(found_regions) == 0:
-            raise FileNotFoundError(
+            raise FileNotFoundError(  # pragma: no cover
                 f"Cytokit SPRM assay with uuid {self._uuid} has no matching regions; "
                 f"No file matches for '{STITCHED_REGEX}'."
             )
@@ -247,7 +248,7 @@ class StitchedCytokitSPRMViewConfBuilder(ViewConfBuilder):
                 mask_name=f"{region}_stitched_mask"
             )
             conf = vc.get_conf_cells().conf
-            if conf == {}:
+            if conf == {}:  # pragma: no cover
                 raise CytokitSPRMViewConfigError(
                     f"Cytokit SPRM assay with uuid {self._uuid} has empty view\
                         config for region '{region}'"
@@ -266,7 +267,7 @@ class TiledSPRMViewConfBuilder(ViewConfBuilder):
         file_paths_found = [file["rel_path"] for file in self._entity["files"]]
         found_tiles = (get_matches(file_paths_found, TILE_REGEX)
                        or get_matches(file_paths_found, STITCHED_REGEX))
-        if len(found_tiles) == 0:
+        if len(found_tiles) == 0:  # pragma: no cover
             message = f'Cytokit SPRM assay with uuid {self._uuid} has no matching tiles'
             raise FileNotFoundError(message)
         confs = []
@@ -279,7 +280,7 @@ class TiledSPRMViewConfBuilder(ViewConfBuilder):
                 imaging_path=CODEX_TILE_DIR
             )
             conf = vc.get_conf_cells().conf
-            if conf == {}:
+            if conf == {}:  # pragma: no cover
                 message = f'Cytokit SPRM assay with uuid {self._uuid} has empty view config'
                 raise CytokitSPRMViewConfigError(message)
             confs.append(conf)
