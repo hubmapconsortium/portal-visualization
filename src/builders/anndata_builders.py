@@ -1,3 +1,5 @@
+import requests
+
 from vitessce import (
     VitessceConfig,
     AnnDataWrapper,
@@ -37,8 +39,14 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         dags = [dag
                 for dag in self._entity['metadata']['dag_provenance_list'] if 'name' in dag]
         if(any(['azimuth-annotate' in dag['origin'] for dag in dags])):  # pragma: no cover
-            cell_set_obs.append("predicted.ASCT.celltype")
-            cell_set_obs_names.append("Predicted ASCT Cell Type")
+            request_init = self._get_request_init() or {}
+            headers = request_init.get('headers', {})
+            response = requests.get(
+                f'{adata_url}/uns/annotation_metadata/is_annotated/0',
+                headers=headers)
+            if response.content == b'\x01':
+                cell_set_obs.append("predicted.ASCT.celltype")
+                cell_set_obs_names.append("Predicted ASCT Cell Type")
         dataset = vc.add_dataset(name=self._uuid).add_object(AnnDataWrapper(
             adata_url=adata_url,
             mappings_obsm=["X_umap"],
@@ -56,8 +64,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
                 "marker_gene_4"
             ],
             request_init=self._get_request_init()
-        )
-        )
+        ))
         vc = self._setup_anndata_view_config(vc, dataset)
         return ConfCells(vc.to_dict(), None)
 
