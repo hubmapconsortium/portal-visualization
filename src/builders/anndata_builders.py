@@ -65,8 +65,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
                 "marker_gene_4"
             ],
             request_init=self._get_request_init()
-        )
-        )
+        ))
         vc = self._setup_anndata_view_config(vc, dataset)
         return ConfCells(vc.to_dict(), None)
 
