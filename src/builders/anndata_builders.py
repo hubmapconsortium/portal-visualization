@@ -39,7 +39,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         dags = [
             dag for dag in self._entity['metadata']['dag_provenance_list']
             if 'name' in dag]
-        if(any(['azimuth-annotate' in dag['origin'] for dag in dags])):  # pragma: no cover
+        if(any(['azimuth-annotate' in dag['origin'] for dag in dags])):
             request_init = self._get_request_init() or {}
             headers = request_init.get('headers', {})
             response = requests.get(
