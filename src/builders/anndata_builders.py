@@ -36,9 +36,8 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         # or AnnData default (like X_umap or X).
         cell_set_obs = ["leiden"]
         cell_set_obs_names = ["Leiden"]
-        dags = [
-            dag for dag in self._entity['metadata']['dag_provenance_list']
-            if 'name' in dag]
+        dags = [dag
+                for dag in self._entity['metadata']['dag_provenance_list'] if 'name' in dag]
         if(any(['azimuth-annotate' in dag['origin'] for dag in dags])):  # pragma: no cover
             request_init = self._get_request_init() or {}
             headers = request_init.get('headers', {})
@@ -65,8 +64,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
                 "marker_gene_4"
             ],
             request_init=self._get_request_init()
-        )
-        )
+        ))
         vc = self._setup_anndata_view_config(vc, dataset)
         return ConfCells(vc.to_dict(), None)
 
