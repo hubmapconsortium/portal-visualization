@@ -231,7 +231,7 @@ class StitchedCytokitSPRMViewConfBuilder(ViewConfBuilder):
         file_paths_found = [file["rel_path"] for file in self._entity["files"]]
         found_regions = get_matches(file_paths_found, STITCHED_REGEX)
         if len(found_regions) == 0:
-            raise FileNotFoundError(  # pragma: no cover
+            raise FileNotFoundError(
                 f"Cytokit SPRM assay with uuid {self._uuid} has no matching regions; "
                 f"No file matches for '{STITCHED_REGEX}'."
             )
