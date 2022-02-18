@@ -25,7 +25,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         zarr_path = 'hubmap_ui/anndata-zarr/secondary_analysis.zarr'
         file_paths_found = [file["rel_path"] for file in self._entity["files"]]
         # Use .zgroup file as proxy for whether or not the zarr store is present.
-        if f'{zarr_path}/.zgroup' not in file_paths_found:  # pragma: no cover
+        if f'{zarr_path}/.zgroup' not in file_paths_found:
             message = f'RNA-seq assay with uuid {self._uuid} has no matching .zarr store'
             raise FileNotFoundError(message)
         vc = VitessceConfig(name=self._uuid)
@@ -36,9 +36,10 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         # or AnnData default (like X_umap or X).
         cell_set_obs = ["leiden"]
         cell_set_obs_names = ["Leiden"]
-        dags = [dag
-                for dag in self._entity['metadata']['dag_provenance_list'] if 'name' in dag]
-        if(any(['azimuth-annotate' in dag['origin'] for dag in dags])):  # pragma: no cover
+        dags = [
+            dag for dag in self._entity['metadata']['dag_provenance_list']
+            if 'name' in dag]
+        if(any(['azimuth-annotate' in dag['origin'] for dag in dags])):
             request_init = self._get_request_init() or {}
             headers = request_init.get('headers', {})
             response = requests.get(
