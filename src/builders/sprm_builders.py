@@ -100,12 +100,12 @@ class SPRMJSONViewConfBuilder(SPRMViewConfBuilder):
         image_wrapper = self._get_ometiff_image_wrapper(found_image_file, self._imaging_path_regex)
         dataset = dataset.add_object(image_wrapper)
         file_paths_found = self._get_file_paths()
-        # This tile has no segmentations,
-        # so only show Spatial component without cells sets, genes etc.
         if self._files[0]["rel_path"] not in file_paths_found:
+            # This tile has no segmentations,
+            # so only show Spatial component without cells sets, genes etc.
             vc = self._setup_view_config_raster(vc, dataset, disable_3d=[self._image_name])
-        # This tile has segmentations so show the analysis results.
-        else:  # pragma: no cover
+        else:
+            # This tile has segmentations so show the analysis results.
             for file in self._files:
                 path = file["rel_path"]
                 if path not in file_paths_found:
@@ -119,7 +119,7 @@ class SPRMJSONViewConfBuilder(SPRMViewConfBuilder):
         return ConfCells(vc.to_dict(), None)
 
     def _setup_view_config_raster_cellsets_expression_segmentation(
-            self, vc, dataset):  # pragma: no cover
+            self, vc, dataset):
         vc.add_view(dataset, cm.SPATIAL, x=3, y=0, w=7, h=8)
         vc.add_view(dataset, cm.DESCRIPTION, x=0, y=8, w=3, h=4)
         vc.add_view(dataset, cm.LAYER_CONTROLLER, x=0, y=0, w=3, h=8).set_props(

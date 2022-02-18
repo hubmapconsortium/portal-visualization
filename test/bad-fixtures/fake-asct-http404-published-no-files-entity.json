@@ -1,0 +1,20 @@
+{
+    "data_types": [
+        "salmon_sn_rnaseq_10x"
+    ],
+    "files": [],
+    "metadata": {
+        "dag_provenance_list": [
+            {
+                "name": "pipeline.cwl",
+                "origin": "https://github.com/hubmapconsortium/azimuth-annotate"
+            },
+            {
+                "name": "anndata-to-ui.cwl",
+                "origin": "https://github.com/hubmapconsortium/portal-containers"
+            }
+        ]
+    },
+    "status": "Published",
+    "uuid": "503f9caeffb9ee1e1324793c977d2342"
+}
