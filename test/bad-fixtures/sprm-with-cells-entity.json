@@ -1,0 +1,24 @@
+{
+  "data_types": [
+    "codex_cytokit"
+  ],
+  "files": [
+    {
+      "rel_path": "output_json/reg1.cells.json"
+    },
+    {
+      "rel_path": "output_json/reg1.cell-sets.json"
+    },
+    {
+      "rel_path": "output_json/reg1.clusters.json"
+    }
+  ],
+  "mapped_data_types": [
+    "CODEX [Cytokit + SPRM]"
+  ],
+  "metadata": {
+    "dag_provenance_list": []
+  }, 
+  "status": "Published", 
+  "uuid": "based on 04e7385339167e541ad42a2636e18398"
+}

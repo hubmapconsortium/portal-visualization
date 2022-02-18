@@ -1,0 +1,1 @@
+FileNotFoundError: SPRM assay with uuid 04e7385339167e541ad42a2636e18398 has no matching .zarr store

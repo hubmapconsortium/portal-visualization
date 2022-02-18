@@ -37,7 +37,7 @@ class SPRMViewConfBuilder(ImagePyramidViewConfBuilder):
         """
         file_paths_found = self._get_file_paths()
         found_image_files = get_matches(file_paths_found, path_regex)
-        if len(found_image_files) != 1:  # pragma: no cover
+        if len(found_image_files) != 1:
             message = f'Found {len(found_image_files)} image files for SPRM uuid "{self._uuid}".'
             raise FileNotFoundError(message)
         found_image_file = found_image_files[0]
@@ -169,7 +169,7 @@ class SPRMAnnDataViewConfBuilder(SPRMViewConfBuilder):
         file_paths_found = self._get_file_paths()
         zarr_path = f"anndata-zarr/{self._image_name}-anndata.zarr"
         # Use the group as a proxy for presence of the rest of the zarr store.
-        if f"{zarr_path}/.zgroup" not in file_paths_found:  # pragma: no cover
+        if f"{zarr_path}/.zgroup" not in file_paths_found:
             message = f"SPRM assay with uuid {self._uuid} has no matching .zarr store"
             raise FileNotFoundError(message)
         adata_url = self._build_assets_url(zarr_path, use_token=False)
