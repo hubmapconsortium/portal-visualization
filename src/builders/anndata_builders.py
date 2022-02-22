@@ -70,11 +70,11 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         return ConfCells(vc.to_dict(), None)
 
     def _setup_anndata_view_config(self, vc, dataset):
-        vc.add_view(dataset, cm.SCATTERPLOT, mapping="UMAP", x=0, y=0, w=4, h=6)
-        vc.add_view(dataset, cm.CELL_SET_EXPRESSION, x=4, y=0, w=5, h=6)
-        vc.add_view(dataset, cm.CELL_SETS, x=9, y=0, w=3, h=3)
-        vc.add_view(dataset, cm.GENES, x=9, y=4, w=3, h=3)
-        vc.add_view(dataset, cm.HEATMAP, x=0, y=6, w=12, h=4)
+        vc.add_view(cm.SCATTERPLOT, dataset=dataset, mapping="UMAP", x=0, y=0, w=4, h=6)
+        vc.add_view(cm.CELL_SET_EXPRESSION, dataset=dataset, x=4, y=0, w=5, h=6)
+        vc.add_view(cm.CELL_SETS, dataset=dataset, x=9, y=0, w=3, h=3)
+        vc.add_view(cm.GENES, dataset=dataset, x=9, y=4, w=3, h=3)
+        vc.add_view(cm.HEATMAP, dataset=dataset, x=0, y=6, w=12, h=4)
         return vc
 
 
@@ -91,8 +91,8 @@ class SpatialRNASeqAnnDataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
         self._is_spatial = True
 
     def _setup_anndata_view_config(self, vc, dataset):
-        vc.add_view(dataset, cm.SCATTERPLOT, mapping="UMAP", x=0, y=0, w=4, h=6)
-        spatial = vc.add_view(dataset, cm.SPATIAL, x=4, y=0, w=5, h=6)
+        vc.add_view(cm.SCATTERPLOT, dataset=dataset, mapping="UMAP", x=0, y=0, w=4, h=6)
+        spatial = vc.add_view(cm.SPATIAL, dataset=dataset, x=4, y=0, w=5, h=6)
         [cells_layer] = vc.add_coordination('spatialCellsLayer')
         cells_layer.set_value(
             {
@@ -103,8 +103,8 @@ class SpatialRNASeqAnnDataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
             }
         )
         spatial.use_coordination(cells_layer)
-        vc.add_view(dataset, cm.CELL_SETS, x=9, y=0, w=3, h=3)
-        vc.add_view(dataset, cm.GENES, x=9, y=4, w=3, h=3)
-        vc.add_view(dataset, cm.HEATMAP, x=0, y=6, w=7, h=4)
-        vc.add_view(dataset, cm.CELL_SET_EXPRESSION, x=7, y=6, w=5, h=4)
+        vc.add_view(cm.CELL_SETS, dataset=dataset, x=9, y=0, w=3, h=3)
+        vc.add_view(cm.GENES, dataset=dataset, x=9, y=4, w=3, h=3)
+        vc.add_view(cm.HEATMAP, dataset=dataset, x=0, y=6, w=7, h=4)
+        vc.add_view(cm.CELL_SET_EXPRESSION, dataset=dataset, x=7, y=6, w=5, h=4)
         return vc

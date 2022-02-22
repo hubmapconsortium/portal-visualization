@@ -37,7 +37,7 @@
               "x": 0,
               "y": 0}],
   "name": "MMStack_Pos12",
-  "version": "1.0.2"},
+  "version": "1.0.4"},
  {"coordinationSpace": {"dataset": {"A": "A"}},
   "datasets": [{"files": [{"fileType": "raster.json",
                            "options": {"images": [{"metadata": {"isBitmask": false,
@@ -77,4 +77,4 @@
               "x": 0,
               "y": 0}],
   "name": "MMStack_Pos13",
-  "version": "1.0.2"}]
+  "version": "1.0.4"}]
