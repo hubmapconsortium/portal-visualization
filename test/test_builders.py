@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+import argparse
+import yaml
 import json
 from pathlib import Path
 from os import environ
@@ -55,10 +58,11 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
     expected_conf = json.loads(expected_conf_path.read_text())
     assert expected_conf == conf
 
-    expected_cells_path = entity_path.parent / entity_path.name.replace('-entity', '-cells')
+    expected_cells_path = (
+        entity_path.parent / entity_path.name.replace('-entity.json', '-cells.yaml'))
     if cells is not None and expected_cells_path.is_file():
-        expected_cells = json.loads(expected_cells_path.read_text())
-        assert expected_cells == [dict(c) for c in cells]
+        expected_cells = yaml.safe_load(expected_cells_path.read_text())
+        assert expected_cells == clean_cells(cells)
 
 
 @pytest.mark.parametrize(
@@ -75,3 +79,26 @@ def test_entity_to_error(entity_path):
         entity_path.parent / entity_path.name.replace('-entity.json', '-error.txt'))
     expected_error = error_expected_path.read_text().strip()
     assert actual_error == expected_error
+
+
+def clean_cells(cells):
+    return [
+        {
+            k: v for k, v in dict(c).items()
+            if k not in {'metadata', 'id', 'execution_count', 'outputs'}
+        } for c in cells
+    ]
+
+
+if __name__ == '__main__':  # pragma: no cover
+    parser = argparse.ArgumentParser(description='Generate fixtures')
+    parser.add_argument(
+        '--input', required=True, type=Path, help='Input JSON path')
+
+    args = parser.parse_args()
+    entity = json.loads(args.input.read_text())
+    Builder = get_view_config_builder(entity, get_assay)
+    builder = Builder(entity, 'groups_token', 'https://example.com/')
+    conf, cells = builder.get_conf_cells()
+
+    print(yaml.dump(clean_cells(cells), default_style='|'))
