@@ -49,11 +49,16 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
         mocker.patch('requests.get', return_value=mock_response)
 
     builder = Builder(entity, groups_token, assets_url)
-    conf = builder.get_conf_cells().conf
+    conf, cells = builder.get_conf_cells()
 
     expected_conf_path = entity_path.parent / entity_path.name.replace('-entity', '-conf')
     expected_conf = json.loads(expected_conf_path.read_text())
     assert expected_conf == conf
+
+    expected_cells_path = entity_path.parent / entity_path.name.replace('-entity', '-cells')
+    if cells is not None and expected_cells_path.is_file():
+        expected_cells = json.loads(expected_cells_path.read_text())
+        assert expected_cells == [dict(c) for c in cells]
 
 
 @pytest.mark.parametrize(

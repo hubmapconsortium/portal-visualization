@@ -27,9 +27,11 @@ def group_by_file_name(files):
 
 def get_conf_cells(vc, md):
     imports, vc_code = vc.to_python()
-    notebook = nbformat.v4.new_notebook(cells=[
+    cells = [
         nbformat.v4.new_markdown_cell(md),
         nbformat.v4.new_code_cell(f'from vitessce import ${", ".join(imports)}'),
         nbformat.v4.new_code_cell(vc_code)
-    ])
-    return ConfCells(vc.to_dict(), loads(nbformat.writes(notebook)))
+    ]
+    # notebook = nbformat.v4.new_notebook(cells=cells)
+    # nbformat.writes(notebook)
+    return ConfCells(vc.to_dict(), cells)
