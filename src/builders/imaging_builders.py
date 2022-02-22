@@ -47,9 +47,9 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
         )
 
     def _setup_view_config_raster(self, vc, dataset, disable_3d=[]):
-        vc.add_view(dataset, cm.SPATIAL, x=3, y=0, w=9, h=12)
-        vc.add_view(dataset, cm.DESCRIPTION, x=0, y=8, w=3, h=4)
-        vc.add_view(dataset, cm.LAYER_CONTROLLER, x=0, y=0, w=3, h=8).set_props(
+        vc.add_view(cm.SPATIAL, dataset=dataset, x=3, y=0, w=9, h=12)
+        vc.add_view(cm.DESCRIPTION, dataset=dataset, x=0, y=8, w=3, h=4)
+        vc.add_view(cm.LAYER_CONTROLLER, dataset=dataset, x=0, y=0, w=3, h=8).set_props(
             disable3d=disable_3d
         )
         return vc

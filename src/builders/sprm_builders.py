@@ -116,16 +116,16 @@ class SPRMJSONViewConfBuilder(SPRMViewConfBuilder):
 
     def _setup_view_config_raster_cellsets_expression_segmentation(
             self, vc, dataset):
-        vc.add_view(dataset, cm.SPATIAL, x=3, y=0, w=7, h=8)
-        vc.add_view(dataset, cm.DESCRIPTION, x=0, y=8, w=3, h=4)
-        vc.add_view(dataset, cm.LAYER_CONTROLLER, x=0, y=0, w=3, h=8).set_props(
+        vc.add_view(cm.SPATIAL, dataset=dataset, x=3, y=0, w=7, h=8)
+        vc.add_view(cm.DESCRIPTION, dataset=dataset, x=0, y=8, w=3, h=4)
+        vc.add_view(cm.LAYER_CONTROLLER, dataset=dataset, x=0, y=0, w=3, h=8).set_props(
             disable3d=[self._image_name]
         )
-        vc.add_view(dataset, cm.CELL_SETS, x=10, y=5, w=2, h=7)
-        vc.add_view(dataset, cm.GENES, x=10, y=0, w=2, h=5).set_props(
+        vc.add_view(cm.CELL_SETS, dataset=dataset, x=10, y=5, w=2, h=7)
+        vc.add_view(cm.GENES, dataset=dataset, x=10, y=0, w=2, h=5).set_props(
             variablesLabelOverride="antigen"
         )
-        vc.add_view(dataset, cm.HEATMAP, x=3, y=8, w=7, h=4).set_props(
+        vc.add_view(cm.HEATMAP, dataset=dataset, x=3, y=8, w=7, h=4).set_props(
             transpose=True, variablesLabelOverride="antigen"
         )
         return vc
@@ -206,15 +206,15 @@ class SPRMAnnDataViewConfBuilder(SPRMViewConfBuilder):
         return ConfCells(vc.to_dict(), None)
 
     def _setup_view_config_raster_cellsets_expression_segmentation(self, vc, dataset):
-        vc.add_view(dataset, cm.SPATIAL, x=3, y=0, w=4, h=8)
-        vc.add_view(dataset, cm.SCATTERPLOT, mapping="t-SNE", x=7, y=0, w=3, h=8)
-        vc.add_view(dataset, cm.DESCRIPTION, x=0, y=8, w=3, h=4)
-        vc.add_view(dataset, cm.LAYER_CONTROLLER, x=0, y=0, w=3, h=8)
-        vc.add_view(dataset, cm.CELL_SETS, x=10, y=5, w=2, h=7)
-        vc.add_view(dataset, cm.GENES, x=10, y=0, w=2, h=5).set_props(
+        vc.add_view(cm.SPATIAL, dataset=dataset, x=3, y=0, w=4, h=8)
+        vc.add_view(cm.SCATTERPLOT, dataset=dataset, mapping="t-SNE", x=7, y=0, w=3, h=8)
+        vc.add_view(cm.DESCRIPTION, dataset=dataset, x=0, y=8, w=3, h=4)
+        vc.add_view(cm.LAYER_CONTROLLER, dataset=dataset, x=0, y=0, w=3, h=8)
+        vc.add_view(cm.CELL_SETS, dataset=dataset, x=10, y=5, w=2, h=7)
+        vc.add_view(cm.GENES, dataset=dataset, x=10, y=0, w=2, h=5).set_props(
             variablesLabelOverride="antigen"
         )
-        vc.add_view(dataset, cm.HEATMAP, x=3, y=8, w=7, h=4).set_props(
+        vc.add_view(cm.HEATMAP, dataset=dataset, x=3, y=8, w=7, h=4).set_props(
             variablesLabelOverride="antigen", transpose=True
         )
         return vc
