@@ -1,6 +1,6 @@
 [
   {
-    "version": "1.0.2",
+    "version": "1.0.4",
     "name": "reg001_S20030085_region_001_expr",
     "description": "",
     "datasets": [
@@ -202,7 +202,7 @@
     "initStrategy": "auto"
   },
   {
-    "version": "1.0.2",
+    "version": "1.0.4",
     "name": "reg001_S20030086_region_001_expr",
     "description": "",
     "datasets": [
