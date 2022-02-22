@@ -1,8 +1,5 @@
-from io import StringIO
-from json import loads
-
 import requests
-import nbformat
+from src.utils import get_conf_cells
 
 from vitessce import (
     VitessceConfig,
@@ -72,13 +69,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         ))
 
         vc = self._setup_anndata_view_config(vc, dataset)
-        imports, vc_code = vc.to_python()
-        notebook = nbformat.v4.new_notebook(cells=[
-            nbformat.v4.new_markdown_cell('**TODO**'),
-            nbformat.v4.new_code_cell(f'from vitessce import ${", ".join(imports)}'),
-            nbformat.v4.new_code_cell(vc_code)
-        ])
-        return ConfCells(vc.to_dict(), loads(nbformat.writes(notebook)))
+        return get_conf_cells(vc, '**TODO**')
 
     def _setup_anndata_view_config(self, vc, dataset):
         vc.add_view(cm.SCATTERPLOT, dataset=dataset, mapping="UMAP", x=0, y=0, w=4, h=6)
