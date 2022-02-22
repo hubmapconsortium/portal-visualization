@@ -7,7 +7,7 @@ from vitessce import (
     Component as cm,
 )
 
-from .base_builders import ViewConfBuilder, ConfCells
+from .base_builders import ViewConfBuilder
 
 
 class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):

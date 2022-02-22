@@ -1,4 +1,3 @@
-from json import loads
 from pathlib import Path
 import re
 from itertools import groupby
