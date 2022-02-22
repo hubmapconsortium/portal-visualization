@@ -60,7 +60,7 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
 
     expected_cells_path = (
         entity_path.parent / entity_path.name.replace('-entity.json', '-cells.yaml'))
-    if cells is not None and expected_cells_path.is_file():
+    if expected_cells_path.is_file():
         expected_cells = yaml.safe_load(expected_cells_path.read_text())
         assert expected_cells == clean_cells(cells)
 
