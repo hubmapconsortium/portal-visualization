@@ -1,4 +1,5 @@
 import re
+from pathlib import Path
 
 from vitessce import (
     VitessceConfig,
@@ -12,12 +13,15 @@ from vitessce import (
 
 from .base_builders import ConfCells, ViewConfBuilder
 from ..utils import get_matches
-from ..paths import SPRM_JSON_DIR, STITCHED_REGEX, CODEX_TILE_DIR, TILE_REGEX, STITCHED_IMAGE_DIR
+from ..paths import (
+    SPRM_JSON_DIR, STITCHED_REGEX, CODEX_TILE_DIR,
+    TILE_REGEX, STITCHED_IMAGE_DIR, SPRM_PYRAMID_SUBDIR, IMAGE_PYRAMID_DIR
+)
 from .imaging_builders import ImagePyramidViewConfBuilder
 
 
 class CytokitSPRMViewConfigError(Exception):
-    """Raised when one of the individual SPRM view configs errors out"""
+    """Raised when one of the individual SPRM view configs errors out for Cytokit"""
     pass
 
 
@@ -28,7 +32,7 @@ class SPRMViewConfBuilder(ImagePyramidViewConfBuilder):
     """
 
     def _get_full_image_path(self):
-        return f"{self._imaging_path_regex}/{self._image_name}.ome.tiff?"
+        return f"{self._imaging_path_regex}/{self._image_name}" + r"\.ome\.tiff?"
 
     def _check_sprm_image(self, path_regex):
         """Check whether or not there is a matching SPRM image at a path.
@@ -150,7 +154,7 @@ class SPRMAnnDataViewConfBuilder(SPRMViewConfBuilder):
         self._mask_path_regex = f"{self.image_pyramid_regex}/{kwargs['mask_path']}"
 
     def _get_bitmask_image_path(self):
-        return f"{self._mask_path_regex}/{self._mask_name}.ome.tiff?"
+        return f"{self._mask_path_regex}/{self._mask_name}" + r"\.ome\.tiff?"
 
     def _get_ometiff_mask_wrapper(self, found_bitmask_file):
         bitmask_img_url, bitmask_offsets_url = self._get_img_and_offset_url(
@@ -170,7 +174,7 @@ class SPRMAnnDataViewConfBuilder(SPRMViewConfBuilder):
         zarr_path = f"anndata-zarr/{self._image_name}-anndata.zarr"
         # Use the group as a proxy for presence of the rest of the zarr store.
         if f"{zarr_path}/.zgroup" not in file_paths_found:  # pragma: no cover
-            message = f"SPRM assay with uuid {self._uuid} has no matching .zarr store"
+            message = f"SPRM assay with uuid {self._uuid} has no .zarr store at {zarr_path}"
             raise FileNotFoundError(message)
         adata_url = self._build_assets_url(zarr_path, use_token=False)
         # https://github.com/hubmapconsortium/portal-containers/blob/master/containers/sprm-to-anndata
@@ -220,41 +224,83 @@ class SPRMAnnDataViewConfBuilder(SPRMViewConfBuilder):
         return vc
 
 
-class StitchedCytokitSPRMViewConfBuilder(ViewConfBuilder):
+class MultiImageSPRMAnndataViewConfigError(Exception):
+    """Raised when one of the individual SPRM view configs errors out"""
+    pass
+
+
+class MultiImageSPRMAnndataViewConfBuilder(ViewConfBuilder):
+    """Wrapper class for generating multiple "second generation" AnnData-backed SPRM
+    Vitessce configurations via SPRMAnnDataViewConfBuilder,
+    used for datasets with multiple regions.
+    """
+
+    def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
+        super().__init__(entity, groups_token, assets_endpoint, **kwargs)
+        self._expression_id = 'expr'
+        self._mask_id = 'mask'
+        self._image_pyramid_subdir = SPRM_PYRAMID_SUBDIR
+        self._mask_pyramid_subdir = SPRM_PYRAMID_SUBDIR.replace(
+            self._expression_id, self._mask_id
+        )
+
+    def _find_ids(self):
+        """Search the image pyramid directory for all of the names of OME-TIFF files
+        to use as unique identifiers.
+        """
+        file_paths_found = [file["rel_path"] for file in self._entity["files"]]
+        full_pyramid_path = IMAGE_PYRAMID_DIR + "/" + self._image_pyramid_subdir
+        pyramid_files = [file for file in file_paths_found if full_pyramid_path in file]
+        found_ids = [Path(image_path).name.replace('.ome.tiff', '').replace(
+            '.ome.tif', '').replace('_' + self._expression_id, '') for image_path in pyramid_files]
+        if len(found_ids) == 0:
+            raise FileNotFoundError(  # pragma: no cover
+                f"Could not find images of the SPRM analysis with uuid {self._uuid}"
+            )
+        return found_ids
+
+    def get_conf_cells(self):
+        found_ids = self._find_ids()
+        confs = []
+        for id in sorted(found_ids):
+            vc = SPRMAnnDataViewConfBuilder(
+                entity=self._entity,
+                groups_token=self._groups_token,
+                assets_endpoint=self._assets_endpoint,
+                base_name=id,
+                imaging_path=self._image_pyramid_subdir,
+                mask_path=self._mask_pyramid_subdir,
+                image_name=f"{id}_{self._expression_id}",
+                mask_name=f"{id}_{self._mask_id}"
+            )
+            conf = vc.get_conf_cells().conf
+            if conf == {}:
+                raise MultiImageSPRMAnndataViewConfigError(  # pragma: no cover
+                    f"Cytokit SPRM assay with uuid {self._uuid} has empty view\
+                        config for id '{id}'"
+                )
+            confs.append(conf)
+        return ConfCells(confs if len(confs) > 1 else confs[0], None)
+
+
+class StitchedCytokitSPRMViewConfBuilder(MultiImageSPRMAnndataViewConfBuilder):
     """Wrapper class for generating multiple "second generation" stitched AnnData-backed SPRM
     Vitessce configurations via SPRMAnnDataViewConfBuilder,
     used for datasets with multiple regions.
     These are from post-August 2020 Cytokit datasets (stitched).
     """
 
-    def get_conf_cells(self):
-        file_paths_found = [file["rel_path"] for file in self._entity["files"]]
-        found_regions = get_matches(file_paths_found, STITCHED_REGEX)
-        if len(found_regions) == 0:
-            raise FileNotFoundError(  # pragma: no cover
-                f"Cytokit SPRM assay with uuid {self._uuid} has no matching regions; "
-                f"No file matches for '{STITCHED_REGEX}'."
-            )
-        confs = []
-        for region in sorted(found_regions):
-            vc = SPRMAnnDataViewConfBuilder(
-                entity=self._entity,
-                groups_token=self._groups_token,
-                assets_endpoint=self._assets_endpoint,
-                base_name=region,
-                imaging_path=STITCHED_IMAGE_DIR,
-                mask_path=STITCHED_IMAGE_DIR.replace('expressions', 'mask'),
-                image_name=f"{region}_stitched_expressions",
-                mask_name=f"{region}_stitched_mask"
-            )
-            conf = vc.get_conf_cells().conf
-            if conf == {}:  # pragma: no cover
-                raise CytokitSPRMViewConfigError(
-                    f"Cytokit SPRM assay with uuid {self._uuid} has empty view\
-                        config for region '{region}'"
-                )
-            confs.append(conf)
-        return ConfCells(confs if len(confs) > 1 else confs[0], None)
+    # Need to override base class settings due to different directory structure
+    def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
+        super().__init__(entity, groups_token, assets_endpoint, **kwargs)
+        self._image_pyramid_subdir = STITCHED_IMAGE_DIR
+        # The ids don't match exactly with the replacement because all image files have
+        # stitched_expressions appended while the subdirectory only has /stitched/
+        self._expression_id = 'stitched_expressions'
+        self._mask_pyramid_subdir = STITCHED_IMAGE_DIR.replace(
+            'expressions', 'mask'
+        )
+        self._mask_id = 'stitched_mask'
 
 
 class TiledSPRMViewConfBuilder(ViewConfBuilder):

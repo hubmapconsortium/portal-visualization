@@ -26,7 +26,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         file_paths_found = [file["rel_path"] for file in self._entity["files"]]
         # Use .zgroup file as proxy for whether or not the zarr store is present.
         if f'{zarr_path}/.zgroup' not in file_paths_found:
-            message = f'RNA-seq assay with uuid {self._uuid} has no matching .zarr store'
+            message = f'RNA-seq assay with uuid {self._uuid} has no .zarr store at {zarr_path}'
             raise FileNotFoundError(message)
         vc = VitessceConfig(name=self._uuid)
         adata_url = self._build_assets_url(zarr_path, use_token=False)

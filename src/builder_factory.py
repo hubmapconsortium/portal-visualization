@@ -1,6 +1,7 @@
 from .builders.base_builders import NullViewConfBuilder
 from .builders.sprm_builders import (
-    StitchedCytokitSPRMViewConfBuilder, TiledSPRMViewConfBuilder
+    StitchedCytokitSPRMViewConfBuilder, TiledSPRMViewConfBuilder,
+    MultiImageSPRMAnndataViewConfBuilder
 )
 from .builders.imaging_builders import (
     SeqFISHViewConfBuilder, IMSViewConfBuilder, ImagePyramidViewConfBuilder
@@ -25,6 +26,8 @@ def get_view_config_builder(entity, get_assay):
     dag_names = [dag['name']
                  for dag in entity['metadata']['dag_provenance_list'] if 'name' in dag]
     if "is_image" in hints:
+        if 'sprm' in hints and 'anndata' in hints:
+            return MultiImageSPRMAnndataViewConfBuilder
         if "codex" in hints:
             if ('sprm-to-anndata.cwl' in dag_names):
                 return StitchedCytokitSPRMViewConfBuilder
