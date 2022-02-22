@@ -25,11 +25,12 @@ def group_by_file_name(files):
 
 
 def get_conf_cells(vc, md):
-    imports, vc_code = vc.to_python()
+    imports, conf_code = vc.to_python()
     cells = [
         nbformat.v4.new_markdown_cell(md),
-        nbformat.v4.new_code_cell(f'from vitessce import ${", ".join(imports)}'),
-        nbformat.v4.new_code_cell(vc_code)
+        nbformat.v4.new_code_cell(f'from vitessce import {", ".join(imports)}'),
+        nbformat.v4.new_code_cell(f'conf = {conf_code}'),
+        nbformat.v4.new_code_cell(f'conf.widget()'),
     ]
     # notebook = nbformat.v4.new_notebook(cells=cells)
     # nbformat.writes(notebook)
