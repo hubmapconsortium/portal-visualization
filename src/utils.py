@@ -25,6 +25,11 @@ def group_by_file_name(files):
 
 
 def get_conf_cells(vc, md):
+    if not hasattr(vc, 'to_dict'):
+        return ConfCells(vc, [
+            nbformat.v4.new_markdown_cell(md),
+            nbformat.v4.new_markdown_cell('TODO: view conf is list or dict'),
+        ])
     imports, conf_code = vc.to_python()
     cells = [
         nbformat.v4.new_markdown_cell(md),

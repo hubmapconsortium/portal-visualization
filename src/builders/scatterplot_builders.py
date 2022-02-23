@@ -5,8 +5,10 @@ from vitessce import (
     FileType as ft,
 )
 
+
+from ..utils import get_conf_cells
 from ..paths import SCRNA_SEQ_DIR, SCATAC_SEQ_DIR
-from .base_builders import ViewConfBuilder, ConfCells
+from .base_builders import ViewConfBuilder
 
 
 class AbstractScatterplotViewConfBuilder(ViewConfBuilder):
@@ -31,7 +33,7 @@ class AbstractScatterplotViewConfBuilder(ViewConfBuilder):
         for file in self._files:
             dataset = dataset.add_file(**(self._replace_url_in_file(file)))
         vc = self._setup_scatterplot_view_config(vc, dataset)
-        return ConfCells(vc.to_dict(), None)
+        return get_conf_cells(vc, f'TODO: Confirm that this notebook works! {type(self).__name__}')
 
     def _setup_scatterplot_view_config(self, vc, dataset):
         vc.add_view(cm.SCATTERPLOT, dataset=dataset, mapping="UMAP", x=0, y=0, w=9, h=12)

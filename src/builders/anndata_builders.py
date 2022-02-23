@@ -69,7 +69,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         ))
 
         vc = self._setup_anndata_view_config(vc, dataset)
-        return get_conf_cells(vc, '**TODO**')
+        return get_conf_cells(vc, f'TODO: Confirm that this notebook works! {type(self).__name__}')
 
     def _setup_anndata_view_config(self, vc, dataset):
         vc.add_view(cm.SCATTERPLOT, dataset=dataset, mapping="UMAP", x=0, y=0, w=4, h=6)
