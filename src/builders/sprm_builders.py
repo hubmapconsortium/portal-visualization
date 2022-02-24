@@ -11,8 +11,8 @@ from vitessce import (
     FileType as ft,
 )
 
-from .base_builders import ConfCells, ViewConfBuilder
-from ..utils import get_matches
+from .base_builders import ViewConfBuilder
+from ..utils import get_matches, get_conf_cells
 from ..paths import (
     SPRM_JSON_DIR, STITCHED_REGEX, CODEX_TILE_DIR,
     TILE_REGEX, STITCHED_IMAGE_DIR, SPRM_PYRAMID_SUBDIR, IMAGE_PYRAMID_DIR
@@ -116,7 +116,7 @@ class SPRMJSONViewConfBuilder(SPRMViewConfBuilder):
             vc = self._setup_view_config_raster_cellsets_expression_segmentation(
                 vc, dataset
             )
-        return ConfCells(vc.to_dict(), None)
+        return get_conf_cells(vc, f'TODO: Confirm that this notebook works! {type(self).__name__}')
 
     def _setup_view_config_raster_cellsets_expression_segmentation(
             self, vc, dataset):
@@ -207,7 +207,7 @@ class SPRMAnnDataViewConfBuilder(SPRMViewConfBuilder):
         vc = self._setup_view_config_raster_cellsets_expression_segmentation(
             vc, dataset
         )
-        return ConfCells(vc.to_dict(), None)
+        return get_conf_cells(vc, f'TODO: Confirm that this notebook works! {type(self).__name__}')
 
     def _setup_view_config_raster_cellsets_expression_segmentation(self, vc, dataset):
         vc.add_view(cm.SPATIAL, dataset=dataset, x=3, y=0, w=4, h=8)
@@ -280,7 +280,8 @@ class MultiImageSPRMAnndataViewConfBuilder(ViewConfBuilder):
                         config for id '{id}'"
                 )
             confs.append(conf)
-        return ConfCells(confs if len(confs) > 1 else confs[0], None)
+        vc = confs if len(confs) > 1 else confs[0]
+        return get_conf_cells(vc, f'TODO: Confirm that this notebook works! {type(self).__name__}')
 
 
 class StitchedCytokitSPRMViewConfBuilder(MultiImageSPRMAnndataViewConfBuilder):
@@ -330,4 +331,5 @@ class TiledSPRMViewConfBuilder(ViewConfBuilder):
                 message = f'Cytokit SPRM assay with uuid {self._uuid} has empty view config'
                 raise CytokitSPRMViewConfigError(message)
             confs.append(conf)
-        return ConfCells(confs, None)
+        return get_conf_cells(
+            confs, f'TODO: Confirm that this notebook works! {type(self).__name__}')

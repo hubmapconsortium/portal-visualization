@@ -1,4 +1,5 @@
 import requests
+from src.utils import get_conf_cells
 
 from vitessce import (
     VitessceConfig,
@@ -6,7 +7,7 @@ from vitessce import (
     Component as cm,
 )
 
-from .base_builders import ViewConfBuilder, ConfCells
+from .base_builders import ViewConfBuilder
 
 
 class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
@@ -66,8 +67,9 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
             ],
             request_init=self._get_request_init()
         ))
+
         vc = self._setup_anndata_view_config(vc, dataset)
-        return ConfCells(vc.to_dict(), None)
+        return get_conf_cells(vc, f'TODO: Confirm that this notebook works! {type(self).__name__}')
 
     def _setup_anndata_view_config(self, vc, dataset):
         vc.add_view(cm.SCATTERPLOT, dataset=dataset, mapping="UMAP", x=0, y=0, w=4, h=6)

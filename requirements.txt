@@ -1,3 +1,4 @@
 vitessce==1.0.5
 hubmap-commons==2.0.12
 requests==2.27.1
+nbformat==5.1.3

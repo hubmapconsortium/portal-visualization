@@ -11,7 +11,7 @@ echo 'TODO: Edit changelog with each PR?'
 end changelog
 
 start flake8
-flake8 || die "Try: autopep8 --in-place --aggressive -r . --exclude $EXCLUDE"
+flake8 || die "Try: autopep8 --in-place --aggressive -r ."
 end flake8
 
 start pytest
