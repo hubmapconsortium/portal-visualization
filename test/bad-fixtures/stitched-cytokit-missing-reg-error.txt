@@ -1,1 +1,1 @@
-FileNotFoundError: Cytokit SPRM assay with uuid 04e7385339167e541ad42a2636e18398 has no matching regions; No file matches for 'reg\d+'.
+FileNotFoundError: Could not find images of the SPRM analysis with uuid 04e7385339167e541ad42a2636e18398

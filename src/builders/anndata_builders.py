@@ -6,7 +6,8 @@ from vitessce import (
     Component as cm,
 )
 
-from .base_builders import ViewConfBuilder, ConfCells
+from .base_builders import ViewConfBuilder
+from ..utils import get_conf_cells
 
 
 class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
@@ -26,7 +27,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         file_paths_found = [file["rel_path"] for file in self._entity["files"]]
         # Use .zgroup file as proxy for whether or not the zarr store is present.
         if f'{zarr_path}/.zgroup' not in file_paths_found:
-            message = f'RNA-seq assay with uuid {self._uuid} has no matching .zarr store'
+            message = f'RNA-seq assay with uuid {self._uuid} has no .zarr store at {zarr_path}'
             raise FileNotFoundError(message)
         vc = VitessceConfig(name=self._uuid)
         adata_url = self._build_assets_url(zarr_path, use_token=False)
@@ -66,15 +67,16 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
             ],
             request_init=self._get_request_init()
         ))
+
         vc = self._setup_anndata_view_config(vc, dataset)
-        return ConfCells(vc.to_dict(), None)
+        return get_conf_cells(vc, f'TODO: Confirm that this notebook works! {type(self).__name__}')
 
     def _setup_anndata_view_config(self, vc, dataset):
-        vc.add_view(dataset, cm.SCATTERPLOT, mapping="UMAP", x=0, y=0, w=4, h=6)
-        vc.add_view(dataset, cm.CELL_SET_EXPRESSION, x=4, y=0, w=5, h=6)
-        vc.add_view(dataset, cm.CELL_SETS, x=9, y=0, w=3, h=3)
-        vc.add_view(dataset, cm.GENES, x=9, y=4, w=3, h=3)
-        vc.add_view(dataset, cm.HEATMAP, x=0, y=6, w=12, h=4)
+        vc.add_view(cm.SCATTERPLOT, dataset=dataset, mapping="UMAP", x=0, y=0, w=4, h=6)
+        vc.add_view(cm.CELL_SET_EXPRESSION, dataset=dataset, x=4, y=0, w=5, h=6)
+        vc.add_view(cm.CELL_SETS, dataset=dataset, x=9, y=0, w=3, h=3)
+        vc.add_view(cm.GENES, dataset=dataset, x=9, y=4, w=3, h=3)
+        vc.add_view(cm.HEATMAP, dataset=dataset, x=0, y=6, w=12, h=4)
         return vc
 
 
@@ -91,8 +93,8 @@ class SpatialRNASeqAnnDataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
         self._is_spatial = True
 
     def _setup_anndata_view_config(self, vc, dataset):
-        vc.add_view(dataset, cm.SCATTERPLOT, mapping="UMAP", x=0, y=0, w=4, h=6)
-        spatial = vc.add_view(dataset, cm.SPATIAL, x=4, y=0, w=5, h=6)
+        vc.add_view(cm.SCATTERPLOT, dataset=dataset, mapping="UMAP", x=0, y=0, w=4, h=6)
+        spatial = vc.add_view(cm.SPATIAL, dataset=dataset, x=4, y=0, w=5, h=6)
         [cells_layer] = vc.add_coordination('spatialCellsLayer')
         cells_layer.set_value(
             {
@@ -103,8 +105,8 @@ class SpatialRNASeqAnnDataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
             }
         )
         spatial.use_coordination(cells_layer)
-        vc.add_view(dataset, cm.CELL_SETS, x=9, y=0, w=3, h=3)
-        vc.add_view(dataset, cm.GENES, x=9, y=4, w=3, h=3)
-        vc.add_view(dataset, cm.HEATMAP, x=0, y=6, w=7, h=4)
-        vc.add_view(dataset, cm.CELL_SET_EXPRESSION, x=7, y=6, w=5, h=4)
+        vc.add_view(cm.CELL_SETS, dataset=dataset, x=9, y=0, w=3, h=3)
+        vc.add_view(cm.GENES, dataset=dataset, x=9, y=4, w=3, h=3)
+        vc.add_view(cm.HEATMAP, dataset=dataset, x=0, y=6, w=7, h=4)
+        vc.add_view(cm.CELL_SET_EXPRESSION, dataset=dataset, x=7, y=6, w=5, h=4)
         return vc

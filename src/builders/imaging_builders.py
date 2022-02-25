@@ -8,9 +8,9 @@ from vitessce import (
     Component as cm,
 )
 
-from ..utils import get_matches, group_by_file_name
+from ..utils import get_matches, group_by_file_name, get_conf_cells
 from ..paths import IMAGE_PYRAMID_DIR, OFFSETS_DIR, SEQFISH_HYB_CYCLE_REGEX, SEQFISH_FILE_REGEX
-from .base_builders import ViewConfBuilder, ConfCells
+from .base_builders import ViewConfBuilder
 
 
 class AbstractImagingViewConfBuilder(ViewConfBuilder):
@@ -47,9 +47,9 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
         )
 
     def _setup_view_config_raster(self, vc, dataset, disable_3d=[]):
-        vc.add_view(dataset, cm.SPATIAL, x=3, y=0, w=9, h=12)
-        vc.add_view(dataset, cm.DESCRIPTION, x=0, y=8, w=3, h=4)
-        vc.add_view(dataset, cm.LAYER_CONTROLLER, x=0, y=0, w=3, h=8).set_props(
+        vc.add_view(cm.SPATIAL, dataset=dataset, x=3, y=0, w=9, h=12)
+        vc.add_view(cm.DESCRIPTION, dataset=dataset, x=0, y=8, w=3, h=4)
+        vc.add_view(cm.LAYER_CONTROLLER, dataset=dataset, x=0, y=0, w=3, h=8).set_props(
             disable3d=disable_3d
         )
         return vc
@@ -93,7 +93,8 @@ class ImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
         conf = vc.to_dict()
         # Don't want to render all layers
         del conf["datasets"][0]["files"][0]["options"]["renderLayers"]
-        return ConfCells(conf, None)
+        return get_conf_cells(
+            conf, f'TODO: Confirm that this notebook works! {type(self).__name__}')
 
 
 class IMSViewConfBuilder(ImagePyramidViewConfBuilder):
@@ -160,7 +161,8 @@ class SeqFISHViewConfBuilder(AbstractImagingViewConfBuilder):
             # Don't want to render all layers
             del conf["datasets"][0]["files"][0]["options"]["renderLayers"]
             confs.append(conf)
-        return ConfCells(confs, None)
+        return get_conf_cells(
+            confs, f'TODO: Confirm that this notebook works! {type(self).__name__}')
 
     def _get_hybcycle(self, image_path):
         return re.search(SEQFISH_HYB_CYCLE_REGEX, image_path)[0]
