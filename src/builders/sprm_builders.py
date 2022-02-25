@@ -173,7 +173,7 @@ class SPRMAnnDataViewConfBuilder(SPRMViewConfBuilder):
         file_paths_found = self._get_file_paths()
         zarr_path = f"anndata-zarr/{self._image_name}-anndata.zarr"
         # Use the group as a proxy for presence of the rest of the zarr store.
-        if f"{zarr_path}/.zgroup" not in file_paths_found:  # pragma: no cover
+        if f"{zarr_path}/.zgroup" not in file_paths_found:    # pragma: no cover
             message = f"SPRM assay with uuid {self._uuid} has no .zarr store at {zarr_path}"
             raise FileNotFoundError(message)
         adata_url = self._build_assets_url(zarr_path, use_token=False)
@@ -254,7 +254,7 @@ class MultiImageSPRMAnndataViewConfBuilder(ViewConfBuilder):
         found_ids = [Path(image_path).name.replace('.ome.tiff', '').replace(
             '.ome.tif', '').replace('_' + self._expression_id, '') for image_path in pyramid_files]
         if len(found_ids) == 0:
-            raise FileNotFoundError(  # pragma: no cover
+            raise FileNotFoundError(
                 f"Could not find images of the SPRM analysis with uuid {self._uuid}"
             )
         return found_ids

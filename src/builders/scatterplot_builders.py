@@ -23,7 +23,7 @@ class AbstractScatterplotViewConfBuilder(ViewConfBuilder):
         file_paths_found = self._get_file_paths()
         # We need to check that the files we expect actually exist.
         # This is due to the volatility of the datasets.
-        if not set(file_paths_expected).issubset(set(file_paths_found)):  # pragma: no cover
+        if not set(file_paths_expected).issubset(set(file_paths_found)):
             message = f'Files for uuid "{self._uuid}" not found as expected: ' \
                 f'Expected: {file_paths_expected}; Found: {file_paths_found}'
             raise FileNotFoundError(message)
