@@ -1,5 +1,4 @@
 import requests
-from src.utils import get_conf_cells
 
 from vitessce import (
     VitessceConfig,
@@ -8,6 +7,7 @@ from vitessce import (
 )
 
 from .base_builders import ViewConfBuilder
+from ..utils import get_conf_cells
 
 
 class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
