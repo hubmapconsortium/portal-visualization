@@ -70,12 +70,10 @@ class ImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
             path for path in get_matches(
                 file_paths_found, self.image_pyramid_regex + r".*\.ome\.tiff?$",
             )
-            if 'separate/' not in path  # Excluse separate/* in MALDI-IMS
+            if 'separate/' not in path  # Exclude separate/* in MALDI-IMS
         ]
-        if len(found_images) == 0:  # pragma: no cover
-            message = (
-                f"Image pyramid assay with uuid {self._uuid} has no matching files"
-            )
+        if len(found_images) == 0:
+            message = f"Image pyramid assay with uuid {self._uuid} has no matching files"
             raise FileNotFoundError(message)
 
         vc = VitessceConfig(name="HuBMAP Data Portal")
@@ -121,15 +119,15 @@ class SeqFISHViewConfBuilder(AbstractImagingViewConfBuilder):
 
     def get_conf_cells(self):
         file_paths_found = [file["rel_path"] for file in self._entity["files"]]
-        full_seqfish_reqex = "/".join(
+        full_seqfish_regex = "/".join(
             [
                 IMAGE_PYRAMID_DIR,
                 SEQFISH_HYB_CYCLE_REGEX,
                 SEQFISH_FILE_REGEX
             ]
         )
-        found_images = get_matches(file_paths_found, full_seqfish_reqex)
-        if len(found_images) == 0:  # pragma: no cover
+        found_images = get_matches(file_paths_found, full_seqfish_regex)
+        if len(found_images) == 0:
             message = f'seqFish assay with uuid {self._uuid} has no matching files'
             raise FileNotFoundError(message)
         # Get all files grouped by PosN names.
