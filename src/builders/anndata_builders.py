@@ -47,6 +47,8 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
                 f'{adata_url}/uns/annotation_metadata/is_annotated/0',
                 headers=headers)
             if response.content == b'\x01':
+                # One-byte encoding for True.
+                # If the dataset didn't have Azimuth annotations, it would be b'\x00'.
                 cell_set_obs.append("predicted.ASCT.celltype")
                 cell_set_obs_names.append("Predicted ASCT Cell Type")
         dataset = vc.add_dataset(name=self._uuid).add_object(AnnDataWrapper(
