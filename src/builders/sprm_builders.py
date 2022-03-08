@@ -281,7 +281,8 @@ class MultiImageSPRMAnndataViewConfBuilder(ViewConfBuilder):
                 )
             confs.append(conf)
         conf = confs if len(confs) > 1 else confs[0]
-        return get_conf_cells(conf, f'TODO: Confirm that this notebook works! {type(self).__name__}')
+        return get_conf_cells(
+            conf, f'TODO: Confirm that this notebook works! {type(self).__name__}')
 
 
 class StitchedCytokitSPRMViewConfBuilder(MultiImageSPRMAnndataViewConfBuilder):
