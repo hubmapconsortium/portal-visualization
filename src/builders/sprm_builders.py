@@ -263,7 +263,7 @@ class MultiImageSPRMAnndataViewConfBuilder(ViewConfBuilder):
         found_ids = self._find_ids()
         confs = []
         for id in sorted(found_ids):
-            vc = SPRMAnnDataViewConfBuilder(
+            builder = SPRMAnnDataViewConfBuilder(
                 entity=self._entity,
                 groups_token=self._groups_token,
                 assets_endpoint=self._assets_endpoint,
@@ -273,15 +273,15 @@ class MultiImageSPRMAnndataViewConfBuilder(ViewConfBuilder):
                 image_name=f"{id}_{self._expression_id}",
                 mask_name=f"{id}_{self._mask_id}"
             )
-            conf = vc.get_conf_cells().conf
+            conf = builder.get_conf_cells().conf
             if conf == {}:
                 raise MultiImageSPRMAnndataViewConfigError(  # pragma: no cover
                     f"Cytokit SPRM assay with uuid {self._uuid} has empty view\
                         config for id '{id}'"
                 )
             confs.append(conf)
-        vc = confs if len(confs) > 1 else confs[0]
-        return get_conf_cells(vc, f'TODO: Confirm that this notebook works! {type(self).__name__}')
+        conf = confs if len(confs) > 1 else confs[0]
+        return get_conf_cells(conf, f'TODO: Confirm that this notebook works! {type(self).__name__}')
 
 
 class StitchedCytokitSPRMViewConfBuilder(MultiImageSPRMAnndataViewConfBuilder):
