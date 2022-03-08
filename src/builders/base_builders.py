@@ -38,12 +38,12 @@ class ViewConfBuilder(ABC):
         :rtype: dict The file with rel_path replaced by url
 
         >>> from pprint import pprint
-        >>> vc = _DocTestBuilder(
+        >>> builder = _DocTestBuilder(
         ...   entity={ "uuid": "uuid" },
         ...   groups_token='groups_token',
         ...   assets_endpoint='https://example.com')
         >>> file = { 'data_type': 'CELLS', 'file_type': 'cells.json', 'rel_path': 'cells.json' }
-        >>> pprint(vc._replace_url_in_file(file))
+        >>> pprint(builder._replace_url_in_file(file))
         {'data_type': 'CELLS',\n\
          'file_type': 'cells.json',\n\
          'url': 'https://example.com/uuid/cells.json?token=groups_token'}
@@ -62,11 +62,11 @@ class ViewConfBuilder(ABC):
         :rtype: dict The file with rel_path replaced by url
 
         >>> from pprint import pprint
-        >>> vc = _DocTestBuilder(
+        >>> builder = _DocTestBuilder(
         ...   entity={ "uuid": "uuid" },
         ...   groups_token='groups_token',
         ...   assets_endpoint='https://example.com')
-        >>> vc._build_assets_url("rel_path/to/clusters.ome.tiff")
+        >>> builder._build_assets_url("rel_path/to/clusters.ome.tiff")
         'https://example.com/uuid/rel_path/to/clusters.ome.tiff?token=groups_token'
 
         """
@@ -79,18 +79,18 @@ class ViewConfBuilder(ABC):
         This is needed for non-public zarr stores because the client forms URLs for zarr chunks,
         not the above _build_assets_url function.
 
-        >>> vc = _DocTestBuilder(
+        >>> builder = _DocTestBuilder(
         ...   entity={"uuid": "uuid", "status": "QA"},
         ...   groups_token='groups_token',
         ...   assets_endpoint='https://example.com')
-        >>> vc._get_request_init()
+        >>> builder._get_request_init()
         {'headers': {'Authorization': 'Bearer groups_token'}}
 
-        >>> vc = _DocTestBuilder(
+        >>> builder = _DocTestBuilder(
         ...   entity={"uuid": "uuid", "status": "Published"},
         ...   groups_token='groups_token',
         ...   assets_endpoint='https://example.com')
-        >>> repr(vc._get_request_init())
+        >>> repr(builder._get_request_init())
         'None'
         """
         if self._entity["status"] == "Published":
@@ -105,11 +105,11 @@ class ViewConfBuilder(ABC):
         """Get all rel_path keys from the entity dict.
 
         >>> files = [{ "rel_path": "path/to/file" }, { "rel_path": "path/to/other_file" }]
-        >>> vc = _DocTestBuilder(
+        >>> builder = _DocTestBuilder(
         ...   entity={"uuid": "uuid", "files": files},
         ...   groups_token='groups_token',
         ...   assets_endpoint='https://example.com')
-        >>> vc._get_file_paths()
+        >>> builder._get_file_paths()
         ['path/to/file', 'path/to/other_file']
         """
         return [file["rel_path"] for file in self._entity["files"]]

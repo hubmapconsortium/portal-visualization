@@ -319,14 +319,14 @@ class TiledSPRMViewConfBuilder(ViewConfBuilder):
             raise FileNotFoundError(message)
         confs = []
         for tile in sorted(found_tiles):
-            vc = SPRMJSONViewConfBuilder(
+            builder = SPRMJSONViewConfBuilder(
                 entity=self._entity,
                 groups_token=self._groups_token,
                 assets_endpoint=self._assets_endpoint,
                 base_name=tile,
                 imaging_path=CODEX_TILE_DIR
             )
-            conf = vc.get_conf_cells().conf
+            conf = builder.get_conf_cells().conf
             if conf == {}:  # pragma: no cover
                 message = f'Cytokit SPRM assay with uuid {self._uuid} has empty view config'
                 raise CytokitSPRMViewConfigError(message)
