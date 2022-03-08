@@ -50,7 +50,7 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
         vc.add_view(cm.SPATIAL, dataset=dataset, x=3, y=0, w=9, h=12)
         vc.add_view(cm.DESCRIPTION, dataset=dataset, x=0, y=8, w=3, h=4)
         vc.add_view(cm.LAYER_CONTROLLER, dataset=dataset, x=0, y=0, w=3, h=8).set_props(
-            disable3d=disable_3d
+            disable3d=disable_3d, disableChannelsIfRgbDetected=True
         )
         return vc
 
