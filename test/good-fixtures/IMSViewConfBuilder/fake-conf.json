@@ -27,7 +27,7 @@
             {"component": "layerController",
              "coordinationScopes": {"dataset": "A"},
              "h": 8,
-             "props": {"disable3d": []},
+             "props": {"disable3d": [], "disableChannelsIfRgbDetected": true},
              "w": 3,
              "x": 0,
              "y": 0}],
