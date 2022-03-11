@@ -3,6 +3,7 @@ import re
 from itertools import groupby
 
 import nbformat
+from vitessce import VitessceConfig
 
 from .builders.base_builders import ConfCells
 
@@ -25,13 +26,8 @@ def group_by_file_name(files):
 
 
 def get_conf_cells(vc, md):
-    if not hasattr(vc, 'to_dict'):
-        return ConfCells(vc, [
-            nbformat.v4.new_markdown_cell(md),
-            nbformat.v4.new_markdown_cell(
-                f'TODO: View conf has no `.to_dict()`; '
-                f'Instead it is `{type(vc).__name__}`.'),
-        ])
+    if not hasattr(vc, 'to_python'):
+        vc = VitessceConfig.from_dict(vc)
     imports, conf_code = vc.to_python()
     cells = [
         nbformat.v4.new_markdown_cell(md),
