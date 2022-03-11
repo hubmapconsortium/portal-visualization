@@ -4,6 +4,8 @@ Included as a submodule in [portal-ui](https://github.com/hubmapconsortium/porta
 
 ## Background
 
+![flow chart](portal-imaging-visualization-flowchart.svg)
+
 Data for the Vitessce visualization almost always comes via raw data that is processed by [ingest-pipeline](https://github.com/hubmapconsortium/ingest-pipeline) airflow dags.
 Harvard often contributes our own custom pipelines to these dags that can be found in [portal-containers](https://github.com/hubmapconsortium/portal-containers).
 The outputs of these pipelines are then converted into view configuration for Vitessce in the [portal backend](https://github.com/hubmapconsortium/portal-ui/tree/master/context/app/api/vitessce_confs) when a `Dataset` that should be visualized is requested in the client.
