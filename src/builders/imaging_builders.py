@@ -95,6 +95,7 @@ class ImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
         del conf["datasets"][0]["files"][0]["options"]["renderLayers"]
         return get_conf_cells(
             conf, f'TODO: Confirm that this notebook works! {type(self).__name__}')
+        # ImagePyramidViewConfBuilder is good!
 
 
 class IMSViewConfBuilder(ImagePyramidViewConfBuilder):
