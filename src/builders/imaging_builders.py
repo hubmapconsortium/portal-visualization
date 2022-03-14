@@ -97,6 +97,8 @@ class ImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
             conf, f'TODO: Confirm that this notebook works! {type(self).__name__}')
         # ImagePyramidViewConfBuilder is good!
         # http://localhost:5001/browse/dataset/1e9b9d5ac57ac8bd4093f2503675a2cd.ipynb
+        # IMSViewConfBuilder is good!
+        # http://localhost:5001/browse/dataset/b6bbc59cb234d6b15deda7356567c3fb.ipynb
 
 
 class IMSViewConfBuilder(ImagePyramidViewConfBuilder):
