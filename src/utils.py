@@ -42,7 +42,7 @@ def _get_cells_from_anything(vc):
         return _get_cells_from_list(vc)
     if hasattr(vc, 'to_python'):
         return _get_cells_from_obj(vc)
-    raise Exception(f'Viewconf is unexpected type {type(vc)}')
+    raise Exception(f'Viewconf is unexpected type {type(vc)}')  # pragma: no cover
 
 
 def _get_cells_from_list(vc_list):
