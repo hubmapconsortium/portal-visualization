@@ -34,6 +34,8 @@ class AbstractScatterplotViewConfBuilder(ViewConfBuilder):
             dataset = dataset.add_file(**(self._replace_url_in_file(file)))
         vc = self._setup_scatterplot_view_config(vc, dataset)
         return get_conf_cells(vc, f'TODO: Confirm that this notebook works! {type(self).__name__}')
+        # RNASeqViewConfBuilder is good!
+        # http://localhost:5001/browse/dataset/eec6f3356dc3078c957baaa740849fcc.ipynb
 
     def _setup_scatterplot_view_config(self, vc, dataset):
         vc.add_view(cm.SCATTERPLOT, dataset=dataset, mapping="UMAP", x=0, y=0, w=9, h=12)

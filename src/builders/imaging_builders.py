@@ -96,6 +96,7 @@ class ImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
         return get_conf_cells(
             conf, f'TODO: Confirm that this notebook works! {type(self).__name__}')
         # ImagePyramidViewConfBuilder is good!
+        # http://localhost:5001/browse/dataset/1e9b9d5ac57ac8bd4093f2503675a2cd.ipynb
 
 
 class IMSViewConfBuilder(ImagePyramidViewConfBuilder):

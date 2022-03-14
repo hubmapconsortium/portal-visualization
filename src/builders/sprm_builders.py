@@ -284,6 +284,7 @@ class MultiImageSPRMAnndataViewConfBuilder(ViewConfBuilder):
         return get_conf_cells(
             conf, f'TODO: Confirm that this notebook works! {type(self).__name__}')
         # StitchedCytokitSPRMViewConfBuilder is good!
+        # http://localhost:5001/browse/dataset/13831dc529085f18ba34e7d29bd41db4.ipynb
 
 
 class StitchedCytokitSPRMViewConfBuilder(MultiImageSPRMAnndataViewConfBuilder):
