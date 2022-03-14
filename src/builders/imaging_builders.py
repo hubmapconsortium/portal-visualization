@@ -93,12 +93,7 @@ class ImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
         conf = vc.to_dict()
         # Don't want to render all layers
         del conf["datasets"][0]["files"][0]["options"]["renderLayers"]
-        return get_conf_cells(
-            conf, f'TODO: Confirm that this notebook works! {type(self).__name__}')
-        # ImagePyramidViewConfBuilder is good!
-        # http://localhost:5001/browse/dataset/1e9b9d5ac57ac8bd4093f2503675a2cd.ipynb
-        # IMSViewConfBuilder is good!
-        # http://localhost:5001/browse/dataset/b6bbc59cb234d6b15deda7356567c3fb.ipynb
+        return get_conf_cells(conf)
 
 
 class IMSViewConfBuilder(ImagePyramidViewConfBuilder):
@@ -165,8 +160,7 @@ class SeqFISHViewConfBuilder(AbstractImagingViewConfBuilder):
             # Don't want to render all layers
             del conf["datasets"][0]["files"][0]["options"]["renderLayers"]
             confs.append(conf)
-        return get_conf_cells(
-            confs, f'TODO: Confirm that this notebook works! {type(self).__name__}')
+        return get_conf_cells(confs)
 
     def _get_hybcycle(self, image_path):
         return re.search(SEQFISH_HYB_CYCLE_REGEX, image_path)[0]

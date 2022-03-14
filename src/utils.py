@@ -25,10 +25,8 @@ def group_by_file_name(files):
     return [list(g) for _, g in groupby(sorted_files, _get_path_name)]
 
 
-def get_conf_cells(vc_anything, md):
-    cells = [
-        nbformat.v4.new_markdown_cell(md)
-    ] + _get_cells_from_anything(vc_anything)
+def get_conf_cells(vc_anything):
+    cells = _get_cells_from_anything(vc_anything)
     conf = (
         vc_anything.to_dict()
         if hasattr(vc_anything, 'to_dict')
