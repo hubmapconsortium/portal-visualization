@@ -1,4 +1,4 @@
-[{"coordinationSpace": {"dataset": {"A": "A"}},
+{"coordinationSpace": {"dataset": {"A": "A"}},
   "datasets": [{"files": [{"fileType": "raster.json",
                            "options": {"images": [{"metadata": {"isBitmask": false,
                                                                 "omeTiffOffsetsUrl": "https://example.com/based on 04e7385339167e541ad42a2636e18398/output_offsets/reg1.offsets.json?token=groups_token"},
@@ -31,4 +31,4 @@
               "x": 0,
               "y": 0}],
   "name": "reg1",
-  "version": "1.0.4"}]
+  "version": "1.0.4"}

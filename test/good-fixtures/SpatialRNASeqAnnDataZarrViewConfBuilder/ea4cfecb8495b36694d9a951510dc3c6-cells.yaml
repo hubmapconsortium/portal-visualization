@@ -60,8 +60,5 @@
     ).add_view(
         dataset_uid="A", component="cellSetExpression", x=7, y=6, w=5, h=4
     )
-- "cell_type": |-
-    code
-  "source": |-
-    conf.widget()
 
+    conf.widget()
