@@ -3,6 +3,7 @@ import re
 from itertools import groupby
 
 import nbformat
+from vitessce import VitessceConfig
 
 from .builders.base_builders import ConfCells
 
@@ -24,21 +25,41 @@ def group_by_file_name(files):
     return [list(g) for _, g in groupby(sorted_files, _get_path_name)]
 
 
-def get_conf_cells(vc, md):
-    if not hasattr(vc, 'to_dict'):
-        return ConfCells(vc, [
-            nbformat.v4.new_markdown_cell(md),
-            nbformat.v4.new_markdown_cell(
-                f'TODO: View conf has no `.to_dict()`; '
-                f'Instead it is `{type(vc).__name__}`.'),
-        ])
-    imports, conf_code = vc.to_python()
-    cells = [
-        nbformat.v4.new_markdown_cell(md),
+def get_conf_cells(vc_anything):
+    cells = _get_cells_from_anything(vc_anything)
+    conf = (
+        vc_anything.to_dict()
+        if hasattr(vc_anything, 'to_dict')
+        else vc_anything
+    )
+    return ConfCells(conf, cells)
+
+
+def _get_cells_from_anything(vc):
+    if isinstance(vc, dict):
+        return _get_cells_from_dict(vc)
+    if isinstance(vc, list):
+        return _get_cells_from_list(vc)
+    if hasattr(vc, 'to_python'):
+        return _get_cells_from_obj(vc)
+    raise Exception(f'Viewconf is unexpected type {type(vc)}')  # pragma: no cover
+
+
+def _get_cells_from_list(vc_list):
+    cells = [nbformat.v4.new_markdown_cell('Multiple visualizations are available.')]
+    for vc in vc_list:
+        cells.extend(_get_cells_from_anything(vc))
+    return cells
+
+
+def _get_cells_from_dict(vc_dict):
+    vc_obj = VitessceConfig.from_dict(vc_dict)
+    return _get_cells_from_obj(vc_obj)
+
+
+def _get_cells_from_obj(vc_obj):
+    imports, conf_expression = vc_obj.to_python()
+    return [
         nbformat.v4.new_code_cell(f'from vitessce import {", ".join(imports)}'),
-        nbformat.v4.new_code_cell(f'conf = {conf_code}'),
-        nbformat.v4.new_code_cell(f'conf.widget()'),
+        nbformat.v4.new_code_cell(f'conf = {conf_expression}\nconf.widget()'),
     ]
-    # notebook = nbformat.v4.new_notebook(cells=cells)
-    # nbformat.writes(notebook)
-    return ConfCells(vc.to_dict(), cells)
