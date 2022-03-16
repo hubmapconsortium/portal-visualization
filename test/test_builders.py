@@ -37,7 +37,7 @@ def get_assay(name):
     [
         (False, {'data_types': [], 'metadata': {'dag_provenance_list': []}}),
         (True, json.loads(Path.read_text(good_entity_paths[0])))
-        # If the first test, alphabetically, returns a Null builder this would break.
+        # If the first fixture returns a Null builder this would break.
     ],
     ids=lambda hasvis_entity: f'has_visualization={hasvis_entity[0]}')
 def test_has_visualization(hasvis_entity):
