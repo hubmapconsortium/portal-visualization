@@ -8,8 +8,9 @@ Included as a submodule in [portal-ui](https://github.com/hubmapconsortium/porta
 
 Data for the Vitessce visualization almost always comes via raw data that is processed by [ingest-pipeline](https://github.com/hubmapconsortium/ingest-pipeline) airflow dags.
 Harvard often contributes our own custom pipelines to these dags that can be found in [portal-containers](https://github.com/hubmapconsortium/portal-containers).
-The outputs of these pipelines are then converted into view configuration for Vitessce in the [portal backend](https://github.com/hubmapconsortium/portal-ui/tree/master/context/app/api/vitessce_confs) when a `Dataset` that should be visualized is requested in the client.
-The view configurations are built using the [Vitessce-Python API](https://vitessce.github.io/vitessce-python/index.html).
+The outputs of these pipelines are then converted into view configurations for Vitessce by the [portal backend](https://github.com/hubmapconsortium/portal-ui/blob/0b43a468fff0256a466a3bf928a83893321ea1d9/context/app/api/client.py#L165),
+using code in this repo, when a `Dataset` that should be visualized is requested in the client.
+The view configurations are built using the [Vitessce-Python API](https://vitessce.github.io/vitessce-python/).
 
 ### Imaging Data
 
@@ -23,7 +24,7 @@ Below are common questions and answers for imaging modalities:
 
 If so, we should ask the TMC to follow the instructions below for viewing their data in Avivator to make sure it looks right (should only need to be done for a single representative file): https://github.com/hms-dbmi/viv/tree/master/tutorial
 
-In the above instructions they should only need to a) run the bioformats2raw-raw2ometiff pipeline and then b) drag-and-drop or select the input file using the "CHOOSE A FILE" button on avivator.gehlenborglab.org. There is no need for a web server.
+In the above instructions they should only need to a) run the `bioformats2raw-raw2ometiff` pipeline and then b) drag-and-drop or select the input file using the "CHOOSE A FILE" button on avivator.gehlenborglab.org. There is no need for a web server.
 
 If there is a z or t stack to the data, ensure that each "stack" is uploaded as a single file.
 
@@ -41,22 +42,21 @@ If there is segmentation data coming from the TMC or elsewhere, then that will n
 <details><summary>Will Cytokit + SPRM be run?</summary>
 
 If the answer is "yes," we should run [sprm-to-anndata.cwl from portal-containers](https://github.com/hubmapconsortium/portal-containers/tree/master/containers/sprm-to-anndata) on the output of SPRM and the image pyramid pipeline + offsets on the output of Cytokit.
-Attach the assay, if it is not automatically attached, in the portal backend to the `StitchedCytokitSPRMConf` class in [context/app/api/vitessce_confs/assay_confs.py](https://github.com/hubmapconsortium/portal-ui/blob/9b49abda02e4f0579590289fc476eab23fa4cb02/context/app/api/vitessce_confs/assay_confs.py#L257-L290)
+Extend [`StitchedCytokitSPRMViewConfBuilder`](https://github.com/hubmapconsortium/portal-visualization/blob/d9e924547d970f8469cf74881ce05cc22500b7fc/src/builders/sprm_builders.py#L287) to handle this assay.
 </details>
 
 <details><summary>Will only SPRM be run (on non-Cytokit Segmentations)?</summary>
 
 If the answer is "yes," we should run [sprm-to-anndata.cwl from portal-containers](https://github.com/hubmapconsortium/portal-containers/tree/master/containers/sprm-to-anndata) from portal-containers on the output of SPRM and the image pyramid pipeline + offsets on the raw input data.
-Attach the assay to a new class in the portal backend similar to [StitchedCytokitSPRMConf](https://github.com/hubmapconsortium/portal-ui/blob/9b49abda02e4f0579590289fc476eab23fa4cb02/context/app/api/vitessce_confs/assay_confs.py#L171-L197) that wraps [SPRMAnnDataViewConfs](https://github.com/hubmapconsortium/portal-ui/blob/9b49abda02e4f0579590289fc476eab23fa4cb02/context/app/api/vitessce_confs/base_confs.py#L258-L313) in [context/app/api/vitessce_confs/assay_confs.py](https://github.com/hubmapconsortium/portal-ui/blob/9b49abda02e4f0579590289fc476eab23fa4cb02/context/app/api/vitessce_confs/assay_confs.py#L257-L290) if needed for multiple images in the same dataset.
-Otherwise you may simply use SPRMAnnDataViewConfBuilder with the proper arguments.
+Create a new class that extends `SPRMAnnDataViewConfs`, similar to [`StitchedCytokitSPRMViewConfBuilder`](https://github.com/hubmapconsortium/portal-visualization/blob/d9e924547d970f8469cf74881ce05cc22500b7fc/src/builders/sprm_builders.py#L287) if needed for multiple images in the same dataset.
+Otherwise you may use [`SPRMAnnDataViewConfBuilder`](https://github.com/hubmapconsortium/portal-visualization/blob/d9e924547d970f8469cf74881ce05cc22500b7fc/src/builders/sprm_builders.py#L138) with the proper arguments.
 </details>
 
 <details><summary>For everything else...</summary>
 
 Run the image pyramid pipeline + offsets on the raw input data.
-Attach the assay to a new class in the portal backend similar to  SeqFISHViewConfBuilder or to the already existing ImagePyramidViewConfBuilder as needed in [context/app/api/vitessce_confs/assay_confs.py](https://github.com/hubmapconsortium/portal-ui/blob/9b49abda02e4f0579590289fc476eab23fa4cb02/context/app/api/vitessce_confs/assay_confs.py#L257-L290).
+Attach the assay to a new class in the portal backend similar to [`SeqFISHViewConfBuilder`](https://github.com/hubmapconsortium/portal-visualization/blob/d9e924547d970f8469cf74881ce05cc22500b7fc/src/builders/imaging_builders.py#L113) or [`ImagePyramidViewConfBuilder`](https://github.com/hubmapconsortium/portal-visualization/blob/d9e924547d970f8469cf74881ce05cc22500b7fc/src/builders/imaging_builders.py#L58).
 This will depend on how you want the layout to look to the end user.
-See the [SeqFISHViewConfBuilder](https://github.com/hubmapconsortium/portal-ui/blob/9b49abda02e4f0579590289fc476eab23fa4cb02/context/app/api/vitessce_confs/assay_confs.py#L45-L95) for an example of how hairy this can get.
 </details>
 
 ### Sequencing Data
@@ -70,8 +70,8 @@ Currently, `RNA-seq` data comes as `AnnData` `h5ad` files from [Matt's pipeline]
 3. A filter for a subset of genes (corresponding to the marker genes) is stored so that it may be rendered as a heatmap.
 4. Save this altered dataset as a `.zarr` store.
 
-The steps for doing that are contained in a python script [here](https://github.com/hubmapconsortium/portal-containers/blob/dc568234c76017c7cd9644a4d15ef0f7b9d84e24/containers/anndata-to-ui/context/main.py#L17-L67) that is run after Matt's pipeline and the corresponding python visualization code for the portal backend is [here](https://github.com/hubmapconsortium/portal-ui/blob/9b49abda02e4f0579590289fc476eab23fa4cb02/context/app/api/vitessce_confs/assay_confs.py#L200-L238).
-Currently the portal backend cannot handle `slide-seq`, which is a spatially resolved `RNA-seq` assay, but its `ViewConfBuilder` class will look identical to the other [`AnnData`-backed `RNA-seq` datasets](https://github.com/hubmapconsortium/portal-ui/blob/9b49abda02e4f0579590289fc476eab23fa4cb02/context/app/api/vitessce_confs/assay_confs.py#L200-L238), except for an additional `spatial_polygon_obsm="X_spatial"` argument to the `AnnDataWrapper` as well as a `SPATIAL` vitessce component in the view config.
+These steps are exexuted by the [`anndata-to-ui`](https://github.com/hubmapconsortium/portal-containers/blob/dc568234c76017c7cd9644a4d15ef0f7b9d84e24/containers/anndata-to-ui/context/main.py#L17-L67) container that is run after Matt's pipeline; The view config is generated by [`RNASeqAnnDataZarrViewConfBuilder`](https://github.com/hubmapconsortium/portal-visualization/blob/d9e924547d970f8469cf74881ce05cc22500b7fc/src/builders/anndata_builders.py#L13).
+Currently the portal backend cannot handle `slide-seq`, which is a spatially resolved `RNA-seq` assay, but its `ViewConfBuilder` class will look be the same as `RNASeqAnnDataZarrViewConfBuilder`, except for an additional `spatial_polygon_obsm="X_spatial"` argument to the `AnnDataWrapper` as well as a `SPATIAL` vitessce component in the view config.
 
 #### xxxx-ATAC-seq
 
