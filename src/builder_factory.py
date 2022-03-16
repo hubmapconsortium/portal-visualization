@@ -51,4 +51,4 @@ def get_view_config_builder(entity, get_assay):
 
 def has_visualization(entity, get_assay):
     builder = get_view_config_builder(entity, get_assay)
-    return NullViewConfBuilder != type(builder)
+    return builder != NullViewConfBuilder
