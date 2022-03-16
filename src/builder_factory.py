@@ -47,3 +47,8 @@ def get_view_config_builder(entity, get_assay):
     if "atac" in hints:
         return ATACSeqViewConfBuilder
     return NullViewConfBuilder
+
+
+def has_visualization(entity, get_assay):
+    builder = get_view_config_builder(entity, get_assay)
+    return NullViewConfBuilder != type(builder)

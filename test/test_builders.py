@@ -10,7 +10,7 @@ import pytest
 
 from hubmap_commons.type_client import TypeClient
 
-from src.builder_factory import get_view_config_builder
+from src.builder_factory import get_view_config_builder, has_visualization
 
 
 @dataclass
@@ -30,6 +30,18 @@ def get_assay(name):
     # search-api might skip the REST interface.
     type_client = TypeClient('https://search.api.hubmapconsortium.org')
     return type_client.getAssayType(name)
+
+
+@pytest.mark.parametrize(
+    "entity_hasvis",
+    [
+        ({'data_types': [], 'metadata': {'dag_provenance_list': []}}, True),
+        ({'data_types': [], 'metadata': {'dag_provenance_list': []}}, False)
+    ],
+    ids=lambda entity_hasvis: f'has_visualization={entity_hasvis[1]}')
+def test_has_visualization(entity_hasvis):
+    entity, hasvis = entity_hasvis
+    assert hasvis == has_visualization(entity, get_assay)
 
 
 @pytest.mark.parametrize(
