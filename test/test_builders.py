@@ -33,16 +33,16 @@ def get_assay(name):
 
 
 @pytest.mark.parametrize(
-    "hasvis_entity",
+    "has_vis_entity",
     [
         (False, {'data_types': [], 'metadata': {'dag_provenance_list': []}}),
         (True, json.loads(Path.read_text(good_entity_paths[0])))
         # If the first fixture returns a Null builder this would break.
     ],
-    ids=lambda hasvis_entity: f'has_visualization={hasvis_entity[0]}')
-def test_has_visualization(hasvis_entity):
-    hasvis, entity = hasvis_entity
-    assert hasvis == has_visualization(entity, get_assay)
+    ids=lambda has_vis_entity: f'has_visualization={has_vis_entity[0]}')
+def test_has_visualization(has_vis_entity):
+    has_vis, entity = has_vis_entity
+    assert has_vis == has_visualization(entity, get_assay)
 
 
 @pytest.mark.parametrize(
