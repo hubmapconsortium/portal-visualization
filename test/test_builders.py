@@ -10,7 +10,7 @@ import pytest
 
 from hubmap_commons.type_client import TypeClient
 
-from src.builder_factory import get_view_config_builder, has_visualization
+from src.portal_visualization.builder_factory import get_view_config_builder, has_visualization
 
 
 @dataclass

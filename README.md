@@ -1,6 +1,10 @@
 # portal-visualization
 Given HuBMAP Dataset JSON, creates a Vitessce configuration.
-Included as a submodule in [portal-ui](https://github.com/hubmapconsortium/portal-ui).
+Included as a python package in [portal-ui](https://github.com/hubmapconsortium/portal-ui):
+If there are updates here that need to be visible there:
+- bump `VERSION.txt`.
+- make a new git tag: `V=$(cat VERSION.txt); git tag $V; git push origin $V`.
+- update portal-ui `requirements.txt`.
 
 ## Background
 
