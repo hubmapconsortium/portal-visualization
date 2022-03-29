@@ -4,7 +4,8 @@ Included as a python package in [portal-ui](https://github.com/hubmapconsortium/
 If there are updates here that need to be visible there:
 - bump `VERSION.txt`.
 - make a new git tag: `V=$(cat VERSION.txt); git tag $V; git push origin $V`.
-- update portal-ui `requirements.txt`.
+- make a release on github.
+- update portal-ui `requirements.in`.
 
 ## Background
 
