@@ -4,7 +4,7 @@ import argparse
 from pathlib import Path
 import json
 from webbrowser import open_new_tab
-from urllib.parse import quote
+from urllib.parse import quote_plus
 
 import requests
 
@@ -55,7 +55,7 @@ def main():
     print(f'Using: {builder.__class__.__name__}')
     conf_cells = builder.get_conf_cells()
     conf_as_json = json.dumps(conf_cells.conf)
-    data_url = f'data:,{quote(conf_as_json)}'
+    data_url = f'data:,{quote_plus(conf_as_json)}'
     vitessce_url = f'http://vitessce.io/#?url={data_url}'
     open_new_tab(vitessce_url)
 
