@@ -17,8 +17,8 @@ def main():
     types_default_url = 'https://search.api.hubmapconsortium.org'
     assets_default_url = 'https://assets.hubmapconsortium.org'
 
-    parser = argparse.ArgumentParser(
-        description='Given HuBMAP Dataset JSON, generate a Vitessce viewconf, and load vitessce.io.')
+    parser = argparse.ArgumentParser(description='''
+        Given HuBMAP Dataset JSON, generate a Vitessce viewconf, and load vitessce.io.''')
     input = parser.add_mutually_exclusive_group(required=True)
     input.add_argument(
         '--url', help='URL which returns Dataset JSON')
@@ -49,7 +49,7 @@ def main():
     def get_assay(name):
         type_client = TypeClient(args.types_url)
         return type_client.getAssayType(name)
-    
+
     Builder = get_view_config_builder(entity=entity, get_assay=get_assay)
     builder = Builder(entity, args.token, args.assets_url)
     print(f'Using: {builder.__class__.__name__}')
