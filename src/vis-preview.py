@@ -13,7 +13,7 @@ from hubmap_commons.type_client import TypeClient
 from portal_visualization.builder_factory import get_view_config_builder
 
 
-def main():
+def main():  # pragma: no cover
     types_default_url = 'https://search.api.hubmapconsortium.org'
     assets_default_url = 'https://assets.hubmapconsortium.org'
 
@@ -60,5 +60,5 @@ def main():
     open_new_tab(vitessce_url)
 
 
-if __name__ == "__main__":
+if __name__ == "__main__":  # pragma: no cover
     main()
