@@ -7,6 +7,24 @@ If there are updates here that need to be visible there:
 - make a release on github.
 - update portal-ui `requirements.in`.
 
+Installing this package also makes `vis-preview.py` available:
+```
+usage: vis-preview.py [-h] (--url URL | --json JSON) [--types_url URL]
+                      [--assets_url URL] [--token TOKEN]
+
+Given HuBMAP Dataset JSON, generate a Vitessce viewconf, and load vitessce.io.
+
+optional arguments:
+  -h, --help        show this help message and exit
+  --url URL         URL which returns Dataset JSON
+  --json JSON       File containing Dataset JSON
+  --types_url URL   Type service; default:
+                    https://search.api.hubmapconsortium.org
+  --assets_url URL  Assets endpoint; default:
+                    https://assets.hubmapconsortium.org
+  --token TOKEN     Globus groups token; Only needed if data is not public
+```
+
 ## Background
 
 ![flow chart](portal-imaging-visualization-flowchart.svg)
