@@ -37,7 +37,14 @@ def main():  # pragma: no cover
         '--token', help='Globus groups token; Only needed if data is not public',
         default='')
 
+    parser.add_argument(
+        '--marker_gene', metavar='GENE',
+        help='Gene to highligh in visualization; Only used in some visualizations.'
+    )
+
     args = parser.parse_args()
+    marker_gene = args.marker_gene
+
     if args.url:
         response = requests.get(args.url)
         response.raise_for_status()
@@ -53,7 +60,7 @@ def main():  # pragma: no cover
     Builder = get_view_config_builder(entity=entity, get_assay=get_assay)
     builder = Builder(entity, args.token, args.assets_url)
     print(f'Using: {builder.__class__.__name__}')
-    conf_cells = builder.get_conf_cells()
+    conf_cells = builder.get_conf_cells(marker_gene=marker_gene)
     conf_as_json = json.dumps(conf_cells.conf)
     data_url = f'data:,{quote_plus(conf_as_json)}'
     vitessce_url = f'http://vitessce.io/#?url={data_url}'
