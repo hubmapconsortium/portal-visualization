@@ -23,7 +23,7 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
 
         >>> from pprint import pprint
         >>> class ConcreteBuilder(AbstractImagingViewConfBuilder):
-        ...     def get_conf_cells(self):
+        ...     def get_conf_cells(self, **kwargs):
         ...         pass
         >>> builder = ConcreteBuilder(
         ...   entity={ "uuid": "uuid" },
@@ -64,7 +64,7 @@ class ImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
         self.image_pyramid_regex = IMAGE_PYRAMID_DIR
         super().__init__(entity, groups_token, assets_endpoint, **kwargs)
 
-    def get_conf_cells(self):
+    def get_conf_cells(self, **kwargs):
         file_paths_found = self._get_file_paths()
         found_images = [
             path for path in get_matches(
@@ -116,7 +116,7 @@ class SeqFISHViewConfBuilder(AbstractImagingViewConfBuilder):
     grouped together per position in a single Vitessce configuration.
     """
 
-    def get_conf_cells(self):
+    def get_conf_cells(self, **kwargs):
         file_paths_found = [file["rel_path"] for file in self._entity["files"]]
         full_seqfish_regex = "/".join(
             [
