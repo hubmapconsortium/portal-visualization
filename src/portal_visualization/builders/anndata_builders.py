@@ -53,8 +53,8 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
                 cell_set_obs.append("predicted.ASCT.celltype")
                 cell_set_obs_names.append("Predicted ASCT Cell Type")
         # Check for an alias for gene names to add to the view config.
+        gene_alias = 'var/hugo_symbol'
         try:
-            gene_alias = 'var/hugo_symbol'
             zarr.open(f'{adata_url}/{gene_alias}')
         except KeyError:
             gene_alias = None
