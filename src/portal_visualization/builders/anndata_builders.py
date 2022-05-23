@@ -5,6 +5,7 @@ from vitessce import (
     AnnDataWrapper,
     Component as cm,
 )
+import zarr
 
 from .base_builders import ViewConfBuilder
 from ..utils import get_conf_cells
@@ -51,6 +52,12 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
                 # If the dataset didn't have Azimuth annotations, it would be b'\x00'.
                 cell_set_obs.append("predicted.ASCT.celltype")
                 cell_set_obs_names.append("Predicted ASCT Cell Type")
+        # Check for an alias for gene names to add to the view config.
+        gene_alias = 'var/hugo_symbol'
+        try:
+            zarr.open(f'{adata_url}/{gene_alias}', mode='r')
+        except KeyError:
+            gene_alias = None
         dataset = vc.add_dataset(name=self._uuid).add_object(AnnDataWrapper(
             adata_url=adata_url,
             mappings_obsm=["X_umap"],
@@ -67,7 +74,8 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
                 "marker_gene_3",
                 "marker_gene_4"
             ],
-            request_init=self._get_request_init()
+            request_init=self._get_request_init(),
+            gene_alias=gene_alias
         ))
 
         vc = self._setup_anndata_view_config(vc, dataset)

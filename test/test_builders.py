@@ -48,6 +48,9 @@ def test_has_visualization(has_vis_entity):
 @pytest.mark.parametrize(
     "entity_path", good_entity_paths, ids=lambda path: f'{path.parent.name}/{path.name}')
 def test_entity_to_vitessce_conf(entity_path, mocker):
+    # Need to mock zarr.open to yield the correct error with an empty store
+    mocker.patch('zarr.open', side_effect=KeyError())
+
     entity = json.loads(entity_path.read_text())
     Builder = get_view_config_builder(entity, get_assay)
     assert Builder.__name__ == entity_path.parent.name
