@@ -6,7 +6,7 @@
     code
   "source": |
     conf = VitessceChainableConfig(
-        name="ea4cfecb8495b36694d9a951510dc3c6", description="", schema_version="1.0.4"
+        name="ea4cfecb8495b36694d9a951510dc3c6", description="", schema_version="1.0.7"
     ).add_dataset(
         uid="A",
         name="ea4cfecb8495b36694d9a951510dc3c6",
