@@ -55,7 +55,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         # Check for an alias for gene names to add to the view config.
         gene_alias = 'var/hugo_symbol'
         try:
-            zarr.open(f'{adata_url}/{gene_alias}')
+            zarr.open(f'{adata_url}/{gene_alias}', mode='r')
         except KeyError:
             gene_alias = None
         dataset = vc.add_dataset(name=self._uuid).add_object(AnnDataWrapper(
