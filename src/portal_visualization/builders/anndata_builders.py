@@ -55,7 +55,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         # Check for an alias for gene names to add to the view config.
         gene_alias = 'var/hugo_symbol'
         try:
-            z = zarr.open(f'{adata_url}', mode='r')
+            z = zarr.open(adata_url, mode='r')
             z['var']['hugo_symbol']
         except KeyError:
             gene_alias = None
