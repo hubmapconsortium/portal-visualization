@@ -9,6 +9,10 @@ If there are updates here that need to be visible there:
 
 Installing this package also makes `vis-preview.py` available:
 ```
+$ cd portal-visualization
+$ pip install .
+...
+$ vis-preview.py --help
 usage: vis-preview.py [-h] (--url URL | --json JSON) [--types_url URL]
                       [--assets_url URL] [--token TOKEN]
 
