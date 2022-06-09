@@ -53,11 +53,8 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
                 cell_set_obs.append("predicted.ASCT.celltype")
                 cell_set_obs_names.append("Predicted ASCT Cell Type")
         # Check for an alias for gene names to add to the view config.
-        gene_alias = 'var/hugo_symbol'
-        try:
-            zarr.open(f'{adata_url}/{gene_alias}', mode='r')
-        except KeyError:
-            gene_alias = None
+        z = zarr.open(adata_url, mode='r')
+        gene_alias = 'var/hugo_symbol' if 'var' in z and 'hugo_symbol' in z['var'] else None
         dataset = vc.add_dataset(name=self._uuid).add_object(AnnDataWrapper(
             adata_url=adata_url,
             mappings_obsm=["X_umap"],
