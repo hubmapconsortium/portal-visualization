@@ -56,7 +56,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         # Only pass group key in headers if needed.
         kwargs_zarr = {}
         if 'headers' in request_init:
-            kwargs_zarr['storage_options'] = { 'client_kwargs': request_init }
+            kwargs_zarr['storage_options'] = {'client_kwargs': request_init}
         z = zarr.open(adata_url, mode='r', **kwargs_zarr)
         gene_alias = 'var/hugo_symbol' if 'var' in z and 'hugo_symbol' in z['var'] else None
         dataset = vc.add_dataset(name=self._uuid).add_object(AnnDataWrapper(
