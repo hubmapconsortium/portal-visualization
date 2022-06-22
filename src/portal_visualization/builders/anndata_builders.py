@@ -41,8 +41,8 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         dags = [
             dag for dag in self._entity['metadata']['dag_provenance_list']
             if 'name' in dag]
+        request_init = self._get_request_init() or {}
         if(any(['azimuth-annotate' in dag['origin'] for dag in dags])):
-            request_init = self._get_request_init() or {}
             headers = request_init.get('headers', {})
             response = requests.get(
                 f'{adata_url}/uns/annotation_metadata/is_annotated/0',
@@ -53,7 +53,9 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
                 cell_set_obs.append("predicted.ASCT.celltype")
                 cell_set_obs_names.append("Predicted ASCT Cell Type")
         # Check for an alias for gene names to add to the view config.
-        z = zarr.open(adata_url, mode='r')
+        z = zarr.open(adata_url, mode='r', kwargs={
+            'storage_options': request_init
+        })
         gene_alias = 'var/hugo_symbol' if 'var' in z and 'hugo_symbol' in z['var'] else None
         dataset = vc.add_dataset(name=self._uuid).add_object(AnnDataWrapper(
             adata_url=adata_url,
