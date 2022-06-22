@@ -53,9 +53,11 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
                 cell_set_obs.append("predicted.ASCT.celltype")
                 cell_set_obs_names.append("Predicted ASCT Cell Type")
         # Check for an alias for gene names to add to the view config.
-        z = zarr.open(adata_url, mode='r', kwargs={
-            'storage_options': request_init
-        })
+        # Only pass group key in headers if needed.
+        kwargs_zarr = {}
+        if 'headers' in request_init:
+            kwargs_zarr['storage_options'] = { 'client_kwargs': request_init }
+        z = zarr.open(adata_url, mode='r', **kwargs_zarr)
         gene_alias = 'var/hugo_symbol' if 'var' in z and 'hugo_symbol' in z['var'] else None
         dataset = vc.add_dataset(name=self._uuid).add_object(AnnDataWrapper(
             adata_url=adata_url,
