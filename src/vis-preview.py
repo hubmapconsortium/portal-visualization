@@ -39,7 +39,7 @@ def main():  # pragma: no cover
 
     parser.add_argument(
         '--marker_gene', metavar='GENE',
-        help='Gene to highligh in visualization; Only used in some visualizations.'
+        help='Gene to highlight in visualization; Only used in some visualizations.'
     )
 
     args = parser.parse_args()

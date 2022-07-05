@@ -4,6 +4,7 @@ from vitessce import (
     VitessceConfig,
     AnnDataWrapper,
     Component as cm,
+    CoordinationType,
 )
 
 from .base_builders import ViewConfBuilder
@@ -24,7 +25,6 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
 
     def get_conf_cells(self, **kwargs):
         marker_gene = kwargs.get('marker_gene')
-        # TODO: https://github.com/hubmapconsortium/portal-ui/issues/2524
 
         zarr_path = 'hubmap_ui/anndata-zarr/secondary_analysis.zarr'
         file_paths_found = [file["rel_path"] for file in self._entity["files"]]
@@ -73,15 +73,23 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
             request_init=self._get_request_init()
         ))
 
-        vc = self._setup_anndata_view_config(vc, dataset)
+        vc = self._setup_anndata_view_config(vc, dataset, marker_gene)
         return get_conf_cells(vc)
 
-    def _setup_anndata_view_config(self, vc, dataset):
-        vc.add_view(cm.SCATTERPLOT, dataset=dataset, mapping="UMAP", x=0, y=0, w=4, h=6)
+    def _setup_anndata_view_config(self, vc, dataset, marker_gene):
+        scatterplot = vc.add_view(cm.SCATTERPLOT, dataset=dataset, mapping="UMAP", x=0, y=0, w=4, h=6)
         vc.add_view(cm.CELL_SET_EXPRESSION, dataset=dataset, x=4, y=0, w=5, h=6)
-        vc.add_view(cm.CELL_SETS, dataset=dataset, x=9, y=0, w=3, h=3)
-        vc.add_view(cm.GENES, dataset=dataset, x=9, y=4, w=3, h=3)
+        cell_sets = vc.add_view(cm.CELL_SETS, dataset=dataset, x=9, y=0, w=3, h=3)
+        gene_list = vc.add_view(cm.GENES, dataset=dataset, x=9, y=4, w=3, h=3)
         vc.add_view(cm.HEATMAP, dataset=dataset, x=0, y=6, w=12, h=4)
+
+        if marker_gene:
+            vc.link_views(
+                [cell_sets, gene_list, scatterplot],
+                [CoordinationType.GENE_SELECTION, CoordinationType.CELL_COLOR_ENCODING],
+                [[marker_gene], "geneSelection"]
+            )
+
         return vc
 
 
