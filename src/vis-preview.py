@@ -36,11 +36,12 @@ def main():  # pragma: no cover
     parser.add_argument(
         '--token', help='Globus groups token; Only needed if data is not public',
         default='')
-
     parser.add_argument(
         '--marker_gene', metavar='GENE',
-        help='Gene to highlight in visualization; Only used in some visualizations.'
-    )
+        help='Gene to highlight in visualization; Only used in some visualizations.')
+    parser.add_argument(
+        '--to_json', action='store_true',
+        help='Output viewconf, rather than open in browser.')
 
     args = parser.parse_args()
     marker_gene = args.marker_gene

@@ -14,19 +14,23 @@ $ pip install .
 ...
 $ src/vis-preview.py --help
 usage: vis-preview.py [-h] (--url URL | --json JSON) [--types_url URL]
-                      [--assets_url URL] [--token TOKEN]
+                      [--assets_url URL] [--token TOKEN] [--marker_gene GENE]
+                      [--to_json]
 
 Given HuBMAP Dataset JSON, generate a Vitessce viewconf, and load vitessce.io.
 
 optional arguments:
-  -h, --help        show this help message and exit
-  --url URL         URL which returns Dataset JSON
-  --json JSON       File containing Dataset JSON
-  --types_url URL   Type service; default:
-                    https://search.api.hubmapconsortium.org
-  --assets_url URL  Assets endpoint; default:
-                    https://assets.hubmapconsortium.org
-  --token TOKEN     Globus groups token; Only needed if data is not public
+  -h, --help          show this help message and exit
+  --url URL           URL which returns Dataset JSON
+  --json JSON         File containing Dataset JSON
+  --types_url URL     Type service; default:
+                      https://search.api.hubmapconsortium.org
+  --assets_url URL    Assets endpoint; default:
+                      https://assets.hubmapconsortium.org
+  --token TOKEN       Globus groups token; Only needed if data is not public
+  --marker_gene GENE  Gene to highlight in visualization; Only used in some
+                      visualizations.
+  --to_json           Output viewconf, rather than open in browser.
 ```
 
 ## Background
