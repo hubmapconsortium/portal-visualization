@@ -47,6 +47,10 @@ def main():  # pragma: no cover
 
     if args.url:
         response = requests.get(args.url)
+        if response.status_code == 403:
+            # Even if the user has provided a globus token,
+            # that isn't useful when making requests to our portal.
+            raise Exception('Protected data: Download JSON via browser; Redo with --json')
         response.raise_for_status()
         json_str = response.text
     else:

@@ -6,6 +6,7 @@ from vitessce import (
     Component as cm,
     CoordinationType,
 )
+import zarr
 
 from .base_builders import ViewConfBuilder
 from ..utils import get_conf_cells
@@ -43,8 +44,8 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         dags = [
             dag for dag in self._entity['metadata']['dag_provenance_list']
             if 'name' in dag]
+        request_init = self._get_request_init() or {}
         if(any(['azimuth-annotate' in dag['origin'] for dag in dags])):
-            request_init = self._get_request_init() or {}
             headers = request_init.get('headers', {})
             response = requests.get(
                 f'{adata_url}/uns/annotation_metadata/is_annotated/0',
@@ -54,6 +55,8 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
                 # If the dataset didn't have Azimuth annotations, it would be b'\x00'.
                 cell_set_obs.append("predicted.ASCT.celltype")
                 cell_set_obs_names.append("Predicted ASCT Cell Type")
+        z = zarr.open(adata_url, mode='r', storage_options={'client_kwargs': request_init})
+        gene_alias = 'var/hugo_symbol' if 'var' in z and 'hugo_symbol' in z['var'] else None
         dataset = vc.add_dataset(name=self._uuid).add_object(AnnDataWrapper(
             adata_url=adata_url,
             mappings_obsm=["X_umap"],
@@ -70,7 +73,8 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
                 "marker_gene_3",
                 "marker_gene_4"
             ],
-            request_init=self._get_request_init()
+            request_init=self._get_request_init(),
+            gene_alias=gene_alias
         ))
 
         vc = self._setup_anndata_view_config(vc, dataset, marker_gene)
