@@ -5,6 +5,7 @@ from pathlib import Path
 import json
 from webbrowser import open_new_tab
 from urllib.parse import quote_plus
+from sys import stderr
 
 import requests
 
@@ -64,12 +65,15 @@ def main():  # pragma: no cover
 
     Builder = get_view_config_builder(entity=entity, get_assay=get_assay)
     builder = Builder(entity, args.token, args.assets_url)
-    print(f'Using: {builder.__class__.__name__}')
+    print(f'Using: {builder.__class__.__name__}', file=stderr)
     conf_cells = builder.get_conf_cells(marker_gene=marker_gene)
-    conf_as_json = json.dumps(conf_cells.conf)
-    data_url = f'data:,{quote_plus(conf_as_json)}'
-    vitessce_url = f'http://vitessce.io/#?url={data_url}'
-    open_new_tab(vitessce_url)
+    if args.to_json:
+        print(json.dumps(conf_cells.conf, indent=2))
+    else:
+        conf_as_json = json.dumps(conf_cells.conf)
+        data_url = f'data:,{quote_plus(conf_as_json)}'
+        vitessce_url = f'http://vitessce.io/#?url={data_url}'
+        open_new_tab(vitessce_url)
 
 
 if __name__ == "__main__":  # pragma: no cover
