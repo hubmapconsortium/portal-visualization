@@ -83,14 +83,15 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
     def _setup_anndata_view_config(self, vc, dataset, marker_gene=None):
         scatterplot = vc.add_view(
             cm.SCATTERPLOT, dataset=dataset, mapping="UMAP", x=0, y=0, w=4, h=6)
-        vc.add_view(cm.CELL_SET_EXPRESSION, dataset=dataset, x=4, y=0, w=5, h=6)
+        cell_sets_expr = vc.add_view(
+            cm.CELL_SET_EXPRESSION, dataset=dataset, x=4, y=0, w=5, h=6)
         cell_sets = vc.add_view(cm.CELL_SETS, dataset=dataset, x=9, y=0, w=3, h=3)
         gene_list = vc.add_view(cm.GENES, dataset=dataset, x=9, y=4, w=3, h=3)
         vc.add_view(cm.HEATMAP, dataset=dataset, x=0, y=6, w=12, h=4)
 
         if marker_gene:
             vc.link_views(
-                [cell_sets, gene_list, scatterplot],
+                [cell_sets, gene_list, scatterplot, cell_sets_expr],
                 [CoordinationType.GENE_SELECTION, CoordinationType.CELL_COLOR_ENCODING],
                 [[marker_gene], "geneSelection"]
             )
