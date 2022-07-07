@@ -25,9 +25,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         self._is_spatial = False
         self._scatterplot_w = 9
 
-    def get_conf_cells(self, **kwargs):
-        marker_gene = kwargs.get('marker_gene')
-
+    def get_conf_cells(self, marker_gene=None):
         zarr_path = 'hubmap_ui/anndata-zarr/secondary_analysis.zarr'
         file_paths_found = [file["rel_path"] for file in self._entity["files"]]
         # Use .zgroup file as proxy for whether or not the zarr store is present.
