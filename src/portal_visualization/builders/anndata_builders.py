@@ -88,14 +88,18 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
             cm.GENES, dataset=dataset, x=9, y=4, w=3, h=3)
         cell_sets_expr = vc.add_view(
             cm.CELL_SET_EXPRESSION, dataset=dataset, x=7, y=6, w=5, h=4)
-
-        vc.add_view(cm.HEATMAP, dataset=dataset, x=0, y=6, w=7, h=4)
+        heatmap = vc.add_view(
+            cm.HEATMAP, dataset=dataset, x=0, y=6, w=7, h=4)
+        # Adding heatmap to coordination doesn't do anything,
+        # but it also doesn't hurt anything.
+        # Vitessce feature request to add it:
+        # https://github.com/vitessce/vitessce/issues/1298
 
         self._add_spatial_view(dataset, vc)
 
         if marker_gene:
             vc.link_views(
-                [cell_sets, gene_list, scatterplot, cell_sets_expr],
+                [cell_sets, gene_list, scatterplot, cell_sets_expr, heatmap],
                 [CoordinationType.GENE_SELECTION, CoordinationType.CELL_COLOR_ENCODING],
                 [[marker_gene], "geneSelection"]
             )

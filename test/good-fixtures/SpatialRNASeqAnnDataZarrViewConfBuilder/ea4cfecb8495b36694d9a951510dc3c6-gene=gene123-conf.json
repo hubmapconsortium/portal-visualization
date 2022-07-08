@@ -130,7 +130,9 @@
     {
       "component": "heatmap",
       "coordinationScopes": {
-        "dataset": "A"
+        "cellColorEncoding": "A",
+        "dataset": "A",
+        "geneSelection": "A"
       },
       "h": 4,
       "w": 7,

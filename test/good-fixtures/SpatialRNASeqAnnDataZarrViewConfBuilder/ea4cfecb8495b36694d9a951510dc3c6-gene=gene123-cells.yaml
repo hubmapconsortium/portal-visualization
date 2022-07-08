@@ -73,7 +73,13 @@
          h=4,
          coordination_scopes={"geneSelection": "A", "cellColorEncoding": "A"},
      ).add_view(
-         dataset_uid="A", component="heatmap", x=0, y=6, w=7, h=4
+         dataset_uid="A",
+         component="heatmap",
+         x=0,
+         y=6,
+         w=7,
+         h=4,
+         coordination_scopes={"geneSelection": "A", "cellColorEncoding": "A"},
      ).add_view(
          dataset_uid="A",
          component="spatial",
