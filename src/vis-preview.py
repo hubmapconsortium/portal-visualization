@@ -5,6 +5,7 @@ from pathlib import Path
 import json
 from webbrowser import open_new_tab
 from urllib.parse import quote_plus
+from sys import stderr
 
 import requests
 
@@ -36,8 +37,16 @@ def main():  # pragma: no cover
     parser.add_argument(
         '--token', help='Globus groups token; Only needed if data is not public',
         default='')
+    parser.add_argument(
+        '--marker_gene', metavar='GENE',
+        help='Gene to highlight in visualization; Only used in some visualizations.')
+    parser.add_argument(
+        '--to_json', action='store_true',
+        help='Output viewconf, rather than open in browser.')
 
     args = parser.parse_args()
+    marker_gene = args.marker_gene
+
     if args.url:
         response = requests.get(args.url)
         if response.status_code == 403:
@@ -56,12 +65,15 @@ def main():  # pragma: no cover
 
     Builder = get_view_config_builder(entity=entity, get_assay=get_assay)
     builder = Builder(entity, args.token, args.assets_url)
-    print(f'Using: {builder.__class__.__name__}')
-    conf_cells = builder.get_conf_cells()
-    conf_as_json = json.dumps(conf_cells.conf)
-    data_url = f'data:,{quote_plus(conf_as_json)}'
-    vitessce_url = f'http://vitessce.io/#?url={data_url}'
-    open_new_tab(vitessce_url)
+    print(f'Using: {builder.__class__.__name__}', file=stderr)
+    conf_cells = builder.get_conf_cells(marker_gene=marker_gene)
+    if args.to_json:
+        print(json.dumps(conf_cells.conf, indent=2))
+    else:
+        conf_as_json = json.dumps(conf_cells.conf)
+        data_url = f'data:,{quote_plus(conf_as_json)}'
+        vitessce_url = f'http://vitessce.io/#?url={data_url}'
+        open_new_tab(vitessce_url)
 
 
 if __name__ == "__main__":  # pragma: no cover

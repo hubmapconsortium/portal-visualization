@@ -93,7 +93,7 @@ class SPRMJSONViewConfBuilder(SPRMViewConfBuilder):
             },
         ]
 
-    def get_conf_cells(self):
+    def get_conf_cells(self, **kwargs):
         found_image_file = self._check_sprm_image(self._get_full_image_path())
         vc = VitessceConfig(name=self._base_name)
         dataset = vc.add_dataset(name="SPRM")
@@ -167,7 +167,7 @@ class SPRMAnnDataViewConfBuilder(SPRMViewConfBuilder):
             is_bitmask=True
         )
 
-    def get_conf_cells(self):
+    def get_conf_cells(self, **kwargs):
         vc = VitessceConfig(name=self._image_name)
         dataset = vc.add_dataset(name="SPRM")
         file_paths_found = self._get_file_paths()
@@ -259,7 +259,7 @@ class MultiImageSPRMAnndataViewConfBuilder(ViewConfBuilder):
             )
         return found_ids
 
-    def get_conf_cells(self):
+    def get_conf_cells(self, **kwargs):
         found_ids = self._find_ids()
         confs = []
         for id in sorted(found_ids):
@@ -310,7 +310,7 @@ class TiledSPRMViewConfBuilder(ViewConfBuilder):
     one per tile per region, via SPRMJSONViewConfBuilder.
     """
 
-    def get_conf_cells(self):
+    def get_conf_cells(self, **kwargs):
         file_paths_found = [file["rel_path"] for file in self._entity["files"]]
         found_tiles = (get_matches(file_paths_found, TILE_REGEX)
                        or get_matches(file_paths_found, STITCHED_REGEX))

@@ -18,7 +18,7 @@ class AbstractScatterplotViewConfBuilder(ViewConfBuilder):
     from h5ad-to-arrow.cwl.
     """
 
-    def get_conf_cells(self):
+    def get_conf_cells(self, **kwargs):
         file_paths_expected = [file["rel_path"] for file in self._files]
         file_paths_found = self._get_file_paths()
         # We need to check that the files we expect actually exist.

@@ -4,6 +4,7 @@ from vitessce import (
     VitessceConfig,
     AnnDataWrapper,
     Component as cm,
+    CoordinationType,
 )
 import zarr
 
@@ -22,8 +23,9 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         # Spatially resolved RNA-seq assays require some special handling,
         # and others do not.
         self._is_spatial = False
+        self._scatterplot_w = 9
 
-    def get_conf_cells(self):
+    def get_conf_cells(self, marker_gene=None):
         zarr_path = 'hubmap_ui/anndata-zarr/secondary_analysis.zarr'
         file_paths_found = [file["rel_path"] for file in self._entity["files"]]
         # Use .zgroup file as proxy for whether or not the zarr store is present.
@@ -74,16 +76,34 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
             gene_alias=gene_alias
         ))
 
-        vc = self._setup_anndata_view_config(vc, dataset)
+        vc = self._setup_anndata_view_config(vc, dataset, marker_gene)
         return get_conf_cells(vc)
 
-    def _setup_anndata_view_config(self, vc, dataset):
-        vc.add_view(cm.SCATTERPLOT, dataset=dataset, mapping="UMAP", x=0, y=0, w=4, h=6)
-        vc.add_view(cm.CELL_SET_EXPRESSION, dataset=dataset, x=4, y=0, w=5, h=6)
-        vc.add_view(cm.CELL_SETS, dataset=dataset, x=9, y=0, w=3, h=3)
-        vc.add_view(cm.GENES, dataset=dataset, x=9, y=4, w=3, h=3)
-        vc.add_view(cm.HEATMAP, dataset=dataset, x=0, y=6, w=12, h=4)
+    def _setup_anndata_view_config(self, vc, dataset, marker_gene=None):
+        scatterplot = vc.add_view(
+            cm.SCATTERPLOT, dataset=dataset, mapping="UMAP", x=0, y=0, w=self._scatterplot_w, h=6)
+        cell_sets = vc.add_view(
+            cm.CELL_SETS, dataset=dataset, x=9, y=0, w=3, h=3)
+        gene_list = vc.add_view(
+            cm.GENES, dataset=dataset, x=9, y=4, w=3, h=3)
+        cell_sets_expr = vc.add_view(
+            cm.CELL_SET_EXPRESSION, dataset=dataset, x=7, y=6, w=5, h=4)
+
+        vc.add_view(cm.HEATMAP, dataset=dataset, x=0, y=6, w=7, h=4)
+
+        self._add_spatial_view(dataset, vc)
+
+        if marker_gene:
+            vc.link_views(
+                [cell_sets, gene_list, scatterplot, cell_sets_expr],
+                [CoordinationType.GENE_SELECTION, CoordinationType.CELL_COLOR_ENCODING],
+                [[marker_gene], "geneSelection"]
+            )
+
         return vc
+
+    def _add_spatial_view(self, dataset, vc):
+        pass
 
 
 class SpatialRNASeqAnnDataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
@@ -97,9 +117,9 @@ class SpatialRNASeqAnnDataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
         # Spatially resolved RNA-seq assays require some special handling,
         # and others do not.
         self._is_spatial = True
+        self._scatterplot_w = 4
 
-    def _setup_anndata_view_config(self, vc, dataset):
-        vc.add_view(cm.SCATTERPLOT, dataset=dataset, mapping="UMAP", x=0, y=0, w=4, h=6)
+    def _add_spatial_view(self, dataset, vc):
         spatial = vc.add_view(cm.SPATIAL, dataset=dataset, x=4, y=0, w=5, h=6)
         [cells_layer] = vc.add_coordination('spatialCellsLayer')
         cells_layer.set_value(
@@ -111,8 +131,3 @@ class SpatialRNASeqAnnDataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
             }
         )
         spatial.use_coordination(cells_layer)
-        vc.add_view(cm.CELL_SETS, dataset=dataset, x=9, y=0, w=3, h=3)
-        vc.add_view(cm.GENES, dataset=dataset, x=9, y=4, w=3, h=3)
-        vc.add_view(cm.HEATMAP, dataset=dataset, x=0, y=6, w=7, h=4)
-        vc.add_view(cm.CELL_SET_EXPRESSION, dataset=dataset, x=7, y=6, w=5, h=4)
-        return vc

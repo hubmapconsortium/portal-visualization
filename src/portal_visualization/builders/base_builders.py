@@ -11,7 +11,7 @@ class NullViewConfBuilder():
         # Just so it has the same signature as the other builders
         pass
 
-    def get_conf_cells(self):
+    def get_conf_cells(self, **kwargs):
         return ConfCells(None, None)
 
 
@@ -29,7 +29,7 @@ class ViewConfBuilder(ABC):
         self._files = []
 
     @abstractmethod
-    def get_conf_cells(self):  # pragma: no cover
+    def get_conf_cells(self, **kwargs):  # pragma: no cover
         raise NotImplementedError()
 
     def _replace_url_in_file(self, file):
@@ -118,5 +118,5 @@ class ViewConfBuilder(ABC):
 class _DocTestBuilder(ViewConfBuilder):  # pragma: no cover
     # The doctests on the methods in this file need a concrete class to instantiate:
     # We need a concrete definition for this method, even if it's never used.
-    def get_conf_cells(self):
+    def get_conf_cells(self, **kwargs):
         pass
