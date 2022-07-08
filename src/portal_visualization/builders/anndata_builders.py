@@ -109,7 +109,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
 class SpatialRNASeqAnnDataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
     """Wrapper class for creating a AnnData-backed view configuration
     for "second generation" post-August 2020 spatial RNA-seq data from anndata-to-ui.cwl like
-    https://portal.hubmapconsortium.org/browse/dataset/e65175561b4b17da5352e3837aa0e497
+    https://portal.hubmapconsortium.org/browse/dataset/2a590db3d7ab1e1512816b165d95cdcf
     """
 
     def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
