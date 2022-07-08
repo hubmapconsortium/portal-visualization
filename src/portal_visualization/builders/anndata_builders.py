@@ -103,6 +103,8 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         return vc
 
     def _add_spatial_view(self, dataset, vc):
+        # This class does not have a spatial_view...
+        # but the subclass does, and overrides this method.
         pass
 
 
