@@ -38,14 +38,14 @@ def main():  # pragma: no cover
         '--token', help='Globus groups token; Only needed if data is not public',
         default='')
     parser.add_argument(
-        '--marker_gene', metavar='GENE',
-        help='Gene to highlight in visualization; Only used in some visualizations.')
+        '--marker',
+        help='Marker to highlight in visualization; Only used in some visualizations.')
     parser.add_argument(
         '--to_json', action='store_true',
         help='Output viewconf, rather than open in browser.')
 
     args = parser.parse_args()
-    marker_gene = args.marker_gene
+    marker = args.marker
 
     if args.url:
         response = requests.get(args.url)
@@ -66,7 +66,7 @@ def main():  # pragma: no cover
     Builder = get_view_config_builder(entity=entity, get_assay=get_assay)
     builder = Builder(entity, args.token, args.assets_url)
     print(f'Using: {builder.__class__.__name__}', file=stderr)
-    conf_cells = builder.get_conf_cells(marker_gene=marker_gene)
+    conf_cells = builder.get_conf_cells(marker=marker)
     if args.to_json:
         print(json.dumps(conf_cells.conf, indent=2))
     else:

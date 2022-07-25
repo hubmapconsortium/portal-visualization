@@ -120,6 +120,26 @@
   "initStrategy": "auto",
   "layout": [
     {
+      "component": "description",
+      "coordinationScopes": {
+        "dataset": "A"
+      },
+      "h": 4,
+      "w": 3,
+      "x": 0,
+      "y": 8
+    },
+    {
+      "component": "layerController",
+      "coordinationScopes": {
+        "dataset": "A"
+      },
+      "h": 8,
+      "w": 3,
+      "x": 0,
+      "y": 0
+    },
+    {
       "component": "spatial",
       "coordinationScopes": {
         "dataset": "A"
@@ -138,26 +158,6 @@
       "h": 8,
       "w": 3,
       "x": 7,
-      "y": 0
-    },
-    {
-      "component": "description",
-      "coordinationScopes": {
-        "dataset": "A"
-      },
-      "h": 4,
-      "w": 3,
-      "x": 0,
-      "y": 8
-    },
-    {
-      "component": "layerController",
-      "coordinationScopes": {
-        "dataset": "A"
-      },
-      "h": 8,
-      "w": 3,
-      "x": 0,
       "y": 0
     },
     {

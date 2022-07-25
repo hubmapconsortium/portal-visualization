@@ -62,10 +62,10 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
     # Need to mock zarr.open to yield the correct error with an empty store
     mocker.patch('zarr.open', return_value=zarr.open())
 
-    possible_gene = entity_path.name.split('-')[-2]
-    gene = (
-        possible_gene.split('=')[1]
-        if possible_gene.startswith('gene=')
+    possible_marker = entity_path.name.split('-')[-2]
+    marker = (
+        possible_marker.split('=')[1]
+        if possible_marker.startswith('marker=')
         else None)
 
     entity = json.loads(entity_path.read_text())
@@ -85,7 +85,7 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
         mocker.patch('requests.get', return_value=mock_response)
 
     builder = Builder(entity, groups_token, assets_url)
-    conf, cells = builder.get_conf_cells(marker_gene=gene)
+    conf, cells = builder.get_conf_cells(marker=marker)
 
     expected_conf_path = entity_path.parent / entity_path.name.replace('-entity', '-conf')
     expected_conf = json.loads(expected_conf_path.read_text())

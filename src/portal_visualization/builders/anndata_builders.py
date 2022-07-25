@@ -25,7 +25,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         self._is_spatial = False
         self._scatterplot_w = 9
 
-    def get_conf_cells(self, marker_gene=None):
+    def get_conf_cells(self, marker=None):
         zarr_path = 'hubmap_ui/anndata-zarr/secondary_analysis.zarr'
         file_paths_found = [file["rel_path"] for file in self._entity["files"]]
         # Use .zgroup file as proxy for whether or not the zarr store is present.
@@ -76,10 +76,10 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
             gene_alias=gene_alias
         ))
 
-        vc = self._setup_anndata_view_config(vc, dataset, marker_gene)
+        vc = self._setup_anndata_view_config(vc, dataset, marker)
         return get_conf_cells(vc)
 
-    def _setup_anndata_view_config(self, vc, dataset, marker_gene=None):
+    def _setup_anndata_view_config(self, vc, dataset, marker=None):
         scatterplot = vc.add_view(
             cm.SCATTERPLOT, dataset=dataset, mapping="UMAP", x=0, y=0, w=self._scatterplot_w, h=6)
         cell_sets = vc.add_view(
@@ -97,11 +97,11 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
 
         self._add_spatial_view(dataset, vc)
 
-        if marker_gene:
+        if marker:
             vc.link_views(
                 [cell_sets, gene_list, scatterplot, cell_sets_expr, heatmap],
                 [CoordinationType.GENE_SELECTION, CoordinationType.CELL_COLOR_ENCODING],
-                [[marker_gene], "geneSelection"]
+                [[marker], "geneSelection"]
             )
 
         return vc
