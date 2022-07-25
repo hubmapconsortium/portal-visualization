@@ -85,7 +85,7 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
         mocker.patch('requests.get', return_value=mock_response)
 
     builder = Builder(entity, groups_token, assets_url)
-    conf, cells = builder.get_conf_cells(marker_gene=gene)
+    conf, cells = builder.get_conf_cells(marker=gene)
 
     expected_conf_path = entity_path.parent / entity_path.name.replace('-entity', '-conf')
     expected_conf = json.loads(expected_conf_path.read_text())
