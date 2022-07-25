@@ -211,7 +211,6 @@ class SPRMAnnDataViewConfBuilder(SPRMViewConfBuilder):
         return get_conf_cells(vc)
 
     def _setup_view_config_raster_cellsets_expression_segmentation(self, vc, dataset, marker):
-        print('HERE!!!')
         vc.add_view(cm.DESCRIPTION, dataset=dataset, x=0, y=8, w=3, h=4)
         vc.add_view(cm.LAYER_CONTROLLER, dataset=dataset, x=0, y=0, w=3, h=8)
 
@@ -233,7 +232,6 @@ class SPRMAnnDataViewConfBuilder(SPRMViewConfBuilder):
 
         if marker:
             vc.link_views(
-                [spatial, cell_sets, gene_list, scatterplot],
                 [spatial, cell_sets, gene_list, scatterplot, heatmap],
                 [CoordinationType.GENE_SELECTION, CoordinationType.CELL_COLOR_ENCODING],
                 [[marker], "geneSelection"]
@@ -277,7 +275,7 @@ class MultiImageSPRMAnndataViewConfBuilder(ViewConfBuilder):
             )
         return found_ids
 
-    def get_conf_cells(self, **kwargs):
+    def get_conf_cells(self, marker=None):
         found_ids = self._find_ids()
         confs = []
         for id in sorted(found_ids):
@@ -291,7 +289,7 @@ class MultiImageSPRMAnndataViewConfBuilder(ViewConfBuilder):
                 image_name=f"{id}_{self._expression_id}",
                 mask_name=f"{id}_{self._mask_id}"
             )
-            conf = builder.get_conf_cells().conf
+            conf = builder.get_conf_cells(marker=marker).conf
             if conf == {}:
                 raise MultiImageSPRMAnndataViewConfigError(  # pragma: no cover
                     f"Cytokit SPRM assay with uuid {self._uuid} has empty view\
