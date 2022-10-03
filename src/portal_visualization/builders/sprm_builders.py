@@ -347,4 +347,4 @@ class TiledSPRMViewConfBuilder(ViewConfBuilder):
                 message = f'Cytokit SPRM assay with uuid {self._uuid} has empty view config'
                 raise CytokitSPRMViewConfigError(message)
             confs.append(conf)
-        return get_conf_cells(conf)
+        return get_conf_cells(confs)
