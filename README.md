@@ -15,7 +15,7 @@ $ pip install .
 $ src/vis-preview.py --help
 usage: vis-preview.py [-h] (--url URL | --json JSON) [--types_url URL]
                       [--assets_url URL] [--token TOKEN] [--marker MARKER]
-                      [--to_json]
+                      [--to_json] [--index INDEX]
 
 Given HuBMAP Dataset JSON, generate a Vitessce viewconf, and load vitessce.io.
 
@@ -31,6 +31,9 @@ optional arguments:
   --marker MARKER   Marker to highlight in visualization; Only used in some
                     visualizations.
   --to_json         Output viewconf, rather than open in browser.
+  --index INDEX     Old untiled imagery produces an array of viewconfs. If "--
+                    index" is given, the corresponding viewconf will be
+                    selected. No effect if single viewconf.
 ```
 
 ## Background
