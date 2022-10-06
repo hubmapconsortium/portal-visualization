@@ -43,6 +43,11 @@ def main():  # pragma: no cover
     parser.add_argument(
         '--to_json', action='store_true',
         help='Output viewconf, rather than open in browser.')
+    parser.add_argument(
+        '--index',
+        help='Old untiled imagery produces an array of viewconfs. If "--index" is given, '
+        'the corresponding viewconf will be selected. No effect if single viewconf.',
+        type=int)
 
     args = parser.parse_args()
     marker = args.marker
@@ -70,7 +75,14 @@ def main():  # pragma: no cover
     if args.to_json:
         print(json.dumps(conf_cells.conf, indent=2))
     else:
-        conf_as_json = json.dumps(conf_cells.conf)
+        if not isinstance(conf_cells.conf, list):
+            viewconf = conf_cells.conf
+        elif args.index is not None:
+            viewconf = conf_cells.conf[args.index]
+        else:
+            # Another possibility would be to allow interactive selection.
+            raise Exception('Rerun with --index to select viewconf')
+        conf_as_json = json.dumps(viewconf)
         data_url = f'data:,{quote_plus(conf_as_json)}'
         vitessce_url = f'http://vitessce.io/#?url={data_url}'
         open_new_tab(vitessce_url)
