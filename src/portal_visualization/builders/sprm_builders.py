@@ -289,7 +289,7 @@ class MultiImageSPRMAnndataViewConfBuilder(ViewConfBuilder):
                 image_name=f"{id}_{self._expression_id}",
                 mask_name=f"{id}_{self._mask_id}"
             )
-            configs.extend(builder.get_configs(marker=marker).configs)
+            configs.extend(builder.get_configs(marker=marker))
         return configs
 
 
