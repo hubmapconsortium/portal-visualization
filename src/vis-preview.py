@@ -44,10 +44,10 @@ def main():  # pragma: no cover
         '--to_json', action='store_true',
         help='Output viewconf, rather than open in browser.')
     parser.add_argument(
-        '--index',
-        help='Old untiled imagery produces an array of viewconfs. If "--index" is given, '
-        'the corresponding viewconf will be selected. No effect if single viewconf.',
-        type=int)
+        '--conf_index', metavar='I',
+        default=0, type=int,
+        help='Old untiled imagery produces multiple viewconfs, one for each tile. '
+        'This allows you display a viewconf other than the first.')
 
     args = parser.parse_args()
     marker = args.marker
@@ -71,21 +71,15 @@ def main():  # pragma: no cover
     Builder = get_view_config_builder(entity=entity, get_assay=get_assay)
     builder = Builder(entity, args.token, args.assets_url)
     print(f'Using: {builder.__class__.__name__}', file=stderr)
-    conf_cells = builder.get_conf_cells(marker=marker)
+    configs_cells = builder.get_configs_cells(marker=marker)
+    conf_as_dict = configs_cells.configs[args.conf_index].to_dict()
     if args.to_json:
-        print(json.dumps(conf_cells.conf, indent=2))
-    else:
-        if not isinstance(conf_cells.conf, list):
-            viewconf = conf_cells.conf
-        elif args.index is not None:
-            viewconf = conf_cells.conf[args.index]
-        else:
-            # Another possibility would be to allow interactive selection.
-            raise Exception('Rerun with --index to select viewconf')
-        conf_as_json = json.dumps(viewconf)
-        data_url = f'data:,{quote_plus(conf_as_json)}'
-        vitessce_url = f'http://vitessce.io/#?url={data_url}'
-        open_new_tab(vitessce_url)
+        print(json.dumps(conf_as_dict, indent=2))
+        return
+    conf_as_json = json.dumps(conf_as_dict)
+    data_url = f'data:,{quote_plus(conf_as_json)}'
+    vitessce_url = f'http://vitessce.io/#?url={data_url}'
+    open_new_tab(vitessce_url)
 
 
 if __name__ == "__main__":  # pragma: no cover

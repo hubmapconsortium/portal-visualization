@@ -85,14 +85,15 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
         mocker.patch('requests.get', return_value=mock_response)
 
     builder = Builder(entity, groups_token, assets_url)
-    conf, cells = builder.get_conf_cells(marker=marker)
+    configs, cells = builder.get_configs_cells(marker=marker)
+    configs_as_dicts = [config.to_dict() for config in configs]
 
-    expected_conf_path = entity_path.parent / entity_path.name.replace('-entity', '-conf')
-    expected_conf = json.loads(expected_conf_path.read_text())
+    expected_configs_path = entity_path.parent / entity_path.name.replace('-entity', '-conf')
+    expected_configs = json.loads(expected_configs_path.read_text())
     # Compare normalized JSON strings so the diff is easier to read,
     # and there are fewer false positives.
-    assert json.dumps(conf, indent=2, sort_keys=True) \
-        == json.dumps(expected_conf, indent=2, sort_keys=True)
+    assert json.dumps(configs_as_dicts, indent=2, sort_keys=True) \
+        == json.dumps(expected_configs, indent=2, sort_keys=True)
 
     expected_cells_path = (
         entity_path.parent / entity_path.name.replace('-entity.json', '-cells.yaml'))
@@ -110,7 +111,7 @@ def test_entity_to_error(entity_path):
     with pytest.raises(Exception) as error_info:
         Builder = get_view_config_builder(entity, get_assay)
         builder = Builder(entity, 'groups_token', 'https://example.com/')
-        builder.get_conf_cells()
+        builder.get_configs_cells()
     actual_error = f'{error_info.type.__name__}: {error_info.value.args[0]}'
 
     error_expected_path = (
@@ -137,6 +138,6 @@ if __name__ == '__main__':  # pragma: no cover
     entity = json.loads(args.input.read_text())
     Builder = get_view_config_builder(entity, get_assay)
     builder = Builder(entity, 'groups_token', 'https://example.com/')
-    conf, cells = builder.get_conf_cells()
+    conf, cells = builder.get_configs_cells()
 
     print(yaml.dump(clean_cells(cells), default_style='|'))

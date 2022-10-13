@@ -9,7 +9,6 @@ from vitessce import (
 import zarr
 
 from .base_builders import ViewConfBuilder
-from ..utils import get_conf_cells
 
 
 class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
@@ -25,7 +24,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         self._is_spatial = False
         self._scatterplot_w = 9
 
-    def get_conf_cells(self, marker=None):
+    def get_configs(self, marker=None):
         zarr_path = 'hubmap_ui/anndata-zarr/secondary_analysis.zarr'
         file_paths_found = [file["rel_path"] for file in self._entity["files"]]
         # Use .zgroup file as proxy for whether or not the zarr store is present.
@@ -77,7 +76,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         ))
 
         vc = self._setup_anndata_view_config(vc, dataset, marker)
-        return get_conf_cells(vc)
+        return [vc]
 
     def _setup_anndata_view_config(self, vc, dataset, marker=None):
         scatterplot = vc.add_view(

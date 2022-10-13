@@ -2,8 +2,10 @@ import urllib
 from collections import namedtuple
 from abc import ABC, abstractmethod
 
+from ..utils import _get_cells_from_conf_list
 
-ConfCells = namedtuple('ConfCells', ['conf', 'cells'])
+
+ConfigsCells = namedtuple('ConfigsCells', ['configs', 'cells'])
 
 
 class NullViewConfBuilder():
@@ -11,8 +13,8 @@ class NullViewConfBuilder():
         # Just so it has the same signature as the other builders
         pass
 
-    def get_conf_cells(self, **kwargs):
-        return ConfCells(None, None)
+    def get_configs_cells(self, **kwargs):
+        return ConfigsCells([], [])
 
 
 class ViewConfBuilder(ABC):
@@ -29,8 +31,13 @@ class ViewConfBuilder(ABC):
         self._files = []
 
     @abstractmethod
-    def get_conf_cells(self, **kwargs):  # pragma: no cover
+    def get_configs(self, **kwargs):  # pragma: no cover
         raise NotImplementedError()
+    
+    def get_configs_cells(self, **kwargs):
+        configs = self.get_configs(**kwargs)
+        cells = _get_cells_from_conf_list(configs)
+        return ConfigsCells(configs, cells)
 
     def _replace_url_in_file(self, file):
         """Replace url in incoming file object
@@ -118,5 +125,5 @@ class ViewConfBuilder(ABC):
 class _DocTestBuilder(ViewConfBuilder):  # pragma: no cover
     # The doctests on the methods in this file need a concrete class to instantiate:
     # We need a concrete definition for this method, even if it's never used.
-    def get_conf_cells(self, **kwargs):
-        pass
+    def get_configs_cells(self, **kwargs):
+        raise NotImplementedError()

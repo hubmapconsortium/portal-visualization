@@ -6,7 +6,6 @@ from vitessce import (
 )
 
 
-from ..utils import get_conf_cells
 from ..paths import SCRNA_SEQ_DIR, SCATAC_SEQ_DIR
 from .base_builders import ViewConfBuilder
 
@@ -18,7 +17,7 @@ class AbstractScatterplotViewConfBuilder(ViewConfBuilder):
     from h5ad-to-arrow.cwl.
     """
 
-    def get_conf_cells(self, **kwargs):
+    def get_configs(self, **kwargs):
         file_paths_expected = [file["rel_path"] for file in self._files]
         file_paths_found = self._get_file_paths()
         # We need to check that the files we expect actually exist.
@@ -33,7 +32,7 @@ class AbstractScatterplotViewConfBuilder(ViewConfBuilder):
         for file in self._files:
             dataset = dataset.add_file(**(self._replace_url_in_file(file)))
         vc = self._setup_scatterplot_view_config(vc, dataset)
-        return get_conf_cells(vc)
+        return [vc]
 
     def _setup_scatterplot_view_config(self, vc, dataset):
         vc.add_view(cm.SCATTERPLOT, dataset=dataset, mapping="UMAP", x=0, y=0, w=9, h=12)
