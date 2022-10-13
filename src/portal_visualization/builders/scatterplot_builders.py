@@ -26,18 +26,18 @@ class AbstractScatterplotViewConfBuilder(ViewConfBuilder):
             message = f'Files for uuid "{self._uuid}" not found as expected: ' \
                 f'Expected: {file_paths_expected}; Found: {file_paths_found}'
             raise FileNotFoundError(message)
-        vc = VitessceConfig(name="HuBMAP Data Portal")
-        dataset = vc.add_dataset(name="Visualization Files")
+        config = VitessceConfig(name="HuBMAP Data Portal")
+        dataset = config.add_dataset(name="Visualization Files")
         # The sublcass initializes _files in its __init__ method
         for file in self._files:
             dataset = dataset.add_file(**(self._replace_url_in_file(file)))
-        vc = self._setup_scatterplot_view_config(vc, dataset)
-        return [vc]
+        config = self._setup_scatterplot_view_config(config, dataset)
+        return [config]
 
-    def _setup_scatterplot_view_config(self, vc, dataset):
-        vc.add_view(cm.SCATTERPLOT, dataset=dataset, mapping="UMAP", x=0, y=0, w=9, h=12)
-        vc.add_view(cm.CELL_SETS, dataset=dataset, x=9, y=0, w=3, h=12)
-        return vc
+    def _setup_scatterplot_view_config(self, config, dataset):
+        config.add_view(cm.SCATTERPLOT, dataset=dataset, mapping="UMAP", x=0, y=0, w=9, h=12)
+        config.add_view(cm.CELL_SETS, dataset=dataset, x=9, y=0, w=3, h=12)
+        return config
 
 
 class RNASeqViewConfBuilder(AbstractScatterplotViewConfBuilder):

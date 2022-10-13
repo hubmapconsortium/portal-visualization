@@ -2,7 +2,7 @@
   source: from vitessce import VitessceChainableConfig, AnnDataWrapper
 - cell_type: code
   source: |
-     conf = VitessceChainableConfig(
+     config = VitessceChainableConfig(
          name="ea4cfecb8495b36694d9a951510dc3c6", description="", schema_version="1.0.7"
      ).add_dataset(
          uid="A",
@@ -90,4 +90,4 @@
          coordination_scopes={"spatialCellsLayer": "A"},
      )
 
-     conf.widget()
+     config.widget()

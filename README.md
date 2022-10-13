@@ -15,9 +15,10 @@ $ pip install .
 $ src/vis-preview.py --help
 usage: vis-preview.py [-h] (--url URL | --json JSON) [--types_url URL]
                       [--assets_url URL] [--token TOKEN] [--marker MARKER]
-                      [--to_json] [--conf_index I]
+                      [--to_json] [--config_index I]
 
-Given HuBMAP Dataset JSON, generate a Vitessce viewconf, and load vitessce.io.
+Given HuBMAP Dataset JSON, generate a Vitessce view config, and load
+vitessce.io.
 
 optional arguments:
   -h, --help        show this help message and exit
@@ -30,10 +31,10 @@ optional arguments:
   --token TOKEN     Globus groups token; Only needed if data is not public
   --marker MARKER   Marker to highlight in visualization; Only used in some
                     visualizations.
-  --to_json         Output viewconf, rather than open in browser.
-  --conf_index I    Old untiled imagery produces multiple viewconfs, one for
-                    each tile. This allows you display a viewconf other than
-                    the first.
+  --to_json         Output view config, rather than open in browser.
+  --config_index I  Old untiled imagery produces multiple view configs, one
+                    for each tile. This allows you display a view config other
+                    than the first.
 ```
 
 ## Background
