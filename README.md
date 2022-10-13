@@ -15,7 +15,7 @@ $ pip install .
 $ src/vis-preview.py --help
 usage: vis-preview.py [-h] (--url URL | --json JSON) [--types_url URL]
                       [--assets_url URL] [--token TOKEN] [--marker MARKER]
-                      [--to_json]
+                      [--to_json] [--conf_index I]
 
 Given HuBMAP Dataset JSON, generate a Vitessce viewconf, and load vitessce.io.
 
@@ -31,6 +31,9 @@ optional arguments:
   --marker MARKER   Marker to highlight in visualization; Only used in some
                     visualizations.
   --to_json         Output viewconf, rather than open in browser.
+  --conf_index I    Old untiled imagery produces multiple viewconfs, one for
+                    each tile. This allows you display a viewconf other than
+                    the first.
 ```
 
 ## Background

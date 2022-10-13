@@ -13,7 +13,7 @@ from vitessce import (
 )
 
 from .base_builders import ViewConfBuilder
-from ..utils import get_matches, get_conf_cells
+from ..utils import get_matches
 from ..paths import (
     SPRM_JSON_DIR, STITCHED_REGEX, CODEX_TILE_DIR,
     TILE_REGEX, STITCHED_IMAGE_DIR, SPRM_PYRAMID_SUBDIR, IMAGE_PYRAMID_DIR
@@ -68,14 +68,14 @@ class SPRMJSONViewConfBuilder(SPRMViewConfBuilder):
     https://portal.hubmapconsortium.org/browse/dataset/dc31a6d06daa964299224e9c8d6cafb3
     """
 
-    def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
+    def __init__(self, entity, groups_token, assets_endpoint, base_name=None, imaging_path=None):
         # All "file" Vitessce objects that do not have wrappers.
-        super().__init__(entity, groups_token, assets_endpoint, **kwargs)
+        super().__init__(entity, groups_token, assets_endpoint)
         # These are both something like R001_X009_Y009 because
         # there is no mask used here or shared name with the mask data.
-        self._base_name = kwargs["base_name"]
-        self._image_name = kwargs["base_name"]
-        self._imaging_path_regex = kwargs["imaging_path"]
+        self._base_name = base_name
+        self._image_name = base_name
+        self._imaging_path_regex = imaging_path
         self._files = [
             {
                 "rel_path": f"{SPRM_JSON_DIR}/" + f"{self._base_name}.cells.json",
@@ -94,7 +94,7 @@ class SPRMJSONViewConfBuilder(SPRMViewConfBuilder):
             },
         ]
 
-    def get_conf_cells(self, **kwargs):
+    def get_configs(self):
         found_image_file = self._check_sprm_image(self._get_full_image_path())
         vc = VitessceConfig(name=self._base_name)
         dataset = vc.add_dataset(name="SPRM")
@@ -117,7 +117,7 @@ class SPRMJSONViewConfBuilder(SPRMViewConfBuilder):
             vc = self._setup_view_config_raster_cellsets_expression_segmentation(
                 vc, dataset
             )
-        return get_conf_cells(vc)
+        return [vc]
 
     def _setup_view_config_raster_cellsets_expression_segmentation(
             self, vc, dataset):
@@ -146,13 +146,15 @@ class SPRMAnnDataViewConfBuilder(SPRMViewConfBuilder):
     of the image and mask relative to image_pyramid_regex
     """
 
-    def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
-        super().__init__(entity, groups_token, assets_endpoint, **kwargs)
-        self._base_name = kwargs["base_name"]
-        self._mask_name = kwargs["mask_name"]
-        self._image_name = kwargs["image_name"]
-        self._imaging_path_regex = f"{self.image_pyramid_regex}/{kwargs['imaging_path']}"
-        self._mask_path_regex = f"{self.image_pyramid_regex}/{kwargs['mask_path']}"
+    def __init__(
+            self, entity, groups_token, assets_endpoint,
+            base_name=None, mask_name=None, image_name=None, imaging_path=None, mask_path=None):
+        super().__init__(entity, groups_token, assets_endpoint)
+        self._base_name = base_name
+        self._mask_name = mask_name
+        self._image_name = image_name
+        self._imaging_path_regex = f"{self.image_pyramid_regex}/{imaging_path}"
+        self._mask_path_regex = f"{self.image_pyramid_regex}/{mask_path}"
 
     def _get_bitmask_image_path(self):
         return f"{self._mask_path_regex}/{self._mask_name}" + r"\.ome\.tiff?"
@@ -168,7 +170,7 @@ class SPRMAnnDataViewConfBuilder(SPRMViewConfBuilder):
             is_bitmask=True
         )
 
-    def get_conf_cells(self, marker=None):
+    def get_configs(self, marker=None):
         vc = VitessceConfig(name=self._image_name)
         dataset = vc.add_dataset(name="SPRM")
         file_paths_found = self._get_file_paths()
@@ -208,7 +210,7 @@ class SPRMAnnDataViewConfBuilder(SPRMViewConfBuilder):
         vc = self._setup_view_config_raster_cellsets_expression_segmentation(
             vc, dataset, marker
         )
-        return get_conf_cells(vc)
+        return [vc]
 
     def _setup_view_config_raster_cellsets_expression_segmentation(self, vc, dataset, marker):
         vc.add_view(cm.DESCRIPTION, dataset=dataset, x=0, y=8, w=3, h=4)
@@ -251,8 +253,8 @@ class MultiImageSPRMAnndataViewConfBuilder(ViewConfBuilder):
     used for datasets with multiple regions.
     """
 
-    def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
-        super().__init__(entity, groups_token, assets_endpoint, **kwargs)
+    def __init__(self, entity, groups_token, assets_endpoint):
+        super().__init__(entity, groups_token, assets_endpoint)
         self._expression_id = 'expr'
         self._mask_id = 'mask'
         self._image_pyramid_subdir = SPRM_PYRAMID_SUBDIR
@@ -275,9 +277,9 @@ class MultiImageSPRMAnndataViewConfBuilder(ViewConfBuilder):
             )
         return found_ids
 
-    def get_conf_cells(self, marker=None):
+    def get_configs(self, marker=None):
         found_ids = self._find_ids()
-        confs = []
+        configs = []
         for id in sorted(found_ids):
             builder = SPRMAnnDataViewConfBuilder(
                 entity=self._entity,
@@ -289,15 +291,8 @@ class MultiImageSPRMAnndataViewConfBuilder(ViewConfBuilder):
                 image_name=f"{id}_{self._expression_id}",
                 mask_name=f"{id}_{self._mask_id}"
             )
-            conf = builder.get_conf_cells(marker=marker).conf
-            if conf == {}:
-                raise MultiImageSPRMAnndataViewConfigError(  # pragma: no cover
-                    f"Cytokit SPRM assay with uuid {self._uuid} has empty view\
-                        config for id '{id}'"
-                )
-            confs.append(conf)
-        conf = confs if len(confs) > 1 else confs[0]
-        return get_conf_cells(conf)
+            configs.extend(builder.get_configs(marker=marker))
+        return configs
 
 
 class StitchedCytokitSPRMViewConfBuilder(MultiImageSPRMAnndataViewConfBuilder):
@@ -308,8 +303,8 @@ class StitchedCytokitSPRMViewConfBuilder(MultiImageSPRMAnndataViewConfBuilder):
     """
 
     # Need to override base class settings due to different directory structure
-    def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
-        super().__init__(entity, groups_token, assets_endpoint, **kwargs)
+    def __init__(self, entity, groups_token, assets_endpoint):
+        super().__init__(entity, groups_token, assets_endpoint)
         self._image_pyramid_subdir = STITCHED_IMAGE_DIR
         # The ids don't match exactly with the replacement because all image files have
         # stitched_expressions appended while the subdirectory only has /stitched/
@@ -326,7 +321,7 @@ class TiledSPRMViewConfBuilder(ViewConfBuilder):
     one per tile per region, via SPRMJSONViewConfBuilder.
     """
 
-    def get_conf_cells(self, **kwargs):
+    def get_configs(self):
         file_paths_found = [file["rel_path"] for file in self._entity["files"]]
         found_tiles = (get_matches(file_paths_found, TILE_REGEX)
                        or get_matches(file_paths_found, STITCHED_REGEX))
@@ -342,9 +337,5 @@ class TiledSPRMViewConfBuilder(ViewConfBuilder):
                 base_name=tile,
                 imaging_path=CODEX_TILE_DIR
             )
-            conf = builder.get_conf_cells().conf
-            if conf == {}:  # pragma: no cover
-                message = f'Cytokit SPRM assay with uuid {self._uuid} has empty view config'
-                raise CytokitSPRMViewConfigError(message)
-            confs.append(conf)
-        return get_conf_cells(confs)
+            confs.extend(builder.get_configs())
+        return confs

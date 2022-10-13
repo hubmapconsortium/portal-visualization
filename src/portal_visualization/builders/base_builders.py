@@ -2,21 +2,40 @@ import urllib
 from collections import namedtuple
 from abc import ABC, abstractmethod
 
+import nbformat
 
-ConfCells = namedtuple('ConfCells', ['conf', 'cells'])
+
+ConfigsCells = namedtuple('ConfigsCells', ['configs', 'cells'])
+
+
+def _get_cells_from_conf_list(confs):
+    cells = []
+    if len(confs) > 1:
+        cells.append(nbformat.v4.new_markdown_cell('Multiple visualizations are available.'))
+    for conf in confs:
+        cells.extend(_get_cells_from_conf(conf))
+    return cells
+
+
+def _get_cells_from_conf(conf):
+    imports, conf_expression = conf.to_python()
+    return [
+        nbformat.v4.new_code_cell(f'from vitessce import {", ".join(imports)}'),
+        nbformat.v4.new_code_cell(f'conf = {conf_expression}\nconf.widget()'),
+    ]
 
 
 class NullViewConfBuilder():
-    def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
+    def __init__(self, entity, groups_token, assets_endpoint):
         # Just so it has the same signature as the other builders
         pass
 
-    def get_conf_cells(self, **kwargs):
-        return ConfCells(None, None)
+    def get_configs_cells(self, marker=None):
+        return ConfigsCells([], [])
 
 
 class ViewConfBuilder(ABC):
-    def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
+    def __init__(self, entity, groups_token, assets_endpoint):
         """Object for building the vitessce configuration.
         :param dict entity: Entity response from search index (from the entity API)
         :param str groups_token: Groups token for use in authenticating API
@@ -29,8 +48,14 @@ class ViewConfBuilder(ABC):
         self._files = []
 
     @abstractmethod
-    def get_conf_cells(self, **kwargs):  # pragma: no cover
+    def get_configs(self):  # pragma: no cover
         raise NotImplementedError()
+
+    def get_configs_cells(self, marker=None):
+        kwargs = {'marker': marker} if marker is not None else {}
+        configs = self.get_configs(**kwargs)
+        cells = _get_cells_from_conf_list(configs)
+        return ConfigsCells(configs, cells)
 
     def _replace_url_in_file(self, file):
         """Replace url in incoming file object
@@ -118,5 +143,5 @@ class ViewConfBuilder(ABC):
 class _DocTestBuilder(ViewConfBuilder):  # pragma: no cover
     # The doctests on the methods in this file need a concrete class to instantiate:
     # We need a concrete definition for this method, even if it's never used.
-    def get_conf_cells(self, **kwargs):
-        pass
+    def get_configs(self):
+        raise NotImplementedError()
