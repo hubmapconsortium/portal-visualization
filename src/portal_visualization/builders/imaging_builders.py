@@ -46,13 +46,13 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
             ),
         )
 
-    def _setup_view_config_raster(self, vc, dataset, disable_3d=[]):
-        vc.add_view(cm.SPATIAL, dataset=dataset, x=3, y=0, w=9, h=12)
-        vc.add_view(cm.DESCRIPTION, dataset=dataset, x=0, y=8, w=3, h=4)
-        vc.add_view(cm.LAYER_CONTROLLER, dataset=dataset, x=0, y=0, w=3, h=8).set_props(
+    def _setup_view_config_raster(self, config, dataset, disable_3d=[]):
+        config.add_view(cm.SPATIAL, dataset=dataset, x=3, y=0, w=9, h=12)
+        config.add_view(cm.DESCRIPTION, dataset=dataset, x=0, y=8, w=3, h=4)
+        config.add_view(cm.LAYER_CONTROLLER, dataset=dataset, x=0, y=0, w=3, h=8).set_props(
             disable3d=disable_3d, disableChannelsIfRgbDetected=True
         )
-        return vc
+        return config
 
 
 class ImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
@@ -76,8 +76,8 @@ class ImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
             message = f"Image pyramid assay with uuid {self._uuid} has no matching files"
             raise FileNotFoundError(message)
 
-        vc = VitessceConfig(name="HuBMAP Data Portal")
-        dataset = vc.add_dataset(name="Visualization Files")
+        config = VitessceConfig(name="HuBMAP Data Portal")
+        dataset = config.add_dataset(name="Visualization Files")
         images = []
         for img_path in found_images:
             img_url, offsets_url = self._get_img_and_offset_url(
@@ -89,11 +89,11 @@ class ImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
                 )
             )
         dataset = dataset.add_object(MultiImageWrapper(images))
-        vc = self._setup_view_config_raster(vc, dataset)
-        config = vc.to_dict()
+        config = self._setup_view_config_raster(config, dataset)
+        config_as_dict = config.to_dict()
         # Don't want to render all layers
-        del config["datasets"][0]["files"][0]["options"]["renderLayers"]
-        return [VitessceConfig.from_dict(config)]
+        del config_as_dict["datasets"][0]["files"][0]["options"]["renderLayers"]
+        return [VitessceConfig.from_dict(config_as_dict)]
 
 
 class IMSViewConfBuilder(ImagePyramidViewConfBuilder):
@@ -136,8 +136,8 @@ class SeqFISHViewConfBuilder(AbstractImagingViewConfBuilder):
         for images in images_by_pos:
             image_wrappers = []
             pos_name = self._get_pos_name(images[0])
-            vc = VitessceConfig(name=pos_name)
-            dataset = vc.add_dataset(name=pos_name)
+            config = VitessceConfig(name=pos_name)
+            dataset = config.add_dataset(name=pos_name)
             sorted_images = sorted(images, key=self._get_hybcycle)
             for img_path in sorted_images:
                 img_url, offsets_url = self._get_img_and_offset_url(
@@ -151,15 +151,15 @@ class SeqFISHViewConfBuilder(AbstractImagingViewConfBuilder):
                     )
                 )
             dataset = dataset.add_object(MultiImageWrapper(image_wrappers))
-            vc = self._setup_view_config_raster(
-                vc,
+            config = self._setup_view_config_raster(
+                config,
                 dataset,
                 disable_3d=[self._get_hybcycle(img_path) for img_path in sorted_images]
             )
-            config = vc.to_dict()
+            config_as_dict = config.to_dict()
             # Don't want to render all layers
-            del config["datasets"][0]["files"][0]["options"]["renderLayers"]
-            configs.append(VitessceConfig.from_dict(config))
+            del config_as_dict["datasets"][0]["files"][0]["options"]["renderLayers"]
+            configs.append(VitessceConfig.from_dict(config_as_dict))
         return configs
 
     def _get_hybcycle(self, image_path):
