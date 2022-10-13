@@ -33,7 +33,7 @@ class ViewConfBuilder(ABC):
     @abstractmethod
     def get_configs(self, **kwargs):  # pragma: no cover
         raise NotImplementedError()
-    
+
     def get_configs_cells(self, **kwargs):
         configs = self.get_configs(**kwargs)
         cells = _get_cells_from_conf_list(configs)
@@ -125,5 +125,5 @@ class ViewConfBuilder(ABC):
 class _DocTestBuilder(ViewConfBuilder):  # pragma: no cover
     # The doctests on the methods in this file need a concrete class to instantiate:
     # We need a concrete definition for this method, even if it's never used.
-    def get_configs_cells(self, **kwargs):
+    def get_configs(self, **kwargs):
         raise NotImplementedError()
