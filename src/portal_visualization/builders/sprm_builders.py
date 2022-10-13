@@ -29,7 +29,7 @@ class CytokitSPRMViewConfigError(Exception):
 class SPRMViewConfBuilder(ImagePyramidViewConfBuilder):
     """Base class with shared methods for different SPRM subclasses,
     like SPRMJSONViewConfBuilder and SPRMAnnDataViewConfBuilder
-    https://portal.hubmapconsortium.org/v3/search?mapped_data_types[0]=CODEX%20%5BCytokit%20%2B%20SPRM%5D&entity_type[0]=Dataset
+    https://portal.hubmapconsortium.org/search?mapped_data_types[0]=CODEX%20%5BCytokit%20%2B%20SPRM%5D&entity_type[0]=Dataset
     """
 
     def _get_full_image_path(self):
