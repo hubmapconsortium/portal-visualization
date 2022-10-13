@@ -30,7 +30,7 @@ class NullViewConfBuilder():
         # Just so it has the same signature as the other builders
         pass
 
-    def get_configs_cells(self, **kwargs):
+    def get_configs_cells(self, marker=None):
         return ConfigsCells([], [])
 
 
@@ -48,10 +48,11 @@ class ViewConfBuilder(ABC):
         self._files = []
 
     @abstractmethod
-    def get_configs(self, **kwargs):  # pragma: no cover
+    def get_configs(self):  # pragma: no cover
         raise NotImplementedError()
 
-    def get_configs_cells(self, **kwargs):
+    def get_configs_cells(self, marker=None):
+        kwargs = {'marker': marker} if marker is not None else {}
         configs = self.get_configs(**kwargs)
         cells = _get_cells_from_conf_list(configs)
         return ConfigsCells(configs, cells)
@@ -142,5 +143,5 @@ class ViewConfBuilder(ABC):
 class _DocTestBuilder(ViewConfBuilder):  # pragma: no cover
     # The doctests on the methods in this file need a concrete class to instantiate:
     # We need a concrete definition for this method, even if it's never used.
-    def get_configs(self, **kwargs):
+    def get_configs(self):
         raise NotImplementedError()

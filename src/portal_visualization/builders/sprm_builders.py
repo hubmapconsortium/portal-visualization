@@ -94,7 +94,7 @@ class SPRMJSONViewConfBuilder(SPRMViewConfBuilder):
             },
         ]
 
-    def get_configs(self, **kwargs):
+    def get_configs(self):
         found_image_file = self._check_sprm_image(self._get_full_image_path())
         vc = VitessceConfig(name=self._base_name)
         dataset = vc.add_dataset(name="SPRM")
@@ -321,7 +321,7 @@ class TiledSPRMViewConfBuilder(ViewConfBuilder):
     one per tile per region, via SPRMJSONViewConfBuilder.
     """
 
-    def get_configs(self, **kwargs):
+    def get_configs(self):
         file_paths_found = [file["rel_path"] for file in self._entity["files"]]
         found_tiles = (get_matches(file_paths_found, TILE_REGEX)
                        or get_matches(file_paths_found, STITCHED_REGEX))
