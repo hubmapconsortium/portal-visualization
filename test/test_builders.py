@@ -6,7 +6,6 @@ from pathlib import Path
 from os import environ
 from dataclasses import dataclass
 
-
 import pytest
 import zarr
 
