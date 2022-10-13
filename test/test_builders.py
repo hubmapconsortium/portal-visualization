@@ -6,6 +6,7 @@ from pathlib import Path
 from os import environ
 from dataclasses import dataclass
 
+
 import pytest
 import zarr
 
@@ -39,7 +40,8 @@ assert len(bad_entity_paths) > 0
 def get_assay(name):
     # This code could also be used in portal-ui.
     # search-api might skip the REST interface.
-    type_client = TypeClient('https://search.api.hubmapconsortium.org')
+    defaults = json.load((Path(__file__).parent.parent / 'src/defaults.json').open())
+    type_client = TypeClient(defaults['types_url'])
     return type_client.getAssayType(name)
 
 

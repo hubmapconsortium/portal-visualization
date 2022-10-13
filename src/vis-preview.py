@@ -15,8 +15,9 @@ from portal_visualization.builder_factory import get_view_config_builder
 
 
 def main():  # pragma: no cover
-    types_default_url = 'https://search.api.hubmapconsortium.org'
-    assets_default_url = 'https://assets.hubmapconsortium.org'
+    defaults = json.load((Path(__file__).parent / 'defaults.json').open())
+    types_default_url = defaults['types_url']
+    assets_default_url = defaults['assets_url']
 
     parser = argparse.ArgumentParser(description='''
         Given HuBMAP Dataset JSON, generate a Vitessce viewconf, and load vitessce.io.''')
