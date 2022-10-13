@@ -8,20 +8,20 @@ import nbformat
 ConfigsCells = namedtuple('ConfigsCells', ['configs', 'cells'])
 
 
-def _get_cells_from_conf_list(confs):
+def _get_cells_from_config_list(configs):
     cells = []
-    if len(confs) > 1:
+    if len(configs) > 1:
         cells.append(nbformat.v4.new_markdown_cell('Multiple visualizations are available.'))
-    for conf in confs:
-        cells.extend(_get_cells_from_conf(conf))
+    for config in configs:
+        cells.extend(_get_cells_from_config(config))
     return cells
 
 
-def _get_cells_from_conf(conf):
-    imports, conf_expression = conf.to_python()
+def _get_cells_from_config(config):
+    imports, config_expression = config.to_python()
     return [
         nbformat.v4.new_code_cell(f'from vitessce import {", ".join(imports)}'),
-        nbformat.v4.new_code_cell(f'conf = {conf_expression}\nconf.widget()'),
+        nbformat.v4.new_code_cell(f'config = {config_expression}\nconfig.widget()'),
     ]
 
 
@@ -54,7 +54,7 @@ class ViewConfBuilder(ABC):
     def get_configs_cells(self, marker=None):
         kwargs = {'marker': marker} if marker is not None else {}
         configs = self.get_configs(**kwargs)
-        cells = _get_cells_from_conf_list(configs)
+        cells = _get_cells_from_config_list(configs)
         return ConfigsCells(configs, cells)
 
     def _replace_url_in_file(self, file):
@@ -100,7 +100,7 @@ class ViewConfBuilder(ABC):
         return f"{base_url}?{token_param}" if use_token else base_url
 
     def _get_request_init(self):
-        """Get request headers for requestInit parameter in Vitessce conf.
+        """Get request headers for requestInit parameter in Vitessce config.
         This is needed for non-public zarr stores because the client forms URLs for zarr chunks,
         not the above _build_assets_url function.
 

@@ -328,7 +328,7 @@ class TiledSPRMViewConfBuilder(ViewConfBuilder):
         if len(found_tiles) == 0:  # pragma: no cover
             message = f'Cytokit SPRM assay with uuid {self._uuid} has no matching tiles'
             raise FileNotFoundError(message)
-        confs = []
+        configs = []
         for tile in sorted(found_tiles):
             builder = SPRMJSONViewConfBuilder(
                 entity=self._entity,
@@ -337,5 +337,5 @@ class TiledSPRMViewConfBuilder(ViewConfBuilder):
                 base_name=tile,
                 imaging_path=CODEX_TILE_DIR
             )
-            confs.extend(builder.get_configs())
-        return confs
+            configs.extend(builder.get_configs())
+        return configs

@@ -19,7 +19,7 @@ def main():  # pragma: no cover
     assets_default_url = 'https://assets.hubmapconsortium.org'
 
     parser = argparse.ArgumentParser(description='''
-        Given HuBMAP Dataset JSON, generate a Vitessce viewconf, and load vitessce.io.''')
+        Given HuBMAP Dataset JSON, generate a Vitessce view config, and load vitessce.io.''')
     input = parser.add_mutually_exclusive_group(required=True)
     input.add_argument(
         '--url', help='URL which returns Dataset JSON')
@@ -42,12 +42,12 @@ def main():  # pragma: no cover
         help='Marker to highlight in visualization; Only used in some visualizations.')
     parser.add_argument(
         '--to_json', action='store_true',
-        help='Output viewconf, rather than open in browser.')
+        help='Output view config, rather than open in browser.')
     parser.add_argument(
-        '--conf_index', metavar='I',
+        '--config_index', metavar='I',
         default=0, type=int,
-        help='Old untiled imagery produces multiple viewconfs, one for each tile. '
-        'This allows you display a viewconf other than the first.')
+        help='Old untiled imagery produces multiple view configs, one for each tile. '
+        'This allows you display a view config other than the first.')
 
     args = parser.parse_args()
     marker = args.marker
@@ -72,12 +72,12 @@ def main():  # pragma: no cover
     builder = Builder(entity, args.token, args.assets_url)
     print(f'Using: {builder.__class__.__name__}', file=stderr)
     configs_cells = builder.get_configs_cells(marker=marker)
-    conf_as_dict = configs_cells.configs[args.conf_index].to_dict()
+    config_as_dict = configs_cells.configs[args.config_index].to_dict()
     if args.to_json:
-        print(json.dumps(conf_as_dict, indent=2))
+        print(json.dumps(config_as_dict, indent=2))
         return
-    conf_as_json = json.dumps(conf_as_dict)
-    data_url = f'data:,{quote_plus(conf_as_json)}'
+    config_as_json = json.dumps(config_as_dict)
+    data_url = f'data:,{quote_plus(config_as_json)}'
     vitessce_url = f'http://vitessce.io/#?url={data_url}'
     open_new_tab(vitessce_url)
 

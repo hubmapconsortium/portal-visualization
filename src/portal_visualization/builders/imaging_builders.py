@@ -90,10 +90,10 @@ class ImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
             )
         dataset = dataset.add_object(MultiImageWrapper(images))
         vc = self._setup_view_config_raster(vc, dataset)
-        conf = vc.to_dict()
+        config = vc.to_dict()
         # Don't want to render all layers
-        del conf["datasets"][0]["files"][0]["options"]["renderLayers"]
-        return [VitessceConfig.from_dict(conf)]
+        del config["datasets"][0]["files"][0]["options"]["renderLayers"]
+        return [VitessceConfig.from_dict(config)]
 
 
 class IMSViewConfBuilder(ImagePyramidViewConfBuilder):
@@ -131,8 +131,8 @@ class SeqFISHViewConfBuilder(AbstractImagingViewConfBuilder):
             raise FileNotFoundError(message)
         # Get all files grouped by PosN names.
         images_by_pos = group_by_file_name(found_images)
-        confs = []
-        # Build up a conf for each Pos.
+        configs = []
+        # Build up a config for each Pos.
         for images in images_by_pos:
             image_wrappers = []
             pos_name = self._get_pos_name(images[0])
@@ -156,11 +156,11 @@ class SeqFISHViewConfBuilder(AbstractImagingViewConfBuilder):
                 dataset,
                 disable_3d=[self._get_hybcycle(img_path) for img_path in sorted_images]
             )
-            conf = vc.to_dict()
+            config = vc.to_dict()
             # Don't want to render all layers
-            del conf["datasets"][0]["files"][0]["options"]["renderLayers"]
-            confs.append(VitessceConfig.from_dict(conf))
-        return confs
+            del config["datasets"][0]["files"][0]["options"]["renderLayers"]
+            configs.append(VitessceConfig.from_dict(config))
+        return configs
 
     def _get_hybcycle(self, image_path):
         return re.search(SEQFISH_HYB_CYCLE_REGEX, image_path)[0]

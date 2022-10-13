@@ -58,7 +58,7 @@ def test_has_visualization(has_vis_entity):
 
 @pytest.mark.parametrize(
     "entity_path", good_entity_paths, ids=lambda path: f'{path.parent.name}/{path.name}')
-def test_entity_to_vitessce_conf(entity_path, mocker):
+def test_entity_to_vitessce_config(entity_path, mocker):
     # Need to mock zarr.open to yield the correct error with an empty store
     mocker.patch('zarr.open', return_value=zarr.open())
 
@@ -88,7 +88,7 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
     configs, cells = builder.get_configs_cells(marker=marker)
     configs_as_dicts = [config.to_dict() for config in configs]
 
-    expected_configs_path = entity_path.parent / entity_path.name.replace('-entity', '-conf')
+    expected_configs_path = entity_path.parent / entity_path.name.replace('-entity', '-config')
     expected_configs = json.loads(expected_configs_path.read_text())
     # Compare normalized JSON strings so the diff is easier to read,
     # and there are fewer false positives.
@@ -138,6 +138,6 @@ if __name__ == '__main__':  # pragma: no cover
     entity = json.loads(args.input.read_text())
     Builder = get_view_config_builder(entity, get_assay)
     builder = Builder(entity, 'groups_token', 'https://example.com/')
-    conf, cells = builder.get_configs_cells()
+    config, cells = builder.get_configs_cells()
 
     print(yaml.dump(clean_cells(cells), default_style='|'))
