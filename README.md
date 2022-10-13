@@ -1,13 +1,21 @@
 # portal-visualization
+
 Given HuBMAP Dataset JSON, creates a Vitessce configuration.
-Included as a python package in [portal-ui](https://github.com/hubmapconsortium/portal-ui):
-If there are updates here that need to be visible there:
+
+## Release process
+
+This is a dependency of [portal-ui](https://github.com/hubmapconsortium/portal-ui/search?q=builder_factory) and [search-api](https://github.com/hubmapconsortium/search-api/search?q=builder_factory).
+
+Updates that are more than housekeeping should result in a new release:
 - bump `VERSION.txt`.
 - make a new git tag: `V=$(cat VERSION.txt); git tag $V; git push origin $V`.
 - make a release on github.
-- update portal-ui `requirements.in`.
+- in portal-ui, update `requirements.in` and rebuild `requirements.txt`.
+- in search-api, just update `requirements.txt`.
 
-Installing this package also makes `vis-preview.py` available:
+## CLI
+
+Installing this package locally makes `vis-preview.py` available:
 ```
 $ cd portal-visualization
 $ pip install .
