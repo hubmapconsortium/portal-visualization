@@ -2,10 +2,27 @@ import urllib
 from collections import namedtuple
 from abc import ABC, abstractmethod
 
-from ..utils import _get_cells_from_conf_list
+import nbformat
 
 
 ConfigsCells = namedtuple('ConfigsCells', ['configs', 'cells'])
+
+
+def _get_cells_from_conf_list(confs):
+    cells = []
+    if len(confs) > 1:
+        cells.append(nbformat.v4.new_markdown_cell('Multiple visualizations are available.'))
+    for conf in confs:
+        cells.extend(_get_cells_from_conf(conf))
+    return cells
+
+
+def _get_cells_from_conf(conf):
+    imports, conf_expression = conf.to_python()
+    return [
+        nbformat.v4.new_code_cell(f'from vitessce import {", ".join(imports)}'),
+        nbformat.v4.new_code_cell(f'conf = {conf_expression}\nconf.widget()'),
+    ]
 
 
 class NullViewConfBuilder():
