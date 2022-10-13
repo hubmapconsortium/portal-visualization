@@ -56,13 +56,13 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
 
 
 class ImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
-    def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
+    def __init__(self, entity, groups_token, assets_endpoint):
         """Wrapper class for creating a standard view configuration for image pyramids,
         i.e for high resolution viz-lifted imaging datasets like
         https://portal.hubmapconsortium.org/browse/dataset/dc289471333309925e46ceb9bafafaf4
         """
         self.image_pyramid_regex = IMAGE_PYRAMID_DIR
-        super().__init__(entity, groups_token, assets_endpoint, **kwargs)
+        super().__init__(entity, groups_token, assets_endpoint)
 
     def get_configs(self, **kwargs):
         file_paths_found = self._get_file_paths()
@@ -102,8 +102,8 @@ class IMSViewConfBuilder(ImagePyramidViewConfBuilder):
     of all the channels separated out.
     """
 
-    def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
-        super().__init__(entity, groups_token, assets_endpoint, **kwargs)
+    def __init__(self, entity, groups_token, assets_endpoint):
+        super().__init__(entity, groups_token, assets_endpoint)
         # Do not show the separated mass-spec images.
         self.image_pyramid_regex = (
             re.escape(IMAGE_PYRAMID_DIR) + r"(?!/ometiffs/separate/)"

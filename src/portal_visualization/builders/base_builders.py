@@ -26,7 +26,7 @@ def _get_cells_from_conf(conf):
 
 
 class NullViewConfBuilder():
-    def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
+    def __init__(self, entity, groups_token, assets_endpoint):
         # Just so it has the same signature as the other builders
         pass
 
@@ -35,7 +35,7 @@ class NullViewConfBuilder():
 
 
 class ViewConfBuilder(ABC):
-    def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
+    def __init__(self, entity, groups_token, assets_endpoint):
         """Object for building the vitessce configuration.
         :param dict entity: Entity response from search index (from the entity API)
         :param str groups_token: Groups token for use in authenticating API

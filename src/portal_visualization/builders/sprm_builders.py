@@ -68,14 +68,14 @@ class SPRMJSONViewConfBuilder(SPRMViewConfBuilder):
     https://portal.hubmapconsortium.org/browse/dataset/dc31a6d06daa964299224e9c8d6cafb3
     """
 
-    def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
+    def __init__(self, entity, groups_token, assets_endpoint, base_name=None, imaging_path=None):
         # All "file" Vitessce objects that do not have wrappers.
-        super().__init__(entity, groups_token, assets_endpoint, **kwargs)
+        super().__init__(entity, groups_token, assets_endpoint)
         # These are both something like R001_X009_Y009 because
         # there is no mask used here or shared name with the mask data.
-        self._base_name = kwargs["base_name"]
-        self._image_name = kwargs["base_name"]
-        self._imaging_path_regex = kwargs["imaging_path"]
+        self._base_name = base_name
+        self._image_name = base_name
+        self._imaging_path_regex = imaging_path
         self._files = [
             {
                 "rel_path": f"{SPRM_JSON_DIR}/" + f"{self._base_name}.cells.json",
@@ -146,13 +146,15 @@ class SPRMAnnDataViewConfBuilder(SPRMViewConfBuilder):
     of the image and mask relative to image_pyramid_regex
     """
 
-    def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
-        super().__init__(entity, groups_token, assets_endpoint, **kwargs)
-        self._base_name = kwargs["base_name"]
-        self._mask_name = kwargs["mask_name"]
-        self._image_name = kwargs["image_name"]
-        self._imaging_path_regex = f"{self.image_pyramid_regex}/{kwargs['imaging_path']}"
-        self._mask_path_regex = f"{self.image_pyramid_regex}/{kwargs['mask_path']}"
+    def __init__(
+            self, entity, groups_token, assets_endpoint,
+            base_name=None, mask_name=None, image_name=None, imaging_path=None, mask_path=None):
+        super().__init__(entity, groups_token, assets_endpoint)
+        self._base_name = base_name
+        self._mask_name = mask_name
+        self._image_name = image_name
+        self._imaging_path_regex = f"{self.image_pyramid_regex}/{imaging_path}"
+        self._mask_path_regex = f"{self.image_pyramid_regex}/{mask_path}"
 
     def _get_bitmask_image_path(self):
         return f"{self._mask_path_regex}/{self._mask_name}" + r"\.ome\.tiff?"
@@ -251,8 +253,8 @@ class MultiImageSPRMAnndataViewConfBuilder(ViewConfBuilder):
     used for datasets with multiple regions.
     """
 
-    def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
-        super().__init__(entity, groups_token, assets_endpoint, **kwargs)
+    def __init__(self, entity, groups_token, assets_endpoint):
+        super().__init__(entity, groups_token, assets_endpoint)
         self._expression_id = 'expr'
         self._mask_id = 'mask'
         self._image_pyramid_subdir = SPRM_PYRAMID_SUBDIR
@@ -301,8 +303,8 @@ class StitchedCytokitSPRMViewConfBuilder(MultiImageSPRMAnndataViewConfBuilder):
     """
 
     # Need to override base class settings due to different directory structure
-    def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
-        super().__init__(entity, groups_token, assets_endpoint, **kwargs)
+    def __init__(self, entity, groups_token, assets_endpoint):
+        super().__init__(entity, groups_token, assets_endpoint)
         self._image_pyramid_subdir = STITCHED_IMAGE_DIR
         # The ids don't match exactly with the replacement because all image files have
         # stitched_expressions appended while the subdirectory only has /stitched/
