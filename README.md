@@ -24,7 +24,7 @@ optional arguments:
   --url URL         URL which returns Dataset JSON
   --json JSON       File containing Dataset JSON
   --types_url URL   Type service; default:
-                    https://search.api.hubmapconsortium.org
+                    https://search.api.hubmapconsortium.org/v3
   --assets_url URL  Assets endpoint; default:
                     https://assets.hubmapconsortium.org
   --token TOKEN     Globus groups token; Only needed if data is not public
