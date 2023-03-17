@@ -56,10 +56,7 @@ def test_has_visualization(has_vis_entity):
     has_vis, entity = has_vis_entity
     assert has_vis == has_visualization(entity, get_assay)
 
-
-@pytest.mark.parametrize(
-    "entity_path", good_entity_paths, ids=lambda path: f'{path.parent.name}/{path.name}')
-def test_entity_to_vitessce_conf(entity_path, mocker):
+def mock_zarr_store(entity_path, mocker):
     # Need to mock zarr.open to yield correct values for different scenarios
     z = zarr.open()
     if 'is-annotated' in entity_path.name:
@@ -69,6 +66,11 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
         elif 'predicted-label' in entity_path.name:
             z['obs/predicted_label'] = True  # only checked for membership in zarr group
     mocker.patch('zarr.open', return_value=z)
+
+@pytest.mark.parametrize(
+    "entity_path", good_entity_paths, ids=lambda path: f'{path.parent.name}/{path.name}')
+def test_entity_to_vitessce_conf(entity_path, mocker):
+    mock_zarr_store(entity_path, mocker)
 
     possible_marker = entity_path.name.split('-')[-2]
     marker = (
@@ -105,7 +107,9 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
 
 @pytest.mark.parametrize(
     "entity_path", bad_entity_paths, ids=lambda path: path.name)
-def test_entity_to_error(entity_path):
+def test_entity_to_error(entity_path, mocker):
+    mock_zarr_store(entity_path, mocker)
+
     entity = json.loads(entity_path.read_text())
     with pytest.raises(Exception) as error_info:
         Builder = get_view_config_builder(entity, get_assay)
