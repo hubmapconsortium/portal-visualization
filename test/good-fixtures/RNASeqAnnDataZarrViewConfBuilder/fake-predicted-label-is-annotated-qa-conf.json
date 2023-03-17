@@ -42,12 +42,12 @@
           "fileType": "anndata-cell-sets.zarr",
           "options": [
             {
-              "groupName": "Leiden",
-              "setName": "obs/leiden"
-            },
-            {
               "groupName": "Cell Ontology Annotation",
               "setName": "obs/predicted_label"
+            },
+            {
+              "groupName": "Leiden",
+              "setName": "obs/leiden"
             }
           ],
           "requestInit": {

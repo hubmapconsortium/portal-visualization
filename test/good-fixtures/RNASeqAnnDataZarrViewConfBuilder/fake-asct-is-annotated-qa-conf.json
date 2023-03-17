@@ -42,12 +42,12 @@
           "fileType": "anndata-cell-sets.zarr",
           "options": [
             {
-              "groupName": "Leiden",
-              "setName": "obs/leiden"
-            },
-            {
               "groupName": "Predicted ASCT Cell Type",
               "setName": "obs/predicted.ASCT.celltype"
+            },
+            {
+              "groupName": "Leiden",
+              "setName": "obs/leiden"
             }
           ],
           "requestInit": {
