@@ -1,20 +1,29 @@
 # portal-visualization
+
 Given HuBMAP Dataset JSON, creates a Vitessce configuration.
-Included as a python package in [portal-ui](https://github.com/hubmapconsortium/portal-ui):
-If there are updates here that need to be visible there:
+
+## Release process
+
+This is a dependency of [portal-ui](https://github.com/hubmapconsortium/portal-ui/search?q=builder_factory) and [search-api](https://github.com/hubmapconsortium/search-api/search?q=builder_factory).
+
+Updates that are more than housekeeping should result in a new release:
 - bump `VERSION.txt`.
 - make a new git tag: `V=$(cat VERSION.txt); git tag $V; git push origin $V`.
 - make a release on github.
-- update portal-ui `requirements.in`.
+- in portal-ui, update `requirements.in` and rebuild `requirements.txt`.
+- in search-api, just update `requirements.txt`.
 
-Installing this package also makes `vis-preview.py` available:
+## CLI
+
+Installing this package locally makes `vis-preview.py` available:
 ```
 $ cd portal-visualization
 $ pip install .
 ...
-$ vis-preview.py --help
+$ src/vis-preview.py --help
 usage: vis-preview.py [-h] (--url URL | --json JSON) [--types_url URL]
-                      [--assets_url URL] [--token TOKEN]
+                      [--assets_url URL] [--token TOKEN] [--marker MARKER]
+                      [--to_json]
 
 Given HuBMAP Dataset JSON, generate a Vitessce viewconf, and load vitessce.io.
 
@@ -23,10 +32,13 @@ optional arguments:
   --url URL         URL which returns Dataset JSON
   --json JSON       File containing Dataset JSON
   --types_url URL   Type service; default:
-                    https://search.api.hubmapconsortium.org
+                    https://search.api.hubmapconsortium.org/v3
   --assets_url URL  Assets endpoint; default:
                     https://assets.hubmapconsortium.org
   --token TOKEN     Globus groups token; Only needed if data is not public
+  --marker MARKER   Marker to highlight in visualization; Only used in some
+                    visualizations.
+  --to_json         Output viewconf, rather than open in browser.
 ```
 
 ## Background

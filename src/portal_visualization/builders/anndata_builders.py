@@ -4,6 +4,7 @@ from vitessce import (
     VitessceConfig,
     AnnDataWrapper,
     Component as cm,
+    CoordinationType,
 )
 import zarr
 
@@ -22,8 +23,9 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         # Spatially resolved RNA-seq assays require some special handling,
         # and others do not.
         self._is_spatial = False
+        self._scatterplot_w = 9
 
-    def get_conf_cells(self):
+    def get_conf_cells(self, marker=None):
         zarr_path = 'hubmap_ui/anndata-zarr/secondary_analysis.zarr'
         file_paths_found = [file["rel_path"] for file in self._entity["files"]]
         # Use .zgroup file as proxy for whether or not the zarr store is present.
@@ -41,8 +43,8 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         dags = [
             dag for dag in self._entity['metadata']['dag_provenance_list']
             if 'name' in dag]
+        request_init = self._get_request_init() or {}
         if(any(['azimuth-annotate' in dag['origin'] for dag in dags])):
-            request_init = self._get_request_init() or {}
             headers = request_init.get('headers', {})
             response = requests.get(
                 f'{adata_url}/uns/annotation_metadata/is_annotated/0',
@@ -52,8 +54,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
                 # If the dataset didn't have Azimuth annotations, it would be b'\x00'.
                 cell_set_obs.append("predicted.ASCT.celltype")
                 cell_set_obs_names.append("Predicted ASCT Cell Type")
-        # Check for an alias for gene names to add to the view config.
-        z = zarr.open(adata_url, mode='r')
+        z = zarr.open(adata_url, mode='r', storage_options={'client_kwargs': request_init})
         gene_alias = 'var/hugo_symbol' if 'var' in z and 'hugo_symbol' in z['var'] else None
         dataset = vc.add_dataset(name=self._uuid).add_object(AnnDataWrapper(
             adata_url=adata_url,
@@ -75,22 +76,46 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
             gene_alias=gene_alias
         ))
 
-        vc = self._setup_anndata_view_config(vc, dataset)
+        vc = self._setup_anndata_view_config(vc, dataset, marker)
         return get_conf_cells(vc)
 
-    def _setup_anndata_view_config(self, vc, dataset):
-        vc.add_view(cm.SCATTERPLOT, dataset=dataset, mapping="UMAP", x=0, y=0, w=4, h=6)
-        vc.add_view(cm.CELL_SET_EXPRESSION, dataset=dataset, x=4, y=0, w=5, h=6)
-        vc.add_view(cm.CELL_SETS, dataset=dataset, x=9, y=0, w=3, h=3)
-        vc.add_view(cm.GENES, dataset=dataset, x=9, y=4, w=3, h=3)
-        vc.add_view(cm.HEATMAP, dataset=dataset, x=0, y=6, w=12, h=4)
+    def _setup_anndata_view_config(self, vc, dataset, marker=None):
+        scatterplot = vc.add_view(
+            cm.SCATTERPLOT, dataset=dataset, mapping="UMAP", x=0, y=0, w=self._scatterplot_w, h=6)
+        cell_sets = vc.add_view(
+            cm.CELL_SETS, dataset=dataset, x=9, y=0, w=3, h=3)
+        gene_list = vc.add_view(
+            cm.GENES, dataset=dataset, x=9, y=4, w=3, h=3)
+        cell_sets_expr = vc.add_view(
+            cm.CELL_SET_EXPRESSION, dataset=dataset, x=7, y=6, w=5, h=4)
+        heatmap = vc.add_view(
+            cm.HEATMAP, dataset=dataset, x=0, y=6, w=7, h=4)
+        # Adding heatmap to coordination doesn't do anything,
+        # but it also doesn't hurt anything.
+        # Vitessce feature request to add it:
+        # https://github.com/vitessce/vitessce/issues/1298
+
+        self._add_spatial_view(dataset, vc)
+
+        if marker:
+            vc.link_views(
+                [cell_sets, gene_list, scatterplot, cell_sets_expr, heatmap],
+                [CoordinationType.GENE_SELECTION, CoordinationType.CELL_COLOR_ENCODING],
+                [[marker], "geneSelection"]
+            )
+
         return vc
+
+    def _add_spatial_view(self, dataset, vc):
+        # This class does not have a spatial_view...
+        # but the subclass does, and overrides this method.
+        pass
 
 
 class SpatialRNASeqAnnDataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
     """Wrapper class for creating a AnnData-backed view configuration
     for "second generation" post-August 2020 spatial RNA-seq data from anndata-to-ui.cwl like
-    https://portal.hubmapconsortium.org/browse/dataset/e65175561b4b17da5352e3837aa0e497
+    https://portal.hubmapconsortium.org/browse/dataset/2a590db3d7ab1e1512816b165d95cdcf
     """
 
     def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
@@ -98,9 +123,9 @@ class SpatialRNASeqAnnDataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
         # Spatially resolved RNA-seq assays require some special handling,
         # and others do not.
         self._is_spatial = True
+        self._scatterplot_w = 4
 
-    def _setup_anndata_view_config(self, vc, dataset):
-        vc.add_view(cm.SCATTERPLOT, dataset=dataset, mapping="UMAP", x=0, y=0, w=4, h=6)
+    def _add_spatial_view(self, dataset, vc):
         spatial = vc.add_view(cm.SPATIAL, dataset=dataset, x=4, y=0, w=5, h=6)
         [cells_layer] = vc.add_coordination('spatialCellsLayer')
         cells_layer.set_value(
@@ -112,8 +137,3 @@ class SpatialRNASeqAnnDataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
             }
         )
         spatial.use_coordination(cells_layer)
-        vc.add_view(cm.CELL_SETS, dataset=dataset, x=9, y=0, w=3, h=3)
-        vc.add_view(cm.GENES, dataset=dataset, x=9, y=4, w=3, h=3)
-        vc.add_view(cm.HEATMAP, dataset=dataset, x=0, y=6, w=7, h=4)
-        vc.add_view(cm.CELL_SET_EXPRESSION, dataset=dataset, x=7, y=6, w=5, h=4)
-        return vc

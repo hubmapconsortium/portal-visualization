@@ -1,10 +1,26 @@
 {
   "coordinationSpace": {
+    "cellColorEncoding": {
+      "A": "geneSelection"
+    },
     "dataset": {
       "A": "A"
     },
     "embeddingType": {
       "A": "UMAP"
+    },
+    "geneSelection": {
+      "A": [
+        "gene123"
+      ]
+    },
+    "spatialCellsLayer": {
+      "A": {
+        "opacity": 1,
+        "radius": 20,
+        "stroked": false,
+        "visible": true
+      }
     }
   },
   "datasets": [
@@ -28,10 +44,11 @@
                 ],
                 "key": "obsm/X_umap"
               }
-            }
+            },
+            "xy": "obsm/X_spatial"
           },
           "type": "cells",
-          "url": "https://example.com/503f9caeffb9ee1e1324793c977d2342/hubmap_ui/anndata-zarr/secondary_analysis.zarr"
+          "url": "https://example.com/ea4cfecb8495b36694d9a951510dc3c6/hubmap_ui/anndata-zarr/secondary_analysis.zarr"
         },
         {
           "fileType": "anndata-cell-sets.zarr",
@@ -42,7 +59,7 @@
             }
           ],
           "type": "cell-sets",
-          "url": "https://example.com/503f9caeffb9ee1e1324793c977d2342/hubmap_ui/anndata-zarr/secondary_analysis.zarr"
+          "url": "https://example.com/ea4cfecb8495b36694d9a951510dc3c6/hubmap_ui/anndata-zarr/secondary_analysis.zarr"
         },
         {
           "fileType": "anndata-expression-matrix.zarr",
@@ -51,10 +68,10 @@
             "matrixGeneFilter": "var/marker_genes_for_heatmap"
           },
           "type": "expression-matrix",
-          "url": "https://example.com/503f9caeffb9ee1e1324793c977d2342/hubmap_ui/anndata-zarr/secondary_analysis.zarr"
+          "url": "https://example.com/ea4cfecb8495b36694d9a951510dc3c6/hubmap_ui/anndata-zarr/secondary_analysis.zarr"
         }
       ],
-      "name": "503f9caeffb9ee1e1324793c977d2342",
+      "name": "ea4cfecb8495b36694d9a951510dc3c6",
       "uid": "A"
     }
   ],
@@ -64,18 +81,22 @@
     {
       "component": "scatterplot",
       "coordinationScopes": {
+        "cellColorEncoding": "A",
         "dataset": "A",
-        "embeddingType": "A"
+        "embeddingType": "A",
+        "geneSelection": "A"
       },
       "h": 6,
-      "w": 9,
+      "w": 4,
       "x": 0,
       "y": 0
     },
     {
       "component": "cellSets",
       "coordinationScopes": {
-        "dataset": "A"
+        "cellColorEncoding": "A",
+        "dataset": "A",
+        "geneSelection": "A"
       },
       "h": 3,
       "w": 3,
@@ -85,7 +106,9 @@
     {
       "component": "genes",
       "coordinationScopes": {
-        "dataset": "A"
+        "cellColorEncoding": "A",
+        "dataset": "A",
+        "geneSelection": "A"
       },
       "h": 3,
       "w": 3,
@@ -95,7 +118,9 @@
     {
       "component": "cellSetExpression",
       "coordinationScopes": {
-        "dataset": "A"
+        "cellColorEncoding": "A",
+        "dataset": "A",
+        "geneSelection": "A"
       },
       "h": 4,
       "w": 5,
@@ -105,14 +130,27 @@
     {
       "component": "heatmap",
       "coordinationScopes": {
-        "dataset": "A"
+        "cellColorEncoding": "A",
+        "dataset": "A",
+        "geneSelection": "A"
       },
       "h": 4,
       "w": 7,
       "x": 0,
       "y": 6
+    },
+    {
+      "component": "spatial",
+      "coordinationScopes": {
+        "dataset": "A",
+        "spatialCellsLayer": "A"
+      },
+      "h": 6,
+      "w": 5,
+      "x": 4,
+      "y": 0
     }
   ],
-  "name": "503f9caeffb9ee1e1324793c977d2342",
+  "name": "ea4cfecb8495b36694d9a951510dc3c6",
   "version": "1.0.7"
 }

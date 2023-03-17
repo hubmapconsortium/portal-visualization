@@ -1,20 +1,27 @@
 [
   {
-    "version": "1.0.7",
-    "name": "reg001_S20030085_region_001_expr",
-    "description": "",
+    "coordinationSpace": {
+      "cellColorEncoding": {
+        "A": "geneSelection"
+      },
+      "dataset": {
+        "A": "A"
+      },
+      "embeddingType": {
+        "A": "t-SNE"
+      },
+      "geneSelection": {
+        "A": [
+          "gene123"
+        ]
+      }
+    },
     "datasets": [
       {
-        "uid": "A",
-        "name": "SPRM",
         "files": [
           {
-            "type": "cells",
             "fileType": "anndata-cells.zarr",
-            "url": "https://example.com/2f8d43199ca3167e991b320038024b77/anndata-zarr/reg001_S20030085_region_001_expr-anndata.zarr",
             "options": {
-              "xy": "obsm/xy",
-              "mappings": { "t-SNE": { "key": "obsm/tsne", "dims": [0, 1] } },
               "factors": [
                 "obs/Cell K-Means [tSNE_All_Features]",
                 "obs/Cell K-Means [Mean-All-SubRegions] Expression",
@@ -23,18 +30,28 @@
                 "obs/Cell K-Means [Texture]",
                 "obs/Cell K-Means [Total] Expression",
                 "obs/Cell K-Means [Covariance] Expression"
-              ]
+              ],
+              "mappings": {
+                "t-SNE": {
+                  "dims": [
+                    0,
+                    1
+                  ],
+                  "key": "obsm/tsne"
+                }
+              },
+              "xy": "obsm/xy"
             },
             "requestInit": {
               "headers": {
                 "Authorization": "Bearer groups_token"
               }
-            }
+            },
+            "type": "cells",
+            "url": "https://example.com/2f8d43199ca3167e991b320038024b77/anndata-zarr/reg001_S20030085_region_001_expr-anndata.zarr"
           },
           {
-            "type": "cell-sets",
             "fileType": "anndata-cell-sets.zarr",
-            "url": "https://example.com/2f8d43199ca3167e991b320038024b77/anndata-zarr/reg001_S20030085_region_001_expr-anndata.zarr",
             "options": [
               {
                 "groupName": "Cell K-Means [tSNE_All_Features]",
@@ -69,12 +86,12 @@
               "headers": {
                 "Authorization": "Bearer groups_token"
               }
-            }
+            },
+            "type": "cell-sets",
+            "url": "https://example.com/2f8d43199ca3167e991b320038024b77/anndata-zarr/reg001_S20030085_region_001_expr-anndata.zarr"
           },
           {
-            "type": "expression-matrix",
             "fileType": "anndata-expression-matrix.zarr",
-            "url": "https://example.com/2f8d43199ca3167e991b320038024b77/anndata-zarr/reg001_S20030085_region_001_expr-anndata.zarr",
             "options": {
               "matrix": "X"
             },
@@ -82,141 +99,165 @@
               "headers": {
                 "Authorization": "Bearer groups_token"
               }
-            }
+            },
+            "type": "expression-matrix",
+            "url": "https://example.com/2f8d43199ca3167e991b320038024b77/anndata-zarr/reg001_S20030085_region_001_expr-anndata.zarr"
           },
           {
-            "type": "raster",
             "fileType": "raster.json",
             "options": {
-              "schemaVersion": "0.0.2",
-              "usePhysicalSizeScaling": false,
-              "renderLayers": ["reg001_S20030085_region_001_expr", "reg001_S20030085_region_001_mask"],
               "images": [
                 {
-                  "name": "reg001_S20030085_region_001_expr",
-                  "type": "ome-tiff",
-                  "url": "https://example.com/2f8d43199ca3167e991b320038024b77/ometiff-pyramids/pipeline_output/expr/reg001_S20030085_region_001_expr.ome.tif?token=groups_token",
                   "metadata": {
                     "isBitmask": false,
                     "omeTiffOffsetsUrl": "https://example.com/2f8d43199ca3167e991b320038024b77/output_offsets/pipeline_output/expr/reg001_S20030085_region_001_expr.offsets.json?token=groups_token"
-                  }
+                  },
+                  "name": "reg001_S20030085_region_001_expr",
+                  "type": "ome-tiff",
+                  "url": "https://example.com/2f8d43199ca3167e991b320038024b77/ometiff-pyramids/pipeline_output/expr/reg001_S20030085_region_001_expr.ome.tif?token=groups_token"
                 },
                 {
-                  "name": "reg001_S20030085_region_001_mask",
-                  "type": "ome-tiff",
-                  "url": "https://example.com/2f8d43199ca3167e991b320038024b77/ometiff-pyramids/pipeline_output/mask/reg001_S20030085_region_001_mask.ome.tif?token=groups_token",
                   "metadata": {
                     "isBitmask": true,
                     "omeTiffOffsetsUrl": "https://example.com/2f8d43199ca3167e991b320038024b77/output_offsets/pipeline_output/mask/reg001_S20030085_region_001_mask.offsets.json?token=groups_token"
-                  }
+                  },
+                  "name": "reg001_S20030085_region_001_mask",
+                  "type": "ome-tiff",
+                  "url": "https://example.com/2f8d43199ca3167e991b320038024b77/ometiff-pyramids/pipeline_output/mask/reg001_S20030085_region_001_mask.ome.tif?token=groups_token"
                 }
-              ]
-            }
+              ],
+              "renderLayers": [
+                "reg001_S20030085_region_001_expr",
+                "reg001_S20030085_region_001_mask"
+              ],
+              "schemaVersion": "0.0.2",
+              "usePhysicalSizeScaling": false
+            },
+            "type": "raster"
           }
-        ]
+        ],
+        "name": "SPRM",
+        "uid": "A"
       }
     ],
-    "coordinationSpace": {
-      "dataset": {
-        "A": "A"
-      },
-      "embeddingType": {
-        "A": "t-SNE"
-      }
-    },
+    "description": "",
+    "initStrategy": "auto",
     "layout": [
-      {
-        "component": "spatial",
-        "coordinationScopes": {
-          "dataset": "A"
-        },
-        "x": 3,
-        "y": 0,
-        "w": 4,
-        "h": 8
-      },
-      {
-        "component": "scatterplot",
-        "coordinationScopes": {
-          "dataset": "A",
-          "embeddingType": "A"
-        },
-        "x": 7,
-        "y": 0,
-        "w": 3,
-        "h": 8
-      },
       {
         "component": "description",
         "coordinationScopes": {
           "dataset": "A"
         },
-        "x": 0,
-        "y": 8,
+        "h": 4,
         "w": 3,
-        "h": 4
+        "x": 0,
+        "y": 8
       },
       {
         "component": "layerController",
         "coordinationScopes": {
           "dataset": "A"
         },
-        "x": 0,
-        "y": 0,
+        "h": 8,
         "w": 3,
-        "h": 8
+        "x": 0,
+        "y": 0
+      },
+      {
+        "component": "spatial",
+        "coordinationScopes": {
+          "cellColorEncoding": "A",
+          "dataset": "A",
+          "geneSelection": "A"
+        },
+        "h": 8,
+        "w": 4,
+        "x": 3,
+        "y": 0
+      },
+      {
+        "component": "scatterplot",
+        "coordinationScopes": {
+          "cellColorEncoding": "A",
+          "dataset": "A",
+          "embeddingType": "A",
+          "geneSelection": "A"
+        },
+        "h": 8,
+        "w": 3,
+        "x": 7,
+        "y": 0
       },
       {
         "component": "cellSets",
         "coordinationScopes": {
-          "dataset": "A"
+          "cellColorEncoding": "A",
+          "dataset": "A",
+          "geneSelection": "A"
         },
-        "x": 10,
-        "y": 5,
+        "h": 7,
         "w": 2,
-        "h": 7
+        "x": 10,
+        "y": 5
       },
       {
         "component": "genes",
+        "coordinationScopes": {
+          "cellColorEncoding": "A",
+          "dataset": "A",
+          "geneSelection": "A"
+        },
+        "h": 5,
         "props": {
           "variablesLabelOverride": "antigen"
         },
-        "coordinationScopes": {
-          "dataset": "A"
-        },
-        "x": 10,
-        "y": 0,
         "w": 2,
-        "h": 5
+        "x": 10,
+        "y": 0
       },
       {
         "component": "heatmap",
-        "coordinationScopes": { "dataset": "A" },
+        "coordinationScopes": {
+          "cellColorEncoding": "A",
+          "dataset": "A",
+          "geneSelection": "A"
+        },
         "h": 4,
-        "props": { "transpose": true, "variablesLabelOverride": "antigen" },
+        "props": {
+          "transpose": true,
+          "variablesLabelOverride": "antigen"
+        },
         "w": 7,
         "x": 3,
         "y": 8
       }
     ],
-    "initStrategy": "auto"
+    "name": "reg001_S20030085_region_001_expr",
+    "version": "1.0.7"
   },
   {
-    "version": "1.0.7",
-    "name": "reg001_S20030086_region_001_expr",
-    "description": "",
+    "coordinationSpace": {
+      "cellColorEncoding": {
+        "A": "geneSelection"
+      },
+      "dataset": {
+        "A": "A"
+      },
+      "embeddingType": {
+        "A": "t-SNE"
+      },
+      "geneSelection": {
+        "A": [
+          "gene123"
+        ]
+      }
+    },
     "datasets": [
       {
-        "uid": "A",
-        "name": "SPRM",
         "files": [
           {
-            "type": "cells",
             "fileType": "anndata-cells.zarr",
-            "url": "https://example.com/2f8d43199ca3167e991b320038024b77/anndata-zarr/reg001_S20030086_region_001_expr-anndata.zarr",
             "options": {
-              "xy": "obsm/xy",
-              "mappings": { "t-SNE": { "key": "obsm/tsne", "dims": [0, 1] } },
               "factors": [
                 "obs/Cell K-Means [tSNE_All_Features]",
                 "obs/Cell K-Means [Mean-All-SubRegions] Expression",
@@ -225,18 +266,28 @@
                 "obs/Cell K-Means [Texture]",
                 "obs/Cell K-Means [Total] Expression",
                 "obs/Cell K-Means [Covariance] Expression"
-              ]
+              ],
+              "mappings": {
+                "t-SNE": {
+                  "dims": [
+                    0,
+                    1
+                  ],
+                  "key": "obsm/tsne"
+                }
+              },
+              "xy": "obsm/xy"
             },
             "requestInit": {
               "headers": {
                 "Authorization": "Bearer groups_token"
               }
-            }
+            },
+            "type": "cells",
+            "url": "https://example.com/2f8d43199ca3167e991b320038024b77/anndata-zarr/reg001_S20030086_region_001_expr-anndata.zarr"
           },
           {
-            "type": "cell-sets",
             "fileType": "anndata-cell-sets.zarr",
-            "url": "https://example.com/2f8d43199ca3167e991b320038024b77/anndata-zarr/reg001_S20030086_region_001_expr-anndata.zarr",
             "options": [
               {
                 "groupName": "Cell K-Means [tSNE_All_Features]",
@@ -271,12 +322,12 @@
               "headers": {
                 "Authorization": "Bearer groups_token"
               }
-            }
+            },
+            "type": "cell-sets",
+            "url": "https://example.com/2f8d43199ca3167e991b320038024b77/anndata-zarr/reg001_S20030086_region_001_expr-anndata.zarr"
           },
           {
-            "type": "expression-matrix",
             "fileType": "anndata-expression-matrix.zarr",
-            "url": "https://example.com/2f8d43199ca3167e991b320038024b77/anndata-zarr/reg001_S20030086_region_001_expr-anndata.zarr",
             "options": {
               "matrix": "X"
             },
@@ -284,123 +335,140 @@
               "headers": {
                 "Authorization": "Bearer groups_token"
               }
-            }
+            },
+            "type": "expression-matrix",
+            "url": "https://example.com/2f8d43199ca3167e991b320038024b77/anndata-zarr/reg001_S20030086_region_001_expr-anndata.zarr"
           },
           {
-            "type": "raster",
             "fileType": "raster.json",
             "options": {
-              "schemaVersion": "0.0.2",
-              "usePhysicalSizeScaling": false,
-              "renderLayers": ["reg001_S20030086_region_001_expr", "reg001_S20030086_region_001_mask"],
               "images": [
                 {
-                  "name": "reg001_S20030086_region_001_expr",
-                  "type": "ome-tiff",
-                  "url": "https://example.com/2f8d43199ca3167e991b320038024b77/ometiff-pyramids/pipeline_output/expr/reg001_S20030086_region_001_expr.ome.tif?token=groups_token",
                   "metadata": {
                     "isBitmask": false,
                     "omeTiffOffsetsUrl": "https://example.com/2f8d43199ca3167e991b320038024b77/output_offsets/pipeline_output/expr/reg001_S20030086_region_001_expr.offsets.json?token=groups_token"
-                  }
+                  },
+                  "name": "reg001_S20030086_region_001_expr",
+                  "type": "ome-tiff",
+                  "url": "https://example.com/2f8d43199ca3167e991b320038024b77/ometiff-pyramids/pipeline_output/expr/reg001_S20030086_region_001_expr.ome.tif?token=groups_token"
                 },
                 {
-                  "name": "reg001_S20030086_region_001_mask",
-                  "type": "ome-tiff",
-                  "url": "https://example.com/2f8d43199ca3167e991b320038024b77/ometiff-pyramids/pipeline_output/mask/reg001_S20030086_region_001_mask.ome.tif?token=groups_token",
                   "metadata": {
                     "isBitmask": true,
                     "omeTiffOffsetsUrl": "https://example.com/2f8d43199ca3167e991b320038024b77/output_offsets/pipeline_output/mask/reg001_S20030086_region_001_mask.offsets.json?token=groups_token"
-                  }
+                  },
+                  "name": "reg001_S20030086_region_001_mask",
+                  "type": "ome-tiff",
+                  "url": "https://example.com/2f8d43199ca3167e991b320038024b77/ometiff-pyramids/pipeline_output/mask/reg001_S20030086_region_001_mask.ome.tif?token=groups_token"
                 }
-              ]
-            }
+              ],
+              "renderLayers": [
+                "reg001_S20030086_region_001_expr",
+                "reg001_S20030086_region_001_mask"
+              ],
+              "schemaVersion": "0.0.2",
+              "usePhysicalSizeScaling": false
+            },
+            "type": "raster"
           }
-        ]
+        ],
+        "name": "SPRM",
+        "uid": "A"
       }
     ],
-    "coordinationSpace": {
-      "dataset": {
-        "A": "A"
-      },
-      "embeddingType": {
-        "A": "t-SNE"
-      }
-    },
+    "description": "",
+    "initStrategy": "auto",
     "layout": [
-      {
-        "component": "spatial",
-        "coordinationScopes": {
-          "dataset": "A"
-        },
-        "x": 3,
-        "y": 0,
-        "w": 4,
-        "h": 8
-      },
-      {
-        "component": "scatterplot",
-        "coordinationScopes": {
-          "dataset": "A",
-          "embeddingType": "A"
-        },
-        "x": 7,
-        "y": 0,
-        "w": 3,
-        "h": 8
-      },
       {
         "component": "description",
         "coordinationScopes": {
           "dataset": "A"
         },
-        "x": 0,
-        "y": 8,
+        "h": 4,
         "w": 3,
-        "h": 4
+        "x": 0,
+        "y": 8
       },
       {
         "component": "layerController",
         "coordinationScopes": {
           "dataset": "A"
         },
-        "x": 0,
-        "y": 0,
+        "h": 8,
         "w": 3,
-        "h": 8
+        "x": 0,
+        "y": 0
+      },
+      {
+        "component": "spatial",
+        "coordinationScopes": {
+          "cellColorEncoding": "A",
+          "dataset": "A",
+          "geneSelection": "A"
+        },
+        "h": 8,
+        "w": 4,
+        "x": 3,
+        "y": 0
+      },
+      {
+        "component": "scatterplot",
+        "coordinationScopes": {
+          "cellColorEncoding": "A",
+          "dataset": "A",
+          "embeddingType": "A",
+          "geneSelection": "A"
+        },
+        "h": 8,
+        "w": 3,
+        "x": 7,
+        "y": 0
       },
       {
         "component": "cellSets",
         "coordinationScopes": {
-          "dataset": "A"
+          "cellColorEncoding": "A",
+          "dataset": "A",
+          "geneSelection": "A"
         },
-        "x": 10,
-        "y": 5,
+        "h": 7,
         "w": 2,
-        "h": 7
+        "x": 10,
+        "y": 5
       },
       {
         "component": "genes",
+        "coordinationScopes": {
+          "cellColorEncoding": "A",
+          "dataset": "A",
+          "geneSelection": "A"
+        },
+        "h": 5,
         "props": {
           "variablesLabelOverride": "antigen"
         },
-        "coordinationScopes": {
-          "dataset": "A"
-        },
-        "x": 10,
-        "y": 0,
         "w": 2,
-        "h": 5
+        "x": 10,
+        "y": 0
       },
       {
         "component": "heatmap",
-        "coordinationScopes": { "dataset": "A" },
+        "coordinationScopes": {
+          "cellColorEncoding": "A",
+          "dataset": "A",
+          "geneSelection": "A"
+        },
         "h": 4,
-        "props": { "transpose": true, "variablesLabelOverride": "antigen" },
+        "props": {
+          "transpose": true,
+          "variablesLabelOverride": "antigen"
+        },
         "w": 7,
         "x": 3,
         "y": 8
       }
     ],
-    "initStrategy": "auto"
+    "name": "reg001_S20030086_region_001_expr",
+    "version": "1.0.7"
   }
 ]

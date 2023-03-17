@@ -14,6 +14,16 @@ from hubmap_commons.type_client import TypeClient
 from src.portal_visualization.builder_factory import get_view_config_builder, has_visualization
 
 
+def str_presenter(dumper, data):
+    # From https://stackoverflow.com/a/33300001
+    if len(data.splitlines()) > 1:  # check for multiline string
+        return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='|')
+    return dumper.represent_scalar('tag:yaml.org,2002:str', data)
+
+
+yaml.add_representer(str, str_presenter)
+
+
 @dataclass
 class MockResponse:
     content: str
@@ -29,7 +39,8 @@ assert len(bad_entity_paths) > 0
 def get_assay(name):
     # This code could also be used in portal-ui.
     # search-api might skip the REST interface.
-    type_client = TypeClient('https://search.api.hubmapconsortium.org')
+    defaults = json.load((Path(__file__).parent.parent / 'src/defaults.json').open())
+    type_client = TypeClient(defaults['types_url'])
     return type_client.getAssayType(name)
 
 
@@ -52,6 +63,12 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
     # Need to mock zarr.open to yield the correct error with an empty store
     mocker.patch('zarr.open', return_value=zarr.open())
 
+    possible_marker = entity_path.name.split('-')[-2]
+    marker = (
+        possible_marker.split('=')[1]
+        if possible_marker.startswith('marker=')
+        else None)
+
     entity = json.loads(entity_path.read_text())
     Builder = get_view_config_builder(entity, get_assay)
     assert Builder.__name__ == entity_path.parent.name
@@ -69,17 +86,22 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
         mocker.patch('requests.get', return_value=mock_response)
 
     builder = Builder(entity, groups_token, assets_url)
-    conf, cells = builder.get_conf_cells()
+    conf, cells = builder.get_conf_cells(marker=marker)
 
     expected_conf_path = entity_path.parent / entity_path.name.replace('-entity', '-conf')
     expected_conf = json.loads(expected_conf_path.read_text())
-    assert expected_conf == conf
+    # Compare normalized JSON strings so the diff is easier to read,
+    # and there are fewer false positives.
+    assert json.dumps(conf, indent=2, sort_keys=True) \
+        == json.dumps(expected_conf, indent=2, sort_keys=True)
 
     expected_cells_path = (
         entity_path.parent / entity_path.name.replace('-entity.json', '-cells.yaml'))
     if expected_cells_path.is_file():
         expected_cells = yaml.safe_load(expected_cells_path.read_text())
-        assert expected_cells == clean_cells(cells)
+
+        # Compare as YAML to match fixture.
+        assert yaml.dump(clean_cells(cells)) == yaml.dump(expected_cells)
 
 
 @pytest.mark.parametrize(

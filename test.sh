@@ -10,6 +10,10 @@ start changelog
 echo 'TODO: Edit changelog with each PR?'
 end changelog
 
+start docs
+diff README.md <(src/vis-preview.py --help) | grep '^>' && die "Update vis-preview.py docs in README.md"
+end docs
+
 start flake8
 flake8 || die "Try: autopep8 --in-place --aggressive -r ."
 end flake8
