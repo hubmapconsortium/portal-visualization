@@ -56,6 +56,7 @@ def test_has_visualization(has_vis_entity):
     has_vis, entity = has_vis_entity
     assert has_vis == has_visualization(entity, get_assay)
 
+
 def mock_zarr_store(entity_path, mocker):
     # Need to mock zarr.open to yield correct values for different scenarios
     z = zarr.open()
@@ -66,6 +67,7 @@ def mock_zarr_store(entity_path, mocker):
         elif 'predicted-label' in entity_path.name:
             z['obs/predicted_label'] = True  # only checked for membership in zarr group
     mocker.patch('zarr.open', return_value=z)
+
 
 @pytest.mark.parametrize(
     "entity_path", good_entity_paths, ids=lambda path: f'{path.parent.name}/{path.name}')
