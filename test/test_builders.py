@@ -65,9 +65,9 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
     if 'is-annotated' in entity_path:
         z['uns/annotation_metadata/is_annotated'] = True
         if 'asct' in entity_path:
-            z['obs/predicted.ASCT.celltype'] = True # only checked for membership in zarr group
+            z['obs/predicted.ASCT.celltype'] = True  # only checked for membership in zarr group
         elif 'predicted-label' in entity_path:
-            z['obs/predicted_label'] = True # only checked for membership in zarr group
+            z['obs/predicted_label'] = True  # only checked for membership in zarr group
     mocker.patch('zarr.open', return_value=z)
 
     possible_marker = entity_path.name.split('-')[-2]

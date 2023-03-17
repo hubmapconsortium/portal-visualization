@@ -1,4 +1,3 @@
-import requests
 from functools import cached_property
 
 from vitessce import (
@@ -26,7 +25,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         self._is_spatial = False
         self._scatterplot_w = 6 if self.is_annotated else 9
         self._spatial_w = 0
-    
+
     @cached_property
     def zarr_store(self):
         zarr_path = 'hubmap_ui/anndata-zarr/secondary_analysis.zarr'
@@ -38,7 +37,6 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
     def is_annotated(self):
         z = self.zarr_store
         return z['uns/annotation_metadata/is_annotated'][()]
-
 
     def get_conf_cells(self, marker=None):
         zarr_path = 'hubmap_ui/anndata-zarr/secondary_analysis.zarr'
@@ -59,7 +57,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
             dag for dag in self._entity['metadata']['dag_provenance_list']
             if 'name' in dag]
         z = self.zarr_store
-        if(any(['azimuth-annotate' in dag['origin'] for dag in dags])):
+        if (any(['azimuth-annotate' in dag['origin'] for dag in dags])):
             if self.is_annotated:
                 if 'predicted.ASCT.celltype' in z['obs']:
                     cell_set_obs.append("predicted.ASCT.celltype")
@@ -153,7 +151,13 @@ class SpatialRNASeqAnnDataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
         self._spatial_w = 5
 
     def _add_spatial_view(self, dataset, vc):
-        spatial = vc.add_view(cm.SPATIAL, dataset=dataset, x=self._scatterplot_w, y=0, w=self._spatial_w, h=6)
+        spatial = vc.add_view(
+            cm.SPATIAL,
+            dataset=dataset,
+            x=self._scatterplot_w,
+            y=0,
+            w=self._spatial_w,
+            h=6)
         [cells_layer] = vc.add_coordination('spatialCellsLayer')
         cells_layer.set_value(
             {
