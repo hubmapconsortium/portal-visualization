@@ -1,4 +1,5 @@
 import requests
+from functools import cached_property
 
 from vitessce import (
     VitessceConfig,
@@ -23,7 +24,21 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         # Spatially resolved RNA-seq assays require some special handling,
         # and others do not.
         self._is_spatial = False
-        self._scatterplot_w = 9
+        self._scatterplot_w = 6 if self.is_annotated else 9
+        self._spatial_w = 0
+    
+    @cached_property
+    def zarr_store(self):
+        zarr_path = 'hubmap_ui/anndata-zarr/secondary_analysis.zarr'
+        request_init = self._get_request_init() or {}
+        adata_url = self._build_assets_url(zarr_path, use_token=False)
+        return zarr.open(adata_url, mode='r', storage_options={'client_kwargs': request_init})
+
+    @cached_property
+    def is_annotated(self):
+        z = self.zarr_store
+        return z['uns/annotation_metadata/is_annotated'][()]
+
 
     def get_conf_cells(self, marker=None):
         zarr_path = 'hubmap_ui/anndata-zarr/secondary_analysis.zarr'
@@ -38,23 +53,22 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         # https://github.com/hubmapconsortium/portal-containers/blob/master/containers/anndata-to-ui
         # while others come from Matt's standard scanpy pipeline
         # or AnnData default (like X_umap or X).
-        cell_set_obs = ["leiden"]
-        cell_set_obs_names = ["Leiden"]
+        cell_set_obs = []
+        cell_set_obs_names = []
         dags = [
             dag for dag in self._entity['metadata']['dag_provenance_list']
             if 'name' in dag]
-        request_init = self._get_request_init() or {}
+        z = self.zarr_store
         if(any(['azimuth-annotate' in dag['origin'] for dag in dags])):
-            headers = request_init.get('headers', {})
-            response = requests.get(
-                f'{adata_url}/uns/annotation_metadata/is_annotated/0',
-                headers=headers)
-            if response.content == b'\x01':
-                # One-byte encoding for True.
-                # If the dataset didn't have Azimuth annotations, it would be b'\x00'.
-                cell_set_obs.append("predicted.ASCT.celltype")
-                cell_set_obs_names.append("Predicted ASCT Cell Type")
-        z = zarr.open(adata_url, mode='r', storage_options={'client_kwargs': request_init})
+            if self.is_annotated:
+                if 'predicted.ASCT.celltype' in z['obs']:
+                    cell_set_obs.append("predicted.ASCT.celltype")
+                    cell_set_obs_names.append("Predicted ASCT Cell Type")
+                if 'predicted_label' in z['obs']:
+                    cell_set_obs.append("predicted_label")
+                    cell_set_obs_names.append("Cell Ontology Annotation")
+        cell_set_obs.append("leiden")
+        cell_set_obs_names.append("Leiden")
         gene_alias = 'var/hugo_symbol' if 'var' in z and 'hugo_symbol' in z['var'] else None
         dataset = vc.add_dataset(name=self._uuid).add_object(AnnDataWrapper(
             adata_url=adata_url,
@@ -83,9 +97,21 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         scatterplot = vc.add_view(
             cm.SCATTERPLOT, dataset=dataset, mapping="UMAP", x=0, y=0, w=self._scatterplot_w, h=6)
         cell_sets = vc.add_view(
-            cm.CELL_SETS, dataset=dataset, x=9, y=0, w=3, h=3)
+            cm.CELL_SETS,
+            dataset=dataset,
+            x=self._scatterplot_w + self._spatial_w,
+            y=0,
+            w=12 - self._scatterplot_w - self._spatial_w,
+            h=3
+        )
         gene_list = vc.add_view(
-            cm.GENES, dataset=dataset, x=9, y=4, w=3, h=3)
+            cm.GENES,
+            dataset=dataset,
+            x=self._scatterplot_w + self._spatial_w,
+            y=4,
+            w=12 - self._scatterplot_w - self._spatial_w,
+            h=3
+        )
         cell_sets_expr = vc.add_view(
             cm.CELL_SET_EXPRESSION, dataset=dataset, x=7, y=6, w=5, h=4)
         heatmap = vc.add_view(
@@ -124,9 +150,10 @@ class SpatialRNASeqAnnDataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
         # and others do not.
         self._is_spatial = True
         self._scatterplot_w = 4
+        self._spatial_w = 5
 
     def _add_spatial_view(self, dataset, vc):
-        spatial = vc.add_view(cm.SPATIAL, dataset=dataset, x=4, y=0, w=5, h=6)
+        spatial = vc.add_view(cm.SPATIAL, dataset=dataset, x=self._scatterplot_w, y=0, w=self._spatial_w, h=6)
         [cells_layer] = vc.add_coordination('spatialCellsLayer')
         cells_layer.set_value(
             {

@@ -46,8 +46,8 @@
               "setName": "obs/leiden"
             },
             {
-              "groupName": "Predicted ASCT Cell Type",
-              "setName": "obs/predicted.ASCT.celltype"
+              "groupName": "Cell Ontology Annotation",
+              "setName": "obs/predicted_label"
             }
           ],
           "requestInit": {
@@ -87,7 +87,7 @@
         "embeddingType": "A"
       },
       "h": 6,
-      "w": 9,
+      "w": 6,
       "x": 0,
       "y": 0
     },
@@ -97,8 +97,8 @@
         "dataset": "A"
       },
       "h": 3,
-      "w": 3,
-      "x": 9,
+      "w": 6,
+      "x": 6,
       "y": 0
     },
     {
@@ -107,8 +107,8 @@
         "dataset": "A"
       },
       "h": 3,
-      "w": 3,
-      "x": 9,
+      "w": 6,
+      "x": 6,
       "y": 4
     },
     {
