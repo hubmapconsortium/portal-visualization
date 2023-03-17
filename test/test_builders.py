@@ -62,11 +62,11 @@ def test_has_visualization(has_vis_entity):
 def test_entity_to_vitessce_conf(entity_path, mocker):
     # Need to mock zarr.open to yield correct values for different scenarios
     z = zarr.open()
-    if 'is-annotated' in entity_path:
+    if 'is-annotated' in entity_path.name:
         z['uns/annotation_metadata/is_annotated'] = True
-        if 'asct' in entity_path:
+        if 'asct' in entity_path.name:
             z['obs/predicted.ASCT.celltype'] = True  # only checked for membership in zarr group
-        elif 'predicted-label' in entity_path:
+        elif 'predicted-label' in entity_path.name:
             z['obs/predicted_label'] = True  # only checked for membership in zarr group
     mocker.patch('zarr.open', return_value=z)
 
