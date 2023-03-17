@@ -36,7 +36,10 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
     @cached_property
     def is_annotated(self):
         z = self.zarr_store
-        return z['uns/annotation_metadata/is_annotated'][()]
+        if 'uns/annotation_metadata/is_annotated' in z:
+            return z['uns/annotation_metadata/is_annotated'][()]
+        else:
+            return False
 
     def get_conf_cells(self, marker=None):
         zarr_path = 'hubmap_ui/anndata-zarr/secondary_analysis.zarr'
