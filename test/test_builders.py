@@ -57,11 +57,22 @@ def test_has_visualization(has_vis_entity):
     assert has_vis == has_visualization(entity, get_assay)
 
 
+def mock_zarr_store(entity_path, mocker):
+    # Need to mock zarr.open to yield correct values for different scenarios
+    z = zarr.open()
+    if 'is-annotated' in entity_path.name:
+        z['uns/annotation_metadata/is_annotated'] = True
+        if 'asct' in entity_path.name:
+            z['obs/predicted.ASCT.celltype'] = True  # only checked for membership in zarr group
+        elif 'predicted-label' in entity_path.name:
+            z['obs/predicted_label'] = True  # only checked for membership in zarr group
+    mocker.patch('zarr.open', return_value=z)
+
+
 @pytest.mark.parametrize(
     "entity_path", good_entity_paths, ids=lambda path: f'{path.parent.name}/{path.name}')
 def test_entity_to_vitessce_conf(entity_path, mocker):
-    # Need to mock zarr.open to yield the correct error with an empty store
-    mocker.patch('zarr.open', return_value=zarr.open())
+    mock_zarr_store(entity_path, mocker)
 
     possible_marker = entity_path.name.split('-')[-2]
     marker = (
@@ -77,14 +88,6 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
     # but to test the end-to-end integration, they are useful.
     groups_token = environ.get('GROUPS_TOKEN', 'groups_token')
     assets_url = environ.get('ASSETS_URL', 'https://example.com')
-    if 'ASSETS_URL' not in environ:
-        mock_response = (
-            MockResponse(content=b'\x01')
-            if 'http200' in entity_path.name else
-            MockResponse(content=b'something else')
-        )
-        mocker.patch('requests.get', return_value=mock_response)
-
     builder = Builder(entity, groups_token, assets_url)
     conf, cells = builder.get_conf_cells(marker=marker)
 
@@ -106,7 +109,9 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
 
 @pytest.mark.parametrize(
     "entity_path", bad_entity_paths, ids=lambda path: path.name)
-def test_entity_to_error(entity_path):
+def test_entity_to_error(entity_path, mocker):
+    mock_zarr_store(entity_path, mocker)
+
     entity = json.loads(entity_path.read_text())
     with pytest.raises(Exception) as error_info:
         Builder = get_view_config_builder(entity, get_assay)
