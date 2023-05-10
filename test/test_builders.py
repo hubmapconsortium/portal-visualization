@@ -48,7 +48,8 @@ def get_assay(name):
     "has_vis_entity",
     [
         (False, {'data_types': [], 'metadata': {'dag_provenance_list': []}}),
-        (True, json.loads(Path.read_text(good_entity_paths[0])))
+        (True, json.loads(Path.read_text(good_entity_paths[0]))),
+        (False, {'data_types': []})
         # If the first fixture returns a Null builder this would break.
     ],
     ids=lambda has_vis_entity: f'has_visualization={has_vis_entity[0]}')
