@@ -25,6 +25,9 @@ def get_view_config_builder(entity, get_assay):
     hints = [hint for assay in assay_objs for hint in assay.vitessce_hints]
     dag_names = [dag['name']
                  for dag in entity['metadata']['dag_provenance_list'] if 'name' in dag]
+    if 'integrative' in hints:
+        # TODO: confirm the string to be used in the hint.
+        return IntegrativeViewConfBuilder
     if "is_image" in hints:
         if 'sprm' in hints and 'anndata' in hints:
             return MultiImageSPRMAnndataViewConfBuilder
