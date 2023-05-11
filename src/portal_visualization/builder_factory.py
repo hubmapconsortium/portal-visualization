@@ -23,8 +23,9 @@ def get_view_config_builder(entity, get_assay):
     assay_objs = [get_assay(dt) for dt in data_types]
     assay_names = [assay.name for assay in assay_objs]
     hints = [hint for assay in assay_objs for hint in assay.vitessce_hints]
+    dag_provenance_list = entity.get('metadata', {}).get('dag_provenance_list', [])
     dag_names = [dag['name']
-                 for dag in entity['metadata']['dag_provenance_list'] if 'name' in dag]
+                 for dag in dag_provenance_list if 'name' in dag]
     if "is_image" in hints:
         if 'sprm' in hints and 'anndata' in hints:
             return MultiImageSPRMAnndataViewConfBuilder
