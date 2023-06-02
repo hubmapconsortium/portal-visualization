@@ -103,7 +103,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
                 if (marker_index_in_categories >= 0):
                     # Find index of HUGO pointer corresponding to marker gene
                     marker_index = np.where(hugo_index_list == marker_index_in_categories)[0][0]
-                    # If a valid index is found, set the marker gene to the corresponding ensembl ID
+                    # If valid index is found, set the marker name to the corresponding Ensembl ID
                     if (marker_index >= 0):
                         marker = ensembl_ids[marker_index]
                     else:
