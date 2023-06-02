@@ -6,7 +6,9 @@ from vitessce import (
     Component as cm,
     CoordinationType,
 )
+import numpy as np
 import zarr
+
 
 from .base_builders import ViewConfBuilder
 from ..utils import get_conf_cells
@@ -71,6 +73,47 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         cell_set_obs.append("leiden")
         cell_set_obs_names.append("Leiden")
         gene_alias = 'var/hugo_symbol' if 'var' in z and 'hugo_symbol' in z['var'] else None
+        if (gene_alias and marker is not None):
+            # If user has indicated a marker gene in parameters and we have a hugo_symbol mapping,
+            # then we need to convert it to the proper underlying ensembl ID for the dataset
+            # in order for the views to reflect the correct gene.
+
+            obs_attrs = dict(z["obs"].attrs)
+            encoding_version = obs_attrs["encoding-version"]
+
+            # Encoding Version 0.1.0 
+            # https://github.com/scverse/anndata/blob/0.7.x/docs/fileformat-prose.rst#dataframes
+            if (encoding_version == "0.1.0"):
+                # Get the list of ensembl IDs from the zarr store
+                ensembl_ids_key = z['var'].attrs['_index']
+                ensembl_ids = z['var'][ensembl_ids_key]
+                # Get the list of hugo symbols
+                hugo_symbols = z[gene_alias]
+                # Indices (keys) of entries in hugo index list correspond to the indices of the ensembl ID's they map to
+                # Values of entries in hugo index list correspond to indices in hugo_categories list
+                hugo_index_list = hugo_symbols[:]
+                # Get the key for the hugo categories list from the categorical entry attributes 
+                hugo_categories_key = dict(hugo_symbols.attrs)['categories']
+                # Get the list of categories that the hugo_index_list's values map to
+                hugo_categories = z['var'][hugo_categories_key][:]
+                # Find the index of the user-provided marker gene in the list of hugo symbols
+                marker_index_in_categories = np.where(hugo_categories == marker)[0][0]
+
+                # If the user-provided gene's index is found, continue
+                if (marker_index_in_categories >= 0):
+                    # Find the entry in the hugo index list that corresponds to the marker gene's found index
+                    marker_index = np.where(hugo_index_list == marker_index_in_categories)[0][0]
+                    # If a valid index is found, set the marker gene to the corresponding ensembl ID, else do nothing
+                    if (marker_index >= 0):
+                        marker = ensembl_ids[marker_index]
+                    else:
+                        pass
+            # Encoding Version 0.2.0
+            # https://anndata.readthedocs.io/en/latest/fileformat-prose.html#categorical-arrays
+            # Our pipeline currently does not use this encoding version, so I am leaving this as a TODO
+            elif (encoding_version == "0.2.0"):
+                print('TODO - Encoding Version 0.2.0 support for converting marker genes to their underlying ensembl IDs')
+
         dataset = vc.add_dataset(name=self._uuid).add_object(AnnDataWrapper(
             adata_url=adata_url,
             mappings_obsm=["X_umap"],
@@ -122,11 +165,15 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         # Vitessce feature request to add it:
         # https://github.com/vitessce/vitessce/issues/1298
 
-        self._add_spatial_view(dataset, vc)
+        # Spatial view is added if present, otherwise gets filtered out before views are linked
+        # This ensures that the view config is valid for datasets with and without a spatial view
+        spatial = self._add_spatial_view(dataset, vc)
+
+        views = [v for v in [cell_sets, gene_list, scatterplot, cell_sets_expr, heatmap, spatial] if v is not None]
 
         if marker:
             vc.link_views(
-                [cell_sets, gene_list, scatterplot, cell_sets_expr, heatmap],
+                views,
                 [CoordinationType.GENE_SELECTION, CoordinationType.CELL_COLOR_ENCODING],
                 [[marker], "geneSelection"]
             )
@@ -136,7 +183,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
     def _add_spatial_view(self, dataset, vc):
         # This class does not have a spatial_view...
         # but the subclass does, and overrides this method.
-        pass
+        return None
 
 
 class SpatialRNASeqAnnDataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
@@ -171,3 +218,4 @@ class SpatialRNASeqAnnDataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
             }
         )
         spatial.use_coordination(cells_layer)
+        return spatial
