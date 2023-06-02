@@ -142,7 +142,9 @@
     {
       "component": "spatial",
       "coordinationScopes": {
+        "cellColorEncoding": "A",
         "dataset": "A",
+        "geneSelection": "A",
         "spatialCellsLayer": "A"
       },
       "h": 6,
