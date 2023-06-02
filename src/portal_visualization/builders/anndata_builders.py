@@ -82,15 +82,15 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
             encoding_version = obs_attrs["encoding-version"]
 
             # Encoding Version 0.1.0
-            # https://github.com/scverse/anndata/blob/0.7.x/docs/fileformat-prose.rst#dataframes
+            # https://anndata.readthedocs.io/en/0.7.8/fileformat-prose.html#categorical-arrays
             if (encoding_version == "0.1.0"):
                 # Get the list of ensembl IDs from the zarr store
                 ensembl_ids_key = z['var'].attrs['_index']
                 ensembl_ids = z['var'][ensembl_ids_key]
                 # Get the list of hugo symbols
                 hugo_symbols = z[gene_alias]
-                # Indices (keys) of entries in hugo index list correspond to the indices of the ensembl ID's they map to
-                # Values of entries in hugo index list correspond to indices in hugo_categories list
+                # Indices in hugo_index_list match to indices of mapped ensembl ID's
+                # Values in hugo_index_list match to indices in hugo_categories
                 hugo_index_list = hugo_symbols[:]
                 # Get the key for the hugo categories list from the categorical entry attributes
                 hugo_categories_key = dict(hugo_symbols.attrs)['categories']
@@ -101,16 +101,17 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
 
                 # If the user-provided gene's index is found, continue
                 if (marker_index_in_categories >= 0):
-                    # Find the entry in the hugo index list that corresponds to the marker gene's found index
+                    # Find index of HUGO pointer corresponding to marker gene
                     marker_index = np.where(hugo_index_list == marker_index_in_categories)[0][0]
-                    # If a valid index is found, set the marker gene to the corresponding ensembl ID, else do nothing
+                    # If a valid index is found, set the marker gene to the corresponding ensembl ID
                     if (marker_index >= 0):
                         marker = ensembl_ids[marker_index]
                     else:
                         pass
             # Encoding Version 0.2.0
             # https://anndata.readthedocs.io/en/latest/fileformat-prose.html#categorical-arrays
-            # Our pipeline currently does not use this encoding version, so this is a future improvement - HMP-137
+            # Our pipeline currently does not use this encoding version
+            # Future improvement - HMP-137
             elif (encoding_version == "0.2.0"):
                 print(
                     'TODO - Encoding Version 0.2.0 support \
