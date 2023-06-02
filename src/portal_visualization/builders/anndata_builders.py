@@ -81,7 +81,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
             obs_attrs = dict(z["obs"].attrs)
             encoding_version = obs_attrs["encoding-version"]
 
-            # Encoding Version 0.1.0 
+            # Encoding Version 0.1.0
             # https://github.com/scverse/anndata/blob/0.7.x/docs/fileformat-prose.rst#dataframes
             if (encoding_version == "0.1.0"):
                 # Get the list of ensembl IDs from the zarr store
@@ -92,7 +92,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
                 # Indices (keys) of entries in hugo index list correspond to the indices of the ensembl ID's they map to
                 # Values of entries in hugo index list correspond to indices in hugo_categories list
                 hugo_index_list = hugo_symbols[:]
-                # Get the key for the hugo categories list from the categorical entry attributes 
+                # Get the key for the hugo categories list from the categorical entry attributes
                 hugo_categories_key = dict(hugo_symbols.attrs)['categories']
                 # Get the list of categories that the hugo_index_list's values map to
                 hugo_categories = z['var'][hugo_categories_key][:]
@@ -110,9 +110,11 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
                         pass
             # Encoding Version 0.2.0
             # https://anndata.readthedocs.io/en/latest/fileformat-prose.html#categorical-arrays
-            # Our pipeline currently does not use this encoding version, so I am leaving this as a TODO
+            # Our pipeline currently does not use this encoding version, so this is a future improvement - HMP-137
             elif (encoding_version == "0.2.0"):
-                print('TODO - Encoding Version 0.2.0 support for converting marker genes to their underlying ensembl IDs')
+                print(
+                    'TODO - Encoding Version 0.2.0 support \
+                        for converting marker genes to their underlying ensembl IDs - see HMP-137')
 
         dataset = vc.add_dataset(name=self._uuid).add_object(AnnDataWrapper(
             adata_url=adata_url,
@@ -169,7 +171,8 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         # This ensures that the view config is valid for datasets with and without a spatial view
         spatial = self._add_spatial_view(dataset, vc)
 
-        views = [v for v in [cell_sets, gene_list, scatterplot, cell_sets_expr, heatmap, spatial] if v is not None]
+        views = [v for v in [cell_sets, gene_list, scatterplot,
+                             cell_sets_expr, heatmap, spatial] if v is not None]
 
         if marker:
             vc.link_views(
