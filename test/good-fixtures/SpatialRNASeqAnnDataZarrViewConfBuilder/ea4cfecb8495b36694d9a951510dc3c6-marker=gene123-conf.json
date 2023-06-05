@@ -11,7 +11,7 @@
     },
     "geneSelection": {
       "A": [
-        "gene123"
+        "ENSG00000139618"
       ]
     },
     "spatialCellsLayer": {
@@ -64,6 +64,7 @@
         {
           "fileType": "anndata-expression-matrix.zarr",
           "options": {
+            "geneAlias": "var/hugo_symbol",
             "matrix": "X",
             "matrixGeneFilter": "var/marker_genes_for_heatmap"
           },
