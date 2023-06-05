@@ -69,12 +69,12 @@ def mock_zarr_store(entity_path, mocker):
             z['obs/predicted_label'] = True  # only checked for membership in zarr group
     if 'marker' in entity_path.name:
         obs = z.create_group('obs')
-        obs.attrs.__setitem('encoding-version', '0.1.0')
+        obs.attrs.__setitem__('encoding-version', '0.1.0')
         var = z.create_group('var')
-        var.attrs.__setitem('_index', 'index')
+        var.attrs.__setitem__('_index', 'index')
         var.array('index', ['ENSG00000139618', 'ENSG00000139619', 'ENSG00000139620'])
         var.array('hugo_symbol', [0, 1, 2])
-        var['hugo_symbol'].attrs.__setitem('categories', 'hugo_categories')
+        var['hugo_symbol'].attrs.__setitem__('categories', 'hugo_categories')
         var.array('hugo_categories', ['gene123', 'gene456', 'gene789'])
     mocker.patch('zarr.open', return_value=z)
 
