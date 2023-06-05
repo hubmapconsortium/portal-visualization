@@ -68,6 +68,8 @@ def mock_zarr_store(entity_path, mocker):
         elif 'predicted-label' in entity_path.name:
             z['obs/predicted_label'] = True  # only checked for membership in zarr group
     if 'marker' in entity_path.name:
+        z.create_group('var')
+        z.create_group('obs')
         z['obs'].attrs = {'encoding-version': '0.1.0'}
         z['var'].attrs['_index'] = 'index'
         z['var']['index'] = ['ENSG00000139618', 'ENSG00000139619', 'ENSG00000139620']
