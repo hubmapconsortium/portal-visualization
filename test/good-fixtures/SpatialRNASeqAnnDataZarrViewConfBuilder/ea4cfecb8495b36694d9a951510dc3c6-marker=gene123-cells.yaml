@@ -88,9 +88,9 @@
         w=5,
         h=6,
         coordination_scopes={
-           "spatialCellsLayer": "A",
-           "geneSelection": "A",
-           "cellColorEncoding": "A",
+            "spatialCellsLayer": "A",
+            "geneSelection": "A",
+            "cellColorEncoding": "A",
         },
     )
 
