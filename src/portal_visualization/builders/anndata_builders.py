@@ -111,11 +111,9 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
             # Encoding Version 0.2.0
             # https://anndata.readthedocs.io/en/latest/fileformat-prose.html#categorical-arrays
             # Our pipeline currently does not use this encoding version
-            # Future improvement - HMP-137
-            elif (encoding_version == "0.2.0"):
-                print(
-                    'TODO - Encoding Version 0.2.0 support \
-                        for converting marker genes to their underlying ensembl IDs - see HMP-137')
+            # Future improvement to be implemented in HMP-137
+            # elif (encoding_version == "0.2.0"):
+            #     print('TODO - Encoding Version 0.2.0 support')
 
         dataset = vc.add_dataset(name=self._uuid).add_object(AnnDataWrapper(
             adata_url=adata_url,
