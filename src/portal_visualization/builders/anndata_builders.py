@@ -73,12 +73,12 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         cell_set_obs.append("leiden")
         cell_set_obs_names.append("Leiden")
         gene_alias = 'var/hugo_symbol' if 'var' in z and 'hugo_symbol' in z['var'] else None
-        if (gene_alias and marker is not None):
+        if (gene_alias is not None and marker is not None):
             # If user has indicated a marker gene in parameters and we have a hugo_symbol mapping,
             # then we need to convert it to the proper underlying ensembl ID for the dataset
             # in order for the views to reflect the correct gene.
 
-            obs_attrs = dict(z["obs"].attrs)
+            obs_attrs = z["obs"].attrs.asdict()
             encoding_version = obs_attrs["encoding-version"]
 
             # Encoding Version 0.1.0
@@ -93,7 +93,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
                 # Values in hugo_index_list match to indices in hugo_categories
                 hugo_index_list = hugo_symbols[:]
                 # Get the key for the hugo categories list from the categorical entry attributes
-                hugo_categories_key = dict(hugo_symbols.attrs)['categories']
+                hugo_categories_key = hugo_symbols.attrs.asdict()['categories']
                 # Get the list of categories that the hugo_index_list's values map to
                 hugo_categories = z['var'][hugo_categories_key][:]
                 # Find the index of the user-provided marker gene in the list of hugo symbols
@@ -170,8 +170,8 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         # This ensures that the view config is valid for datasets with and without a spatial view
         spatial = self._add_spatial_view(dataset, vc)
 
-        views = [v for v in [cell_sets, gene_list, scatterplot,
-                             cell_sets_expr, heatmap, spatial] if v is not None]
+        views = list(filter(lambda v: v is not None, [
+                     cell_sets, gene_list, scatterplot, cell_sets_expr, heatmap, spatial]))
 
         if marker:
             vc.link_views(
