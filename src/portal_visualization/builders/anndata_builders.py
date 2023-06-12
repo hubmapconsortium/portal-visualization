@@ -97,7 +97,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
                 # Get the list of categories that the hugo_index_list's values map to
                 hugo_categories = z['var'][hugo_categories_key][:]
                 # Find the index of the user-provided marker gene in the list of hugo symbols
-                marker_index_in_categories = np.where(hugo_categories == marker)[0][0]
+                is_marker_index_in_categories = np.where(hugo_categories == marker)[0][0]
 
                 # If the user-provided gene's index is found, continue
                 if (marker_index_in_categories >= 0):
