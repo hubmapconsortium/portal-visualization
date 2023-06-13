@@ -4,7 +4,7 @@ from .builders.sprm_builders import (
     MultiImageSPRMAnndataViewConfBuilder
 )
 from .builders.imaging_builders import (
-    SeqFISHViewConfBuilder, IMSViewConfBuilder, ImagePyramidViewConfBuilder, NanoDESIConfBuilder
+    SeqFISHViewConfBuilder, IMSViewConfBuilder, ImagePyramidViewConfBuilder, NanoDESIViewConfBuilder
 )
 from .builders.anndata_builders import (
     SpatialRNASeqAnnDataZarrViewConfBuilder, RNASeqAnnDataZarrViewConfBuilder
@@ -39,7 +39,7 @@ def get_view_config_builder(entity, get_assay):
         if MALDI_IMS in assay_names:
             return IMSViewConfBuilder
         if NANODESI in str(entity):  # very bad hack
-            return NanoDESIConfBuilder
+            return NanoDESIViewConfBuilder
         return ImagePyramidViewConfBuilder
     if "rna" in hints:
         # This is the zarr-backed anndata pipeline.

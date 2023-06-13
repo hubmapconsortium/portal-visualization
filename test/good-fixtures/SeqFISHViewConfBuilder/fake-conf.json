@@ -49,6 +49,9 @@
         "coordinationScopes": {
           "dataset": "A"
         },
+        "props": {
+          "useFullResolutionImage": []
+        },
         "h": 12,
         "w": 9,
         "x": 3,
@@ -134,6 +137,9 @@
         "component": "spatial",
         "coordinationScopes": {
           "dataset": "A"
+        },
+        "props": {
+          "useFullResolutionImage": []
         },
         "h": 12,
         "w": 9,

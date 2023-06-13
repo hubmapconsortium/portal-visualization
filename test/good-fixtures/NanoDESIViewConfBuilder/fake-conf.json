@@ -37,7 +37,9 @@
     {
       "component": "spatial",
       "coordinationScopes": {
-        "dataset": "A",
+        "dataset": "A"
+      },
+      "props": {
         "useFullResolutionImage": ["VAN0003-LK-32-21-IMS_NegMode_multilayer.ome.tif"]
       },
       "h": 12,

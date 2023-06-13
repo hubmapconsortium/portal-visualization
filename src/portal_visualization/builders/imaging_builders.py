@@ -46,9 +46,9 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
             ),
         )
 
-    def _setup_view_config_raster(self, vc, dataset, disable_3d=[]):
+    def _setup_view_config_raster(self, vc, dataset, disable_3d=[], use_full_resolution=[]):
         vc.add_view(cm.SPATIAL, dataset=dataset, x=3, y=0, w=9, h=12).set_props(
-            useFullResolutionImage=self.use_full_resolution
+            useFullResolutionImage=use_full_resolution
         )
         vc.add_view(cm.DESCRIPTION, dataset=dataset, x=0, y=8, w=3, h=4)
         vc.add_view(cm.LAYER_CONTROLLER, dataset=dataset, x=0, y=0, w=3, h=8).set_props(
@@ -98,7 +98,7 @@ class ImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
                 use_physical_size_scaling=self.use_physical_size_scaling
             )
         )
-        vc = self._setup_view_config_raster(vc, dataset)
+        vc = self._setup_view_config_raster(vc, dataset, use_full_resolution=self.use_full_resolution)
         conf = vc.to_dict()
         # Don't want to render all layers
         del conf["datasets"][0]["files"][0]["options"]["renderLayers"]
@@ -119,7 +119,7 @@ class IMSViewConfBuilder(ImagePyramidViewConfBuilder):
         )
 
 
-class NanoDESIConfBuilder(ImagePyramidViewConfBuilder):
+class NanoDESIViewConfBuilder(ImagePyramidViewConfBuilder):
     def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
         super().__init__(entity, groups_token, assets_endpoint, **kwargs)
         # Do not show full pyramid - does not look good
