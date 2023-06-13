@@ -92,7 +92,12 @@ class ImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
                     img_url=img_url, offsets_url=offsets_url, name=Path(img_path).name
                 )
             )
-        dataset = dataset.add_object(MultiImageWrapper(images, use_physical_size_scaling=self.use_physical_size_scaling))
+        dataset = dataset.add_object(
+            MultiImageWrapper(
+                images,
+                use_physical_size_scaling=self.use_physical_size_scaling
+            )
+        )
         vc = self._setup_view_config_raster(vc, dataset)
         conf = vc.to_dict()
         # Don't want to render all layers
@@ -113,11 +118,13 @@ class IMSViewConfBuilder(ImagePyramidViewConfBuilder):
             re.escape(IMAGE_PYRAMID_DIR) + r"(?!/ometiffs/separate/)"
         )
 
+
 class NanoDESIConfBuilder(ImagePyramidViewConfBuilder):
     def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
         super().__init__(entity, groups_token, assets_endpoint, **kwargs)
         # Do not show full pyramid - does not look good
-        image_names = [Path(file['rel_path']).name for file in self._entity["files"] if not file["rel_path"].endswith('json')]
+        image_names = [Path(file['rel_path']).name for file in self._entity["files"]
+                       if not file["rel_path"].endswith('json')]
         self.use_full_resolution = image_names
         self.use_physical_size_scaling = True
 

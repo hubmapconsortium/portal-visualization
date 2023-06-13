@@ -38,7 +38,7 @@ def get_view_config_builder(entity, get_assay):
             return SeqFISHViewConfBuilder
         if MALDI_IMS in assay_names:
             return IMSViewConfBuilder
-        if NANODESI in str(entity): # very bad hack
+        if NANODESI in str(entity):  # very bad hack
             return NanoDESIConfBuilder
         return ImagePyramidViewConfBuilder
     if "rna" in hints:
