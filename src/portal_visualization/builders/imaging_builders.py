@@ -98,7 +98,8 @@ class ImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
                 use_physical_size_scaling=self.use_physical_size_scaling
             )
         )
-        vc = self._setup_view_config_raster(vc, dataset, use_full_resolution=self.use_full_resolution)
+        vc = self._setup_view_config_raster(
+            vc, dataset, use_full_resolution=self.use_full_resolution)
         conf = vc.to_dict()
         # Don't want to render all layers
         del conf["datasets"][0]["files"][0]["options"]["renderLayers"]
