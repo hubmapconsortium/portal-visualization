@@ -67,6 +67,15 @@ def mock_zarr_store(entity_path, mocker):
             z['obs/predicted.ASCT.celltype'] = True  # only checked for membership in zarr group
         elif 'predicted-label' in entity_path.name:
             z['obs/predicted_label'] = True  # only checked for membership in zarr group
+    if 'marker' in entity_path.name:
+        obs = z.create_group('obs')
+        obs.attrs['encoding-version'] = '0.1.0'
+        var = z.create_group('var')
+        var.attrs['_index'] = 'index'
+        var['index'] = zarr.array(['ENSG00000139618', 'ENSG00000139619', 'ENSG00000139620'])
+        var['hugo_symbol'] = zarr.array([0, 1, 2])
+        var['hugo_symbol'].attrs['categories'] = 'hugo_categories'
+        var['hugo_categories'] = zarr.array(['gene123', 'gene456', 'gene789'])
     mocker.patch('zarr.open', return_value=z)
 
 
