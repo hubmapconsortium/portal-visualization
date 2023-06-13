@@ -47,7 +47,9 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
         )
 
     def _setup_view_config_raster(self, vc, dataset, disable_3d=[]):
-        vc.add_view(cm.SPATIAL, dataset=dataset, x=3, y=0, w=9, h=12)
+        vc.add_view(cm.SPATIAL, dataset=dataset, x=3, y=0, w=9, h=12).set_props(
+            useFullResolutionImage=self.use_full_resolution
+        )
         vc.add_view(cm.DESCRIPTION, dataset=dataset, x=0, y=8, w=3, h=4)
         vc.add_view(cm.LAYER_CONTROLLER, dataset=dataset, x=0, y=0, w=3, h=8).set_props(
             disable3d=disable_3d, disableChannelsIfRgbDetected=True
@@ -62,6 +64,8 @@ class ImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
         https://portal.hubmapconsortium.org/browse/dataset/dc289471333309925e46ceb9bafafaf4
         """
         self.image_pyramid_regex = IMAGE_PYRAMID_DIR
+        self.use_full_resolution = []
+        self.use_physical_size_scaling = False
         super().__init__(entity, groups_token, assets_endpoint, **kwargs)
 
     def get_conf_cells(self, **kwargs):
@@ -88,7 +92,7 @@ class ImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
                     img_url=img_url, offsets_url=offsets_url, name=Path(img_path).name
                 )
             )
-        dataset = dataset.add_object(MultiImageWrapper(images))
+        dataset = dataset.add_object(MultiImageWrapper(images, use_physical_size_scaling=self.use_physical_size_scaling))
         vc = self._setup_view_config_raster(vc, dataset)
         conf = vc.to_dict()
         # Don't want to render all layers
@@ -108,6 +112,14 @@ class IMSViewConfBuilder(ImagePyramidViewConfBuilder):
         self.image_pyramid_regex = (
             re.escape(IMAGE_PYRAMID_DIR) + r"(?!/ometiffs/separate/)"
         )
+
+class NanoDESIConfBuilder(ImagePyramidViewConfBuilder):
+    def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
+        super().__init__(entity, groups_token, assets_endpoint, **kwargs)
+        # Do not show full pyramid - does not look good
+        image_names = [Path(file['rel_path']).name for file in self._entity["files"] if not file["rel_path"].endswith('json')]
+        self.use_full_resolution = image_names
+        self.use_physical_size_scaling = True
 
 
 class SeqFISHViewConfBuilder(AbstractImagingViewConfBuilder):
