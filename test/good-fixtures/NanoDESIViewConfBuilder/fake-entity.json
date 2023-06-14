@@ -1,7 +1,11 @@
 {
     "data_types": [
-        "image_pyramid",
-        "NanoDESI"
+        "image_pyramid"
+    ],
+    "immediate_ancestors": [
+        {
+            "data_types": ["NanoDESI"]
+        }
     ],
     "status": "QA",
     "files": [

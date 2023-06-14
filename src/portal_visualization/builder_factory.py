@@ -37,11 +37,14 @@ def get_view_config_builder(entity, get_assay):
             if ('sprm-to-anndata.cwl' in dag_names):
                 return StitchedCytokitSPRMViewConfBuilder
             return TiledSPRMViewConfBuilder
+        # Both SeqFISH and IMS were submitted very early on, before the
+        # special image pyramid datasets existed.  Their assay names should be in
+        # the `entity["data_types"]` while newer ones, like NanoDESI, are in the parents
         if SEQFISH in assay_names:
             return SeqFISHViewConfBuilder
         if MALDI_IMS in assay_names:
             return IMSViewConfBuilder
-        if NANODESI in str(entity):  # very bad hack
+        if NANODESI in [dt for e in entity["immediate_ancestors"] for dt in e["data_types"]]:
             return NanoDESIViewConfBuilder
         return ImagePyramidViewConfBuilder
     if "rna" in hints:

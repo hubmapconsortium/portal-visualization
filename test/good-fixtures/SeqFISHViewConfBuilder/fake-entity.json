@@ -4,6 +4,11 @@
         "seqFish"
     ],
     "status": "QA",
+    "immediate_ancestors": [
+        {
+            "data_types": ["seqFish"]
+        }
+    ],
     "files": [
         {
             "rel_path": "ometiff-pyramids/final_mRNA_background/MMStack_Pos12.ome.tif"

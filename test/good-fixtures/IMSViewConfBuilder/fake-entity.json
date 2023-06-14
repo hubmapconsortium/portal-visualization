@@ -4,6 +4,11 @@
         "MALDI-IMS-neg"
     ],
     "status": "QA",
+    "immediate_ancestors": [
+        {
+            "data_types": ["MALDI-IMS-neg"]
+        }
+    ],
     "files": [
         {
             "rel_path": "ometiff-pyramids/ometiffs/separate/VAN0003-LK-32-21-IMS_NegMode_mz909.606.ome.tif"

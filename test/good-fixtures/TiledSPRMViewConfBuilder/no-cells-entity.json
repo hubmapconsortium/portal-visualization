@@ -7,6 +7,11 @@
       "rel_path": "output/extract/expressions/ome-tiff/reg1.ome.tiff"
     }
   ],
+  "immediate_ancestors": [
+        {
+            "data_types": ["codex_cytokit_v1"]
+        }
+  ],
   "mapped_data_types": [
     "CODEX [Cytokit + SPRM]"
   ],
