@@ -4,6 +4,11 @@
         "PAS"
     ],
     "status": "QA",
+    "immediate_ancestors": [
+        {
+            "data_types": ["PAS"]
+        }
+    ],
     "files": [
         {
             "rel_path": "ometiff-pyramids/processedMicroscopy/VAN0003-LK-33-2-PAS_FFPE.ome.tif"

@@ -3,6 +3,11 @@
         "image_pyramid",
         "PAS"
     ],
+    "immediate_ancestors": [
+        {
+            "data_types": ["PAS"]
+        }
+    ],
     "status": "QA",
     "files": [
         {

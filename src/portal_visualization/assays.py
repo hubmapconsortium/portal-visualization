@@ -3,7 +3,7 @@ CODEX_CYTOKIT = "codex_cytokit"
 SEQFISH = "seqFish"
 MALDI_IMS = "MALDI-IMS"
 CELLDIVE_DEEPCELL = "celldive_deepcell"
-
+NANODESI = "NanoDESI"
 SCRNA_SEQ_10X = "salmon_rnaseq_10x"
 SCRNA_SEQ_SCI = "salmon_rnaseq_sciseq"
 SCRNA_SEQ_SNARE = "salmon_rnaseq_snareseq"

@@ -14,15 +14,15 @@
               {
                 "metadata": {
                   "isBitmask": false,
-                  "omeTiffOffsetsUrl": "https://example.com/f9ae931b8b49252f150d7f8bf1d2d13f/output_offsets/processedMicroscopy/VAN0003-LK-33-2-PAS_FFPE.offsets.json?token=groups_token"
+                  "omeTiffOffsetsUrl": "https://example.com/954281e9fd8732adfa4479e0d238ce8d/output_offsets/ometiffs/VAN0003-LK-32-21-IMS_NegMode_multilayer.offsets.json?token=groups_token"
                 },
-                "name": "VAN0003-LK-33-2-PAS_FFPE.ome.tif",
+                "name": "VAN0003-LK-32-21-IMS_NegMode_multilayer.ome.tif",
                 "type": "ome-tiff",
-                "url": "https://example.com/f9ae931b8b49252f150d7f8bf1d2d13f/ometiff-pyramids/processedMicroscopy/VAN0003-LK-33-2-PAS_FFPE.ome.tif?token=groups_token"
+                "url": "https://example.com/954281e9fd8732adfa4479e0d238ce8d/ometiff-pyramids/ometiffs/VAN0003-LK-32-21-IMS_NegMode_multilayer.ome.tif?token=groups_token"
               }
             ],
             "schemaVersion": "0.0.2",
-            "usePhysicalSizeScaling": false
+            "usePhysicalSizeScaling": true
           },
           "type": "raster"
         }
@@ -40,7 +40,7 @@
         "dataset": "A"
       },
       "props": {
-        "useFullResolutionImage": []
+        "useFullResolutionImage": ["VAN0003-LK-32-21-IMS_NegMode_multilayer.ome.tif"]
       },
       "h": 12,
       "w": 9,
