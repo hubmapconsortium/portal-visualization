@@ -27,7 +27,7 @@ class AbstractScatterplotViewConfBuilder(ViewConfBuilder):
             message = f'Files for uuid "{self._uuid}" not found as expected: ' \
                 f'Expected: {file_paths_expected}; Found: {file_paths_found}'
             raise FileNotFoundError(message)
-        vc = VitessceConfig(name="HuBMAP Data Portal")
+        vc = VitessceConfig(name="HuBMAP Data Portal", schema_version="1.0.16")
         dataset = vc.add_dataset(name="Visualization Files")
         # The sublcass initializes _files in its __init__ method
         for file in self._files:
