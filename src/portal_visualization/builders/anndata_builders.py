@@ -142,7 +142,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         scatterplot = vc.add_view(
             cm.SCATTERPLOT, dataset=dataset, mapping="UMAP", x=0, y=0, w=self._scatterplot_w, h=6)
         cell_sets = vc.add_view(
-            cm.CELL_SETS,
+            cm.OBS_SETS,
             dataset=dataset,
             x=self._scatterplot_w + self._spatial_w,
             y=0,
@@ -150,7 +150,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
             h=3
         )
         gene_list = vc.add_view(
-            cm.GENES,
+            cm.FEATURE_LIST,
             dataset=dataset,
             x=self._scatterplot_w + self._spatial_w,
             y=4,
@@ -158,7 +158,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
             h=3
         )
         cell_sets_expr = vc.add_view(
-            cm.CELL_SET_EXPRESSION, dataset=dataset, x=7, y=6, w=5, h=4)
+            cm.OBS_SET_FEATURE_VALUE_DISTRIBUTION, dataset=dataset, x=7, y=6, w=5, h=4)
         heatmap = vc.add_view(
             cm.HEATMAP, dataset=dataset, x=0, y=6, w=7, h=4)
         # Adding heatmap to coordination doesn't do anything,

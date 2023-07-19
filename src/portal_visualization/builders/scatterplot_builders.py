@@ -37,7 +37,7 @@ class AbstractScatterplotViewConfBuilder(ViewConfBuilder):
 
     def _setup_scatterplot_view_config(self, vc, dataset):
         vc.add_view(cm.SCATTERPLOT, dataset=dataset, mapping="UMAP", x=0, y=0, w=9, h=12)
-        vc.add_view(cm.CELL_SETS, dataset=dataset, x=9, y=0, w=3, h=12)
+        vc.add_view(cm.OBS_SETS, dataset=dataset, x=9, y=0, w=3, h=12)
         return vc
 
 
