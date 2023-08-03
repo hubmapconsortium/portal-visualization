@@ -1,8 +1,8 @@
 [
   {
     "coordinationSpace": {
-      "cellColorEncoding": {
-        "A": "geneSelection"
+      "obsColorEncoding": {
+        "A": "featureSelection"
       },
       "dataset": {
         "A": "A"
@@ -10,7 +10,7 @@
       "embeddingType": {
         "A": "t-SNE"
       },
-      "geneSelection": {
+      "featureSelection": {
         "A": [
           "gene123"
         ]
@@ -166,9 +166,9 @@
       {
         "component": "spatial",
         "coordinationScopes": {
-          "cellColorEncoding": "A",
+          "obsColorEncoding": "A",
           "dataset": "A",
-          "geneSelection": "A"
+          "featureSelection": "A"
         },
         "h": 8,
         "w": 4,
@@ -178,10 +178,10 @@
       {
         "component": "scatterplot",
         "coordinationScopes": {
-          "cellColorEncoding": "A",
+          "obsColorEncoding": "A",
           "dataset": "A",
           "embeddingType": "A",
-          "geneSelection": "A"
+          "featureSelection": "A"
         },
         "h": 8,
         "w": 3,
@@ -191,9 +191,9 @@
       {
         "component": "cellSets",
         "coordinationScopes": {
-          "cellColorEncoding": "A",
+          "obsColorEncoding": "A",
           "dataset": "A",
-          "geneSelection": "A"
+          "featureSelection": "A"
         },
         "h": 7,
         "w": 2,
@@ -203,9 +203,9 @@
       {
         "component": "genes",
         "coordinationScopes": {
-          "cellColorEncoding": "A",
+          "obsColorEncoding": "A",
           "dataset": "A",
-          "geneSelection": "A"
+          "featureSelection": "A"
         },
         "h": 5,
         "props": {
@@ -218,9 +218,9 @@
       {
         "component": "heatmap",
         "coordinationScopes": {
-          "cellColorEncoding": "A",
+          "obsColorEncoding": "A",
           "dataset": "A",
-          "geneSelection": "A"
+          "featureSelection": "A"
         },
         "h": 4,
         "props": {
@@ -237,8 +237,8 @@
   },
   {
     "coordinationSpace": {
-      "cellColorEncoding": {
-        "A": "geneSelection"
+      "obsColorEncoding": {
+        "A": "featureSelection"
       },
       "dataset": {
         "A": "A"
@@ -246,7 +246,7 @@
       "embeddingType": {
         "A": "t-SNE"
       },
-      "geneSelection": {
+      "featureSelection": {
         "A": [
           "gene123"
         ]
@@ -402,9 +402,9 @@
       {
         "component": "spatial",
         "coordinationScopes": {
-          "cellColorEncoding": "A",
+          "obsColorEncoding": "A",
           "dataset": "A",
-          "geneSelection": "A"
+          "featureSelection": "A"
         },
         "h": 8,
         "w": 4,
@@ -414,10 +414,10 @@
       {
         "component": "scatterplot",
         "coordinationScopes": {
-          "cellColorEncoding": "A",
+          "obsColorEncoding": "A",
           "dataset": "A",
           "embeddingType": "A",
-          "geneSelection": "A"
+          "featureSelection": "A"
         },
         "h": 8,
         "w": 3,
@@ -427,9 +427,9 @@
       {
         "component": "cellSets",
         "coordinationScopes": {
-          "cellColorEncoding": "A",
+          "obsColorEncoding": "A",
           "dataset": "A",
-          "geneSelection": "A"
+          "featureSelection": "A"
         },
         "h": 7,
         "w": 2,
@@ -439,9 +439,9 @@
       {
         "component": "genes",
         "coordinationScopes": {
-          "cellColorEncoding": "A",
+          "obsColorEncoding": "A",
           "dataset": "A",
-          "geneSelection": "A"
+          "featureSelection": "A"
         },
         "h": 5,
         "props": {
@@ -454,9 +454,9 @@
       {
         "component": "heatmap",
         "coordinationScopes": {
-          "cellColorEncoding": "A",
+          "obsColorEncoding": "A",
           "dataset": "A",
-          "geneSelection": "A"
+          "featureSelection": "A"
         },
         "h": 4,
         "props": {

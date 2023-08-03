@@ -50,7 +50,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         if f'{zarr_path}/.zgroup' not in file_paths_found:
             message = f'RNA-seq assay with uuid {self._uuid} has no .zarr store at {zarr_path}'
             raise FileNotFoundError(message)
-        vc = VitessceConfig(name=self._uuid, schema_version='1.0.16')
+        vc = VitessceConfig(name=self._uuid, schema_version='1.0.15')
         adata_url = self._build_assets_url(zarr_path, use_token=False)
         # Some of the keys (like marker_genes_for_heatmap) here are from our pipeline
         # https://github.com/hubmapconsortium/portal-containers/blob/master/containers/anndata-to-ui
@@ -176,7 +176,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         if marker:
             vc.link_views(
                 views,
-                [CoordinationType.GENE_SELECTION, CoordinationType.CELL_COLOR_ENCODING],
+                [CoordinationType.FEATURE_SELECTION, CoordinationType.OBS_COLOR_ENCODING],
                 [[marker], "geneSelection"]
             )
 
@@ -210,7 +210,7 @@ class SpatialRNASeqAnnDataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
             y=0,
             w=self._spatial_w,
             h=6)
-        [cells_layer] = vc.add_coordination('spatialCellsLayer')
+        [cells_layer] = vc.add_coordination('spatialSegmentationLayer')
         cells_layer.set_value(
             {
                 "visible": True,

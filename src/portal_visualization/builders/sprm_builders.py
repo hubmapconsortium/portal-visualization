@@ -96,7 +96,7 @@ class SPRMJSONViewConfBuilder(SPRMViewConfBuilder):
 
     def get_conf_cells(self, **kwargs):
         found_image_file = self._check_sprm_image(self._get_full_image_path())
-        vc = VitessceConfig(name=self._base_name, schema_version="1.0.16")
+        vc = VitessceConfig(name=self._base_name, schema_version="1.0.15")
         dataset = vc.add_dataset(name="SPRM")
         image_wrapper = self._get_ometiff_image_wrapper(found_image_file, self._imaging_path_regex)
         dataset = dataset.add_object(image_wrapper)
@@ -169,7 +169,7 @@ class SPRMAnnDataViewConfBuilder(SPRMViewConfBuilder):
         )
 
     def get_conf_cells(self, marker=None):
-        vc = VitessceConfig(name=self._image_name, schema_version="1.0.16")
+        vc = VitessceConfig(name=self._image_name, schema_version="1.0.15")
         dataset = vc.add_dataset(name="SPRM")
         file_paths_found = self._get_file_paths()
         zarr_path = f"anndata-zarr/{self._image_name}-anndata.zarr"
@@ -233,8 +233,8 @@ class SPRMAnnDataViewConfBuilder(SPRMViewConfBuilder):
         if marker:
             vc.link_views(
                 [spatial, cell_sets, gene_list, scatterplot, heatmap],
-                [CoordinationType.GENE_SELECTION, CoordinationType.CELL_COLOR_ENCODING],
-                [[marker], "geneSelection"]
+                [CoordinationType.FEATURE_SELECTION, CoordinationType.OBS_COLOR_ENCODING],
+                [[marker], "featureSelection"]
             )
 
         return vc

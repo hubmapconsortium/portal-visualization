@@ -1,7 +1,7 @@
 {
   "coordinationSpace": {
-    "cellColorEncoding": {
-      "A": "geneSelection"
+    "obsColorEncoding": {
+      "A": "featureSelection"
     },
     "dataset": {
       "A": "A"
@@ -9,12 +9,12 @@
     "embeddingType": {
       "A": "UMAP"
     },
-    "geneSelection": {
+    "featureSelection": {
       "A": [
         "ENSG00000139618"
       ]
     },
-    "spatialCellsLayer": {
+    "spatialSegmentationLayer": {
       "A": {
         "opacity": 1,
         "radius": 20,
@@ -82,10 +82,10 @@
     {
       "component": "scatterplot",
       "coordinationScopes": {
-        "cellColorEncoding": "A",
+        "obsColorEncoding": "A",
         "dataset": "A",
         "embeddingType": "A",
-        "geneSelection": "A"
+        "featureSelection": "A"
       },
       "h": 6,
       "w": 4,
@@ -95,9 +95,9 @@
     {
       "component": "cellSets",
       "coordinationScopes": {
-        "cellColorEncoding": "A",
+        "obsColorEncoding": "A",
         "dataset": "A",
-        "geneSelection": "A"
+        "featureSelection": "A"
       },
       "h": 3,
       "w": 3,
@@ -107,9 +107,9 @@
     {
       "component": "genes",
       "coordinationScopes": {
-        "cellColorEncoding": "A",
+        "obsColorEncoding": "A",
         "dataset": "A",
-        "geneSelection": "A"
+        "featureSelection": "A"
       },
       "h": 3,
       "w": 3,
@@ -119,9 +119,9 @@
     {
       "component": "cellSetExpression",
       "coordinationScopes": {
-        "cellColorEncoding": "A",
+        "obsColorEncoding": "A",
         "dataset": "A",
-        "geneSelection": "A"
+        "featureSelection": "A"
       },
       "h": 4,
       "w": 5,
@@ -131,9 +131,9 @@
     {
       "component": "heatmap",
       "coordinationScopes": {
-        "cellColorEncoding": "A",
+        "obsColorEncoding": "A",
         "dataset": "A",
-        "geneSelection": "A"
+        "featureSelection": "A"
       },
       "h": 4,
       "w": 7,
@@ -143,10 +143,10 @@
     {
       "component": "spatial",
       "coordinationScopes": {
-        "cellColorEncoding": "A",
+        "obsColorEncoding": "A",
         "dataset": "A",
-        "geneSelection": "A",
-        "spatialCellsLayer": "A"
+        "featureSelection": "A",
+        "spatialSegmentationLayer": "A"
       },
       "h": 6,
       "w": 5,
