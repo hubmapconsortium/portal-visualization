@@ -54,13 +54,33 @@ class RNASeqViewConfBuilder(AbstractScatterplotViewConfBuilder):
         self._files = [
             {
                 "rel_path": f"{SCRNA_SEQ_DIR}.cells.json",
-                "file_type": ft.CELLS_JSON,
-                "data_type": dt.CELLS,
+                "file_type": "obsSegmentations.cells.json",  # ft.OBS_SEGMENTATIONS_CELLS_JSON
+                "coordination_values": {
+                    "obsType": "cell",
+                },
+            },
+            {
+                "rel_path": f"{SCRNA_SEQ_DIR}.cells.json",
+                "file_type": "obsLocations.cells.json",  # ft.OBS_LOCATIONS_CELLS_JSON
+                "coordination_values": {
+                    "obsType": "cell",
+                },
+            },
+            {
+                "rel_path": f"{SCRNA_SEQ_DIR}.cells.json",
+                "file_type": "obsEmbedding.cells.json",  # ft.OBS_EMBEDDING_CELLS_JSON
+
+                "coordination_values": {
+                    "obsType": "cell",
+                    "embeddingType": "UMAP",
+                },
             },
             {
                 "rel_path": f"{SCRNA_SEQ_DIR}.cell-sets.json",
-                "file_type": ft.CELL_SETS_JSON,
-                "data_type": dt.CELL_SETS,
+                "file_type": "obsSets.cell-sets.json",  # ft.OBS_SETS_CELL_SETS_JSON
+                "coordination_values": {
+                    "obsType": "cell",
+                },
             },
         ]
 
@@ -75,7 +95,7 @@ class ATACSeqViewConfBuilder(AbstractScatterplotViewConfBuilder):
         super().__init__(entity, groups_token, assets_endpoint, **kwargs)
         # All "file" Vitessce objects that do not have wrappers.
 
-        # Since the vitessce-python library's FileType enum is outdated,
+        # Since the vitessce-python library's FileType enum is outdated as of v3.0.6,
         # we need to use the string values for now.
         # https://github.com/vitessce/vitessce-python/issues/270
         # https://hms-dbmi.atlassian.net/browse/HMP-327
