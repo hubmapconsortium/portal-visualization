@@ -31,6 +31,7 @@ class AbstractScatterplotViewConfBuilder(ViewConfBuilder):
         dataset = vc.add_dataset(name="Visualization Files")
         # The sublcass initializes _files in its __init__ method
         for file in self._files:
+            print(f"Adding file: {file}")
             dataset = dataset.add_file(**(self._replace_url_in_file(file)))
         vc = self._setup_scatterplot_view_config(vc, dataset)
         return get_conf_cells(vc)
@@ -73,17 +74,43 @@ class ATACSeqViewConfBuilder(AbstractScatterplotViewConfBuilder):
     def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
         super().__init__(entity, groups_token, assets_endpoint, **kwargs)
         # All "file" Vitessce objects that do not have wrappers.
+
+        # Since the vitessce-python library's FileType enum is outdated,
+        # we need to use the string values for now.
+        # https://github.com/vitessce/vitessce-python/issues/270
+        # https://hms-dbmi.atlassian.net/browse/HMP-327
         self._files = [
             {
                 "rel_path": SCATAC_SEQ_DIR
                 + "/umap_coords_clusters.cells.json",
-                "file_type": ft.CELLS_JSON,
-                "data_type": dt.CELLS,
+                "file_type": "obsSegmentations.cells.json",  # ft.OBS_SEGMENTATIONS_CELLS_JSON
+                "coordination_values": {
+                    "obsType": "cell",
+                },
+            },
+            {
+                "rel_path": SCATAC_SEQ_DIR
+                + "/umap_coords_clusters.cells.json",
+                "file_type": "obsLocations.cells.json",  # ft.OBS_LOCATIONS_CELLS_JSON
+                "coordination_values": {
+                    "obsType": "cell",
+                },
+            },
+            {
+                "rel_path": SCATAC_SEQ_DIR
+                + "/umap_coords_clusters.cells.json",
+                "file_type": "obsEmbedding.cells.json",  # ft.OBS_EMBEDDING_CELLS_JSON
+                "coordination_values": {
+                    "obsType": "cell",
+                    "embeddingType": "UMAP",
+                },
             },
             {
                 "rel_path": SCATAC_SEQ_DIR
                 + "/umap_coords_clusters.cell-sets.json",
-                "file_type": ft.CELL_SETS_JSON,
-                "data_type": dt.CELL_SETS,
+                "file_type": "obsSets.cell-sets.json",  # ft.OBS_SETS_CELL_SETS_JSON
+                "coordination_values": {
+                    "obsType": "cell",
+                },
             },
         ]
