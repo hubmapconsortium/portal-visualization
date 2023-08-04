@@ -65,12 +65,12 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         if (any(['azimuth-annotate' in dag['origin'] for dag in dags])):
             if self.is_annotated:
                 if 'predicted.ASCT.celltype' in z['obs']:
-                    cell_set_obs.append("predicted.ASCT.celltype")
+                    cell_set_obs.append("obs/predicted.ASCT.celltype")
                     cell_set_obs_names.append("Predicted ASCT Cell Type")
                 if 'predicted_label' in z['obs']:
                     cell_set_obs.append("predicted_label")
                     cell_set_obs_names.append("Cell Ontology Annotation")
-        cell_set_obs.append("leiden")
+        cell_set_obs.append("obs/leiden")
         cell_set_obs_names.append("Leiden")
         gene_alias = 'var/hugo_symbol' if 'var' in z and 'hugo_symbol' in z['var'] else None
         if (gene_alias is not None and marker is not None):
@@ -115,23 +115,32 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
             # elif (encoding_version == "0.2.0"):
             #     print('TODO - Encoding Version 0.2.0 support')
 
-        dataset = vc.add_dataset(name=self._uuid).add_object(AnnDataWrapper(
-            adata_url=adata_url,
-            mappings_obsm=["X_umap"],
-            mappings_obsm_names=["UMAP"],
-            spatial_centroid_obsm=("X_spatial" if self._is_spatial else None),
-            cell_set_obs=cell_set_obs,
-            cell_set_obs_names=cell_set_obs_names,
-            expression_matrix="X",
-            matrix_gene_var_filter="marker_genes_for_heatmap",
-            factors_obs=[
+        cell_set_obs.extend([f"obs/{marker}" for marker in [
                 "marker_gene_0",
                 "marker_gene_1",
                 "marker_gene_2",
                 "marker_gene_3",
                 "marker_gene_4"
-            ],
+            ]])
+        
+        cell_set_obs_names.extend([f'Marker Gene {x}' for x in range(5)])
+
+        dataset = vc.add_dataset(name=self._uuid).add_object(AnnDataWrapper(
+            adata_url=adata_url,
+            obs_feature_matrix_path="X",
+            feature_filter_path="var/marker_genes_for_heatmap",
+            initial_feature_filter_path="var/marker_genes_for_heatmap",
+            obs_set_paths=cell_set_obs,
+            obs_set_names=cell_set_obs_names,
+            obs_locations_path="obsm/X_spatial" if self._is_spatial else None,
+            obs_segmentations_path=None,
+            obs_embedding_paths=["obsm/X_umap"],
+            obs_embedding_names=["UMAP"],
+            obs_embedding_dims=[[0, 1]],
             request_init=self._get_request_init(),
+            feature_labels_path="var/hugo_symbol",
+            obs_labels_path=None,
+            coordination_values=None,
             gene_alias=gene_alias
         ))
 
