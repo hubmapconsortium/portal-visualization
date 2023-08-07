@@ -180,7 +180,7 @@ class SPRMAnnDataViewConfBuilder(SPRMViewConfBuilder):
         adata_url = self._build_assets_url(zarr_path, use_token=False)
         # https://github.com/hubmapconsortium/portal-containers/blob/master/containers/sprm-to-anndata
         # has information on how these keys are generated.
-        obs_keys = [
+        obs_set_names = [
             "Cell K-Means [tSNE_All_Features]",
             "Cell K-Means [Mean-All-SubRegions] Expression",
             "Cell K-Means [Mean] Expression",
@@ -189,14 +189,16 @@ class SPRMAnnDataViewConfBuilder(SPRMViewConfBuilder):
             "Cell K-Means [Total] Expression",
             "Cell K-Means [Covariance] Expression",
         ]
+        obs_set_paths = [f"obs/{key}" for key in obs_set_names]
         anndata_wrapper = AnnDataWrapper(
-            mappings_obsm=["tsne"],
-            mappings_obsm_names=["t-SNE"],
             adata_url=adata_url,
-            spatial_centroid_obsm="xy",
-            cell_set_obs=obs_keys,
-            expression_matrix="X",
-            factors_obs=obs_keys,
+            obs_feature_matrix_path="X",
+            obs_embedding_paths=["obsm/tsne"],
+            obs_embedding_names=["t-SNE"],
+            obs_locations_path="obsm/xy",
+            obs_set_paths=obs_set_paths,
+            obs_set_names=obs_set_names,
+            factors_obs=obs_set_names,
             request_init=self._get_request_init(),
         )
         dataset = dataset.add_object(anndata_wrapper)
@@ -279,6 +281,7 @@ class MultiImageSPRMAnndataViewConfBuilder(ViewConfBuilder):
         found_ids = self._find_ids()
         confs = []
         for id in sorted(found_ids):
+            print(f'Adding SPRM view config for id {id}')
             builder = SPRMAnnDataViewConfBuilder(
                 entity=self._entity,
                 groups_token=self._groups_token,
@@ -290,6 +293,7 @@ class MultiImageSPRMAnndataViewConfBuilder(ViewConfBuilder):
                 mask_name=f"{id}_{self._mask_id}"
             )
             conf = builder.get_conf_cells(marker=marker).conf
+            print(f'Got SPRM view config for id {id}, conf: {conf}')
             if conf == {}:
                 raise MultiImageSPRMAnndataViewConfigError(  # pragma: no cover
                     f"Cytokit SPRM assay with uuid {self._uuid} has empty view\
@@ -310,6 +314,7 @@ class StitchedCytokitSPRMViewConfBuilder(MultiImageSPRMAnndataViewConfBuilder):
     # Need to override base class settings due to different directory structure
     def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
         super().__init__(entity, groups_token, assets_endpoint, **kwargs)
+        print('Using StitchedCytokitSPRMViewConfBuilder')
         self._image_pyramid_subdir = STITCHED_IMAGE_DIR
         # The ids don't match exactly with the replacement because all image files have
         # stitched_expressions appended while the subdirectory only has /stitched/
