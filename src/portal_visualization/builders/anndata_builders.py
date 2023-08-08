@@ -68,7 +68,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
                     cell_set_obs.append("obs/predicted.ASCT.celltype")
                     cell_set_obs_names.append("Predicted ASCT Cell Type")
                 if 'predicted_label' in z['obs']:
-                    cell_set_obs.append("predicted_label")
+                    cell_set_obs.append("obs/predicted_label")
                     cell_set_obs_names.append("Cell Ontology Annotation")
         cell_set_obs.append("obs/leiden")
         cell_set_obs_names.append("Leiden")
@@ -116,19 +116,18 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
             #     print('TODO - Encoding Version 0.2.0 support')
 
         cell_set_obs.extend([f"obs/{marker}" for marker in [
-                "marker_gene_0",
-                "marker_gene_1",
-                "marker_gene_2",
-                "marker_gene_3",
-                "marker_gene_4"
-            ]])
-        
+            "marker_gene_0",
+            "marker_gene_1",
+            "marker_gene_2",
+            "marker_gene_3",
+            "marker_gene_4"
+        ]])
+
         cell_set_obs_names.extend([f'Marker Gene {x}' for x in range(5)])
 
         dataset = vc.add_dataset(name=self._uuid).add_object(AnnDataWrapper(
             adata_url=adata_url,
             obs_feature_matrix_path="X",
-            feature_filter_path="var/marker_genes_for_heatmap",
             initial_feature_filter_path="var/marker_genes_for_heatmap",
             obs_set_paths=cell_set_obs,
             obs_set_names=cell_set_obs_names,
