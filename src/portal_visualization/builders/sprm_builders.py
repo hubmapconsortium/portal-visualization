@@ -20,6 +20,20 @@ from ..paths import (
 )
 from .imaging_builders import ImagePyramidViewConfBuilder
 
+# https://github.com/hubmapconsortium/portal-containers/blob/master/containers/sprm-to-anndata
+# has information on how these keys are generated.
+SPRM_ANNDATA_FACTORS = [
+    "Cell K-Means [tSNE_All_Features]",
+    "Cell K-Means [Mean-All-SubRegions] Expression",
+    "Cell K-Means [Mean] Expression",
+    "Cell K-Means [Shape-Vectors]",
+    "Cell K-Means [Texture]",
+    "Cell K-Means [Total] Expression",
+    "Cell K-Means [Covariance] Expression",
+]
+
+SPRM_ANNDATA_FACTOR_PATHS = [f"obs/{key}" for key in SPRM_ANNDATA_FACTORS]
+
 
 class CytokitSPRMViewConfigError(Exception):
     """Raised when one of the individual SPRM view configs errors out for Cytokit"""
@@ -80,17 +94,25 @@ class SPRMJSONViewConfBuilder(SPRMViewConfBuilder):
             {
                 "rel_path": f"{SPRM_JSON_DIR}/" + f"{self._base_name}.cells.json",
                 "file_type": ft.CELLS_JSON,
-                "data_type": dt.CELLS,
+                "coordination_values": {
+                    "obsType": "cell",
+                },
             },
             {
                 "rel_path": f"{SPRM_JSON_DIR}/" + f"{self._base_name}.cell-sets.json",
                 "file_type": ft.CELL_SETS_JSON,
-                "data_type": dt.CELL_SETS,
+                "coordination_values": {
+                    "obsType": "cell",
+                },
+
             },
             {
                 "rel_path": f"{SPRM_JSON_DIR}/" + f"{self._base_name}.clusters.json",
                 "file_type": "clusters.json",
-                "data_type": dt.EXPRESSION_MATRIX,
+                "coordination_values": {
+                    "obsType": "cell",
+                },
+
             },
         ]
 
@@ -178,27 +200,15 @@ class SPRMAnnDataViewConfBuilder(SPRMViewConfBuilder):
             message = f"SPRM assay with uuid {self._uuid} has no .zarr store at {zarr_path}"
             raise FileNotFoundError(message)
         adata_url = self._build_assets_url(zarr_path, use_token=False)
-        # https://github.com/hubmapconsortium/portal-containers/blob/master/containers/sprm-to-anndata
-        # has information on how these keys are generated.
-        obs_set_names = [
-            "Cell K-Means [tSNE_All_Features]",
-            "Cell K-Means [Mean-All-SubRegions] Expression",
-            "Cell K-Means [Mean] Expression",
-            "Cell K-Means [Shape-Vectors]",
-            "Cell K-Means [Texture]",
-            "Cell K-Means [Total] Expression",
-            "Cell K-Means [Covariance] Expression",
-        ]
-        obs_set_paths = [f"obs/{key}" for key in obs_set_names]
+
         anndata_wrapper = AnnDataWrapper(
             adata_url=adata_url,
             obs_feature_matrix_path="X",
             obs_embedding_paths=["obsm/tsne"],
             obs_embedding_names=["t-SNE"],
+            obs_set_names=SPRM_ANNDATA_FACTORS,
+            obs_set_paths=SPRM_ANNDATA_FACTOR_PATHS,
             obs_locations_path="obsm/xy",
-            obs_set_paths=obs_set_paths,
-            obs_set_names=obs_set_names,
-            factors_obs=obs_set_names,
             request_init=self._get_request_init(),
         )
         dataset = dataset.add_object(anndata_wrapper)
@@ -213,8 +223,8 @@ class SPRMAnnDataViewConfBuilder(SPRMViewConfBuilder):
         return get_conf_cells(vc)
 
     def _setup_view_config_raster_cellsets_expression_segmentation(self, vc, dataset, marker):
-        vc.add_view(cm.DESCRIPTION, dataset=dataset, x=0, y=8, w=3, h=4)
-        vc.add_view(cm.LAYER_CONTROLLER, dataset=dataset, x=0, y=0, w=3, h=8)
+        description = vc.add_view(cm.DESCRIPTION, dataset=dataset, x=0, y=8, w=3, h=4)
+        layer_controller = vc.add_view(cm.LAYER_CONTROLLER, dataset=dataset, x=0, y=0, w=3, h=8)
 
         spatial = vc.add_view(
             cm.SPATIAL, dataset=dataset, x=3, y=0, w=4, h=8)
@@ -232,11 +242,19 @@ class SPRMAnnDataViewConfBuilder(SPRMViewConfBuilder):
         ).set_props(
             variablesLabelOverride="antigen", transpose=True)
 
+        views = [description, layer_controller, spatial, cell_sets, gene_list, scatterplot, heatmap]
+
+        # Adding the obsLabelsType coordination here makes the tooltip not display any information for these factors
+        # Seemingly due to name collision with obs sets, but removing the obs sets / using an empty list doesn't work
+        # may need further investigation - maybe using a key with the actual label name in the obs sets will work?
+        # When uncommenting, import `use_multiple_coordinations` from utils
+        # vc = use_multiple_coordinations(vc, views, 'obsLabelsType', SPRM_ANNDATA_FACTORS)
+
         if marker:
             vc.link_views(
-                [spatial, cell_sets, gene_list, scatterplot, heatmap],
+                views,
                 [CoordinationType.FEATURE_SELECTION, CoordinationType.OBS_COLOR_ENCODING],
-                [[marker], "featureSelection"]
+                [[marker], 'geneSelection']
             )
 
         return vc

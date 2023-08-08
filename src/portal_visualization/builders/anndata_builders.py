@@ -4,14 +4,28 @@ from vitessce import (
     VitessceConfig,
     AnnDataWrapper,
     Component as cm,
-    CoordinationType,
+    CoordinationType as ct
 )
+# Need custom coordination scope to link top 5 marker genes
+# https://github.com/vitessce/vitessce-python/issues/271
+from vitessce.config import VitessceConfigCoordinationScope
+
 import numpy as np
 import zarr
 
 
 from .base_builders import ViewConfBuilder
-from ..utils import get_conf_cells
+from ..utils import (get_conf_cells, use_multiple_coordinations)
+
+RNA_SEQ_ANNDATA_FACTORS = [
+    "marker_gene_0",
+    "marker_gene_1",
+    "marker_gene_2",
+    "marker_gene_3",
+    "marker_gene_4"
+]
+
+RNA_SEQ_ANNDATA_FACTOR_PATHS = [f"obs/{key}" for key in RNA_SEQ_ANNDATA_FACTORS]
 
 
 class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
@@ -115,16 +129,8 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
             # elif (encoding_version == "0.2.0"):
             #     print('TODO - Encoding Version 0.2.0 support')
 
-        cell_set_obs.extend([f"obs/{marker}" for marker in [
-            "marker_gene_0",
-            "marker_gene_1",
-            "marker_gene_2",
-            "marker_gene_3",
-            "marker_gene_4"
-        ]])
-
-        cell_set_obs_names.extend([f'Marker Gene {x}' for x in range(5)])
-
+        cell_set_obs.extend(RNA_SEQ_ANNDATA_FACTOR_PATHS)
+        cell_set_obs_names.extend([f'Marker Gene {x}' for x in range(len(RNA_SEQ_ANNDATA_FACTORS))])
         dataset = vc.add_dataset(name=self._uuid).add_object(AnnDataWrapper(
             adata_url=adata_url,
             obs_feature_matrix_path="X",
@@ -181,11 +187,17 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         views = list(filter(lambda v: v is not None, [
                      cell_sets, gene_list, scatterplot, cell_sets_expr, heatmap, spatial]))
 
+        # Link top 5 marker genes
+        # TODO: Update to ct.OBS_LABELS once upstream enum is updated (HMP-327)
+        OBS_LABELS = 'obsLabelsType'
+        use_multiple_coordinations(vc, views, OBS_LABELS, RNA_SEQ_ANNDATA_FACTORS)
+
+        # Link user-provided marker gene
         if marker:
             vc.link_views(
                 views,
-                [CoordinationType.FEATURE_SELECTION, CoordinationType.OBS_COLOR_ENCODING],
-                [[marker], "geneSelection"]
+                [ct.FEATURE_SELECTION, ct.OBS_COLOR_ENCODING],
+                [[marker], 'geneSelection']
             )
 
         return vc
