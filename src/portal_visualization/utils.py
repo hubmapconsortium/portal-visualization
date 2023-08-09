@@ -69,7 +69,7 @@ def _get_cells_from_obj(vc_obj):
 def use_multiple_coordinations(vc, views, coordinationType, values):
     """
     A helper function for creating multiple coordination scopes for the same coordination type
-    Should no longer be necessary after implementation of https://github.com/vitessce/vitessce-python/issues/271
+    Should no longer be necessary after https://github.com/vitessce/vitessce-python/issues/271
     :param vc: The VitessceConfig object to add the coordinations to
     :param views: The views to add the coordinations to
     :param coordinationType: The coordination type for the scope

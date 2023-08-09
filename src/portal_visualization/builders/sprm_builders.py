@@ -8,7 +8,6 @@ from vitessce import (
     OmeTiffWrapper,
     AnnDataWrapper,
     Component as cm,
-    DataType as dt,
     FileType as ft,
 )
 
@@ -251,10 +250,14 @@ class SPRMAnnDataViewConfBuilder(SPRMViewConfBuilder):
             scatterplot,
             heatmap]
 
-        # Adding the obsLabelsType coordination here makes the tooltip not display any information for these factors
-        # Seemingly due to name collision with obs sets, but removing the obs sets / using an empty list doesn't work
-        # may need further investigation - maybe using a key with the actual label name in the obs sets will work?
-        # When uncommenting, import `use_multiple_coordinations` from utils
+        # Adding the obsLabelsType coordination here 
+        # makes the tooltip not display any information for these factors
+        # This seems to be due to name collision with obs sets, 
+        # but removing the obs sets / using an empty list doesn't work
+        # Maybe using a key with the actual label name in the obs sets will work?
+        # When uncommenting, 
+        # import `use_multiple_coordinations` from utils
+        
         # vc = use_multiple_coordinations(vc, views, 'obsLabelsType', SPRM_ANNDATA_FACTORS)
 
         if marker:

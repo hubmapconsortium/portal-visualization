@@ -6,9 +6,6 @@ from vitessce import (
     Component as cm,
     CoordinationType as ct
 )
-# Need custom coordination scope to link top 5 marker genes
-# https://github.com/vitessce/vitessce-python/issues/271
-from vitessce.config import VitessceConfigCoordinationScope
 
 import numpy as np
 import zarr
