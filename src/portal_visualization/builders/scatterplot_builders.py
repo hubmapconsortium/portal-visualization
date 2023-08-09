@@ -1,8 +1,6 @@
 from vitessce import (
     VitessceConfig,
     Component as cm,
-    DataType as dt,
-    FileType as ft,
 )
 
 
@@ -69,7 +67,6 @@ class RNASeqViewConfBuilder(AbstractScatterplotViewConfBuilder):
             {
                 "rel_path": f"{SCRNA_SEQ_DIR}.cells.json",
                 "file_type": "obsEmbedding.cells.json",  # ft.OBS_EMBEDDING_CELLS_JSON
-
                 "coordination_values": {
                     "obsType": "cell",
                     "embeddingType": "UMAP",

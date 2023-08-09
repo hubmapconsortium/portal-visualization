@@ -242,7 +242,14 @@ class SPRMAnnDataViewConfBuilder(SPRMViewConfBuilder):
         ).set_props(
             variablesLabelOverride="antigen", transpose=True)
 
-        views = [description, layer_controller, spatial, cell_sets, gene_list, scatterplot, heatmap]
+        views = [
+            description,
+            layer_controller,
+            spatial,
+            cell_sets,
+            gene_list,
+            scatterplot,
+            heatmap]
 
         # Adding the obsLabelsType coordination here makes the tooltip not display any information for these factors
         # Seemingly due to name collision with obs sets, but removing the obs sets / using an empty list doesn't work

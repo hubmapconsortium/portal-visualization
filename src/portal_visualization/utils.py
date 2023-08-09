@@ -79,17 +79,16 @@ def use_multiple_coordinations(vc, views, coordinationType, values):
     # Add the coordinations to the VC
     coordinations = vc.add_coordination(*[coordinationType for _ in values])
 
-    # Set coordination values 
+    # Set coordination values
     for i, value in enumerate(values):
         coordinations[i].set_value(value)
 
     scopes = [str(l.c_scope) for l in coordinations]
-    
+
     custom_scope = VitessceConfigCoordinationScope(
         c_type=coordinationType, c_scope=scopes)
 
     for v in views:
         v.use_coordination(custom_scope)
-    
-    return vc
 
+    return vc

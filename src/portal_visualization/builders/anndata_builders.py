@@ -130,7 +130,8 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
             #     print('TODO - Encoding Version 0.2.0 support')
 
         cell_set_obs.extend(RNA_SEQ_ANNDATA_FACTOR_PATHS)
-        cell_set_obs_names.extend([f'Marker Gene {x}' for x in range(len(RNA_SEQ_ANNDATA_FACTORS))])
+        cell_set_obs_names.extend(
+            [f'Marker Gene {x}' for x in range(len(RNA_SEQ_ANNDATA_FACTORS))])
         dataset = vc.add_dataset(name=self._uuid).add_object(AnnDataWrapper(
             adata_url=adata_url,
             obs_feature_matrix_path="X",
