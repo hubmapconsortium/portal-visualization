@@ -11,61 +11,54 @@
     {
       "files": [
         {
-          "fileType": "anndata-cells.zarr",
+          "fileType": "anndata.zarr",
           "options": {
-            "factors": [
-              "obs/marker_gene_0",
-              "obs/marker_gene_1",
-              "obs/marker_gene_2",
-              "obs/marker_gene_3",
-              "obs/marker_gene_4"
-            ],
-            "mappings": {
-              "UMAP": {
+            "obsEmbedding": [
+              {
                 "dims": [
                   0,
                   1
                 ],
-                "key": "obsm/X_umap"
+                "embeddingType": "UMAP",
+                "path": "obsm/X_umap"
               }
-            }
+            ],
+            "obsFeatureMatrix": {
+              "initialFeatureFilterPath": "var/marker_genes_for_heatmap",
+              "path": "X"
+            },
+            "obsSets": [
+              {
+                "name": "Leiden",
+                "path": "obs/leiden"
+              },
+              {
+                "name": "Marker Gene 0",
+                "path": "obs/marker_gene_0"
+              },
+              {
+                "name": "Marker Gene 1",
+                "path": "obs/marker_gene_1"
+              },
+              {
+                "name": "Marker Gene 2",
+                "path": "obs/marker_gene_2"
+              },
+              {
+                "name": "Marker Gene 3",
+                "path": "obs/marker_gene_3"
+              },
+              {
+                "name": "Marker Gene 4",
+                "path": "obs/marker_gene_4"
+              }
+            ]
           },
           "requestInit": {
             "headers": {
               "Authorization": "Bearer groups_token"
             }
           },
-          "type": "cells",
-          "url": "https://example.com/503f9caeffb9ee1e1324793c977d2342/hubmap_ui/anndata-zarr/secondary_analysis.zarr"
-        },
-        {
-          "fileType": "anndata-cell-sets.zarr",
-          "options": [
-            {
-              "groupName": "Leiden",
-              "setName": "obs/leiden"
-            }
-          ],
-          "requestInit": {
-            "headers": {
-              "Authorization": "Bearer groups_token"
-            }
-          },
-          "type": "cell-sets",
-          "url": "https://example.com/503f9caeffb9ee1e1324793c977d2342/hubmap_ui/anndata-zarr/secondary_analysis.zarr"
-        },
-        {
-          "fileType": "anndata-expression-matrix.zarr",
-          "options": {
-            "matrix": "X",
-            "matrixGeneFilter": "var/marker_genes_for_heatmap"
-          },
-          "requestInit": {
-            "headers": {
-              "Authorization": "Bearer groups_token"
-            }
-          },
-          "type": "expression-matrix",
           "url": "https://example.com/503f9caeffb9ee1e1324793c977d2342/hubmap_ui/anndata-zarr/secondary_analysis.zarr"
         }
       ],
@@ -88,7 +81,7 @@
       "y": 0
     },
     {
-      "component": "cellSets",
+      "component": "obsSets",
       "coordinationScopes": {
         "dataset": "A"
       },
@@ -98,7 +91,7 @@
       "y": 0
     },
     {
-      "component": "genes",
+      "component": "featureList",
       "coordinationScopes": {
         "dataset": "A"
       },
@@ -108,7 +101,7 @@
       "y": 4
     },
     {
-      "component": "cellSetExpression",
+      "component": "obsSetFeatureValueDistribution",
       "coordinationScopes": {
         "dataset": "A"
       },
@@ -129,5 +122,5 @@
     }
   ],
   "name": "503f9caeffb9ee1e1324793c977d2342",
-  "version": "1.0.7"
+  "version": "1.0.15"
 }

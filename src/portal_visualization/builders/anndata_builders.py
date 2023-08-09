@@ -12,7 +12,10 @@ import zarr
 
 
 from .base_builders import ViewConfBuilder
-from ..utils import (get_conf_cells, use_multiple_coordinations)
+from ..utils import (
+    get_conf_cells,
+    # use_multiple_coordinations
+)
 
 RNA_SEQ_ANNDATA_FACTORS = [
     "marker_gene_0",
@@ -141,7 +144,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
             obs_embedding_names=["UMAP"],
             obs_embedding_dims=[[0, 1]],
             request_init=self._get_request_init(),
-            feature_labels_path="var/hugo_symbol",
+            feature_labels_path=gene_alias,
             obs_labels_path=None,
             coordination_values=None,
             gene_alias=gene_alias
@@ -186,9 +189,11 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
                      cell_sets, gene_list, scatterplot, cell_sets_expr, heatmap, spatial]))
 
         # Link top 5 marker genes
+        # TODO: For some reason, these values show up as empty in the UI, so
+        # the current approach uses the cell_set_obs/cell_set_obs_names approach above.
         # TODO: Update to ct.OBS_LABELS once upstream enum is updated (HMP-327)
-        OBS_LABELS = 'obsLabelsType'
-        use_multiple_coordinations(vc, views, OBS_LABELS, RNA_SEQ_ANNDATA_FACTORS)
+        # OBS_LABELS = 'obsLabelsType'
+        # use_multiple_coordinations(vc, views, OBS_LABELS, RNA_SEQ_ANNDATA_FACTORS)
 
         # Link user-provided marker gene
         if marker:
