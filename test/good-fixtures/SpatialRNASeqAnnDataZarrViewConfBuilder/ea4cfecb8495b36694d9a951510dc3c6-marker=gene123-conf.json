@@ -7,7 +7,9 @@
       "A": "UMAP"
     },
     "featureSelection": {
-      "A": ["ENSG00000139618"]
+      "A": [
+        "ENSG00000139618"
+      ]
     },
     "obsColorEncoding": {
       "A": "geneSelection"
@@ -32,7 +34,10 @@
             },
             "obsEmbedding": [
               {
-                "dims": [0, 1],
+                "dims": [
+                  0,
+                  1
+                ],
                 "embeddingType": "UMAP",
                 "path": "obsm/X_umap"
               }

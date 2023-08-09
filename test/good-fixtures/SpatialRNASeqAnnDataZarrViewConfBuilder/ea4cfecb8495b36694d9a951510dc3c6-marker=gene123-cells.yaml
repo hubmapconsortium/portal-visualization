@@ -3,27 +3,36 @@
 - cell_type: code
   source: |-
     conf = VitessceChainableConfig(
-        name="ea4cfecb8495b36694d9a951510dc3c6", description="", schema_version="1.0.7"
+        schema_version="1.0.15", name="ea4cfecb8495b36694d9a951510dc3c6", description=""
     ).add_dataset(
         uid="A",
         name="ea4cfecb8495b36694d9a951510dc3c6",
         objs=[
             AnnDataWrapper(
                 adata_url="https://example.com/ea4cfecb8495b36694d9a951510dc3c6/hubmap_ui/anndata-zarr/secondary_analysis.zarr",
-                expression_matrix="X",
-                matrix_gene_var_filter="marker_genes_for_heatmap",
-                cell_set_obs=["leiden"],
-                cell_set_obs_names=["Leiden"],
-                spatial_centroid_obsm="X_spatial",
-                mappings_obsm=["X_umap"],
-                mappings_obsm_names=["UMAP"],
-                factors_obs=[
-                    "marker_gene_0",
-                    "marker_gene_1",
-                    "marker_gene_2",
-                    "marker_gene_3",
-                    "marker_gene_4",
+                obs_feature_matrix_path="X",
+                initial_feature_filter_path="var/marker_genes_for_heatmap",
+                obs_set_paths=[
+                    "obs/leiden",
+                    "obs/marker_gene_0",
+                    "obs/marker_gene_1",
+                    "obs/marker_gene_2",
+                    "obs/marker_gene_3",
+                    "obs/marker_gene_4",
                 ],
+                obs_set_names=[
+                    "Leiden",
+                    "Marker Gene 0",
+                    "Marker Gene 1",
+                    "Marker Gene 2",
+                    "Marker Gene 3",
+                    "Marker Gene 4",
+                ],
+                obs_locations_path="obsm/X_spatial",
+                obs_embedding_paths=["obsm/X_umap"],
+                obs_embedding_names=["UMAP"],
+                obs_embedding_dims=[[0, 1]],
+                feature_labels_path="var/hugo_symbol",
                 gene_alias="var/hugo_symbol",
             )
         ],
@@ -36,7 +45,7 @@
     ).set_coordination_value(
         c_type="featureSelection", c_scope="A", c_value=["ENSG00000139618"]
     ).set_coordination_value(
-        c_type="obsColorEncoding", c_scope="A", c_value="featureSelection"
+        c_type="obsColorEncoding", c_scope="A", c_value="geneSelection"
     ).add_view(
         dataset_uid="A",
         component="scatterplot",
@@ -51,7 +60,7 @@
         },
     ).add_view(
         dataset_uid="A",
-        component="cellSets",
+        component="obsSets",
         x=9,
         y=0,
         w=3,
@@ -59,7 +68,7 @@
         coordination_scopes={"featureSelection": "A", "obsColorEncoding": "A"},
     ).add_view(
         dataset_uid="A",
-        component="genes",
+        component="featureList",
         x=9,
         y=4,
         w=3,
@@ -67,7 +76,7 @@
         coordination_scopes={"featureSelection": "A", "obsColorEncoding": "A"},
     ).add_view(
         dataset_uid="A",
-        component="cellSetExpression",
+        component="obsSetFeatureValueDistribution",
         x=7,
         y=6,
         w=5,

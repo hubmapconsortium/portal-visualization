@@ -23,8 +23,7 @@
             ],
             "schemaVersion": "0.0.2",
             "usePhysicalSizeScaling": false
-          },
-          "type": "raster"
+          }
         }
       ],
       "name": "Visualization Files",
@@ -39,10 +38,10 @@
       "coordinationScopes": {
         "dataset": "A"
       },
+      "h": 12,
       "props": {
         "useFullResolutionImage": []
       },
-      "h": 12,
       "w": 9,
       "x": 3,
       "y": 0
@@ -73,5 +72,5 @@
     }
   ],
   "name": "HuBMAP Data Portal",
-  "version": "1.0.7"
+  "version": "1.0.15"
 }

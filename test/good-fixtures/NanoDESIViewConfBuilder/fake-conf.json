@@ -23,8 +23,7 @@
             ],
             "schemaVersion": "0.0.2",
             "usePhysicalSizeScaling": true
-          },
-          "type": "raster"
+          }
         }
       ],
       "name": "Visualization Files",
@@ -39,10 +38,12 @@
       "coordinationScopes": {
         "dataset": "A"
       },
-      "props": {
-        "useFullResolutionImage": ["VAN0003-LK-32-21-IMS_NegMode_multilayer.ome.tif"]
-      },
       "h": 12,
+      "props": {
+        "useFullResolutionImage": [
+          "VAN0003-LK-32-21-IMS_NegMode_multilayer.ome.tif"
+        ]
+      },
       "w": 9,
       "x": 3,
       "y": 0
@@ -73,5 +74,5 @@
     }
   ],
   "name": "HuBMAP Data Portal",
-  "version": "1.0.7"
+  "version": "1.0.15"
 }

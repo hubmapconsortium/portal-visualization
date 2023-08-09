@@ -23,8 +23,7 @@
                 }
               ],
               "schemaVersion": "0.0.2"
-            },
-            "type": "raster"
+            }
           }
         ],
         "name": "SPRM",
@@ -39,10 +38,10 @@
         "coordinationScopes": {
           "dataset": "A"
         },
+        "h": 12,
         "props": {
           "useFullResolutionImage": []
         },
-        "h": 12,
         "w": 9,
         "x": 3,
         "y": 0
@@ -75,6 +74,6 @@
       }
     ],
     "name": "reg1",
-    "version": "1.0.7"
+    "version": "1.0.15"
   }
 ]
