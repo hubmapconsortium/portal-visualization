@@ -42,9 +42,9 @@ class ViewConfBuilder(ABC):
         ...   entity={ "uuid": "uuid" },
         ...   groups_token='groups_token',
         ...   assets_endpoint='https://example.com')
-        >>> file = { 
-        ...     'file_type': 'cells.json', 
-        ...     'rel_path': 'cells.json', 
+        >>> file = {
+        ...     'file_type': 'cells.json',
+        ...     'rel_path': 'cells.json',
         ...     'coordination_values': { 'obsType': 'cell' } }
         >>> pprint(builder._replace_url_in_file(file))
         >>> { 'file_type': 'cells.json',
