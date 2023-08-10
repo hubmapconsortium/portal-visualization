@@ -12,20 +12,18 @@ import zarr
 
 
 from .base_builders import ViewConfBuilder
-from ..utils import (
-    get_conf_cells,
-    # use_multiple_coordinations
-)
+from ..utils import get_conf_cells
 
-RNA_SEQ_ANNDATA_FACTORS = [
+
+RNA_SEQ_ANNDATA_FACTOR_PATHS = [f"obs/{key}" for key in [
     "marker_gene_0",
     "marker_gene_1",
     "marker_gene_2",
     "marker_gene_3",
     "marker_gene_4"
-]
+]]
 
-RNA_SEQ_ANNDATA_FACTOR_PATHS = [f"obs/{key}" for key in RNA_SEQ_ANNDATA_FACTORS]
+RNA_SEQ_FACTOR_LABEL_NAMES = [f'Marker Gene {i}' for i in range(len(RNA_SEQ_ANNDATA_FACTOR_PATHS))]
 
 
 class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
@@ -129,9 +127,6 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
             # elif (encoding_version == "0.2.0"):
             #     print('TODO - Encoding Version 0.2.0 support')
 
-        cell_set_obs.extend(RNA_SEQ_ANNDATA_FACTOR_PATHS)
-        cell_set_obs_names.extend(
-            [f'Marker Gene {x}' for x in range(len(RNA_SEQ_ANNDATA_FACTORS))])
         dataset = vc.add_dataset(name=self._uuid).add_object(AnnDataWrapper(
             adata_url=adata_url,
             obs_feature_matrix_path="X",
@@ -145,9 +140,10 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
             obs_embedding_dims=[[0, 1]],
             request_init=self._get_request_init(),
             feature_labels_path=gene_alias,
-            obs_labels_path=None,
             coordination_values=None,
-            gene_alias=gene_alias
+            gene_alias=gene_alias,
+            obs_labels_paths=RNA_SEQ_ANNDATA_FACTOR_PATHS,
+            obs_labels_names=RNA_SEQ_FACTOR_LABEL_NAMES
         ))
 
         vc = self._setup_anndata_view_config(vc, dataset, marker)
@@ -189,18 +185,17 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
                      cell_sets, gene_list, scatterplot, cell_sets_expr, heatmap, spatial]))
 
         # Link top 5 marker genes
-        # TODO: For some reason, these values show up as empty in the UI, so
-        # the current approach uses the cell_set_obs/cell_set_obs_names approach above.
-        # TODO: Update to ct.OBS_LABELS once upstream enum is updated (HMP-327)
-        # OBS_LABELS = 'obsLabelsType'
-        # use_multiple_coordinations(vc, views, OBS_LABELS, RNA_SEQ_ANNDATA_FACTORS)
+        vc.link_views(views,
+                      [ct.OBS_LABELS_TYPE for _ in RNA_SEQ_FACTOR_LABEL_NAMES],
+                      RNA_SEQ_FACTOR_LABEL_NAMES,
+                      allow_multiple_scopes_per_type=True)
 
         # Link user-provided marker gene
         if marker:
             vc.link_views(
                 views,
                 [ct.FEATURE_SELECTION, ct.OBS_COLOR_ENCODING],
-                [[marker], 'geneSelection']
+                [[marker], 'geneSelection'],
             )
 
         return vc

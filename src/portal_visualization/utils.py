@@ -4,7 +4,6 @@ from itertools import groupby
 
 import nbformat
 from vitessce import VitessceConfig
-# from vitessce.config import VitessceConfigCoordinationScope
 
 from .builders.base_builders import ConfCells
 
@@ -64,33 +63,3 @@ def _get_cells_from_obj(vc_obj):
         nbformat.v4.new_code_cell(f'from vitessce import {", ".join(imports)}'),
         nbformat.v4.new_code_cell(f'conf = {conf_expression}\nconf.widget()'),
     ]
-
-
-# TODO: This is commented out because we are currently using obssets to display marker gene labels
-#
-# def use_multiple_coordinations(vc, views, coordinationType, values):
-#     """
-#     A helper function for creating multiple coordination scopes for the same coordination type
-#     Should no longer be necessary after https://github.com/vitessce/vitessce-python/issues/271
-#     :param vc: The VitessceConfig object to add the coordinations to
-#     :param views: The views to add the coordinations to
-#     :param coordinationType: The coordination type for the scope
-#     :param values: The values for the coordination scope
-#     :return: The VitessceConfig object with the added coordinations
-#     """
-#     # Add the coordinations to the VC
-#     coordinations = vc.add_coordination(*[coordinationType for _ in values])
-
-#     # Set coordination values
-#     for i, value in enumerate(values):
-#         coordinations[i].set_value(value)
-
-#     scopes = [str(l.c_scope) for l in coordinations]
-
-#     custom_scope = VitessceConfigCoordinationScope(
-#         c_type=coordinationType, c_scope=scopes)
-
-#     for v in views:
-#         v.use_coordination(custom_scope)
-
-#     return vc

@@ -1,5 +1,6 @@
 from vitessce import (
     VitessceConfig,
+    FileType as ft,
     Component as cm,
 )
 
@@ -52,21 +53,21 @@ class RNASeqViewConfBuilder(AbstractScatterplotViewConfBuilder):
         self._files = [
             {
                 "rel_path": f"{SCRNA_SEQ_DIR}.cells.json",
-                "file_type": "obsSegmentations.cells.json",  # ft.OBS_SEGMENTATIONS_CELLS_JSON
+                "file_type": ft.OBS_SEGMENTATIONS_CELLS_JSON,
                 "coordination_values": {
                     "obsType": "cell",
                 },
             },
             {
                 "rel_path": f"{SCRNA_SEQ_DIR}.cells.json",
-                "file_type": "obsLocations.cells.json",  # ft.OBS_LOCATIONS_CELLS_JSON
+                "file_type": ft.OBS_LOCATIONS_CELLS_JSON,
                 "coordination_values": {
                     "obsType": "cell",
                 },
             },
             {
                 "rel_path": f"{SCRNA_SEQ_DIR}.cells.json",
-                "file_type": "obsEmbedding.cells.json",  # ft.OBS_EMBEDDING_CELLS_JSON
+                "file_type": ft.OBS_EMBEDDING_CELLS_JSON,
                 "coordination_values": {
                     "obsType": "cell",
                     "embeddingType": "UMAP",
@@ -74,7 +75,7 @@ class RNASeqViewConfBuilder(AbstractScatterplotViewConfBuilder):
             },
             {
                 "rel_path": f"{SCRNA_SEQ_DIR}.cell-sets.json",
-                "file_type": "obsSets.cell-sets.json",  # ft.OBS_SETS_CELL_SETS_JSON
+                "file_type": ft.OBS_SETS_CELL_SETS_JSON,
                 "coordination_values": {
                     "obsType": "cell",
                 },
@@ -100,7 +101,7 @@ class ATACSeqViewConfBuilder(AbstractScatterplotViewConfBuilder):
             {
                 "rel_path": SCATAC_SEQ_DIR
                 + "/umap_coords_clusters.cells.json",
-                "file_type": "obsSegmentations.cells.json",  # ft.OBS_SEGMENTATIONS_CELLS_JSON
+                "file_type": ft.OBS_SEGMENTATIONS_CELLS_JSON,
                 "coordination_values": {
                     "obsType": "cell",
                 },
@@ -108,7 +109,7 @@ class ATACSeqViewConfBuilder(AbstractScatterplotViewConfBuilder):
             {
                 "rel_path": SCATAC_SEQ_DIR
                 + "/umap_coords_clusters.cells.json",
-                "file_type": "obsLocations.cells.json",  # ft.OBS_LOCATIONS_CELLS_JSON
+                "file_type": ft.OBS_LOCATIONS_CELLS_JSON,
                 "coordination_values": {
                     "obsType": "cell",
                 },
@@ -116,7 +117,7 @@ class ATACSeqViewConfBuilder(AbstractScatterplotViewConfBuilder):
             {
                 "rel_path": SCATAC_SEQ_DIR
                 + "/umap_coords_clusters.cells.json",
-                "file_type": "obsEmbedding.cells.json",  # ft.OBS_EMBEDDING_CELLS_JSON
+                "file_type": ft.OBS_EMBEDDING_CELLS_JSON,
                 "coordination_values": {
                     "obsType": "cell",
                     "embeddingType": "UMAP",
@@ -125,7 +126,7 @@ class ATACSeqViewConfBuilder(AbstractScatterplotViewConfBuilder):
             {
                 "rel_path": SCATAC_SEQ_DIR
                 + "/umap_coords_clusters.cell-sets.json",
-                "file_type": "obsSets.cell-sets.json",  # ft.OBS_SETS_CELL_SETS_JSON
+                "file_type": ft.OBS_SETS_CELL_SETS_JSON,
                 "coordination_values": {
                     "obsType": "cell",
                 },
