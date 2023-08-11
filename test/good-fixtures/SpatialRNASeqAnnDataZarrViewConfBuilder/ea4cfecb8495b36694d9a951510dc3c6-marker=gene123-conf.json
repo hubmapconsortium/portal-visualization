@@ -14,6 +14,13 @@
     "obsColorEncoding": {
       "A": "geneSelection"
     },
+    "obsLabelsType": {
+      "A": "Marker Gene 0",
+      "B": "Marker Gene 1",
+      "C": "Marker Gene 2",
+      "D": "Marker Gene 3",
+      "E": "Marker Gene 4"
+    },
     "spatialSegmentationLayer": {
       "A": {
         "opacity": 1,
@@ -46,6 +53,28 @@
               "initialFeatureFilterPath": "var/marker_genes_for_heatmap",
               "path": "X"
             },
+            "obsLabels": [
+              {
+                "obsLabelsType": "Marker Gene 0",
+                "path": "obs/marker_gene_0"
+              },
+              {
+                "obsLabelsType": "Marker Gene 1",
+                "path": "obs/marker_gene_1"
+              },
+              {
+                "obsLabelsType": "Marker Gene 2",
+                "path": "obs/marker_gene_2"
+              },
+              {
+                "obsLabelsType": "Marker Gene 3",
+                "path": "obs/marker_gene_3"
+              },
+              {
+                "obsLabelsType": "Marker Gene 4",
+                "path": "obs/marker_gene_4"
+              }
+            ],
             "obsLocations": {
               "path": "obsm/X_spatial"
             },
@@ -53,26 +82,6 @@
               {
                 "name": "Leiden",
                 "path": "obs/leiden"
-              },
-              {
-                "name": "Marker Gene 0",
-                "path": "obs/marker_gene_0"
-              },
-              {
-                "name": "Marker Gene 1",
-                "path": "obs/marker_gene_1"
-              },
-              {
-                "name": "Marker Gene 2",
-                "path": "obs/marker_gene_2"
-              },
-              {
-                "name": "Marker Gene 3",
-                "path": "obs/marker_gene_3"
-              },
-              {
-                "name": "Marker Gene 4",
-                "path": "obs/marker_gene_4"
               }
             ]
           },
@@ -92,7 +101,14 @@
         "dataset": "A",
         "embeddingType": "A",
         "featureSelection": "A",
-        "obsColorEncoding": "A"
+        "obsColorEncoding": "A",
+        "obsLabelsType": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ]
       },
       "h": 6,
       "w": 4,
@@ -104,7 +120,14 @@
       "coordinationScopes": {
         "dataset": "A",
         "featureSelection": "A",
-        "obsColorEncoding": "A"
+        "obsColorEncoding": "A",
+        "obsLabelsType": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ]
       },
       "h": 3,
       "w": 3,
@@ -116,7 +139,14 @@
       "coordinationScopes": {
         "dataset": "A",
         "featureSelection": "A",
-        "obsColorEncoding": "A"
+        "obsColorEncoding": "A",
+        "obsLabelsType": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ]
       },
       "h": 3,
       "w": 3,
@@ -128,7 +158,14 @@
       "coordinationScopes": {
         "dataset": "A",
         "featureSelection": "A",
-        "obsColorEncoding": "A"
+        "obsColorEncoding": "A",
+        "obsLabelsType": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ]
       },
       "h": 4,
       "w": 5,
@@ -140,7 +177,14 @@
       "coordinationScopes": {
         "dataset": "A",
         "featureSelection": "A",
-        "obsColorEncoding": "A"
+        "obsColorEncoding": "A",
+        "obsLabelsType": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ]
       },
       "h": 4,
       "w": 7,
@@ -153,6 +197,13 @@
         "dataset": "A",
         "featureSelection": "A",
         "obsColorEncoding": "A",
+        "obsLabelsType": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ],
         "spatialSegmentationLayer": "A"
       },
       "h": 6,

@@ -5,6 +5,13 @@
     },
     "embeddingType": {
       "A": "UMAP"
+    },
+    "obsLabelsType": {
+      "A": "Marker Gene 0",
+      "B": "Marker Gene 1",
+      "C": "Marker Gene 2",
+      "D": "Marker Gene 3",
+      "E": "Marker Gene 4"
     }
   },
   "datasets": [
@@ -15,7 +22,10 @@
           "options": {
             "obsEmbedding": [
               {
-                "dims": [0, 1],
+                "dims": [
+                  0,
+                  1
+                ],
                 "embeddingType": "UMAP",
                 "path": "obsm/X_umap"
               }
@@ -24,6 +34,28 @@
               "initialFeatureFilterPath": "var/marker_genes_for_heatmap",
               "path": "X"
             },
+            "obsLabels": [
+              {
+                "obsLabelsType": "Marker Gene 0",
+                "path": "obs/marker_gene_0"
+              },
+              {
+                "obsLabelsType": "Marker Gene 1",
+                "path": "obs/marker_gene_1"
+              },
+              {
+                "obsLabelsType": "Marker Gene 2",
+                "path": "obs/marker_gene_2"
+              },
+              {
+                "obsLabelsType": "Marker Gene 3",
+                "path": "obs/marker_gene_3"
+              },
+              {
+                "obsLabelsType": "Marker Gene 4",
+                "path": "obs/marker_gene_4"
+              }
+            ],
             "obsSets": [
               {
                 "name": "Predicted ASCT Cell Type",
@@ -32,26 +64,6 @@
               {
                 "name": "Leiden",
                 "path": "obs/leiden"
-              },
-              {
-                "name": "Marker Gene 0",
-                "path": "obs/marker_gene_0"
-              },
-              {
-                "name": "Marker Gene 1",
-                "path": "obs/marker_gene_1"
-              },
-              {
-                "name": "Marker Gene 2",
-                "path": "obs/marker_gene_2"
-              },
-              {
-                "name": "Marker Gene 3",
-                "path": "obs/marker_gene_3"
-              },
-              {
-                "name": "Marker Gene 4",
-                "path": "obs/marker_gene_4"
               }
             ]
           },
@@ -69,7 +81,14 @@
       "component": "scatterplot",
       "coordinationScopes": {
         "dataset": "A",
-        "embeddingType": "A"
+        "embeddingType": "A",
+        "obsLabelsType": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ]
       },
       "h": 6,
       "w": 6,
@@ -79,7 +98,14 @@
     {
       "component": "obsSets",
       "coordinationScopes": {
-        "dataset": "A"
+        "dataset": "A",
+        "obsLabelsType": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ]
       },
       "h": 3,
       "w": 6,
@@ -89,7 +115,14 @@
     {
       "component": "featureList",
       "coordinationScopes": {
-        "dataset": "A"
+        "dataset": "A",
+        "obsLabelsType": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ]
       },
       "h": 3,
       "w": 6,
@@ -99,7 +132,14 @@
     {
       "component": "obsSetFeatureValueDistribution",
       "coordinationScopes": {
-        "dataset": "A"
+        "dataset": "A",
+        "obsLabelsType": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ]
       },
       "h": 4,
       "w": 5,
@@ -109,7 +149,14 @@
     {
       "component": "heatmap",
       "coordinationScopes": {
-        "dataset": "A"
+        "dataset": "A",
+        "obsLabelsType": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ]
       },
       "h": 4,
       "w": 7,
