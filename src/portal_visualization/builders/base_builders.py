@@ -27,6 +27,7 @@ class ViewConfBuilder(ABC):
         self._assets_endpoint = assets_endpoint
         self._entity = entity
         self._files = []
+        self._schema_version = kwargs.get("schema_version", "1.0.15")
 
     @abstractmethod
     def get_conf_cells(self, **kwargs):  # pragma: no cover
@@ -42,15 +43,18 @@ class ViewConfBuilder(ABC):
         ...   entity={ "uuid": "uuid" },
         ...   groups_token='groups_token',
         ...   assets_endpoint='https://example.com')
-        >>> file = { 'data_type': 'CELLS', 'file_type': 'cells.json', 'rel_path': 'cells.json' }
+        >>> file = {
+        ...     'file_type': 'cells.json',
+        ...     'rel_path': 'cells.json',
+        ...     'coordination_values': { 'obsType': 'cell' } }
         >>> pprint(builder._replace_url_in_file(file))
-        {'data_type': 'CELLS',\n\
-         'file_type': 'cells.json',\n\
+        {'coordination_values': {'obsType': 'cell'},
+         'file_type': 'cells.json',
          'url': 'https://example.com/uuid/cells.json?token=groups_token'}
         """
 
         return {
-            "data_type": file["data_type"],
+            "coordination_values": file["coordination_values"],
             "file_type": file["file_type"],
             "url": self._build_assets_url(file["rel_path"]),
         }

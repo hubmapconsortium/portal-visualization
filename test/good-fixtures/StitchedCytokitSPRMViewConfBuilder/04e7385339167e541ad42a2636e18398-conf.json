@@ -11,72 +11,52 @@
     {
       "files": [
         {
-          "fileType": "anndata-cells.zarr",
+          "fileType": "anndata.zarr",
           "options": {
-            "factors": [
-              "obs/Cell K-Means [tSNE_All_Features]",
-              "obs/Cell K-Means [Mean-All-SubRegions] Expression",
-              "obs/Cell K-Means [Mean] Expression",
-              "obs/Cell K-Means [Shape-Vectors]",
-              "obs/Cell K-Means [Texture]",
-              "obs/Cell K-Means [Total] Expression",
-              "obs/Cell K-Means [Covariance] Expression"
-            ],
-            "mappings": {
-              "t-SNE": {
-                "dims": [
-                  0,
-                  1
-                ],
-                "key": "obsm/tsne"
+            "obsEmbedding": [
+              {
+                "dims": [0, 1],
+                "embeddingType": "t-SNE",
+                "path": "obsm/tsne"
               }
+            ],
+            "obsFeatureMatrix": {
+              "path": "X"
             },
-            "xy": "obsm/xy"
+            "obsLocations": {
+              "path": "obsm/xy"
+            },
+            "obsSets": [
+              {
+                "name": "Cell K-Means [tSNE_All_Features]",
+                "path": "obs/Cell K-Means [tSNE_All_Features]"
+              },
+              {
+                "name": "Cell K-Means [Mean-All-SubRegions] Expression",
+                "path": "obs/Cell K-Means [Mean-All-SubRegions] Expression"
+              },
+              {
+                "name": "Cell K-Means [Mean] Expression",
+                "path": "obs/Cell K-Means [Mean] Expression"
+              },
+              {
+                "name": "Cell K-Means [Shape-Vectors]",
+                "path": "obs/Cell K-Means [Shape-Vectors]"
+              },
+              {
+                "name": "Cell K-Means [Texture]",
+                "path": "obs/Cell K-Means [Texture]"
+              },
+              {
+                "name": "Cell K-Means [Total] Expression",
+                "path": "obs/Cell K-Means [Total] Expression"
+              },
+              {
+                "name": "Cell K-Means [Covariance] Expression",
+                "path": "obs/Cell K-Means [Covariance] Expression"
+              }
+            ]
           },
-          "type": "cells",
-          "url": "https://example.com/04e7385339167e541ad42a2636e18398/anndata-zarr/reg1_stitched_expressions-anndata.zarr"
-        },
-        {
-          "fileType": "anndata-cell-sets.zarr",
-          "options": [
-            {
-              "groupName": "Cell K-Means [tSNE_All_Features]",
-              "setName": "obs/Cell K-Means [tSNE_All_Features]"
-            },
-            {
-              "groupName": "Cell K-Means [Mean-All-SubRegions] Expression",
-              "setName": "obs/Cell K-Means [Mean-All-SubRegions] Expression"
-            },
-            {
-              "groupName": "Cell K-Means [Mean] Expression",
-              "setName": "obs/Cell K-Means [Mean] Expression"
-            },
-            {
-              "groupName": "Cell K-Means [Shape-Vectors]",
-              "setName": "obs/Cell K-Means [Shape-Vectors]"
-            },
-            {
-              "groupName": "Cell K-Means [Texture]",
-              "setName": "obs/Cell K-Means [Texture]"
-            },
-            {
-              "groupName": "Cell K-Means [Total] Expression",
-              "setName": "obs/Cell K-Means [Total] Expression"
-            },
-            {
-              "groupName": "Cell K-Means [Covariance] Expression",
-              "setName": "obs/Cell K-Means [Covariance] Expression"
-            }
-          ],
-          "type": "cell-sets",
-          "url": "https://example.com/04e7385339167e541ad42a2636e18398/anndata-zarr/reg1_stitched_expressions-anndata.zarr"
-        },
-        {
-          "fileType": "anndata-expression-matrix.zarr",
-          "options": {
-            "matrix": "X"
-          },
-          "type": "expression-matrix",
           "url": "https://example.com/04e7385339167e541ad42a2636e18398/anndata-zarr/reg1_stitched_expressions-anndata.zarr"
         },
         {
@@ -102,14 +82,10 @@
                 "url": "https://example.com/04e7385339167e541ad42a2636e18398/ometiff-pyramids/stitched/mask/reg1_stitched_mask.ome.tif?token=groups_token"
               }
             ],
-            "renderLayers": [
-              "reg1_stitched_expressions",
-              "reg1_stitched_mask"
-            ],
+            "renderLayers": ["reg1_stitched_expressions", "reg1_stitched_mask"],
             "schemaVersion": "0.0.2",
             "usePhysicalSizeScaling": false
-          },
-          "type": "raster"
+          }
         }
       ],
       "name": "SPRM",
@@ -161,7 +137,7 @@
       "y": 0
     },
     {
-      "component": "cellSets",
+      "component": "obsSets",
       "coordinationScopes": {
         "dataset": "A"
       },
@@ -171,7 +147,7 @@
       "y": 5
     },
     {
-      "component": "genes",
+      "component": "featureList",
       "coordinationScopes": {
         "dataset": "A"
       },
@@ -199,5 +175,5 @@
     }
   ],
   "name": "reg1_stitched_expressions",
-  "version": "1.0.7"
+  "version": "1.0.15"
 }

@@ -4,14 +4,26 @@ from vitessce import (
     VitessceConfig,
     AnnDataWrapper,
     Component as cm,
-    CoordinationType,
+    CoordinationType as ct
 )
+
 import numpy as np
 import zarr
 
 
 from .base_builders import ViewConfBuilder
 from ..utils import get_conf_cells
+
+
+RNA_SEQ_ANNDATA_FACTOR_PATHS = [f"obs/{key}" for key in [
+    "marker_gene_0",
+    "marker_gene_1",
+    "marker_gene_2",
+    "marker_gene_3",
+    "marker_gene_4"
+]]
+
+RNA_SEQ_FACTOR_LABEL_NAMES = [f'Marker Gene {i}' for i in range(len(RNA_SEQ_ANNDATA_FACTOR_PATHS))]
 
 
 class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
@@ -50,7 +62,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         if f'{zarr_path}/.zgroup' not in file_paths_found:
             message = f'RNA-seq assay with uuid {self._uuid} has no .zarr store at {zarr_path}'
             raise FileNotFoundError(message)
-        vc = VitessceConfig(name=self._uuid)
+        vc = VitessceConfig(name=self._uuid, schema_version=self._schema_version)
         adata_url = self._build_assets_url(zarr_path, use_token=False)
         # Some of the keys (like marker_genes_for_heatmap) here are from our pipeline
         # https://github.com/hubmapconsortium/portal-containers/blob/master/containers/anndata-to-ui
@@ -65,12 +77,12 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         if (any(['azimuth-annotate' in dag['origin'] for dag in dags])):
             if self.is_annotated:
                 if 'predicted.ASCT.celltype' in z['obs']:
-                    cell_set_obs.append("predicted.ASCT.celltype")
+                    cell_set_obs.append("obs/predicted.ASCT.celltype")
                     cell_set_obs_names.append("Predicted ASCT Cell Type")
                 if 'predicted_label' in z['obs']:
-                    cell_set_obs.append("predicted_label")
+                    cell_set_obs.append("obs/predicted_label")
                     cell_set_obs_names.append("Cell Ontology Annotation")
-        cell_set_obs.append("leiden")
+        cell_set_obs.append("obs/leiden")
         cell_set_obs_names.append("Leiden")
         gene_alias = 'var/hugo_symbol' if 'var' in z and 'hugo_symbol' in z['var'] else None
         if (gene_alias is not None and marker is not None):
@@ -117,22 +129,21 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
 
         dataset = vc.add_dataset(name=self._uuid).add_object(AnnDataWrapper(
             adata_url=adata_url,
-            mappings_obsm=["X_umap"],
-            mappings_obsm_names=["UMAP"],
-            spatial_centroid_obsm=("X_spatial" if self._is_spatial else None),
-            cell_set_obs=cell_set_obs,
-            cell_set_obs_names=cell_set_obs_names,
-            expression_matrix="X",
-            matrix_gene_var_filter="marker_genes_for_heatmap",
-            factors_obs=[
-                "marker_gene_0",
-                "marker_gene_1",
-                "marker_gene_2",
-                "marker_gene_3",
-                "marker_gene_4"
-            ],
+            obs_feature_matrix_path="X",
+            initial_feature_filter_path="var/marker_genes_for_heatmap",
+            obs_set_paths=cell_set_obs,
+            obs_set_names=cell_set_obs_names,
+            obs_locations_path="obsm/X_spatial" if self._is_spatial else None,
+            obs_segmentations_path=None,
+            obs_embedding_paths=["obsm/X_umap"],
+            obs_embedding_names=["UMAP"],
+            obs_embedding_dims=[[0, 1]],
             request_init=self._get_request_init(),
-            gene_alias=gene_alias
+            feature_labels_path=gene_alias,
+            coordination_values=None,
+            gene_alias=gene_alias,
+            obs_labels_paths=RNA_SEQ_ANNDATA_FACTOR_PATHS,
+            obs_labels_names=RNA_SEQ_FACTOR_LABEL_NAMES
         ))
 
         vc = self._setup_anndata_view_config(vc, dataset, marker)
@@ -142,7 +153,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         scatterplot = vc.add_view(
             cm.SCATTERPLOT, dataset=dataset, mapping="UMAP", x=0, y=0, w=self._scatterplot_w, h=6)
         cell_sets = vc.add_view(
-            cm.CELL_SETS,
+            cm.OBS_SETS,
             dataset=dataset,
             x=self._scatterplot_w + self._spatial_w,
             y=0,
@@ -150,7 +161,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
             h=3
         )
         gene_list = vc.add_view(
-            cm.GENES,
+            cm.FEATURE_LIST,
             dataset=dataset,
             x=self._scatterplot_w + self._spatial_w,
             y=4,
@@ -158,7 +169,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
             h=3
         )
         cell_sets_expr = vc.add_view(
-            cm.CELL_SET_EXPRESSION, dataset=dataset, x=7, y=6, w=5, h=4)
+            cm.OBS_SET_FEATURE_VALUE_DISTRIBUTION, dataset=dataset, x=7, y=6, w=5, h=4)
         heatmap = vc.add_view(
             cm.HEATMAP, dataset=dataset, x=0, y=6, w=7, h=4)
         # Adding heatmap to coordination doesn't do anything,
@@ -173,11 +184,18 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         views = list(filter(lambda v: v is not None, [
                      cell_sets, gene_list, scatterplot, cell_sets_expr, heatmap, spatial]))
 
+        # Link top 5 marker genes
+        vc.link_views(views,
+                      [ct.OBS_LABELS_TYPE for _ in RNA_SEQ_FACTOR_LABEL_NAMES],
+                      RNA_SEQ_FACTOR_LABEL_NAMES,
+                      allow_multiple_scopes_per_type=True)
+
+        # Link user-provided marker gene
         if marker:
             vc.link_views(
                 views,
-                [CoordinationType.GENE_SELECTION, CoordinationType.CELL_COLOR_ENCODING],
-                [[marker], "geneSelection"]
+                [ct.FEATURE_SELECTION, ct.OBS_COLOR_ENCODING],
+                [[marker], 'geneSelection'],
             )
 
         return vc
@@ -210,7 +228,7 @@ class SpatialRNASeqAnnDataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
             y=0,
             w=self._spatial_w,
             h=6)
-        [cells_layer] = vc.add_coordination('spatialCellsLayer')
+        [cells_layer] = vc.add_coordination('spatialSegmentationLayer')
         cells_layer.set_value(
             {
                 "visible": True,

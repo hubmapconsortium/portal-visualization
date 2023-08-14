@@ -9,18 +9,24 @@
       {
         "files": [
           {
+            "coordinationValues": {
+              "obsType": "cell"
+            },
             "fileType": "cells.json",
-            "type": "cells",
             "url": "https://example.com/based on 04e7385339167e541ad42a2636e18398/output_json/reg1.cells.json?token=groups_token"
           },
           {
+            "coordinationValues": {
+              "obsType": "cell"
+            },
             "fileType": "cell-sets.json",
-            "type": "cell-sets",
             "url": "https://example.com/based on 04e7385339167e541ad42a2636e18398/output_json/reg1.cell-sets.json?token=groups_token"
           },
           {
+            "coordinationValues": {
+              "obsType": "cell"
+            },
             "fileType": "clusters.json",
-            "type": "expression-matrix",
             "url": "https://example.com/based on 04e7385339167e541ad42a2636e18398/output_json/reg1.clusters.json?token=groups_token"
           },
           {
@@ -38,8 +44,7 @@
                 }
               ],
               "schemaVersion": "0.0.2"
-            },
-            "type": "raster"
+            }
           }
         ],
         "name": "SPRM",
@@ -85,7 +90,7 @@
         "y": 0
       },
       {
-        "component": "cellSets",
+        "component": "obsSets",
         "coordinationScopes": {
           "dataset": "A"
         },
@@ -95,7 +100,7 @@
         "y": 5
       },
       {
-        "component": "genes",
+        "component": "featureList",
         "coordinationScopes": {
           "dataset": "A"
         },
@@ -123,6 +128,6 @@
       }
     ],
     "name": "reg1",
-    "version": "1.0.7"
+    "version": "1.0.15"
   }
 ]

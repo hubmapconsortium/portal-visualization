@@ -3,26 +3,35 @@
 - cell_type: code
   source: |-
     conf = VitessceChainableConfig(
-        name="ea4cfecb8495b36694d9a951510dc3c6", description="", schema_version="1.0.7"
+        schema_version="1.0.15", name="ea4cfecb8495b36694d9a951510dc3c6", description=""
     ).add_dataset(
         uid="A",
         name="ea4cfecb8495b36694d9a951510dc3c6",
         objs=[
             AnnDataWrapper(
                 adata_url="https://example.com/ea4cfecb8495b36694d9a951510dc3c6/hubmap_ui/anndata-zarr/secondary_analysis.zarr",
-                expression_matrix="X",
-                matrix_gene_var_filter="marker_genes_for_heatmap",
-                cell_set_obs=["leiden"],
-                cell_set_obs_names=["Leiden"],
-                spatial_centroid_obsm="X_spatial",
-                mappings_obsm=["X_umap"],
-                mappings_obsm_names=["UMAP"],
-                factors_obs=[
-                    "marker_gene_0",
-                    "marker_gene_1",
-                    "marker_gene_2",
-                    "marker_gene_3",
-                    "marker_gene_4",
+                obs_feature_matrix_path="X",
+                initial_feature_filter_path="var/marker_genes_for_heatmap",
+                obs_set_paths=["obs/leiden"],
+                obs_set_names=["Leiden"],
+                obs_locations_path="obsm/X_spatial",
+                obs_embedding_paths=["obsm/X_umap"],
+                obs_embedding_names=["UMAP"],
+                obs_embedding_dims=[[0, 1]],
+                feature_labels_path="var/hugo_symbol",
+                obs_labels_paths=[
+                    "obs/marker_gene_0",
+                    "obs/marker_gene_1",
+                    "obs/marker_gene_2",
+                    "obs/marker_gene_3",
+                    "obs/marker_gene_4",
+                ],
+                obs_labels_names=[
+                    "Marker Gene 0",
+                    "Marker Gene 1",
+                    "Marker Gene 2",
+                    "Marker Gene 3",
+                    "Marker Gene 4",
                 ],
                 gene_alias="var/hugo_symbol",
             )
@@ -30,13 +39,23 @@
     ).set_coordination_value(
         c_type="embeddingType", c_scope="A", c_value="UMAP"
     ).set_coordination_value(
-        c_type="spatialCellsLayer",
+        c_type="spatialSegmentationLayer",
         c_scope="A",
         c_value={"visible": True, "stroked": False, "radius": 20, "opacity": 1},
     ).set_coordination_value(
-        c_type="geneSelection", c_scope="A", c_value=["ENSG00000139618"]
+        c_type="obsLabelsType", c_scope="A", c_value="Marker Gene 0"
     ).set_coordination_value(
-        c_type="cellColorEncoding", c_scope="A", c_value="geneSelection"
+        c_type="obsLabelsType", c_scope="B", c_value="Marker Gene 1"
+    ).set_coordination_value(
+        c_type="obsLabelsType", c_scope="C", c_value="Marker Gene 2"
+    ).set_coordination_value(
+        c_type="obsLabelsType", c_scope="D", c_value="Marker Gene 3"
+    ).set_coordination_value(
+        c_type="obsLabelsType", c_scope="E", c_value="Marker Gene 4"
+    ).set_coordination_value(
+        c_type="featureSelection", c_scope="A", c_value=["ENSG00000139618"]
+    ).set_coordination_value(
+        c_type="obsColorEncoding", c_scope="A", c_value="geneSelection"
     ).add_view(
         dataset_uid="A",
         component="scatterplot",
@@ -46,33 +65,46 @@
         h=6,
         coordination_scopes={
             "embeddingType": "A",
-            "geneSelection": "A",
-            "cellColorEncoding": "A",
+            "obsLabelsType": ["A", "B", "C", "D", "E"],
+            "featureSelection": "A",
+            "obsColorEncoding": "A",
         },
     ).add_view(
         dataset_uid="A",
-        component="cellSets",
+        component="obsSets",
         x=9,
         y=0,
         w=3,
         h=3,
-        coordination_scopes={"geneSelection": "A", "cellColorEncoding": "A"},
+        coordination_scopes={
+            "obsLabelsType": ["A", "B", "C", "D", "E"],
+            "featureSelection": "A",
+            "obsColorEncoding": "A",
+        },
     ).add_view(
         dataset_uid="A",
-        component="genes",
+        component="featureList",
         x=9,
         y=4,
         w=3,
         h=3,
-        coordination_scopes={"geneSelection": "A", "cellColorEncoding": "A"},
+        coordination_scopes={
+            "obsLabelsType": ["A", "B", "C", "D", "E"],
+            "featureSelection": "A",
+            "obsColorEncoding": "A",
+        },
     ).add_view(
         dataset_uid="A",
-        component="cellSetExpression",
+        component="obsSetFeatureValueDistribution",
         x=7,
         y=6,
         w=5,
         h=4,
-        coordination_scopes={"geneSelection": "A", "cellColorEncoding": "A"},
+        coordination_scopes={
+            "obsLabelsType": ["A", "B", "C", "D", "E"],
+            "featureSelection": "A",
+            "obsColorEncoding": "A",
+        },
     ).add_view(
         dataset_uid="A",
         component="heatmap",
@@ -80,7 +112,11 @@
         y=6,
         w=7,
         h=4,
-        coordination_scopes={"geneSelection": "A", "cellColorEncoding": "A"},
+        coordination_scopes={
+            "obsLabelsType": ["A", "B", "C", "D", "E"],
+            "featureSelection": "A",
+            "obsColorEncoding": "A",
+        },
     ).add_view(
         dataset_uid="A",
         component="spatial",
@@ -89,9 +125,10 @@
         w=5,
         h=6,
         coordination_scopes={
-            "spatialCellsLayer": "A",
-            "geneSelection": "A",
-            "cellColorEncoding": "A",
+            "spatialSegmentationLayer": "A",
+            "obsLabelsType": ["A", "B", "C", "D", "E"],
+            "featureSelection": "A",
+            "obsColorEncoding": "A",
         },
     )
 

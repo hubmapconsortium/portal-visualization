@@ -1,20 +1,27 @@
 {
   "coordinationSpace": {
-    "cellColorEncoding": {
-      "A": "geneSelection"
-    },
     "dataset": {
       "A": "A"
     },
     "embeddingType": {
       "A": "UMAP"
     },
-    "geneSelection": {
+    "featureSelection": {
       "A": [
         "ENSG00000139618"
       ]
     },
-    "spatialCellsLayer": {
+    "obsColorEncoding": {
+      "A": "geneSelection"
+    },
+    "obsLabelsType": {
+      "A": "Marker Gene 0",
+      "B": "Marker Gene 1",
+      "C": "Marker Gene 2",
+      "D": "Marker Gene 3",
+      "E": "Marker Gene 4"
+    },
+    "spatialSegmentationLayer": {
       "A": {
         "opacity": 1,
         "radius": 20,
@@ -27,48 +34,57 @@
     {
       "files": [
         {
-          "fileType": "anndata-cells.zarr",
+          "fileType": "anndata.zarr",
           "options": {
-            "factors": [
-              "obs/marker_gene_0",
-              "obs/marker_gene_1",
-              "obs/marker_gene_2",
-              "obs/marker_gene_3",
-              "obs/marker_gene_4"
-            ],
-            "mappings": {
-              "UMAP": {
+            "featureLabels": {
+              "path": "var/hugo_symbol"
+            },
+            "obsEmbedding": [
+              {
                 "dims": [
                   0,
                   1
                 ],
-                "key": "obsm/X_umap"
+                "embeddingType": "UMAP",
+                "path": "obsm/X_umap"
               }
+            ],
+            "obsFeatureMatrix": {
+              "initialFeatureFilterPath": "var/marker_genes_for_heatmap",
+              "path": "X"
             },
-            "xy": "obsm/X_spatial"
+            "obsLabels": [
+              {
+                "obsLabelsType": "Marker Gene 0",
+                "path": "obs/marker_gene_0"
+              },
+              {
+                "obsLabelsType": "Marker Gene 1",
+                "path": "obs/marker_gene_1"
+              },
+              {
+                "obsLabelsType": "Marker Gene 2",
+                "path": "obs/marker_gene_2"
+              },
+              {
+                "obsLabelsType": "Marker Gene 3",
+                "path": "obs/marker_gene_3"
+              },
+              {
+                "obsLabelsType": "Marker Gene 4",
+                "path": "obs/marker_gene_4"
+              }
+            ],
+            "obsLocations": {
+              "path": "obsm/X_spatial"
+            },
+            "obsSets": [
+              {
+                "name": "Leiden",
+                "path": "obs/leiden"
+              }
+            ]
           },
-          "type": "cells",
-          "url": "https://example.com/ea4cfecb8495b36694d9a951510dc3c6/hubmap_ui/anndata-zarr/secondary_analysis.zarr"
-        },
-        {
-          "fileType": "anndata-cell-sets.zarr",
-          "options": [
-            {
-              "groupName": "Leiden",
-              "setName": "obs/leiden"
-            }
-          ],
-          "type": "cell-sets",
-          "url": "https://example.com/ea4cfecb8495b36694d9a951510dc3c6/hubmap_ui/anndata-zarr/secondary_analysis.zarr"
-        },
-        {
-          "fileType": "anndata-expression-matrix.zarr",
-          "options": {
-            "geneAlias": "var/hugo_symbol",
-            "matrix": "X",
-            "matrixGeneFilter": "var/marker_genes_for_heatmap"
-          },
-          "type": "expression-matrix",
           "url": "https://example.com/ea4cfecb8495b36694d9a951510dc3c6/hubmap_ui/anndata-zarr/secondary_analysis.zarr"
         }
       ],
@@ -82,10 +98,17 @@
     {
       "component": "scatterplot",
       "coordinationScopes": {
-        "cellColorEncoding": "A",
         "dataset": "A",
         "embeddingType": "A",
-        "geneSelection": "A"
+        "featureSelection": "A",
+        "obsColorEncoding": "A",
+        "obsLabelsType": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ]
       },
       "h": 6,
       "w": 4,
@@ -93,11 +116,18 @@
       "y": 0
     },
     {
-      "component": "cellSets",
+      "component": "obsSets",
       "coordinationScopes": {
-        "cellColorEncoding": "A",
         "dataset": "A",
-        "geneSelection": "A"
+        "featureSelection": "A",
+        "obsColorEncoding": "A",
+        "obsLabelsType": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ]
       },
       "h": 3,
       "w": 3,
@@ -105,11 +135,18 @@
       "y": 0
     },
     {
-      "component": "genes",
+      "component": "featureList",
       "coordinationScopes": {
-        "cellColorEncoding": "A",
         "dataset": "A",
-        "geneSelection": "A"
+        "featureSelection": "A",
+        "obsColorEncoding": "A",
+        "obsLabelsType": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ]
       },
       "h": 3,
       "w": 3,
@@ -117,11 +154,18 @@
       "y": 4
     },
     {
-      "component": "cellSetExpression",
+      "component": "obsSetFeatureValueDistribution",
       "coordinationScopes": {
-        "cellColorEncoding": "A",
         "dataset": "A",
-        "geneSelection": "A"
+        "featureSelection": "A",
+        "obsColorEncoding": "A",
+        "obsLabelsType": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ]
       },
       "h": 4,
       "w": 5,
@@ -131,9 +175,16 @@
     {
       "component": "heatmap",
       "coordinationScopes": {
-        "cellColorEncoding": "A",
         "dataset": "A",
-        "geneSelection": "A"
+        "featureSelection": "A",
+        "obsColorEncoding": "A",
+        "obsLabelsType": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ]
       },
       "h": 4,
       "w": 7,
@@ -143,10 +194,17 @@
     {
       "component": "spatial",
       "coordinationScopes": {
-        "cellColorEncoding": "A",
         "dataset": "A",
-        "geneSelection": "A",
-        "spatialCellsLayer": "A"
+        "featureSelection": "A",
+        "obsColorEncoding": "A",
+        "obsLabelsType": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ],
+        "spatialSegmentationLayer": "A"
       },
       "h": 6,
       "w": 5,
@@ -155,5 +213,5 @@
     }
   ],
   "name": "ea4cfecb8495b36694d9a951510dc3c6",
-  "version": "1.0.7"
+  "version": "1.0.15"
 }

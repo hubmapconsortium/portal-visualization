@@ -1,106 +1,74 @@
 [
   {
     "coordinationSpace": {
-      "cellColorEncoding": {
-        "A": "geneSelection"
-      },
       "dataset": {
         "A": "A"
       },
       "embeddingType": {
         "A": "t-SNE"
       },
-      "geneSelection": {
-        "A": [
-          "gene123"
-        ]
+      "featureSelection": {
+        "A": ["gene123"]
+      },
+      "obsColorEncoding": {
+        "A": "geneSelection"
       }
     },
     "datasets": [
       {
         "files": [
           {
-            "fileType": "anndata-cells.zarr",
+            "fileType": "anndata.zarr",
             "options": {
-              "factors": [
-                "obs/Cell K-Means [tSNE_All_Features]",
-                "obs/Cell K-Means [Mean-All-SubRegions] Expression",
-                "obs/Cell K-Means [Mean] Expression",
-                "obs/Cell K-Means [Shape-Vectors]",
-                "obs/Cell K-Means [Texture]",
-                "obs/Cell K-Means [Total] Expression",
-                "obs/Cell K-Means [Covariance] Expression"
-              ],
-              "mappings": {
-                "t-SNE": {
-                  "dims": [
-                    0,
-                    1
-                  ],
-                  "key": "obsm/tsne"
+              "obsEmbedding": [
+                {
+                  "dims": [0, 1],
+                  "embeddingType": "t-SNE",
+                  "path": "obsm/tsne"
                 }
+              ],
+              "obsFeatureMatrix": {
+                "path": "X"
               },
-              "xy": "obsm/xy"
+              "obsLocations": {
+                "path": "obsm/xy"
+              },
+              "obsSets": [
+                {
+                  "name": "Cell K-Means [tSNE_All_Features]",
+                  "path": "obs/Cell K-Means [tSNE_All_Features]"
+                },
+                {
+                  "name": "Cell K-Means [Mean-All-SubRegions] Expression",
+                  "path": "obs/Cell K-Means [Mean-All-SubRegions] Expression"
+                },
+                {
+                  "name": "Cell K-Means [Mean] Expression",
+                  "path": "obs/Cell K-Means [Mean] Expression"
+                },
+                {
+                  "name": "Cell K-Means [Shape-Vectors]",
+                  "path": "obs/Cell K-Means [Shape-Vectors]"
+                },
+                {
+                  "name": "Cell K-Means [Texture]",
+                  "path": "obs/Cell K-Means [Texture]"
+                },
+                {
+                  "name": "Cell K-Means [Total] Expression",
+                  "path": "obs/Cell K-Means [Total] Expression"
+                },
+                {
+                  "name": "Cell K-Means [Covariance] Expression",
+                  "path": "obs/Cell K-Means [Covariance] Expression"
+                }
+              ]
             },
             "requestInit": {
               "headers": {
                 "Authorization": "Bearer groups_token"
               }
             },
-            "type": "cells",
-            "url": "https://example.com/2f8d43199ca3167e991b320038024b77/anndata-zarr/reg001_S20030085_region_001_expr-anndata.zarr"
-          },
-          {
-            "fileType": "anndata-cell-sets.zarr",
-            "options": [
-              {
-                "groupName": "Cell K-Means [tSNE_All_Features]",
-                "setName": "obs/Cell K-Means [tSNE_All_Features]"
-              },
-              {
-                "groupName": "Cell K-Means [Mean-All-SubRegions] Expression",
-                "setName": "obs/Cell K-Means [Mean-All-SubRegions] Expression"
-              },
-              {
-                "groupName": "Cell K-Means [Mean] Expression",
-                "setName": "obs/Cell K-Means [Mean] Expression"
-              },
-              {
-                "groupName": "Cell K-Means [Shape-Vectors]",
-                "setName": "obs/Cell K-Means [Shape-Vectors]"
-              },
-              {
-                "groupName": "Cell K-Means [Texture]",
-                "setName": "obs/Cell K-Means [Texture]"
-              },
-              {
-                "groupName": "Cell K-Means [Total] Expression",
-                "setName": "obs/Cell K-Means [Total] Expression"
-              },
-              {
-                "groupName": "Cell K-Means [Covariance] Expression",
-                "setName": "obs/Cell K-Means [Covariance] Expression"
-              }
-            ],
-            "requestInit": {
-              "headers": {
-                "Authorization": "Bearer groups_token"
-              }
-            },
-            "type": "cell-sets",
-            "url": "https://example.com/2f8d43199ca3167e991b320038024b77/anndata-zarr/reg001_S20030085_region_001_expr-anndata.zarr"
-          },
-          {
-            "fileType": "anndata-expression-matrix.zarr",
-            "options": {
-              "matrix": "X"
-            },
-            "requestInit": {
-              "headers": {
-                "Authorization": "Bearer groups_token"
-              }
-            },
-            "type": "expression-matrix",
             "url": "https://example.com/2f8d43199ca3167e991b320038024b77/anndata-zarr/reg001_S20030085_region_001_expr-anndata.zarr"
           },
           {
@@ -132,8 +100,7 @@
               ],
               "schemaVersion": "0.0.2",
               "usePhysicalSizeScaling": false
-            },
-            "type": "raster"
+            }
           }
         ],
         "name": "SPRM",
@@ -146,7 +113,9 @@
       {
         "component": "description",
         "coordinationScopes": {
-          "dataset": "A"
+          "dataset": "A",
+          "featureSelection": "A",
+          "obsColorEncoding": "A"
         },
         "h": 4,
         "w": 3,
@@ -156,7 +125,9 @@
       {
         "component": "layerController",
         "coordinationScopes": {
-          "dataset": "A"
+          "dataset": "A",
+          "featureSelection": "A",
+          "obsColorEncoding": "A"
         },
         "h": 8,
         "w": 3,
@@ -166,9 +137,9 @@
       {
         "component": "spatial",
         "coordinationScopes": {
-          "cellColorEncoding": "A",
           "dataset": "A",
-          "geneSelection": "A"
+          "featureSelection": "A",
+          "obsColorEncoding": "A"
         },
         "h": 8,
         "w": 4,
@@ -178,10 +149,10 @@
       {
         "component": "scatterplot",
         "coordinationScopes": {
-          "cellColorEncoding": "A",
           "dataset": "A",
           "embeddingType": "A",
-          "geneSelection": "A"
+          "featureSelection": "A",
+          "obsColorEncoding": "A"
         },
         "h": 8,
         "w": 3,
@@ -189,11 +160,11 @@
         "y": 0
       },
       {
-        "component": "cellSets",
+        "component": "obsSets",
         "coordinationScopes": {
-          "cellColorEncoding": "A",
           "dataset": "A",
-          "geneSelection": "A"
+          "featureSelection": "A",
+          "obsColorEncoding": "A"
         },
         "h": 7,
         "w": 2,
@@ -201,11 +172,11 @@
         "y": 5
       },
       {
-        "component": "genes",
+        "component": "featureList",
         "coordinationScopes": {
-          "cellColorEncoding": "A",
           "dataset": "A",
-          "geneSelection": "A"
+          "featureSelection": "A",
+          "obsColorEncoding": "A"
         },
         "h": 5,
         "props": {
@@ -218,9 +189,9 @@
       {
         "component": "heatmap",
         "coordinationScopes": {
-          "cellColorEncoding": "A",
           "dataset": "A",
-          "geneSelection": "A"
+          "featureSelection": "A",
+          "obsColorEncoding": "A"
         },
         "h": 4,
         "props": {
@@ -233,110 +204,78 @@
       }
     ],
     "name": "reg001_S20030085_region_001_expr",
-    "version": "1.0.7"
+    "version": "1.0.15"
   },
   {
     "coordinationSpace": {
-      "cellColorEncoding": {
-        "A": "geneSelection"
-      },
       "dataset": {
         "A": "A"
       },
       "embeddingType": {
         "A": "t-SNE"
       },
-      "geneSelection": {
-        "A": [
-          "gene123"
-        ]
+      "featureSelection": {
+        "A": ["gene123"]
+      },
+      "obsColorEncoding": {
+        "A": "geneSelection"
       }
     },
     "datasets": [
       {
         "files": [
           {
-            "fileType": "anndata-cells.zarr",
+            "fileType": "anndata.zarr",
             "options": {
-              "factors": [
-                "obs/Cell K-Means [tSNE_All_Features]",
-                "obs/Cell K-Means [Mean-All-SubRegions] Expression",
-                "obs/Cell K-Means [Mean] Expression",
-                "obs/Cell K-Means [Shape-Vectors]",
-                "obs/Cell K-Means [Texture]",
-                "obs/Cell K-Means [Total] Expression",
-                "obs/Cell K-Means [Covariance] Expression"
-              ],
-              "mappings": {
-                "t-SNE": {
-                  "dims": [
-                    0,
-                    1
-                  ],
-                  "key": "obsm/tsne"
+              "obsEmbedding": [
+                {
+                  "dims": [0, 1],
+                  "embeddingType": "t-SNE",
+                  "path": "obsm/tsne"
                 }
+              ],
+              "obsFeatureMatrix": {
+                "path": "X"
               },
-              "xy": "obsm/xy"
+              "obsLocations": {
+                "path": "obsm/xy"
+              },
+              "obsSets": [
+                {
+                  "name": "Cell K-Means [tSNE_All_Features]",
+                  "path": "obs/Cell K-Means [tSNE_All_Features]"
+                },
+                {
+                  "name": "Cell K-Means [Mean-All-SubRegions] Expression",
+                  "path": "obs/Cell K-Means [Mean-All-SubRegions] Expression"
+                },
+                {
+                  "name": "Cell K-Means [Mean] Expression",
+                  "path": "obs/Cell K-Means [Mean] Expression"
+                },
+                {
+                  "name": "Cell K-Means [Shape-Vectors]",
+                  "path": "obs/Cell K-Means [Shape-Vectors]"
+                },
+                {
+                  "name": "Cell K-Means [Texture]",
+                  "path": "obs/Cell K-Means [Texture]"
+                },
+                {
+                  "name": "Cell K-Means [Total] Expression",
+                  "path": "obs/Cell K-Means [Total] Expression"
+                },
+                {
+                  "name": "Cell K-Means [Covariance] Expression",
+                  "path": "obs/Cell K-Means [Covariance] Expression"
+                }
+              ]
             },
             "requestInit": {
               "headers": {
                 "Authorization": "Bearer groups_token"
               }
             },
-            "type": "cells",
-            "url": "https://example.com/2f8d43199ca3167e991b320038024b77/anndata-zarr/reg001_S20030086_region_001_expr-anndata.zarr"
-          },
-          {
-            "fileType": "anndata-cell-sets.zarr",
-            "options": [
-              {
-                "groupName": "Cell K-Means [tSNE_All_Features]",
-                "setName": "obs/Cell K-Means [tSNE_All_Features]"
-              },
-              {
-                "groupName": "Cell K-Means [Mean-All-SubRegions] Expression",
-                "setName": "obs/Cell K-Means [Mean-All-SubRegions] Expression"
-              },
-              {
-                "groupName": "Cell K-Means [Mean] Expression",
-                "setName": "obs/Cell K-Means [Mean] Expression"
-              },
-              {
-                "groupName": "Cell K-Means [Shape-Vectors]",
-                "setName": "obs/Cell K-Means [Shape-Vectors]"
-              },
-              {
-                "groupName": "Cell K-Means [Texture]",
-                "setName": "obs/Cell K-Means [Texture]"
-              },
-              {
-                "groupName": "Cell K-Means [Total] Expression",
-                "setName": "obs/Cell K-Means [Total] Expression"
-              },
-              {
-                "groupName": "Cell K-Means [Covariance] Expression",
-                "setName": "obs/Cell K-Means [Covariance] Expression"
-              }
-            ],
-            "requestInit": {
-              "headers": {
-                "Authorization": "Bearer groups_token"
-              }
-            },
-            "type": "cell-sets",
-            "url": "https://example.com/2f8d43199ca3167e991b320038024b77/anndata-zarr/reg001_S20030086_region_001_expr-anndata.zarr"
-          },
-          {
-            "fileType": "anndata-expression-matrix.zarr",
-            "options": {
-              "matrix": "X"
-            },
-            "requestInit": {
-              "headers": {
-                "Authorization": "Bearer groups_token"
-              }
-            },
-            "type": "expression-matrix",
             "url": "https://example.com/2f8d43199ca3167e991b320038024b77/anndata-zarr/reg001_S20030086_region_001_expr-anndata.zarr"
           },
           {
@@ -368,8 +307,7 @@
               ],
               "schemaVersion": "0.0.2",
               "usePhysicalSizeScaling": false
-            },
-            "type": "raster"
+            }
           }
         ],
         "name": "SPRM",
@@ -382,7 +320,9 @@
       {
         "component": "description",
         "coordinationScopes": {
-          "dataset": "A"
+          "dataset": "A",
+          "featureSelection": "A",
+          "obsColorEncoding": "A"
         },
         "h": 4,
         "w": 3,
@@ -392,7 +332,9 @@
       {
         "component": "layerController",
         "coordinationScopes": {
-          "dataset": "A"
+          "dataset": "A",
+          "featureSelection": "A",
+          "obsColorEncoding": "A"
         },
         "h": 8,
         "w": 3,
@@ -402,9 +344,9 @@
       {
         "component": "spatial",
         "coordinationScopes": {
-          "cellColorEncoding": "A",
           "dataset": "A",
-          "geneSelection": "A"
+          "featureSelection": "A",
+          "obsColorEncoding": "A"
         },
         "h": 8,
         "w": 4,
@@ -414,10 +356,10 @@
       {
         "component": "scatterplot",
         "coordinationScopes": {
-          "cellColorEncoding": "A",
           "dataset": "A",
           "embeddingType": "A",
-          "geneSelection": "A"
+          "featureSelection": "A",
+          "obsColorEncoding": "A"
         },
         "h": 8,
         "w": 3,
@@ -425,11 +367,11 @@
         "y": 0
       },
       {
-        "component": "cellSets",
+        "component": "obsSets",
         "coordinationScopes": {
-          "cellColorEncoding": "A",
           "dataset": "A",
-          "geneSelection": "A"
+          "featureSelection": "A",
+          "obsColorEncoding": "A"
         },
         "h": 7,
         "w": 2,
@@ -437,11 +379,11 @@
         "y": 5
       },
       {
-        "component": "genes",
+        "component": "featureList",
         "coordinationScopes": {
-          "cellColorEncoding": "A",
           "dataset": "A",
-          "geneSelection": "A"
+          "featureSelection": "A",
+          "obsColorEncoding": "A"
         },
         "h": 5,
         "props": {
@@ -454,9 +396,9 @@
       {
         "component": "heatmap",
         "coordinationScopes": {
-          "cellColorEncoding": "A",
           "dataset": "A",
-          "geneSelection": "A"
+          "featureSelection": "A",
+          "obsColorEncoding": "A"
         },
         "h": 4,
         "props": {
@@ -469,6 +411,6 @@
       }
     ],
     "name": "reg001_S20030086_region_001_expr",
-    "version": "1.0.7"
+    "version": "1.0.15"
   }
 ]

@@ -1,12 +1,11 @@
 from vitessce import (
     VitessceConfig,
-    Component as cm,
-    DataType as dt,
     FileType as ft,
+    Component as cm,
 )
 
 
-from ..utils import get_conf_cells
+from ..utils import create_coordination_values, get_conf_cells
 from ..paths import SCRNA_SEQ_DIR, SCATAC_SEQ_DIR
 from .base_builders import ViewConfBuilder
 
@@ -27,17 +26,18 @@ class AbstractScatterplotViewConfBuilder(ViewConfBuilder):
             message = f'Files for uuid "{self._uuid}" not found as expected: ' \
                 f'Expected: {file_paths_expected}; Found: {file_paths_found}'
             raise FileNotFoundError(message)
-        vc = VitessceConfig(name="HuBMAP Data Portal")
+        vc = VitessceConfig(name="HuBMAP Data Portal", schema_version=self._schema_version)
         dataset = vc.add_dataset(name="Visualization Files")
         # The sublcass initializes _files in its __init__ method
         for file in self._files:
+            print(f"Adding file: {file}")
             dataset = dataset.add_file(**(self._replace_url_in_file(file)))
         vc = self._setup_scatterplot_view_config(vc, dataset)
         return get_conf_cells(vc)
 
     def _setup_scatterplot_view_config(self, vc, dataset):
         vc.add_view(cm.SCATTERPLOT, dataset=dataset, mapping="UMAP", x=0, y=0, w=9, h=12)
-        vc.add_view(cm.CELL_SETS, dataset=dataset, x=9, y=0, w=3, h=12)
+        vc.add_view(cm.OBS_SETS, dataset=dataset, x=9, y=0, w=3, h=12)
         return vc
 
 
@@ -53,13 +53,23 @@ class RNASeqViewConfBuilder(AbstractScatterplotViewConfBuilder):
         self._files = [
             {
                 "rel_path": f"{SCRNA_SEQ_DIR}.cells.json",
-                "file_type": ft.CELLS_JSON,
-                "data_type": dt.CELLS,
+                "file_type": ft.OBS_SEGMENTATIONS_CELLS_JSON,
+                "coordination_values": create_coordination_values(),
+            },
+            {
+                "rel_path": f"{SCRNA_SEQ_DIR}.cells.json",
+                "file_type": ft.OBS_LOCATIONS_CELLS_JSON,
+                "coordination_values": create_coordination_values()
+            },
+            {
+                "rel_path": f"{SCRNA_SEQ_DIR}.cells.json",
+                "file_type": ft.OBS_EMBEDDING_CELLS_JSON,
+                "coordination_values": create_coordination_values(embeddingType="UMAP")
             },
             {
                 "rel_path": f"{SCRNA_SEQ_DIR}.cell-sets.json",
-                "file_type": ft.CELL_SETS_JSON,
-                "data_type": dt.CELL_SETS,
+                "file_type": ft.OBS_SETS_CELL_SETS_JSON,
+                "coordination_values": create_coordination_values()
             },
         ]
 
@@ -73,17 +83,30 @@ class ATACSeqViewConfBuilder(AbstractScatterplotViewConfBuilder):
     def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
         super().__init__(entity, groups_token, assets_endpoint, **kwargs)
         # All "file" Vitessce objects that do not have wrappers.
+
         self._files = [
             {
                 "rel_path": SCATAC_SEQ_DIR
                 + "/umap_coords_clusters.cells.json",
-                "file_type": ft.CELLS_JSON,
-                "data_type": dt.CELLS,
+                "file_type": ft.OBS_SEGMENTATIONS_CELLS_JSON,
+                "coordination_values": create_coordination_values()
+            },
+            {
+                "rel_path": SCATAC_SEQ_DIR
+                + "/umap_coords_clusters.cells.json",
+                "file_type": ft.OBS_LOCATIONS_CELLS_JSON,
+                "coordination_values": create_coordination_values()
+            },
+            {
+                "rel_path": SCATAC_SEQ_DIR
+                + "/umap_coords_clusters.cells.json",
+                "file_type": ft.OBS_EMBEDDING_CELLS_JSON,
+                "coordination_values": create_coordination_values(embeddingType="UMAP")
             },
             {
                 "rel_path": SCATAC_SEQ_DIR
                 + "/umap_coords_clusters.cell-sets.json",
-                "file_type": ft.CELL_SETS_JSON,
-                "data_type": dt.CELL_SETS,
+                "file_type": ft.OBS_SETS_CELL_SETS_JSON,
+                "coordination_values": create_coordination_values()
             },
         ]

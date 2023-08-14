@@ -8,17 +8,30 @@ from vitessce import (
     OmeTiffWrapper,
     AnnDataWrapper,
     Component as cm,
-    DataType as dt,
     FileType as ft,
 )
 
 from .base_builders import ViewConfBuilder
-from ..utils import get_matches, get_conf_cells
+from ..utils import create_coordination_values, get_matches, get_conf_cells
 from ..paths import (
     SPRM_JSON_DIR, STITCHED_REGEX, CODEX_TILE_DIR,
     TILE_REGEX, STITCHED_IMAGE_DIR, SPRM_PYRAMID_SUBDIR, IMAGE_PYRAMID_DIR
 )
 from .imaging_builders import ImagePyramidViewConfBuilder
+
+# https://github.com/hubmapconsortium/portal-containers/blob/master/containers/sprm-to-anndata
+# has information on how these keys are generated.
+SPRM_ANNDATA_FACTORS = [
+    "Cell K-Means [tSNE_All_Features]",
+    "Cell K-Means [Mean-All-SubRegions] Expression",
+    "Cell K-Means [Mean] Expression",
+    "Cell K-Means [Shape-Vectors]",
+    "Cell K-Means [Texture]",
+    "Cell K-Means [Total] Expression",
+    "Cell K-Means [Covariance] Expression",
+]
+
+SPRM_ANNDATA_FACTOR_PATHS = [f"obs/{key}" for key in SPRM_ANNDATA_FACTORS]
 
 
 class CytokitSPRMViewConfigError(Exception):
@@ -80,23 +93,24 @@ class SPRMJSONViewConfBuilder(SPRMViewConfBuilder):
             {
                 "rel_path": f"{SPRM_JSON_DIR}/" + f"{self._base_name}.cells.json",
                 "file_type": ft.CELLS_JSON,
-                "data_type": dt.CELLS,
+                "coordination_values": create_coordination_values()
             },
             {
                 "rel_path": f"{SPRM_JSON_DIR}/" + f"{self._base_name}.cell-sets.json",
                 "file_type": ft.CELL_SETS_JSON,
-                "data_type": dt.CELL_SETS,
+                "coordination_values": create_coordination_values()
+
             },
             {
                 "rel_path": f"{SPRM_JSON_DIR}/" + f"{self._base_name}.clusters.json",
                 "file_type": "clusters.json",
-                "data_type": dt.EXPRESSION_MATRIX,
+                "coordination_values": create_coordination_values()
             },
         ]
 
     def get_conf_cells(self, **kwargs):
         found_image_file = self._check_sprm_image(self._get_full_image_path())
-        vc = VitessceConfig(name=self._base_name)
+        vc = VitessceConfig(name=self._base_name, schema_version=self._schema_version)
         dataset = vc.add_dataset(name="SPRM")
         image_wrapper = self._get_ometiff_image_wrapper(found_image_file, self._imaging_path_regex)
         dataset = dataset.add_object(image_wrapper)
@@ -126,8 +140,8 @@ class SPRMJSONViewConfBuilder(SPRMViewConfBuilder):
         vc.add_view(cm.LAYER_CONTROLLER, dataset=dataset, x=0, y=0, w=3, h=8).set_props(
             disable3d=[self._image_name]
         )
-        vc.add_view(cm.CELL_SETS, dataset=dataset, x=10, y=5, w=2, h=7)
-        vc.add_view(cm.GENES, dataset=dataset, x=10, y=0, w=2, h=5).set_props(
+        vc.add_view(cm.OBS_SETS, dataset=dataset, x=10, y=5, w=2, h=7)
+        vc.add_view(cm.FEATURE_LIST, dataset=dataset, x=10, y=0, w=2, h=5).set_props(
             variablesLabelOverride="antigen"
         )
         vc.add_view(cm.HEATMAP, dataset=dataset, x=3, y=8, w=7, h=4).set_props(
@@ -169,7 +183,7 @@ class SPRMAnnDataViewConfBuilder(SPRMViewConfBuilder):
         )
 
     def get_conf_cells(self, marker=None):
-        vc = VitessceConfig(name=self._image_name)
+        vc = VitessceConfig(name=self._image_name, schema_version=self._schema_version)
         dataset = vc.add_dataset(name="SPRM")
         file_paths_found = self._get_file_paths()
         zarr_path = f"anndata-zarr/{self._image_name}-anndata.zarr"
@@ -178,25 +192,15 @@ class SPRMAnnDataViewConfBuilder(SPRMViewConfBuilder):
             message = f"SPRM assay with uuid {self._uuid} has no .zarr store at {zarr_path}"
             raise FileNotFoundError(message)
         adata_url = self._build_assets_url(zarr_path, use_token=False)
-        # https://github.com/hubmapconsortium/portal-containers/blob/master/containers/sprm-to-anndata
-        # has information on how these keys are generated.
-        obs_keys = [
-            "Cell K-Means [tSNE_All_Features]",
-            "Cell K-Means [Mean-All-SubRegions] Expression",
-            "Cell K-Means [Mean] Expression",
-            "Cell K-Means [Shape-Vectors]",
-            "Cell K-Means [Texture]",
-            "Cell K-Means [Total] Expression",
-            "Cell K-Means [Covariance] Expression",
-        ]
+
         anndata_wrapper = AnnDataWrapper(
-            mappings_obsm=["tsne"],
-            mappings_obsm_names=["t-SNE"],
             adata_url=adata_url,
-            spatial_centroid_obsm="xy",
-            cell_set_obs=obs_keys,
-            expression_matrix="X",
-            factors_obs=obs_keys,
+            obs_feature_matrix_path="X",
+            obs_embedding_paths=["obsm/tsne"],
+            obs_embedding_names=["t-SNE"],
+            obs_set_names=SPRM_ANNDATA_FACTORS,
+            obs_set_paths=SPRM_ANNDATA_FACTOR_PATHS,
+            obs_locations_path="obsm/xy",
             request_init=self._get_request_init(),
         )
         dataset = dataset.add_object(anndata_wrapper)
@@ -211,18 +215,18 @@ class SPRMAnnDataViewConfBuilder(SPRMViewConfBuilder):
         return get_conf_cells(vc)
 
     def _setup_view_config_raster_cellsets_expression_segmentation(self, vc, dataset, marker):
-        vc.add_view(cm.DESCRIPTION, dataset=dataset, x=0, y=8, w=3, h=4)
-        vc.add_view(cm.LAYER_CONTROLLER, dataset=dataset, x=0, y=0, w=3, h=8)
+        description = vc.add_view(cm.DESCRIPTION, dataset=dataset, x=0, y=8, w=3, h=4)
+        layer_controller = vc.add_view(cm.LAYER_CONTROLLER, dataset=dataset, x=0, y=0, w=3, h=8)
 
         spatial = vc.add_view(
             cm.SPATIAL, dataset=dataset, x=3, y=0, w=4, h=8)
         scatterplot = vc.add_view(
             cm.SCATTERPLOT, dataset=dataset, mapping="t-SNE", x=7, y=0, w=3, h=8)
         cell_sets = vc.add_view(
-            cm.CELL_SETS, dataset=dataset, x=10, y=5, w=2, h=7)
+            cm.OBS_SETS, dataset=dataset, x=10, y=5, w=2, h=7)
 
         gene_list = vc.add_view(
-            cm.GENES, dataset=dataset, x=10, y=0, w=2, h=5
+            cm.FEATURE_LIST, dataset=dataset, x=10, y=0, w=2, h=5
         ).set_props(
             variablesLabelOverride="antigen")
         heatmap = vc.add_view(
@@ -230,11 +234,20 @@ class SPRMAnnDataViewConfBuilder(SPRMViewConfBuilder):
         ).set_props(
             variablesLabelOverride="antigen", transpose=True)
 
+        views = [
+            description,
+            layer_controller,
+            spatial,
+            cell_sets,
+            gene_list,
+            scatterplot,
+            heatmap]
+
         if marker:
             vc.link_views(
-                [spatial, cell_sets, gene_list, scatterplot, heatmap],
-                [CoordinationType.GENE_SELECTION, CoordinationType.CELL_COLOR_ENCODING],
-                [[marker], "geneSelection"]
+                views,
+                [CoordinationType.FEATURE_SELECTION, CoordinationType.OBS_COLOR_ENCODING],
+                [[marker], 'geneSelection']
             )
 
         return vc
@@ -279,6 +292,7 @@ class MultiImageSPRMAnndataViewConfBuilder(ViewConfBuilder):
         found_ids = self._find_ids()
         confs = []
         for id in sorted(found_ids):
+            print(f'Adding SPRM view config for id {id}')
             builder = SPRMAnnDataViewConfBuilder(
                 entity=self._entity,
                 groups_token=self._groups_token,
@@ -290,6 +304,7 @@ class MultiImageSPRMAnndataViewConfBuilder(ViewConfBuilder):
                 mask_name=f"{id}_{self._mask_id}"
             )
             conf = builder.get_conf_cells(marker=marker).conf
+            print(f'Got SPRM view config for id {id}, conf: {conf}')
             if conf == {}:
                 raise MultiImageSPRMAnndataViewConfigError(  # pragma: no cover
                     f"Cytokit SPRM assay with uuid {self._uuid} has empty view\
@@ -310,6 +325,7 @@ class StitchedCytokitSPRMViewConfBuilder(MultiImageSPRMAnndataViewConfBuilder):
     # Need to override base class settings due to different directory structure
     def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
         super().__init__(entity, groups_token, assets_endpoint, **kwargs)
+        print('Using StitchedCytokitSPRMViewConfBuilder')
         self._image_pyramid_subdir = STITCHED_IMAGE_DIR
         # The ids don't match exactly with the replacement because all image files have
         # stitched_expressions appended while the subdirectory only has /stitched/

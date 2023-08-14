@@ -5,71 +5,73 @@
     },
     "embeddingType": {
       "A": "UMAP"
+    },
+    "obsLabelsType": {
+      "A": "Marker Gene 0",
+      "B": "Marker Gene 1",
+      "C": "Marker Gene 2",
+      "D": "Marker Gene 3",
+      "E": "Marker Gene 4"
     }
   },
   "datasets": [
     {
       "files": [
         {
-          "fileType": "anndata-cells.zarr",
+          "fileType": "anndata.zarr",
           "options": {
-            "factors": [
-              "obs/marker_gene_0",
-              "obs/marker_gene_1",
-              "obs/marker_gene_2",
-              "obs/marker_gene_3",
-              "obs/marker_gene_4"
-            ],
-            "mappings": {
-              "UMAP": {
+            "obsEmbedding": [
+              {
                 "dims": [
                   0,
                   1
                 ],
-                "key": "obsm/X_umap"
+                "embeddingType": "UMAP",
+                "path": "obsm/X_umap"
               }
-            }
-          },
-          "requestInit": {
-            "headers": {
-              "Authorization": "Bearer groups_token"
-            }
-          },
-          "type": "cells",
-          "url": "https://example.com/503f9caeffb9ee1e1324793c977d2342/hubmap_ui/anndata-zarr/secondary_analysis.zarr"
-        },
-        {
-          "fileType": "anndata-cell-sets.zarr",
-          "options": [
-            {
-              "groupName": "Predicted ASCT Cell Type",
-              "setName": "obs/predicted.ASCT.celltype"
+            ],
+            "obsFeatureMatrix": {
+              "initialFeatureFilterPath": "var/marker_genes_for_heatmap",
+              "path": "X"
             },
-            {
-              "groupName": "Leiden",
-              "setName": "obs/leiden"
-            }
-          ],
+            "obsLabels": [
+              {
+                "obsLabelsType": "Marker Gene 0",
+                "path": "obs/marker_gene_0"
+              },
+              {
+                "obsLabelsType": "Marker Gene 1",
+                "path": "obs/marker_gene_1"
+              },
+              {
+                "obsLabelsType": "Marker Gene 2",
+                "path": "obs/marker_gene_2"
+              },
+              {
+                "obsLabelsType": "Marker Gene 3",
+                "path": "obs/marker_gene_3"
+              },
+              {
+                "obsLabelsType": "Marker Gene 4",
+                "path": "obs/marker_gene_4"
+              }
+            ],
+            "obsSets": [
+              {
+                "name": "Predicted ASCT Cell Type",
+                "path": "obs/predicted.ASCT.celltype"
+              },
+              {
+                "name": "Leiden",
+                "path": "obs/leiden"
+              }
+            ]
+          },
           "requestInit": {
             "headers": {
               "Authorization": "Bearer groups_token"
             }
           },
-          "type": "cell-sets",
-          "url": "https://example.com/503f9caeffb9ee1e1324793c977d2342/hubmap_ui/anndata-zarr/secondary_analysis.zarr"
-        },
-        {
-          "fileType": "anndata-expression-matrix.zarr",
-          "options": {
-            "matrix": "X",
-            "matrixGeneFilter": "var/marker_genes_for_heatmap"
-          },
-          "requestInit": {
-            "headers": {
-              "Authorization": "Bearer groups_token"
-            }
-          },
-          "type": "expression-matrix",
           "url": "https://example.com/503f9caeffb9ee1e1324793c977d2342/hubmap_ui/anndata-zarr/secondary_analysis.zarr"
         }
       ],
@@ -84,7 +86,14 @@
       "component": "scatterplot",
       "coordinationScopes": {
         "dataset": "A",
-        "embeddingType": "A"
+        "embeddingType": "A",
+        "obsLabelsType": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ]
       },
       "h": 6,
       "w": 6,
@@ -92,9 +101,16 @@
       "y": 0
     },
     {
-      "component": "cellSets",
+      "component": "obsSets",
       "coordinationScopes": {
-        "dataset": "A"
+        "dataset": "A",
+        "obsLabelsType": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ]
       },
       "h": 3,
       "w": 6,
@@ -102,9 +118,16 @@
       "y": 0
     },
     {
-      "component": "genes",
+      "component": "featureList",
       "coordinationScopes": {
-        "dataset": "A"
+        "dataset": "A",
+        "obsLabelsType": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ]
       },
       "h": 3,
       "w": 6,
@@ -112,9 +135,16 @@
       "y": 4
     },
     {
-      "component": "cellSetExpression",
+      "component": "obsSetFeatureValueDistribution",
       "coordinationScopes": {
-        "dataset": "A"
+        "dataset": "A",
+        "obsLabelsType": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ]
       },
       "h": 4,
       "w": 5,
@@ -124,7 +154,14 @@
     {
       "component": "heatmap",
       "coordinationScopes": {
-        "dataset": "A"
+        "dataset": "A",
+        "obsLabelsType": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ]
       },
       "h": 4,
       "w": 7,
@@ -133,5 +170,5 @@
     }
   ],
   "name": "503f9caeffb9ee1e1324793c977d2342",
-  "version": "1.0.7"
+  "version": "1.0.15"
 }
