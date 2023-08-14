@@ -12,7 +12,7 @@ from vitessce import (
 )
 
 from .base_builders import ViewConfBuilder
-from ..utils import get_matches, get_conf_cells
+from ..utils import create_coordination_values, get_matches, get_conf_cells
 from ..paths import (
     SPRM_JSON_DIR, STITCHED_REGEX, CODEX_TILE_DIR,
     TILE_REGEX, STITCHED_IMAGE_DIR, SPRM_PYRAMID_SUBDIR, IMAGE_PYRAMID_DIR
@@ -93,25 +93,18 @@ class SPRMJSONViewConfBuilder(SPRMViewConfBuilder):
             {
                 "rel_path": f"{SPRM_JSON_DIR}/" + f"{self._base_name}.cells.json",
                 "file_type": ft.CELLS_JSON,
-                "coordination_values": {
-                    "obsType": "cell",
-                },
+                "coordination_values": create_coordination_values()
             },
             {
                 "rel_path": f"{SPRM_JSON_DIR}/" + f"{self._base_name}.cell-sets.json",
                 "file_type": ft.CELL_SETS_JSON,
-                "coordination_values": {
-                    "obsType": "cell",
-                },
+                "coordination_values": create_coordination_values()
 
             },
             {
                 "rel_path": f"{SPRM_JSON_DIR}/" + f"{self._base_name}.clusters.json",
                 "file_type": "clusters.json",
-                "coordination_values": {
-                    "obsType": "cell",
-                },
-
+                "coordination_values": create_coordination_values()
             },
         ]
 

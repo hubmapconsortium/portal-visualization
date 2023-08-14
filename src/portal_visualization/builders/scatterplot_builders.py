@@ -5,7 +5,7 @@ from vitessce import (
 )
 
 
-from ..utils import get_conf_cells
+from ..utils import create_coordination_values, get_conf_cells
 from ..paths import SCRNA_SEQ_DIR, SCATAC_SEQ_DIR
 from .base_builders import ViewConfBuilder
 
@@ -54,31 +54,22 @@ class RNASeqViewConfBuilder(AbstractScatterplotViewConfBuilder):
             {
                 "rel_path": f"{SCRNA_SEQ_DIR}.cells.json",
                 "file_type": ft.OBS_SEGMENTATIONS_CELLS_JSON,
-                "coordination_values": {
-                    "obsType": "cell",
-                },
+                "coordination_values": create_coordination_values(),
             },
             {
                 "rel_path": f"{SCRNA_SEQ_DIR}.cells.json",
                 "file_type": ft.OBS_LOCATIONS_CELLS_JSON,
-                "coordination_values": {
-                    "obsType": "cell",
-                },
+                "coordination_values": create_coordination_values()
             },
             {
                 "rel_path": f"{SCRNA_SEQ_DIR}.cells.json",
                 "file_type": ft.OBS_EMBEDDING_CELLS_JSON,
-                "coordination_values": {
-                    "obsType": "cell",
-                    "embeddingType": "UMAP",
-                },
+                "coordination_values": create_coordination_values(embeddingType="UMAP")
             },
             {
                 "rel_path": f"{SCRNA_SEQ_DIR}.cell-sets.json",
                 "file_type": ft.OBS_SETS_CELL_SETS_JSON,
-                "coordination_values": {
-                    "obsType": "cell",
-                },
+                "coordination_values": create_coordination_values()
             },
         ]
 
@@ -98,33 +89,24 @@ class ATACSeqViewConfBuilder(AbstractScatterplotViewConfBuilder):
                 "rel_path": SCATAC_SEQ_DIR
                 + "/umap_coords_clusters.cells.json",
                 "file_type": ft.OBS_SEGMENTATIONS_CELLS_JSON,
-                "coordination_values": {
-                    "obsType": "cell",
-                },
+                "coordination_values": create_coordination_values()
             },
             {
                 "rel_path": SCATAC_SEQ_DIR
                 + "/umap_coords_clusters.cells.json",
                 "file_type": ft.OBS_LOCATIONS_CELLS_JSON,
-                "coordination_values": {
-                    "obsType": "cell",
-                },
+                "coordination_values": create_coordination_values()
             },
             {
                 "rel_path": SCATAC_SEQ_DIR
                 + "/umap_coords_clusters.cells.json",
                 "file_type": ft.OBS_EMBEDDING_CELLS_JSON,
-                "coordination_values": {
-                    "obsType": "cell",
-                    "embeddingType": "UMAP",
-                },
+                "coordination_values": create_coordination_values(embeddingType="UMAP")
             },
             {
                 "rel_path": SCATAC_SEQ_DIR
                 + "/umap_coords_clusters.cell-sets.json",
                 "file_type": ft.OBS_SETS_CELL_SETS_JSON,
-                "coordination_values": {
-                    "obsType": "cell",
-                },
+                "coordination_values": create_coordination_values()
             },
         ]

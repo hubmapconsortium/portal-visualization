@@ -16,6 +16,13 @@ def get_matches(files, regex):
     )
 
 
+def create_coordination_values(obs_type='cell', **kwargs):
+    return {
+        'obsType': obs_type,
+        **kwargs
+    }
+
+
 def _get_path_name(file):
     return Path(file).name
 
