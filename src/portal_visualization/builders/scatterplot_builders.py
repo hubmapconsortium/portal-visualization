@@ -93,10 +93,6 @@ class ATACSeqViewConfBuilder(AbstractScatterplotViewConfBuilder):
         super().__init__(entity, groups_token, assets_endpoint, **kwargs)
         # All "file" Vitessce objects that do not have wrappers.
 
-        # Since the vitessce-python library's FileType enum is outdated as of v3.0.6,
-        # we need to use the string values for now.
-        # https://github.com/vitessce/vitessce-python/issues/270
-        # https://hms-dbmi.atlassian.net/browse/HMP-327
         self._files = [
             {
                 "rel_path": SCATAC_SEQ_DIR
