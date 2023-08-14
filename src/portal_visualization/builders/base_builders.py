@@ -27,6 +27,7 @@ class ViewConfBuilder(ABC):
         self._assets_endpoint = assets_endpoint
         self._entity = entity
         self._files = []
+        self._schema_version = kwargs.get("schema_version", "1.0.15")
 
     @abstractmethod
     def get_conf_cells(self, **kwargs):  # pragma: no cover

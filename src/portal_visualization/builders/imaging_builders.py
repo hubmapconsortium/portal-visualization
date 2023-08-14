@@ -80,7 +80,7 @@ class ImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
             message = f"Image pyramid assay with uuid {self._uuid} has no matching files"
             raise FileNotFoundError(message)
 
-        vc = VitessceConfig(name="HuBMAP Data Portal", schema_version="1.0.15")
+        vc = VitessceConfig(name="HuBMAP Data Portal", schema_version=self._schema_version)
         dataset = vc.add_dataset(name="Visualization Files")
         images = []
         for img_path in found_images:
@@ -156,7 +156,7 @@ class SeqFISHViewConfBuilder(AbstractImagingViewConfBuilder):
         for images in images_by_pos:
             image_wrappers = []
             pos_name = self._get_pos_name(images[0])
-            vc = VitessceConfig(name=pos_name, schema_version="1.0.15")
+            vc = VitessceConfig(name=pos_name, schema_version=self._schema_version)
             dataset = vc.add_dataset(name=pos_name)
             sorted_images = sorted(images, key=self._get_hybcycle)
             for img_path in sorted_images:

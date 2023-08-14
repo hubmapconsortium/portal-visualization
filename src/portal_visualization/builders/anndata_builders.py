@@ -62,7 +62,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         if f'{zarr_path}/.zgroup' not in file_paths_found:
             message = f'RNA-seq assay with uuid {self._uuid} has no .zarr store at {zarr_path}'
             raise FileNotFoundError(message)
-        vc = VitessceConfig(name=self._uuid, schema_version='1.0.15')
+        vc = VitessceConfig(name=self._uuid, schema_version=self._schema_version)
         adata_url = self._build_assets_url(zarr_path, use_token=False)
         # Some of the keys (like marker_genes_for_heatmap) here are from our pipeline
         # https://github.com/hubmapconsortium/portal-containers/blob/master/containers/anndata-to-ui
