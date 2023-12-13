@@ -36,7 +36,7 @@ from .assays import (
 def get_ancestor_assaytypes(entity, get_assaytype):
     return [get_assaytype(ancestor.get('uuid')).get('assaytype')
             for ancestor
-            in entity['immediate_ancestors']]
+            in entity.get('immediate_ancestors')]
 
 
 def get_view_config_builder(entity, get_assaytype):
