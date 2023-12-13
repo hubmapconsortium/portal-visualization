@@ -40,7 +40,7 @@ def get_ancestor_assaytypes(entity, get_assaytype):
 def get_view_config_builder(entity, get_assaytype):
     assay = get_assaytype(entity.get('uuid'))
     assay_name = assay.get('assaytype')
-    hints = assay.get('vitessce_hints', [])
+    hints = assay.get('vitessce-hints', [])
     dag_provenance_list = entity.get('metadata', {}).get('dag_provenance_list', [])
     dag_names = [dag['name']
                  for dag in dag_provenance_list if 'name' in dag]
