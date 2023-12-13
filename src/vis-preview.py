@@ -9,15 +9,13 @@ from sys import stderr
 
 import requests
 
-from hubmap_commons.type_client import TypeClient
-
 from portal_visualization.builder_factory import get_view_config_builder
 
 
 def main():  # pragma: no cover
     defaults = json.load((Path(__file__).parent / 'defaults.json').open())
-    types_default_url = defaults['types_url']
     assets_default_url = defaults['assets_url']
+    assaytypes_default_url = defaults['assaytypes_url']
 
     parser = argparse.ArgumentParser(description='''
         Given HuBMAP Dataset JSON, generate a Vitessce viewconf, and load vitessce.io.''')
@@ -28,9 +26,9 @@ def main():  # pragma: no cover
         '--json', type=Path, help='File containing Dataset JSON')
 
     parser.add_argument(
-        '--types_url', metavar='URL',
-        help=f'Type service; default: {types_default_url}',
-        default=types_default_url)
+        '--assaytypes_url', metavar='URL',
+        help=f'AssayType service; default: {assaytypes_default_url}',
+        default=assaytypes_default_url)
     parser.add_argument(
         '--assets_url', metavar='URL',
         help=f'Assets endpoint; default: {assets_default_url}',
@@ -60,11 +58,13 @@ def main():  # pragma: no cover
         json_str = args.json.read_text()
     entity = json.loads(json_str)
 
-    def get_assay(name):
-        type_client = TypeClient(args.types_url)
-        return type_client.getAssayType(name)
+    def get_assaytype(uuid):
+        headers = {}
+        if args.token:
+            headers['Authorization'] = f'Bearer {args.token}'
+        requests.get(f'{defaults["assaytypes_url"]}/{uuid}', headers=headers).json()
 
-    Builder = get_view_config_builder(entity=entity, get_assay=get_assay)
+    Builder = get_view_config_builder(entity, get_assaytype)
     builder = Builder(entity, args.token, args.assets_url)
     print(f'Using: {builder.__class__.__name__}', file=stderr)
     conf_cells = builder.get_conf_cells(marker=marker)
