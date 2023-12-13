@@ -10,8 +10,6 @@ from dataclasses import dataclass
 import pytest
 import zarr
 
-from hubmap_commons.type_client import TypeClient
-
 from src.portal_visualization.builder_factory import get_view_config_builder, has_visualization
 
 
@@ -38,17 +36,9 @@ assert len(bad_entity_paths) > 0
 
 defaults = json.load((Path(__file__).parent.parent / 'src/defaults.json').open())
 
-
-def get_assay(name):
-    # This code could also be used in portal-ui.
-    # search-api might skip the REST interface.
-    type_client = TypeClient(defaults['types_url'])
-    return type_client.getAssayType(name)
-
-
+ 
 def get_assaytype(uuid):
     requests.get(f'{defaults["assaytypes_url"]}/{uuid}').json()
-
 
 @pytest.mark.parametrize(
     "has_vis_entity",
@@ -61,7 +51,7 @@ def get_assaytype(uuid):
     ids=lambda has_vis_entity: f'has_visualization={has_vis_entity[0]}')
 def test_has_visualization(has_vis_entity):
     has_vis, entity = has_vis_entity
-    assert has_vis == has_visualization(entity, get_assay)
+    assert has_vis == has_visualization(entity, get_assaytype)
 
 
 def mock_zarr_store(entity_path, mocker):
@@ -97,7 +87,7 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
         else None)
 
     entity = json.loads(entity_path.read_text())
-    Builder = get_view_config_builder(entity, get_assay)
+    Builder = get_view_config_builder(entity, get_assaytype)
     assert Builder.__name__ == entity_path.parent.name
 
     # Envvars should not be set during normal test runs,
@@ -130,7 +120,7 @@ def test_entity_to_error(entity_path, mocker):
 
     entity = json.loads(entity_path.read_text())
     with pytest.raises(Exception) as error_info:
-        Builder = get_view_config_builder(entity, get_assay)
+        Builder = get_view_config_builder(entity, get_assaytype)
         builder = Builder(entity, 'groups_token', 'https://example.com/')
         builder.get_conf_cells()
     actual_error = f'{error_info.type.__name__}: {error_info.value.args[0]}'
@@ -157,7 +147,7 @@ if __name__ == '__main__':  # pragma: no cover
 
     args = parser.parse_args()
     entity = json.loads(args.input.read_text())
-    Builder = get_view_config_builder(entity, get_assay)
+    Builder = get_view_config_builder(entity, get_assaytype)
     builder = Builder(entity, 'groups_token', 'https://example.com/')
     conf, cells = builder.get_conf_cells()
 
