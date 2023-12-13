@@ -34,7 +34,7 @@ assert len(good_entity_paths) > 0
 bad_entity_paths = list((Path(__file__).parent / 'bad-fixtures').glob("*-entity.json"))
 assert len(bad_entity_paths) > 0
 
-assaytypes_path = Path(__file__).parent / 'assaytypes'
+assaytypes_path = Path(__file__).parent / 'assaytype-fixtures'
 assert assaytypes_path.is_dir()
 
 defaults = json.load((Path(__file__).parent.parent / 'src/defaults.json').open())

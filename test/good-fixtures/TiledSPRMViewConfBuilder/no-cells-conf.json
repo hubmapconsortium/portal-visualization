@@ -15,11 +15,11 @@
                 {
                   "metadata": {
                     "isBitmask": false,
-                    "omeTiffOffsetsUrl": "https://example.com/based on 04e7385339167e541ad42a2636e18398/output_offsets/reg1.offsets.json?token=groups_token"
+                    "omeTiffOffsetsUrl": "https://example.com/04e7385339167e541ad42a2636e18398/output_offsets/reg1.offsets.json?token=groups_token"
                   },
                   "name": "reg1",
                   "type": "ome-tiff",
-                  "url": "https://example.com/based on 04e7385339167e541ad42a2636e18398/output/extract/expressions/ome-tiff/reg1.ome.tiff?token=groups_token"
+                  "url": "https://example.com/04e7385339167e541ad42a2636e18398/output/extract/expressions/ome-tiff/reg1.ome.tiff?token=groups_token"
                 }
               ],
               "schemaVersion": "0.0.2"

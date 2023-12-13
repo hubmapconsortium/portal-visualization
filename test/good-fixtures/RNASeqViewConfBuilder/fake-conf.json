@@ -15,14 +15,14 @@
             "obsType": "cell"
           },
           "fileType": "obsSegmentations.cells.json",
-          "url": "https://example.com/based on ea4cfecb8495b36694d9a951510dc3c6/cluster-marker-genes/output/cluster_marker_genes.cells.json?token=groups_token"
+          "url": "https://example.com/c019a1cd35aab4d2b4a6ff221e92aaab/cluster-marker-genes/output/cluster_marker_genes.cells.json?token=groups_token"
         },
         {
           "coordinationValues": {
             "obsType": "cell"
           },
           "fileType": "obsLocations.cells.json",
-          "url": "https://example.com/based on ea4cfecb8495b36694d9a951510dc3c6/cluster-marker-genes/output/cluster_marker_genes.cells.json?token=groups_token"
+          "url": "https://example.com/c019a1cd35aab4d2b4a6ff221e92aaab/cluster-marker-genes/output/cluster_marker_genes.cells.json?token=groups_token"
         },
         {
           "coordinationValues": {
@@ -30,14 +30,14 @@
             "obsType": "cell"
           },
           "fileType": "obsEmbedding.cells.json",
-          "url": "https://example.com/based on ea4cfecb8495b36694d9a951510dc3c6/cluster-marker-genes/output/cluster_marker_genes.cells.json?token=groups_token"
+          "url": "https://example.com/c019a1cd35aab4d2b4a6ff221e92aaab/cluster-marker-genes/output/cluster_marker_genes.cells.json?token=groups_token"
         },
         {
           "coordinationValues": {
             "obsType": "cell"
           },
           "fileType": "obsSets.cell-sets.json",
-          "url": "https://example.com/based on ea4cfecb8495b36694d9a951510dc3c6/cluster-marker-genes/output/cluster_marker_genes.cell-sets.json?token=groups_token"
+          "url": "https://example.com/c019a1cd35aab4d2b4a6ff221e92aaab/cluster-marker-genes/output/cluster_marker_genes.cell-sets.json?token=groups_token"
         }
       ],
       "name": "Visualization Files",

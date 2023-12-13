@@ -77,6 +77,7 @@ def get_view_config_builder(entity, get_assaytype):
         # e.g. 6b93107731199733f266bbd0f3bc9747
         if NANODESI in [assaytype for assaytype in ancestor_assaytypes]:
             return NanoDESIViewConfBuilder
+        # e.g. f9ae931b8b49252f150d7f8bf1d2d13f
         return ImagePyramidViewConfBuilder
     if "rna" in hints:
         # This is the zarr-backed anndata pipeline.

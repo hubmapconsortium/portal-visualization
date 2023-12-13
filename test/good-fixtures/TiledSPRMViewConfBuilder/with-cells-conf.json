@@ -13,21 +13,21 @@
               "obsType": "cell"
             },
             "fileType": "cells.json",
-            "url": "https://example.com/based on 04e7385339167e541ad42a2636e18398/output_json/reg1.cells.json?token=groups_token"
+            "url": "https://example.com/04e7385339167e541ad42a2636e18398/output_json/reg1.cells.json?token=groups_token"
           },
           {
             "coordinationValues": {
               "obsType": "cell"
             },
             "fileType": "cell-sets.json",
-            "url": "https://example.com/based on 04e7385339167e541ad42a2636e18398/output_json/reg1.cell-sets.json?token=groups_token"
+            "url": "https://example.com/04e7385339167e541ad42a2636e18398/output_json/reg1.cell-sets.json?token=groups_token"
           },
           {
             "coordinationValues": {
               "obsType": "cell"
             },
             "fileType": "clusters.json",
-            "url": "https://example.com/based on 04e7385339167e541ad42a2636e18398/output_json/reg1.clusters.json?token=groups_token"
+            "url": "https://example.com/04e7385339167e541ad42a2636e18398/output_json/reg1.clusters.json?token=groups_token"
           },
           {
             "fileType": "raster.json",
@@ -36,11 +36,11 @@
                 {
                   "metadata": {
                     "isBitmask": false,
-                    "omeTiffOffsetsUrl": "https://example.com/based on 04e7385339167e541ad42a2636e18398/output_offsets/reg1.offsets.json?token=groups_token"
+                    "omeTiffOffsetsUrl": "https://example.com/04e7385339167e541ad42a2636e18398/output_offsets/reg1.offsets.json?token=groups_token"
                   },
                   "name": "reg1",
                   "type": "ome-tiff",
-                  "url": "https://example.com/based on 04e7385339167e541ad42a2636e18398/output/extract/expressions/ome-tiff/reg1.ome.tiff?token=groups_token"
+                  "url": "https://example.com/04e7385339167e541ad42a2636e18398/output/extract/expressions/ome-tiff/reg1.ome.tiff?token=groups_token"
                 }
               ],
               "schemaVersion": "0.0.2"

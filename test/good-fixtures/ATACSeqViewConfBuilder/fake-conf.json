@@ -15,14 +15,14 @@
             "obsType": "cell"
           },
           "fileType": "obsSegmentations.cells.json",
-          "url": "https://example.com/210d118a14c8624b6bb9610a9062656e/output/umap_coords_clusters.cells.json?token=groups_token"
+          "url": "https://example.com/d4493657cde29702c5ed73932da5317c/output/umap_coords_clusters.cells.json?token=groups_token"
         },
         {
           "coordinationValues": {
             "obsType": "cell"
           },
           "fileType": "obsLocations.cells.json",
-          "url": "https://example.com/210d118a14c8624b6bb9610a9062656e/output/umap_coords_clusters.cells.json?token=groups_token"
+          "url": "https://example.com/d4493657cde29702c5ed73932da5317c/output/umap_coords_clusters.cells.json?token=groups_token"
         },
         {
           "coordinationValues": {
@@ -30,14 +30,14 @@
             "obsType": "cell"
           },
           "fileType": "obsEmbedding.cells.json",
-          "url": "https://example.com/210d118a14c8624b6bb9610a9062656e/output/umap_coords_clusters.cells.json?token=groups_token"
+          "url": "https://example.com/d4493657cde29702c5ed73932da5317c/output/umap_coords_clusters.cells.json?token=groups_token"
         },
         {
           "coordinationValues": {
             "obsType": "cell"
           },
           "fileType": "obsSets.cell-sets.json",
-          "url": "https://example.com/210d118a14c8624b6bb9610a9062656e/output/umap_coords_clusters.cell-sets.json?token=groups_token"
+          "url": "https://example.com/d4493657cde29702c5ed73932da5317c/output/umap_coords_clusters.cell-sets.json?token=groups_token"
         }
       ],
       "name": "Visualization Files",
