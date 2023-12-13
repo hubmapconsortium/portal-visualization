@@ -44,7 +44,6 @@ def get_view_config_builder(entity, get_assaytype):
     dag_provenance_list = entity.get('metadata', {}).get('dag_provenance_list', [])
     dag_names = [dag['name']
                  for dag in dag_provenance_list if 'name' in dag]
-    print(entity.get('uuid'), assay_name)
     if "is_image" in hints:
         if 'sprm' in hints and 'anndata' in hints:
             return MultiImageSPRMAnndataViewConfBuilder
@@ -52,14 +51,13 @@ def get_view_config_builder(entity, get_assaytype):
             if ('sprm-to-anndata.cwl' in dag_names):
                 return StitchedCytokitSPRMViewConfBuilder
             return TiledSPRMViewConfBuilder
-        # Both SeqFISH and IMS were submitted very early on, before the
-        # special image pyramid datasets existed.  Their assay names should be in
-        # the `entity["data_types"]` while newer ones, like NanoDESI, are in the parents
-        if assay_name == SEQFISH:
+        # Check types of image pyramid ancestors to determine which builder to use
+        ancestor_assaytypes = get_ancestor_assaytypes(entity, get_assaytype)
+        if SEQFISH in [assaytype for assaytype in ancestor_assaytypes]:
             return SeqFISHViewConfBuilder
-        if assay_name == MALDI_IMS:
+        if MALDI_IMS in [assaytype for assaytype in ancestor_assaytypes]:
             return IMSViewConfBuilder
-        if NANODESI in [assaytype for assaytype in get_ancestor_assaytypes(entity, get_assaytype)]:
+        if NANODESI in [assaytype for assaytype in ancestor_assaytypes]:
             return NanoDESIViewConfBuilder
         return ImagePyramidViewConfBuilder
     if "rna" in hints:
