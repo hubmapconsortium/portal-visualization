@@ -1,0 +1,12 @@
+{
+    "assaytype": "celldive_deepcell",
+    "contains-pii": false,
+    "description": "CellDIVE [DeepCell + SPRM]",
+    "primary": false,
+    "vitessce-hints": [
+      "sprm",
+      "anndata",
+      "is_image",
+      "is_tiled"
+    ]
+  }

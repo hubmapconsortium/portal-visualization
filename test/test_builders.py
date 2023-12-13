@@ -34,11 +34,24 @@ assert len(good_entity_paths) > 0
 bad_entity_paths = list((Path(__file__).parent / 'bad-fixtures').glob("*-entity.json"))
 assert len(bad_entity_paths) > 0
 
+assaytypes_path = Path(__file__).parent / 'assaytypes'
+assert assaytypes_path.is_dir()
+
 defaults = json.load((Path(__file__).parent.parent / 'src/defaults.json').open())
 
- 
-def get_assaytype(uuid):
-    requests.get(f'{defaults["assaytypes_url"]}/{uuid}').json()
+default_assaytype = {
+    'assaytype': 'Null',
+    'vitessce-hints': [],
+}
+
+def get_assaytype(entity):
+    uuid = entity.get('uuid')
+    if uuid is None:
+        return default_assaytype
+    assay = json.loads(assaytypes_path.joinpath(f'{uuid}.json'))
+    if assay is None:
+        return default_assaytype
+    return assay
 
 @pytest.mark.parametrize(
     "has_vis_entity",
