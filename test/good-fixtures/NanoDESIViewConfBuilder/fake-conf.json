@@ -14,11 +14,11 @@
               {
                 "metadata": {
                   "isBitmask": false,
-                  "omeTiffOffsetsUrl": "https://example.com/6b93107731199733f266bbd0f3bc9747/output_offsets/ometiffs/VAN0003-LK-32-21-IMS_NegMode_multilayer.offsets.json?token=groups_token"
+                  "omeTiffOffsetsUrl": "https://example.com/e1c4370da5523ab5c9be581d1d76ca20/output_offsets/ometiffs/VAN0003-LK-32-21-IMS_NegMode_multilayer.offsets.json?token=groups_token"
                 },
                 "name": "VAN0003-LK-32-21-IMS_NegMode_multilayer.ome.tif",
                 "type": "ome-tiff",
-                "url": "https://example.com/6b93107731199733f266bbd0f3bc9747/ometiff-pyramids/ometiffs/VAN0003-LK-32-21-IMS_NegMode_multilayer.ome.tif?token=groups_token"
+                "url": "https://example.com/e1c4370da5523ab5c9be581d1d76ca20/ometiff-pyramids/ometiffs/VAN0003-LK-32-21-IMS_NegMode_multilayer.ome.tif?token=groups_token"
               }
             ],
             "schemaVersion": "0.0.2",

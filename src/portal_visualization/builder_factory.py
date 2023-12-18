@@ -22,30 +22,18 @@ from .assays import (
     SALMON_RNASSEQ_SLIDE
 )
 
-# get_assaytype response example:
-# {
-#   "assaytype": "image_pyramid",
-#   "description": "Image Pyramid",
-#   "vitessce-hints": [
-#     "is_image",
-#     "pyramid"
-#   ]
-# }
-
-
 def get_ancestor_assaytypes(entity, get_assaytype):
     return [get_assaytype(ancestor).get('assaytype')
             for ancestor
             in entity.get('immediate_ancestors')]
 
 
-#
 # This function is the main entrypoint for the builder factory.
 # It returns the correct builder for the given entity.
 #
 # The entity is a dict that contains the entity UUID and metadata.
 # `get_assaytype` is a function which takes an entity UUID and returns
-# the assaytype and vitessce-hints for that entity.
+# a dict containing the assaytype and vitessce-hints for that entity.
 def get_view_config_builder(entity, get_assaytype):
     assay = get_assaytype(entity)
     assay_name = assay.get('assaytype')

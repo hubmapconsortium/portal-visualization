@@ -6,6 +6,7 @@
     "status": "QA",
     "immediate_ancestors": [
         {
+            "uuid": "3bc3ad124014a632d558255626bf38c9",
             "data_types": ["MALDI-IMS-neg"]
         }
     ],
@@ -29,6 +30,6 @@
             "rel_path": "output_offsets/ometiffs/VAN0003-LK-32-21-IMS_NegMode_multilayer.offsets.json"
         }
     ],
-    "uuid": "3bc3ad124014a632d558255626bf38c9",
+    "uuid": "a6116772446f6d1c1f6b3d2e9735cfe0",
     "metadata": {"dag_provenance_list": []}
 }
