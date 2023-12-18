@@ -44,6 +44,7 @@ default_assaytype = {
     'vitessce-hints': [],
 }
 
+
 def get_assaytype(entity):
     uuid = entity.get('uuid')
     if uuid is None:
@@ -53,10 +54,12 @@ def get_assaytype(entity):
         return default_assaytype
     return assay
 
+
 @pytest.mark.parametrize(
     "has_vis_entity",
     [
-        (False, {'uuid': "2c2179ea741d3bbb47772172a316a2bf", 'data_types': [], 'metadata': {'dag_provenance_list': []}}),
+        (False, {'uuid': "2c2179ea741d3bbb47772172a316a2bf",
+         'data_types': [], 'metadata': {'dag_provenance_list': []}}),
         (True, json.loads(Path.read_text(good_entity_paths[0]))),
         (False, {'uuid': "2c2179ea741d3bbb47772172a316a2bf", 'data_types': []})
         # If the first fixture returns a Null builder this would break.
@@ -137,8 +140,6 @@ def test_entity_to_error(entity_path, mocker):
         builder = Builder(entity, 'groups_token', 'https://example.com/')
         builder.get_conf_cells()
     actual_error = f'{error_info.type.__name__}: {error_info.value.args[0]}'
-
-    print(error_info.traceback)
 
     error_expected_path = (
         entity_path.parent / entity_path.name.replace('-entity.json', '-error.txt'))
