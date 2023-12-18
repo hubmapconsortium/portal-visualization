@@ -48,7 +48,7 @@ def get_assaytype(entity):
     uuid = entity.get('uuid')
     if uuid is None:
         return default_assaytype
-    assay = json.loads(assaytypes_path.joinpath(f'{uuid}.json'))
+    assay = json.loads(assaytypes_path.joinpath(f'{uuid}.json').read_text())
     if assay is None:
         return default_assaytype
     return assay
@@ -56,9 +56,9 @@ def get_assaytype(entity):
 @pytest.mark.parametrize(
     "has_vis_entity",
     [
-        (False, {'uuid': "1", 'data_types': [], 'metadata': {'dag_provenance_list': []}}),
+        (False, {'uuid': "2c2179ea741d3bbb47772172a316a2bf", 'data_types': [], 'metadata': {'dag_provenance_list': []}}),
         (True, json.loads(Path.read_text(good_entity_paths[0]))),
-        (False, {'uuid': "2", 'data_types': []})
+        (False, {'uuid': "2c2179ea741d3bbb47772172a316a2bf", 'data_types': []})
         # If the first fixture returns a Null builder this would break.
     ],
     ids=lambda has_vis_entity: f'has_visualization={has_vis_entity[0]}')
