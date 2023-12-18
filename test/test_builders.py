@@ -2,7 +2,6 @@
 import argparse
 import yaml
 import json
-import requests
 from pathlib import Path
 from os import environ
 from dataclasses import dataclass
