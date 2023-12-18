@@ -6,8 +6,7 @@
     "status": "QA",
     "immediate_ancestors": [
         {
-            "uuid": "c6a254b2dc2ed46b002500ade163a7cc",
-            "data_types": ["seqFish"]
+            "uuid": "c6a254b2dc2ed46b002500ade163a7cc"
         }
     ],
     "files": [

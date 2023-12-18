@@ -138,6 +138,8 @@ def test_entity_to_error(entity_path, mocker):
         builder.get_conf_cells()
     actual_error = f'{error_info.type.__name__}: {error_info.value.args[0]}'
 
+    print(error_info.traceback)
+
     error_expected_path = (
         entity_path.parent / entity_path.name.replace('-entity.json', '-error.txt'))
     expected_error = error_expected_path.read_text().strip()

@@ -1,0 +1,10 @@
+{
+    "assaytype": "sn_atac_seq",
+    "contains-pii": false,
+    "description": "snATAC-seq [SnapATAC]",
+    "primary": false,
+    "vitessce-hints": [
+      "is_sc",
+      "atac"
+    ]
+  }

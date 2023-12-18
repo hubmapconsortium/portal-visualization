@@ -15,7 +15,6 @@
       "description": "OME-TIFF pyramid file", 
       "edam_term": "EDAM_1.24.format_3727", 
       "is_qa_qc": false, 
-      "rel_path": "ometiff-pyramids/stitched/expressions/regXXX_stitched_expressions.ome.tif", 
       "size": 5179858585, 
       "type": "unknown"
     },
@@ -23,7 +22,6 @@
       "description": "OME-TIFF pyramid file", 
       "edam_term": "EDAM_1.24.format_3727", 
       "is_qa_qc": false, 
-      "rel_path": "ometiff-pyramids/stitched/mask/regXXX_stitched_mask.ome.tif", 
       "size": 41470943, 
       "type": "unknown"
     }
