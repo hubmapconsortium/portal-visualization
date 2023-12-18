@@ -59,7 +59,7 @@ def get_assaytype(entity):
     "has_vis_entity",
     [
         (False, {'uuid': "2c2179ea741d3bbb47772172a316a2bf",
-         'data_types': [], 'metadata': {'dag_provenance_list': []}}),
+                 'data_types': [], 'metadata': {'dag_provenance_list': []}}),
         (True, json.loads(Path.read_text(good_entity_paths[0]))),
         (False, {'uuid': "2c2179ea741d3bbb47772172a316a2bf", 'data_types': []})
         # If the first fixture returns a Null builder this would break.
