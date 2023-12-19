@@ -31,8 +31,8 @@ optional arguments:
   -h, --help            show this help message and exit
   --url URL             URL which returns Dataset JSON
   --json JSON           File containing Dataset JSON
-  --assaytypes_url URL  AssayType service; default: https://ingest-
-                        api.dev.hubmapconsortium.org/assaytype/
+  --assaytypes_url URL  AssayType service; default:
+                        https://ingest.api.hubmapconsortium.org/assaytype/
   --assets_url URL      Assets endpoint; default:
                         https://assets.hubmapconsortium.org
   --token TOKEN         Globus groups token; Only needed if data is not public
