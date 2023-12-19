@@ -54,8 +54,6 @@ def get_assaytype(entity):
     if uuid is None:
         return default_assaytype
     assay = json.loads(assaytypes_path.joinpath(f'{uuid}.json').read_text())
-    if assay is None:
-        return default_assaytype
     return assay
 
 
