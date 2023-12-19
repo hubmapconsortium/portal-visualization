@@ -9,7 +9,7 @@ from dataclasses import dataclass
 import pytest
 import zarr
 
-from src.portal_visualization.builder_factory import get_view_config_builder, has_visualization
+from src.portal_visualization.builder_factory import get_ancestor_assaytypes, get_view_config_builder, has_visualization
 
 
 def str_presenter(dumper, data):
@@ -29,6 +29,10 @@ class MockResponse:
 
 good_entity_paths = list((Path(__file__).parent / 'good-fixtures').glob("*/*-entity.json"))
 assert len(good_entity_paths) > 0
+
+image_pyramids = ["IMSViewConfBuilder", "SeqFISHViewConfBuilder", "NanoDESIViewConfBuilder"]
+image_pyramid_paths = [path for path in good_entity_paths if path.parent.name in image_pyramids]
+assert len(image_pyramid_paths) > 0
 
 bad_entity_paths = list((Path(__file__).parent / 'bad-fixtures').glob("*-entity.json"))
 assert len(bad_entity_paths) > 0
@@ -153,6 +157,14 @@ def clean_cells(cells):
             if k not in {'metadata', 'id', 'execution_count', 'outputs'}
         } for c in cells
     ]
+
+
+@pytest.mark.parametrize(
+    "entity_path", image_pyramid_paths, ids=lambda path: f'{path.parent.name}/{path.name}')
+def test_get_ancestor_assaytype(entity_path):
+    entity = json.loads(entity_path.read_text())
+    ancestor_assaytypes = get_ancestor_assaytypes(entity, get_assaytype)
+    assert len(ancestor_assaytypes) > 0
 
 
 if __name__ == '__main__':  # pragma: no cover
