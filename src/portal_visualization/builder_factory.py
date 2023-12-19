@@ -18,47 +18,76 @@ from .builders.scatterplot_builders import (
 from .assays import (
     SEQFISH,
     MALDI_IMS,
-    NANODESI
+    NANODESI,
+    SALMON_RNASSEQ_SLIDE
 )
 
 
-def get_view_config_builder(entity, get_assay):
-    data_types = entity["data_types"]
-    assay_objs = [get_assay(dt) for dt in data_types]
-    assay_names = [assay.name for assay in assay_objs]
-    hints = [hint for assay in assay_objs for hint in assay.vitessce_hints]
+def get_ancestor_assaytypes(entity, get_assaytype):
+    return [get_assaytype(ancestor).get('assaytype')
+            for ancestor
+            in entity.get('immediate_ancestors')]
+
+
+# This function is the main entrypoint for the builder factory.
+# It returns the correct builder for the given entity.
+#
+# The entity is a dict that contains the entity UUID and metadata.
+# `get_assaytype` is a function which takes an entity UUID and returns
+# a dict containing the assaytype and vitessce-hints for that entity.
+def get_view_config_builder(entity, get_assaytype):
+    if (entity.get('uuid') is None):
+        raise ValueError("Provided entity does not have a uuid")
+    assay = get_assaytype(entity)
+    assay_name = assay.get('assaytype')
+    hints = assay.get('vitessce-hints', [])
+
     dag_provenance_list = entity.get('metadata', {}).get('dag_provenance_list', [])
     dag_names = [dag['name']
                  for dag in dag_provenance_list if 'name' in dag]
     if "is_image" in hints:
         if 'sprm' in hints and 'anndata' in hints:
+            # e.g. CellDIVE [DeepCell + SPRM]
+            # sample entity: c3be5650e93907b68ddbdb22b948db32
             return MultiImageSPRMAnndataViewConfBuilder
         if "codex" in hints:
             if ('sprm-to-anndata.cwl' in dag_names):
+                # e.g. 'CODEX [Cytokit + SPRM]
+                # sample entity: 43213991a54ce196d406707ffe2e86bd
                 return StitchedCytokitSPRMViewConfBuilder
+            # Cannot find an example of this in the wild, every CODEX entity has the
+            # sprm-to-anndata.cwl in its dag_provenance_list
             return TiledSPRMViewConfBuilder
-        # Both SeqFISH and IMS were submitted very early on, before the
-        # special image pyramid datasets existed.  Their assay names should be in
-        # the `entity["data_types"]` while newer ones, like NanoDESI, are in the parents
-        if SEQFISH in assay_names:
+        # Check types of image pyramid ancestors to determine which builder to use
+        ancestor_assaytypes = get_ancestor_assaytypes(entity, get_assaytype)
+        # e.g. c6a254b2dc2ed46b002500ade163a7cc
+        if SEQFISH in [assaytype for assaytype in ancestor_assaytypes]:
             return SeqFISHViewConfBuilder
-        if MALDI_IMS in assay_names:
+        # e.g. 3bc3ad124014a632d558255626bf38c9
+        if MALDI_IMS in [assaytype for assaytype in ancestor_assaytypes]:
             return IMSViewConfBuilder
-        if NANODESI in [dt for e in entity["immediate_ancestors"] for dt in e["data_types"]]:
+        # e.g. 6b93107731199733f266bbd0f3bc9747
+        if NANODESI in [assaytype for assaytype in ancestor_assaytypes]:
             return NanoDESIViewConfBuilder
+        # e.g. f9ae931b8b49252f150d7f8bf1d2d13f
         return ImagePyramidViewConfBuilder
     if "rna" in hints:
         # This is the zarr-backed anndata pipeline.
         if "anndata-to-ui.cwl" in dag_names:
-            if "salmon_rnaseq_slideseq" in data_types:
+            if assay_name == SALMON_RNASSEQ_SLIDE:
+                # e.g. 2a590db3d7ab1e1512816b165d95cdcf
                 return SpatialRNASeqAnnDataZarrViewConfBuilder
+            # e.g. e65175561b4b17da5352e3837aa0e497
             return RNASeqAnnDataZarrViewConfBuilder
+        # e.g. c019a1cd35aab4d2b4a6ff221e92aaab
         return RNASeqViewConfBuilder
     if "atac" in hints:
+        # e.g. d4493657cde29702c5ed73932da5317c
         return ATACSeqViewConfBuilder
+    # any entity with no hints, e.g. 2c2179ea741d3bbb47772172a316a2bf
     return NullViewConfBuilder
 
 
-def has_visualization(entity, get_assay):
-    builder = get_view_config_builder(entity, get_assay)
+def has_visualization(entity, get_assaytype):
+    builder = get_view_config_builder(entity, get_assaytype)
     return builder != NullViewConfBuilder

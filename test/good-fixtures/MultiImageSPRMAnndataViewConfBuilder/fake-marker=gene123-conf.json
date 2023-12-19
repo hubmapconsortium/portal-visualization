@@ -69,7 +69,7 @@
                 "Authorization": "Bearer groups_token"
               }
             },
-            "url": "https://example.com/2f8d43199ca3167e991b320038024b77/anndata-zarr/reg001_S20030085_region_001_expr-anndata.zarr"
+            "url": "https://example.com/c3be5650e93907b68ddbdb22b948db32/anndata-zarr/reg001_S20030085_region_001_expr-anndata.zarr"
           },
           {
             "fileType": "raster.json",
@@ -78,20 +78,20 @@
                 {
                   "metadata": {
                     "isBitmask": false,
-                    "omeTiffOffsetsUrl": "https://example.com/2f8d43199ca3167e991b320038024b77/output_offsets/pipeline_output/expr/reg001_S20030085_region_001_expr.offsets.json?token=groups_token"
+                    "omeTiffOffsetsUrl": "https://example.com/c3be5650e93907b68ddbdb22b948db32/output_offsets/pipeline_output/expr/reg001_S20030085_region_001_expr.offsets.json?token=groups_token"
                   },
                   "name": "reg001_S20030085_region_001_expr",
                   "type": "ome-tiff",
-                  "url": "https://example.com/2f8d43199ca3167e991b320038024b77/ometiff-pyramids/pipeline_output/expr/reg001_S20030085_region_001_expr.ome.tif?token=groups_token"
+                  "url": "https://example.com/c3be5650e93907b68ddbdb22b948db32/ometiff-pyramids/pipeline_output/expr/reg001_S20030085_region_001_expr.ome.tif?token=groups_token"
                 },
                 {
                   "metadata": {
                     "isBitmask": true,
-                    "omeTiffOffsetsUrl": "https://example.com/2f8d43199ca3167e991b320038024b77/output_offsets/pipeline_output/mask/reg001_S20030085_region_001_mask.offsets.json?token=groups_token"
+                    "omeTiffOffsetsUrl": "https://example.com/c3be5650e93907b68ddbdb22b948db32/output_offsets/pipeline_output/mask/reg001_S20030085_region_001_mask.offsets.json?token=groups_token"
                   },
                   "name": "reg001_S20030085_region_001_mask",
                   "type": "ome-tiff",
-                  "url": "https://example.com/2f8d43199ca3167e991b320038024b77/ometiff-pyramids/pipeline_output/mask/reg001_S20030085_region_001_mask.ome.tif?token=groups_token"
+                  "url": "https://example.com/c3be5650e93907b68ddbdb22b948db32/ometiff-pyramids/pipeline_output/mask/reg001_S20030085_region_001_mask.ome.tif?token=groups_token"
                 }
               ],
               "renderLayers": [
@@ -276,7 +276,7 @@
                 "Authorization": "Bearer groups_token"
               }
             },
-            "url": "https://example.com/2f8d43199ca3167e991b320038024b77/anndata-zarr/reg001_S20030086_region_001_expr-anndata.zarr"
+            "url": "https://example.com/c3be5650e93907b68ddbdb22b948db32/anndata-zarr/reg001_S20030086_region_001_expr-anndata.zarr"
           },
           {
             "fileType": "raster.json",
@@ -285,20 +285,20 @@
                 {
                   "metadata": {
                     "isBitmask": false,
-                    "omeTiffOffsetsUrl": "https://example.com/2f8d43199ca3167e991b320038024b77/output_offsets/pipeline_output/expr/reg001_S20030086_region_001_expr.offsets.json?token=groups_token"
+                    "omeTiffOffsetsUrl": "https://example.com/c3be5650e93907b68ddbdb22b948db32/output_offsets/pipeline_output/expr/reg001_S20030086_region_001_expr.offsets.json?token=groups_token"
                   },
                   "name": "reg001_S20030086_region_001_expr",
                   "type": "ome-tiff",
-                  "url": "https://example.com/2f8d43199ca3167e991b320038024b77/ometiff-pyramids/pipeline_output/expr/reg001_S20030086_region_001_expr.ome.tif?token=groups_token"
+                  "url": "https://example.com/c3be5650e93907b68ddbdb22b948db32/ometiff-pyramids/pipeline_output/expr/reg001_S20030086_region_001_expr.ome.tif?token=groups_token"
                 },
                 {
                   "metadata": {
                     "isBitmask": true,
-                    "omeTiffOffsetsUrl": "https://example.com/2f8d43199ca3167e991b320038024b77/output_offsets/pipeline_output/mask/reg001_S20030086_region_001_mask.offsets.json?token=groups_token"
+                    "omeTiffOffsetsUrl": "https://example.com/c3be5650e93907b68ddbdb22b948db32/output_offsets/pipeline_output/mask/reg001_S20030086_region_001_mask.offsets.json?token=groups_token"
                   },
                   "name": "reg001_S20030086_region_001_mask",
                   "type": "ome-tiff",
-                  "url": "https://example.com/2f8d43199ca3167e991b320038024b77/ometiff-pyramids/pipeline_output/mask/reg001_S20030086_region_001_mask.ome.tif?token=groups_token"
+                  "url": "https://example.com/c3be5650e93907b68ddbdb22b948db32/ometiff-pyramids/pipeline_output/mask/reg001_S20030086_region_001_mask.ome.tif?token=groups_token"
                 }
               ],
               "renderLayers": [

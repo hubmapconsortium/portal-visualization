@@ -21,25 +21,25 @@ $ cd portal-visualization
 $ pip install .
 ...
 $ src/vis-preview.py --help
-usage: vis-preview.py [-h] (--url URL | --json JSON) [--types_url URL]
+usage: vis-preview.py [-h] (--url URL | --json JSON) [--assaytypes_url URL]
                       [--assets_url URL] [--token TOKEN] [--marker MARKER]
                       [--to_json]
 
 Given HuBMAP Dataset JSON, generate a Vitessce viewconf, and load vitessce.io.
 
 optional arguments:
-  -h, --help        show this help message and exit
-  --url URL         URL which returns Dataset JSON
-  --json JSON       File containing Dataset JSON
-  --types_url URL   Type service; default:
-                    https://search.api.hubmapconsortium.org/v3
-  --assets_url URL  Assets endpoint; default:
-                    https://assets.hubmapconsortium.org
-  --token TOKEN     Globus groups token; Only needed if data is not public
-  --marker MARKER   Marker to highlight in visualization; Only used in some
-                    visualizations.
-  --to_json         Output viewconf, rather than open in browser.
-```
+  -h, --help            show this help message and exit
+  --url URL             URL which returns Dataset JSON
+  --json JSON           File containing Dataset JSON
+  --assaytypes_url URL  AssayType service; default:
+                        https://ingest.api.hubmapconsortium.org/assaytype/
+  --assets_url URL      Assets endpoint; default:
+                        https://assets.hubmapconsortium.org
+  --token TOKEN         Globus groups token; Only needed if data is not public
+  --marker MARKER       Marker to highlight in visualization; Only used in
+                        some visualizations.
+  --to_json             Output viewconf, rather than open in browser.
+  ```
 
 ## Background
 

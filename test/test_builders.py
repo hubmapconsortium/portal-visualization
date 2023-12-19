@@ -9,9 +9,8 @@ from dataclasses import dataclass
 import pytest
 import zarr
 
-from hubmap_commons.type_client import TypeClient
-
-from src.portal_visualization.builder_factory import get_view_config_builder, has_visualization
+from src.portal_visualization.builder_factory \
+    import get_ancestor_assaytypes, get_view_config_builder, has_visualization
 
 
 def str_presenter(dumper, data):
@@ -32,30 +31,45 @@ class MockResponse:
 good_entity_paths = list((Path(__file__).parent / 'good-fixtures').glob("*/*-entity.json"))
 assert len(good_entity_paths) > 0
 
+image_pyramids = ["IMSViewConfBuilder", "SeqFISHViewConfBuilder", "NanoDESIViewConfBuilder"]
+image_pyramid_paths = [path for path in good_entity_paths if path.parent.name in image_pyramids]
+assert len(image_pyramid_paths) > 0
+
 bad_entity_paths = list((Path(__file__).parent / 'bad-fixtures').glob("*-entity.json"))
 assert len(bad_entity_paths) > 0
 
+assaytypes_path = Path(__file__).parent / 'assaytype-fixtures'
+assert assaytypes_path.is_dir()
 
-def get_assay(name):
-    # This code could also be used in portal-ui.
-    # search-api might skip the REST interface.
-    defaults = json.load((Path(__file__).parent.parent / 'src/defaults.json').open())
-    type_client = TypeClient(defaults['types_url'])
-    return type_client.getAssayType(name)
+defaults = json.load((Path(__file__).parent.parent / 'src/defaults.json').open())
+
+default_assaytype = {
+    'assaytype': 'Null',
+    'vitessce-hints': [],
+}
+
+
+def get_assaytype(entity):
+    uuid = entity.get('uuid')
+    if uuid is None:
+        return default_assaytype
+    assay = json.loads(assaytypes_path.joinpath(f'{uuid}.json').read_text())
+    return assay
 
 
 @pytest.mark.parametrize(
     "has_vis_entity",
     [
-        (False, {'data_types': [], 'metadata': {'dag_provenance_list': []}}),
+        (False, {'uuid': "2c2179ea741d3bbb47772172a316a2bf",
+                 'data_types': [], 'metadata': {'dag_provenance_list': []}}),
         (True, json.loads(Path.read_text(good_entity_paths[0]))),
-        (False, {'data_types': []})
+        (False, {'uuid': "2c2179ea741d3bbb47772172a316a2bf", 'data_types': []})
         # If the first fixture returns a Null builder this would break.
     ],
     ids=lambda has_vis_entity: f'has_visualization={has_vis_entity[0]}')
 def test_has_visualization(has_vis_entity):
     has_vis, entity = has_vis_entity
-    assert has_vis == has_visualization(entity, get_assay)
+    assert has_vis == has_visualization(entity, get_assaytype)
 
 
 def mock_zarr_store(entity_path, mocker):
@@ -91,7 +105,7 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
         else None)
 
     entity = json.loads(entity_path.read_text())
-    Builder = get_view_config_builder(entity, get_assay)
+    Builder = get_view_config_builder(entity, get_assaytype)
     assert Builder.__name__ == entity_path.parent.name
 
     # Envvars should not be set during normal test runs,
@@ -124,7 +138,7 @@ def test_entity_to_error(entity_path, mocker):
 
     entity = json.loads(entity_path.read_text())
     with pytest.raises(Exception) as error_info:
-        Builder = get_view_config_builder(entity, get_assay)
+        Builder = get_view_config_builder(entity, get_assaytype)
         builder = Builder(entity, 'groups_token', 'https://example.com/')
         builder.get_conf_cells()
     actual_error = f'{error_info.type.__name__}: {error_info.value.args[0]}'
@@ -144,6 +158,14 @@ def clean_cells(cells):
     ]
 
 
+@pytest.mark.parametrize(
+    "entity_path", image_pyramid_paths, ids=lambda path: f'{path.parent.name}/{path.name}')
+def test_get_ancestor_assaytype(entity_path):
+    entity = json.loads(entity_path.read_text())
+    ancestor_assaytypes = get_ancestor_assaytypes(entity, get_assaytype)
+    assert len(ancestor_assaytypes) > 0
+
+
 if __name__ == '__main__':  # pragma: no cover
     parser = argparse.ArgumentParser(description='Generate fixtures')
     parser.add_argument(
@@ -151,7 +173,7 @@ if __name__ == '__main__':  # pragma: no cover
 
     args = parser.parse_args()
     entity = json.loads(args.input.read_text())
-    Builder = get_view_config_builder(entity, get_assay)
+    Builder = get_view_config_builder(entity, get_assaytype)
     builder = Builder(entity, 'groups_token', 'https://example.com/')
     conf, cells = builder.get_conf_cells()
 

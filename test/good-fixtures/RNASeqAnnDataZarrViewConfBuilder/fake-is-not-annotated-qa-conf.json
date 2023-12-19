@@ -68,10 +68,10 @@
               "Authorization": "Bearer groups_token"
             }
           },
-          "url": "https://example.com/503f9caeffb9ee1e1324793c977d2342/hubmap_ui/anndata-zarr/secondary_analysis.zarr"
+          "url": "https://example.com/e65175561b4b17da5352e3837aa0e497/hubmap_ui/anndata-zarr/secondary_analysis.zarr"
         }
       ],
-      "name": "503f9caeffb9ee1e1324793c977d2342",
+      "name": "e65175561b4b17da5352e3837aa0e497",
       "uid": "A"
     }
   ],
@@ -165,6 +165,6 @@
       "y": 6
     }
   ],
-  "name": "503f9caeffb9ee1e1324793c977d2342",
+  "name": "e65175561b4b17da5352e3837aa0e497",
   "version": "1.0.15"
 }
