@@ -79,6 +79,8 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
                 if 'predicted.ASCT.celltype' in z['obs']:
                     cell_set_obs.append("obs/predicted.ASCT.celltype")
                     cell_set_obs_names.append("Predicted ASCT Cell Type")
+                    cell_set_obs.append("obs/predicted_clid")
+                    cell_set_obs_names.append("Predicted ASCT Cell Type ID")
                 if 'predicted_label' in z['obs']:
                     cell_set_obs.append("obs/predicted_label")
                     cell_set_obs_names.append("Cell Ontology Annotation")
