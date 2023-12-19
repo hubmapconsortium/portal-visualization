@@ -9,7 +9,8 @@ from dataclasses import dataclass
 import pytest
 import zarr
 
-from src.portal_visualization.builder_factory import get_ancestor_assaytypes, get_view_config_builder, has_visualization
+from src.portal_visualization.builder_factory \
+    import get_ancestor_assaytypes, get_view_config_builder, has_visualization
 
 
 def str_presenter(dumper, data):
