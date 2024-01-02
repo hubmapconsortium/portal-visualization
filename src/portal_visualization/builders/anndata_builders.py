@@ -68,8 +68,10 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         # https://github.com/hubmapconsortium/portal-containers/blob/master/containers/anndata-to-ui
         # while others come from Matt's standard scanpy pipeline
         # or AnnData default (like X_umap or X).
-        cell_set_obs = []
-        cell_set_obs_names = []
+        cell_set_obs = ["obs/leiden"]
+        cell_set_obs_names = ["Leiden"]
+        obs_labels_paths = []
+        obs_labels_names = []
         dags = [
             dag for dag in self._entity['metadata']['dag_provenance_list']
             if 'name' in dag]
@@ -79,13 +81,17 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
                 if 'predicted.ASCT.celltype' in z['obs']:
                     cell_set_obs.append("obs/predicted.ASCT.celltype")
                     cell_set_obs_names.append("Predicted ASCT Cell Type")
-                    cell_set_obs.append("obs/predicted_clid")
-                    cell_set_obs_names.append("Predicted ASCT Cell Type ID")
                 if 'predicted_label' in z['obs']:
                     cell_set_obs.append("obs/predicted_label")
                     cell_set_obs_names.append("Cell Ontology Annotation")
-        cell_set_obs.append("obs/leiden")
-        cell_set_obs_names.append("Leiden")
+                if 'predicted_CLID' in z['obs']:
+                    obs_labels_paths.append("obs/predicted_CLID")
+                    obs_labels_names.append("Cell Ontology Annotation CLID")
+                    print("Predicted CLID added,", obs_labels_paths, obs_labels_names)
+
+        obs_labels_paths.extend(RNA_SEQ_ANNDATA_FACTOR_PATHS)
+        obs_labels_names.extend(RNA_SEQ_FACTOR_LABEL_NAMES)
+
         gene_alias = 'var/hugo_symbol' if 'var' in z and 'hugo_symbol' in z['var'] else None
         if (gene_alias is not None and marker is not None):
             # If user has indicated a marker gene in parameters and we have a hugo_symbol mapping,
@@ -144,14 +150,14 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
             feature_labels_path=gene_alias,
             coordination_values=None,
             gene_alias=gene_alias,
-            obs_labels_paths=RNA_SEQ_ANNDATA_FACTOR_PATHS,
-            obs_labels_names=RNA_SEQ_FACTOR_LABEL_NAMES
+            obs_labels_paths=obs_labels_paths,
+            obs_labels_names=obs_labels_names
         ))
 
-        vc = self._setup_anndata_view_config(vc, dataset, marker)
+        vc = self._setup_anndata_view_config(vc, dataset, obs_labels_names, marker)
         return get_conf_cells(vc)
 
-    def _setup_anndata_view_config(self, vc, dataset, marker=None):
+    def _setup_anndata_view_config(self, vc, dataset, obs_labels_names=[], marker=None):
         scatterplot = vc.add_view(
             cm.SCATTERPLOT, dataset=dataset, mapping="UMAP", x=0, y=0, w=self._scatterplot_w, h=6)
         cell_sets = vc.add_view(
@@ -188,8 +194,8 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
 
         # Link top 5 marker genes
         vc.link_views(views,
-                      [ct.OBS_LABELS_TYPE for _ in RNA_SEQ_FACTOR_LABEL_NAMES],
-                      RNA_SEQ_FACTOR_LABEL_NAMES,
+                      [ct.OBS_LABELS_TYPE for _ in obs_labels_names],
+                      obs_labels_names,
                       allow_multiple_scopes_per_type=True)
 
         # Link user-provided marker gene
