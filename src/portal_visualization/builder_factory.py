@@ -60,6 +60,8 @@ def get_view_config_builder(entity, get_assaytype, parent=None):
             if is_json:
                 # legacy JSON-based dataset, e.g. b69d1e2ad1bf1455eee991fce301b191
                 return TiledSPRMViewConfBuilder
+            # e.g. CODEX [Cytokit + SPRM]
+            # sample entity: 43213991a54ce196d406707ffe2e86bd
             return StitchedCytokitSPRMViewConfBuilder
 
         # vis-lifted image pyramids
@@ -87,6 +89,7 @@ def get_view_config_builder(entity, get_assaytype, parent=None):
             # e.g. c019a1cd35aab4d2b4a6ff221e92aaab
             return RNASeqViewConfBuilder
         # if not JSON, assume that the entity is AnnData-backed
+        # TODO - once "anndata" hint is added to the assaytype, use that instead
         if assay_name == SALMON_RNASSEQ_SLIDE:
             # e.g. 2a590db3d7ab1e1512816b165d95cdcf
             return SpatialRNASeqAnnDataZarrViewConfBuilder
