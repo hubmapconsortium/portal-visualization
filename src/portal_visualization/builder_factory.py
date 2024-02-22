@@ -10,7 +10,9 @@ from .builders.imaging_builders import (
     NanoDESIViewConfBuilder
 )
 from .builders.anndata_builders import (
-    SpatialRNASeqAnnDataZarrViewConfBuilder, RNASeqAnnDataZarrViewConfBuilder
+    SpatialRNASeqAnnDataZarrViewConfBuilder,
+    RNASeqAnnDataZarrViewConfBuilder,
+    SpatialMultiomicAnnDataZarrViewConfBuilder
 )
 from .builders.scatterplot_builders import (
     RNASeqViewConfBuilder, ATACSeqViewConfBuilder
@@ -50,8 +52,16 @@ def get_view_config_builder(entity, get_assaytype, parent=None):
     assay = get_assaytype(entity)
     assay_name = assay.get('assaytype')
     hints = assay.get('vitessce-hints', [])
+    print(assay)
+    # Temporary workaround for visium implementation
+    if (assay_name == 'visium-no-probes'):
+        return SpatialMultiomicAnnDataZarrViewConfBuilder
     is_image, is_rna, is_atac, is_sprm, is_codex, is_anndata, is_json = process_hints(hints)
     if is_image:
+        if is_rna:
+            # e.g. Visium (no probes) [Salmon + Scanpy]
+            # sample entity (on dev): 72ec02cf1390428c1e9dc2c88928f5f5
+            return SpatialMultiomicAnnDataZarrViewConfBuilder
         if is_sprm and is_anndata:
             # e.g. CellDIVE [DeepCell + SPRM]
             # sample entity: c3be5650e93907b68ddbdb22b948db32
