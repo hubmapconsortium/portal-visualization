@@ -318,7 +318,6 @@ class SpatialMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewCon
         self._spatial_w = 3
 
     def _add_spatial_view(self, dataset, vc):
-        z = self.zarr_store
         spatial = vc.add_view(
             cm.SPATIAL,
             dataset=dataset,
