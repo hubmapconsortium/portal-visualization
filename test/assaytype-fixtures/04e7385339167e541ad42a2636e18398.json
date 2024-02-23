@@ -6,6 +6,7 @@
     "vitessce-hints": [
       "codex",
       "is_image",
-      "is_tiled"
+      "is_tiled",
+      "json_based"
     ]
   }

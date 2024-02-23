@@ -52,10 +52,6 @@ def get_view_config_builder(entity, get_assaytype, parent=None):
     assay = get_assaytype(entity)
     assay_name = assay.get('assaytype')
     hints = assay.get('vitessce-hints', [])
-    print(assay)
-    # Temporary workaround for visium implementation
-    if (assay_name == 'visium-no-probes'):
-        return SpatialMultiomicAnnDataZarrViewConfBuilder
     is_image, is_rna, is_atac, is_sprm, is_codex, is_anndata, is_json = process_hints(hints)
     if is_image:
         if is_rna:
@@ -99,7 +95,7 @@ def get_view_config_builder(entity, get_assaytype, parent=None):
             # e.g. c019a1cd35aab4d2b4a6ff221e92aaab
             return RNASeqViewConfBuilder
         # if not JSON, assume that the entity is AnnData-backed
-        # TODO - once "anndata" hint is added to the assaytype, use that instead
+        # TODO - once "anndata" hint is added to the hints for this assay, use that instead
         if assay_name == SALMON_RNASSEQ_SLIDE:
             # e.g. 2a590db3d7ab1e1512816b165d95cdcf
             return SpatialRNASeqAnnDataZarrViewConfBuilder
