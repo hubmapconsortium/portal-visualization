@@ -16,6 +16,16 @@ import zarr
 from .base_builders import ViewConfBuilder
 from ..utils import get_conf_cells
 
+RNA_SEQ_ANNDATA_FACTOR_PATHS = [f"obs/{key}" for key in [
+    "marker_gene_0",
+    "marker_gene_1",
+    "marker_gene_2",
+    "marker_gene_3",
+    "marker_gene_4"
+]]
+
+RNA_SEQ_FACTOR_LABEL_NAMES = [f'Marker Gene {i}' for i in range(len(RNA_SEQ_ANNDATA_FACTOR_PATHS))]
+
 
 class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
     """Wrapper class for creating a AnnData-backed view configuration
@@ -30,6 +40,8 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         self._is_spatial = False
         self._scatterplot_w = 6 if self.is_annotated else 9
         self._spatial_w = 0
+        self._obs_set_paths = None
+        self._obs_set_names = None
         self._obs_labels_paths = None
         self._obs_labels_names = None
         self._marker = None
@@ -59,6 +71,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
             message = f'RNA-seq assay with uuid {self._uuid} has no .zarr store at {zarr_path}'
             raise FileNotFoundError(message)
         self._set_up_marker_gene(marker)
+        self._set_up_obs_labels()
         vc = VitessceConfig(name=self._uuid, schema_version=self._schema_version)
         dataset = self._set_up_dataset(vc)
         vc = self._setup_anndata_view_config(vc, dataset)
@@ -117,13 +130,12 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         adata_url = self._build_assets_url(
             'hubmap_ui/anndata-zarr/secondary_analysis.zarr', use_token=False)
         z = self.zarr_store
-        self._set_up_obs_labels()
         dataset = vc.add_dataset(name=self._uuid).add_object(AnnDataWrapper(
             adata_url=adata_url,
             obs_feature_matrix_path="X",
             initial_feature_filter_path="var/marker_genes_for_heatmap",
-            obs_set_paths=["obs/leiden"],
-            obs_set_names=["Leiden"],
+            obs_set_paths=self._obs_set_paths,
+            obs_set_names=self._obs_set_names,
             obs_locations_path="obsm/X_spatial" if self._is_spatial else None,
             obs_segmentations_path=None,
             obs_embedding_paths=["obsm/X_umap"],
@@ -143,8 +155,13 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         # https://github.com/hubmapconsortium/portal-containers/blob/master/containers/anndata-to-ui
         # while others come from Matt's standard scanpy pipeline
         # or AnnData default (like X_umap or X).
-        cell_set_obs_paths = []
-        cell_set_obs_names = []
+        # obs sets are annotated sets of cells/clusters used to color the cells
+        obs_set_paths = []
+        obs_set_names = []
+        # obs labels are tooltip helpers which e.g. identify highly expressed genes
+        # or help map predicted cell labels to their IDs
+        obs_label_paths = RNA_SEQ_ANNDATA_FACTOR_PATHS
+        obs_label_names = RNA_SEQ_FACTOR_LABEL_NAMES
         dags = [
             dag for dag in self._entity['metadata']['dag_provenance_list']
             if 'name' in dag]
@@ -152,15 +169,21 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         if (any(['azimuth-annotate' in dag['origin'] for dag in dags])):
             if self.is_annotated:
                 if 'predicted.ASCT.celltype' in z['obs']:
-                    cell_set_obs_paths.append("obs/predicted.ASCT.celltype")
-                    cell_set_obs_names.append("Predicted ASCT Cell Type")
+                    obs_set_paths.append("obs/predicted.ASCT.celltype")
+                    obs_set_names.append("Predicted ASCT Cell Type")
                 if 'predicted_label' in z['obs']:
-                    cell_set_obs_paths.append("obs/predicted_label")
-                    cell_set_obs_names.append("Cell Ontology Annotation")
-        cell_set_obs_paths.append("obs/leiden")
-        cell_set_obs_names.append("Leiden")
-        self._obs_labels_paths = cell_set_obs_paths
-        self._obs_labels_names = cell_set_obs_names
+                    obs_set_paths.append("obs/predicted_label")
+                    obs_set_names.append("Cell Ontology Annotation")
+                if 'predicted_CLID' in z['obs']:
+                    obs_label_paths.append("obs/predicted_CLID")
+                    obs_label_names.append("Predicted CL ID")
+
+        obs_set_paths.append("obs/leiden")
+        obs_set_names.append("Leiden")
+        self._obs_set_paths = obs_set_paths
+        self._obs_set_names = obs_set_names
+        self._obs_labels_paths = obs_label_paths
+        self._obs_labels_names = obs_label_names
 
     def _setup_anndata_view_config(self, vc, dataset):
         scatterplot = vc.add_view(
@@ -197,10 +220,12 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         views = list(filter(lambda v: v is not None, [
                      cell_sets, gene_list, scatterplot, cell_sets_expr, heatmap, spatial]))
 
+        self._views = views
+
         # Link top 5 marker genes
         vc.link_views(views,
-                      [ct.OBS_LABELS_TYPE for _ in self._obs_labels_paths],
-                      self._obs_labels_paths,
+                      [ct.OBS_LABELS_TYPE for _ in self._obs_labels_names],
+                      self._obs_labels_names,
                       allow_multiple_scopes_per_type=True)
         return vc
 
@@ -233,57 +258,6 @@ class SpatialRNASeqAnnDataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
         self._is_spatial = True
         self._scatterplot_w = 4
         self._spatial_w = 5
-
-    def _set_up_dataset(self, vc):
-        # Add dataset with Visium image and secondary analysis anndata
-        visium_image = ImageOmeTiffWrapper(
-            img_path="ometiff-pyramids/visium_histology_hires_pyramid.ome.tif",
-            uid="visium",
-            coordination_values={
-                "fileUid": "visium"
-            }
-
-        )
-        visium_spots = AnnDataWrapper(
-            adata_path="secondary_analysis.h5ad.zarr",
-            obs_feature_matrix_path="X",
-            obs_spots_path="obsm/X_spatial",
-            obs_set_paths=["obs/leiden"],
-            obs_set_names=["Leiden"],
-            feature_labels_path="var/hugo_symbol",
-            coordination_values={
-                "obsType": "spot",
-                "featureType": "gene",
-                "featureLabelsType": "gene",
-            }
-        )
-        obs_sets = AnnDataWrapper(
-            adata_path="secondary_analysis.h5ad.zarr",
-            obs_feature_matrix_path="X",
-            obs_set_paths=["obs/leiden"],
-            obs_set_names=["Leiden"],
-            obs_locations_path="obsm/X_spatial",
-            obs_embedding_paths=["obsm/X_umap", "obsm/X_pca"],
-            obs_embedding_names=["UMAP", "PCA"],
-            obs_embedding_dims=[[0, 1], [0, 1]],
-            feature_labels_path="var/hugo_symbol",
-            initial_feature_filter_path="var/top_highly_variable",
-            coordination_values={
-                "obsType": "cell",
-                "featureType": "gene",
-                "featureLabelsType": "gene",
-            }
-        )
-        dataset = vc.add_dataset(
-            name='Visium'
-        ).add_object(
-            visium_image
-        ).add_object(
-            visium_spots
-        ).add_object(
-            obs_sets
-        )
-        return dataset
 
     def _add_spatial_view(self, dataset, vc):
         spatial = vc.add_view(

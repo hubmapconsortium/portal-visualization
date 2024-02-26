@@ -5,6 +5,7 @@
     "primary": false,
     "vitessce-hints": [
       "is_sc",
-      "rna"
+      "rna",
+      "json_based"
     ]
   }
