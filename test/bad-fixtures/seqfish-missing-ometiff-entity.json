@@ -1,11 +1,6 @@
 {
   "data_types": ["image_pyramid", "seqFish"],
   "status": "QA",
-  "immediate_ancestors": [
-    {
-      "uuid": "c6a254b2dc2ed46b002500ade163a7cc"
-    }
-  ],
   "files": [
     {
       "rel_path": "output_offsets/final_mRNA_background/MMStack_Pos12.offsets.json"
@@ -21,5 +16,5 @@
     }
   ],
   "uuid": "9db61adfc017670a196ea9b3ca1852a0",
-  "metadata": { "dag_provenance_list": [] }
+  "parent": {"uuid": "c6a254b2dc2ed46b002500ade163a7cc"}
 }

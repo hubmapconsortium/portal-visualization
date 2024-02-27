@@ -137,7 +137,8 @@ def test_entity_to_error(entity_path, mocker):
 
     entity = json.loads(entity_path.read_text())
     with pytest.raises(Exception) as error_info:
-        Builder = get_view_config_builder(entity, get_assaytype)
+        parent = entity.get('parent') or None  # Only used for image pyramids
+        Builder = get_view_config_builder(entity, get_assaytype, parent=parent)
         builder = Builder(entity, 'groups_token', 'https://example.com/')
         builder.get_conf_cells()
     actual_error = f'{error_info.type.__name__}: {error_info.value.args[0]}'
