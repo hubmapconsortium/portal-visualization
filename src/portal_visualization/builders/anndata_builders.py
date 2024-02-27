@@ -222,11 +222,6 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
 
         self._views = views
 
-        # Link top 5 marker genes
-        vc.link_views(views,
-                      [ct.OBS_LABELS_TYPE for _ in self._obs_labels_names],
-                      self._obs_labels_names,
-                      allow_multiple_scopes_per_type=True)
         return vc
 
     def _add_spatial_view(self, dataset, vc):
@@ -235,6 +230,11 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         return None
 
     def _link_marker_gene(self, vc):
+        # Link top 5 marker genes
+        vc.link_views(self._views,
+                      [ct.OBS_LABELS_TYPE for _ in self._obs_labels_names],
+                      self._obs_labels_names,
+                      allow_multiple_scopes_per_type=True)
         # Link user-provided marker gene
         if self._marker:
             vc.link_views(
@@ -291,31 +291,11 @@ class SpatialMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewCon
         self._scatterplot_w = 3
         self._spatial_w = 3
 
-    def _add_spatial_view(self, dataset, vc):
-        spatial = vc.add_view(
-            cm.SPATIAL,
-            dataset=dataset,
-            x=self._scatterplot_w,
-            y=0,
-            w=self._spatial_w,
-            h=6)
-        [cells_layer] = vc.add_coordination('spatialSegmentationLayer')
-        cells_layer.set_value(
-            {
-                "visible": True,
-                "stroked": False,
-                "radius": 20,
-                "opacity": 1,
-            }
-        )
-        spatial.use_coordination(cells_layer)
-        return spatial
-
     def _get_scale_factor(self):
         z = self.zarr_store
-        visium_scalefactor_path = 'uns/spatial/visium/scalefactors/spot_diameter_fullres'
-        if visium_scalefactor_path in z:
-            return z[visium_scalefactor_path][()].tolist()
+        visium_scalefactor_path = 'spatial/visium/scalefactors/spot_diameter_fullres'
+        if visium_scalefactor_path in z['uns']:
+            return z['uns'][visium_scalefactor_path][()].tolist()
 
     def _set_up_dataset(self, vc):
         adata_url = self._build_assets_url(
@@ -335,8 +315,10 @@ class SpatialMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewCon
             adata_url=adata_url,
             obs_feature_matrix_path="X",
             obs_spots_path="obsm/X_spatial",
-            obs_set_paths=["obs/leiden"],
-            obs_set_names=["Leiden"],
+            obs_set_paths=self._obs_set_paths,
+            obs_set_names=self._obs_set_names,
+            obs_labels_names=self._obs_labels_names,
+            obs_labels_paths=self._obs_labels_paths,
             feature_labels_path="var/hugo_symbol",
             request_init=self._get_request_init(),
             coordination_values={
@@ -348,8 +330,10 @@ class SpatialMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewCon
         obs_sets = AnnDataWrapper(
             adata_url=adata_url,
             obs_feature_matrix_path="X",
-            obs_set_paths=["obs/leiden"],
-            obs_set_names=["Leiden"],
+            obs_set_paths=self._obs_set_paths,
+            obs_set_names=self._obs_set_names,
+            obs_labels_names=self._obs_labels_names,
+            obs_labels_paths=self._obs_labels_paths,
             obs_locations_path="obsm/X_spatial",
             obs_embedding_paths=["obsm/X_umap", "obsm/X_pca"],
             obs_embedding_names=["UMAP", "PCA"],

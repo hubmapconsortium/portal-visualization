@@ -6,14 +6,6 @@
     "embeddingType": {
       "A": "UMAP"
     },
-    "featureSelection": {
-      "A": [
-        "ENSG00000139618"
-      ]
-    },
-    "obsColorEncoding": {
-      "A": "geneSelection"
-    },
     "obsLabelsType": {
       "A": "Marker Gene 0",
       "B": "Marker Gene 1",
@@ -21,14 +13,6 @@
       "D": "Marker Gene 3",
       "E": "Marker Gene 4",
       "F": "Predicted CL ID"
-    },
-    "spatialSegmentationLayer": {
-      "A": {
-        "opacity": 1,
-        "radius": 20,
-        "stroked": false,
-        "visible": true
-      }
     }
   },
   "datasets": [
@@ -37,9 +21,6 @@
         {
           "fileType": "anndata.zarr",
           "options": {
-            "featureLabels": {
-              "path": "var/hugo_symbol"
-            },
             "obsEmbedding": [
               {
                 "dims": [
@@ -80,9 +61,6 @@
                 "path": "obs/predicted_CLID"
               }
             ],
-            "obsLocations": {
-              "path": "obsm/X_spatial"
-            },
             "obsSets": [
               {
                 "name": "Leiden",
@@ -90,10 +68,10 @@
               }
             ]
           },
-          "url": "https://example.com/ea4cfecb8495b36694d9a951510dc3c6/hubmap_ui/anndata-zarr/secondary_analysis.zarr"
+          "url": "https://example.com/e65175561b4b17da5352e3837aa0e497/hubmap_ui/anndata-zarr/secondary_analysis.zarr"
         }
       ],
-      "name": "ea4cfecb8495b36694d9a951510dc3c6",
+      "name": "e65175561b4b17da5352e3837aa0e497",
       "uid": "A"
     }
   ],
@@ -105,8 +83,6 @@
       "coordinationScopes": {
         "dataset": "A",
         "embeddingType": "A",
-        "featureSelection": "A",
-        "obsColorEncoding": "A",
         "obsLabelsType": [
           "A",
           "B",
@@ -117,7 +93,7 @@
         ]
       },
       "h": 6,
-      "w": 4,
+      "w": 6,
       "x": 0,
       "y": 0
     },
@@ -125,8 +101,6 @@
       "component": "obsSets",
       "coordinationScopes": {
         "dataset": "A",
-        "featureSelection": "A",
-        "obsColorEncoding": "A",
         "obsLabelsType": [
           "A",
           "B",
@@ -137,16 +111,14 @@
         ]
       },
       "h": 3,
-      "w": 3,
-      "x": 9,
+      "w": 6,
+      "x": 6,
       "y": 0
     },
     {
       "component": "featureList",
       "coordinationScopes": {
         "dataset": "A",
-        "featureSelection": "A",
-        "obsColorEncoding": "A",
         "obsLabelsType": [
           "A",
           "B",
@@ -157,16 +129,14 @@
         ]
       },
       "h": 3,
-      "w": 3,
-      "x": 9,
+      "w": 6,
+      "x": 6,
       "y": 4
     },
     {
       "component": "obsSetFeatureValueDistribution",
       "coordinationScopes": {
         "dataset": "A",
-        "featureSelection": "A",
-        "obsColorEncoding": "A",
         "obsLabelsType": [
           "A",
           "B",
@@ -185,8 +155,6 @@
       "component": "heatmap",
       "coordinationScopes": {
         "dataset": "A",
-        "featureSelection": "A",
-        "obsColorEncoding": "A",
         "obsLabelsType": [
           "A",
           "B",
@@ -200,29 +168,8 @@
       "w": 7,
       "x": 0,
       "y": 6
-    },
-    {
-      "component": "spatial",
-      "coordinationScopes": {
-        "dataset": "A",
-        "featureSelection": "A",
-        "obsColorEncoding": "A",
-        "obsLabelsType": [
-          "A",
-          "B",
-          "C",
-          "D",
-          "E",
-          "F"
-        ],
-        "spatialSegmentationLayer": "A"
-      },
-      "h": 6,
-      "w": 5,
-      "x": 4,
-      "y": 0
     }
   ],
-  "name": "ea4cfecb8495b36694d9a951510dc3c6",
+  "name": "e65175561b4b17da5352e3837aa0e497",
   "version": "1.0.15"
 }

@@ -1,0 +1,422 @@
+{
+  "coordinationSpace": {
+    "dataset": {
+      "A": "A"
+    },
+    "embeddingType": {
+      "A": "UMAP"
+    },
+    "featureValueColormapRange": {
+      "A": [
+        0,
+        1
+      ]
+    },
+    "fileUid": {
+      "A": "visium"
+    },
+    "imageLayer": {
+      "A": "__dummy__"
+    },
+    "metaCoordinationScopes": {
+      "A": {
+        "imageLayer": [
+          "A"
+        ],
+        "spatialTargetT": "A",
+        "spatialTargetZ": "A",
+        "spotLayer": [
+          "A"
+        ]
+      }
+    },
+    "metaCoordinationScopesBy": {
+      "A": {
+        "imageLayer": {
+          "fileUid": {
+            "A": "A"
+          },
+          "photometricInterpretation": {
+            "A": "A"
+          },
+          "spatialLayerOpacity": {
+            "A": "A"
+          },
+          "spatialLayerVisible": {
+            "A": "A"
+          }
+        },
+        "spotLayer": {
+          "featureValueColormapRange": {
+            "A": "A"
+          },
+          "obsType": {
+            "A": "A"
+          },
+          "spatialLayerOpacity": {
+            "A": "B"
+          },
+          "spatialLayerVisible": {
+            "A": "B"
+          },
+          "spatialSpotRadius": {
+            "A": "A"
+          }
+        }
+      }
+    },
+    "obsLabelsType": {
+      "A": "Marker Gene 0",
+      "B": "Marker Gene 1",
+      "C": "Marker Gene 2",
+      "D": "Marker Gene 3",
+      "E": "Marker Gene 4",
+      "F": "Predicted CL ID"
+    },
+    "obsType": {
+      "A": "spot",
+      "B": "spot"
+    },
+    "photometricInterpretation": {
+      "A": "RGB"
+    },
+    "spatialLayerOpacity": {
+      "A": 1,
+      "B": 0.5
+    },
+    "spatialLayerVisible": {
+      "A": true,
+      "B": true
+    },
+    "spatialSpotRadius": {
+      "A": 100
+    },
+    "spatialTargetT": {
+      "A": 0
+    },
+    "spatialTargetZ": {
+      "A": 0
+    },
+    "spotLayer": {
+      "A": "__dummy__"
+    }
+  },
+  "datasets": [
+    {
+      "files": [
+        {
+          "coordinationValues": {
+            "fileUid": "visium"
+          },
+          "fileType": "image.ome-tiff",
+          "url": "https://example.com/72ec02cf1390428c1e9dc2c88928f5f5/ometiff-pyramids/visium_histology_hires_pyramid.ome.tif?token=groups_token"
+        },
+        {
+          "coordinationValues": {
+            "featureLabelsType": "gene",
+            "featureType": "gene",
+            "obsType": "spot"
+          },
+          "fileType": "anndata.zarr",
+          "options": {
+            "featureLabels": {
+              "path": "var/hugo_symbol"
+            },
+            "obsFeatureMatrix": {
+              "path": "X"
+            },
+            "obsLabels": [
+              {
+                "obsLabelsType": "Marker Gene 0",
+                "path": "obs/marker_gene_0"
+              },
+              {
+                "obsLabelsType": "Marker Gene 1",
+                "path": "obs/marker_gene_1"
+              },
+              {
+                "obsLabelsType": "Marker Gene 2",
+                "path": "obs/marker_gene_2"
+              },
+              {
+                "obsLabelsType": "Marker Gene 3",
+                "path": "obs/marker_gene_3"
+              },
+              {
+                "obsLabelsType": "Marker Gene 4",
+                "path": "obs/marker_gene_4"
+              },
+              {
+                "obsLabelsType": "Predicted CL ID",
+                "path": "obs/predicted_CLID"
+              }
+            ],
+            "obsSets": [
+              {
+                "name": "Leiden",
+                "path": "obs/leiden"
+              }
+            ],
+            "obsSpots": {
+              "path": "obsm/X_spatial"
+            }
+          },
+          "url": "https://example.com/72ec02cf1390428c1e9dc2c88928f5f5/hubmap_ui/anndata-zarr/secondary_analysis.zarr"
+        },
+        {
+          "coordinationValues": {
+            "featureLabelsType": "gene",
+            "featureType": "gene",
+            "obsType": "cell"
+          },
+          "fileType": "anndata.zarr",
+          "options": {
+            "featureLabels": {
+              "path": "var/hugo_symbol"
+            },
+            "obsEmbedding": [
+              {
+                "dims": [
+                  0,
+                  1
+                ],
+                "embeddingType": "UMAP",
+                "path": "obsm/X_umap"
+              },
+              {
+                "dims": [
+                  0,
+                  1
+                ],
+                "embeddingType": "PCA",
+                "path": "obsm/X_pca"
+              }
+            ],
+            "obsFeatureMatrix": {
+              "initialFeatureFilterPath": "var/top_highly_variable",
+              "path": "X"
+            },
+            "obsLabels": [
+              {
+                "obsLabelsType": "Marker Gene 0",
+                "path": "obs/marker_gene_0"
+              },
+              {
+                "obsLabelsType": "Marker Gene 1",
+                "path": "obs/marker_gene_1"
+              },
+              {
+                "obsLabelsType": "Marker Gene 2",
+                "path": "obs/marker_gene_2"
+              },
+              {
+                "obsLabelsType": "Marker Gene 3",
+                "path": "obs/marker_gene_3"
+              },
+              {
+                "obsLabelsType": "Marker Gene 4",
+                "path": "obs/marker_gene_4"
+              },
+              {
+                "obsLabelsType": "Predicted CL ID",
+                "path": "obs/predicted_CLID"
+              }
+            ],
+            "obsLocations": {
+              "path": "obsm/X_spatial"
+            },
+            "obsSets": [
+              {
+                "name": "Leiden",
+                "path": "obs/leiden"
+              }
+            ]
+          },
+          "url": "https://example.com/72ec02cf1390428c1e9dc2c88928f5f5/hubmap_ui/anndata-zarr/secondary_analysis.zarr"
+        }
+      ],
+      "name": "Visium",
+      "uid": "A"
+    }
+  ],
+  "description": "",
+  "initStrategy": "auto",
+  "layout": [
+    {
+      "component": "scatterplot",
+      "coordinationScopes": {
+        "dataset": "A",
+        "embeddingType": "A",
+        "metaCoordinationScopes": [
+          "A"
+        ],
+        "metaCoordinationScopesBy": [
+          "A"
+        ],
+        "obsLabelsType": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F"
+        ]
+      },
+      "h": 6,
+      "w": 3,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "component": "spatialBeta",
+      "coordinationScopes": {
+        "dataset": "A",
+        "metaCoordinationScopes": [
+          "A"
+        ],
+        "metaCoordinationScopesBy": [
+          "A"
+        ],
+        "obsLabelsType": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F"
+        ],
+        "obsType": "B"
+      },
+      "h": 6,
+      "w": 3,
+      "x": 3,
+      "y": 0
+    },
+    {
+      "component": "heatmap",
+      "coordinationScopes": {
+        "dataset": "A",
+        "metaCoordinationScopes": [
+          "A"
+        ],
+        "metaCoordinationScopesBy": [
+          "A"
+        ],
+        "obsLabelsType": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F"
+        ]
+      },
+      "h": 6,
+      "props": {
+        "transpose": true
+      },
+      "w": 6,
+      "x": 0,
+      "y": 6
+    },
+    {
+      "component": "layerControllerBeta",
+      "coordinationScopes": {
+        "dataset": "A",
+        "metaCoordinationScopes": [
+          "A"
+        ],
+        "metaCoordinationScopesBy": [
+          "A"
+        ],
+        "obsLabelsType": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F"
+        ],
+        "obsType": "B"
+      },
+      "h": 3,
+      "w": 6,
+      "x": 6,
+      "y": 0
+    },
+    {
+      "component": "obsSets",
+      "coordinationScopes": {
+        "dataset": "A",
+        "metaCoordinationScopes": [
+          "A"
+        ],
+        "metaCoordinationScopesBy": [
+          "A"
+        ],
+        "obsLabelsType": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F"
+        ]
+      },
+      "h": 4,
+      "w": 3,
+      "x": 6,
+      "y": 2
+    },
+    {
+      "component": "featureList",
+      "coordinationScopes": {
+        "dataset": "A",
+        "metaCoordinationScopes": [
+          "A"
+        ],
+        "metaCoordinationScopesBy": [
+          "A"
+        ],
+        "obsLabelsType": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F"
+        ]
+      },
+      "h": 4,
+      "w": 3,
+      "x": 9,
+      "y": 2
+    },
+    {
+      "component": "obsSetFeatureValueDistribution",
+      "coordinationScopes": {
+        "dataset": "A",
+        "metaCoordinationScopes": [
+          "A"
+        ],
+        "metaCoordinationScopesBy": [
+          "A"
+        ],
+        "obsLabelsType": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E",
+          "F"
+        ]
+      },
+      "h": 5,
+      "w": 6,
+      "x": 6,
+      "y": 7
+    }
+  ],
+  "name": "72ec02cf1390428c1e9dc2c88928f5f5",
+  "version": "1.0.15"
+}

@@ -79,6 +79,8 @@ def mock_zarr_store(entity_path, mocker):
             z['obs/predicted.ASCT.celltype'] = True  # only checked for membership in zarr group
         elif 'predicted-label' in entity_path.name:
             z['obs/predicted_label'] = True  # only checked for membership in zarr group
+        elif 'fake-predicted-clid' in entity_path.name:
+            z['obs/predicted_CLID'] = True
     if 'marker' in entity_path.name:
         obs = z.create_group('obs')
         obs.attrs['encoding-version'] = '0.1.0'
@@ -88,6 +90,8 @@ def mock_zarr_store(entity_path, mocker):
         var['hugo_symbol'] = zarr.array([0, 1, 2])
         var['hugo_symbol'].attrs['categories'] = 'hugo_categories'
         var['hugo_categories'] = zarr.array(['gene123', 'gene456', 'gene789'])
+    if 'visium' in entity_path.name:
+        z['uns/spatial/visium/scalefactors/spot_diameter_fullres'] = 100
     mocker.patch('zarr.open', return_value=z)
 
 
