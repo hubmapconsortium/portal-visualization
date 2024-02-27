@@ -51,7 +51,7 @@ default_assaytype = {
 
 def get_assaytype(entity):
     uuid = entity.get('uuid')
-    if uuid is None:
+    if uuid is None:  # pragma: no cover
         return default_assaytype
     assay = json.loads(assaytypes_path.joinpath(f'{uuid}.json').read_text())
     return assay
