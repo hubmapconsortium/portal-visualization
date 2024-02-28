@@ -160,8 +160,8 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         obs_set_names = []
         # obs labels are tooltip helpers which e.g. identify highly expressed genes
         # or help map predicted cell labels to their IDs
-        obs_label_paths = RNA_SEQ_ANNDATA_FACTOR_PATHS
-        obs_label_names = RNA_SEQ_FACTOR_LABEL_NAMES
+        obs_label_paths = []
+        obs_label_names = []
         dags = [
             dag for dag in self._entity['metadata']['dag_provenance_list']
             if 'name' in dag]
@@ -180,6 +180,8 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
 
         obs_set_paths.append("obs/leiden")
         obs_set_names.append("Leiden")
+        obs_label_paths.extend(RNA_SEQ_ANNDATA_FACTOR_PATHS)
+        obs_label_names.extend(RNA_SEQ_FACTOR_LABEL_NAMES)
         self._obs_set_paths = obs_set_paths
         self._obs_set_names = obs_set_names
         self._obs_labels_paths = obs_label_paths
@@ -315,8 +317,6 @@ class SpatialMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewCon
             adata_url=adata_url,
             obs_feature_matrix_path="X",
             obs_spots_path="obsm/X_spatial",
-            obs_set_paths=self._obs_set_paths,
-            obs_set_names=self._obs_set_names,
             obs_labels_names=self._obs_labels_names,
             obs_labels_paths=self._obs_labels_paths,
             feature_labels_path="var/hugo_symbol",

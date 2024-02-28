@@ -70,8 +70,7 @@
       "B": "Marker Gene 1",
       "C": "Marker Gene 2",
       "D": "Marker Gene 3",
-      "E": "Marker Gene 4",
-      "F": "Predicted CL ID"
+      "E": "Marker Gene 4"
     },
     "obsType": {
       "A": "spot",
@@ -145,16 +144,6 @@
               {
                 "obsLabelsType": "Marker Gene 4",
                 "path": "obs/marker_gene_4"
-              },
-              {
-                "obsLabelsType": "Predicted CL ID",
-                "path": "obs/predicted_CLID"
-              }
-            ],
-            "obsSets": [
-              {
-                "name": "Leiden",
-                "path": "obs/leiden"
               }
             ],
             "obsSpots": {
@@ -216,10 +205,6 @@
               {
                 "obsLabelsType": "Marker Gene 4",
                 "path": "obs/marker_gene_4"
-              },
-              {
-                "obsLabelsType": "Predicted CL ID",
-                "path": "obs/predicted_CLID"
               }
             ],
             "obsLocations": {
@@ -258,8 +243,7 @@
           "B",
           "C",
           "D",
-          "E",
-          "F"
+          "E"
         ]
       },
       "h": 6,
@@ -282,8 +266,7 @@
           "B",
           "C",
           "D",
-          "E",
-          "F"
+          "E"
         ],
         "obsType": "B"
       },
@@ -307,8 +290,7 @@
           "B",
           "C",
           "D",
-          "E",
-          "F"
+          "E"
         ]
       },
       "h": 6,
@@ -334,8 +316,7 @@
           "B",
           "C",
           "D",
-          "E",
-          "F"
+          "E"
         ],
         "obsType": "B"
       },
@@ -359,8 +340,7 @@
           "B",
           "C",
           "D",
-          "E",
-          "F"
+          "E"
         ]
       },
       "h": 4,
@@ -383,8 +363,7 @@
           "B",
           "C",
           "D",
-          "E",
-          "F"
+          "E"
         ]
       },
       "h": 4,
@@ -407,8 +386,7 @@
           "B",
           "C",
           "D",
-          "E",
-          "F"
+          "E"
         ]
       },
       "h": 5,
