@@ -79,7 +79,6 @@ def mock_zarr_store(entity_path, mocker):
             z['obs/predicted.ASCT.celltype'] = True  # only checked for membership in zarr group
         elif 'predicted-label' in entity_path.name:
             z['obs/predicted_label'] = True  # only checked for membership in zarr group
-        elif 'fake-predicted-clid' in entity_path.name:
             z['obs/predicted_CLID'] = True
     if 'marker' in entity_path.name:
         obs = z.create_group('obs')
@@ -122,6 +121,8 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
     expected_conf = json.loads(expected_conf_path.read_text())
     # Compare normalized JSON strings so the diff is easier to read,
     # and there are fewer false positives.
+    # print(expected_conf_path)
+    # print(json.dumps(conf, indent=2, sort_keys=True))
     assert json.dumps(conf, indent=2, sort_keys=True) \
         == json.dumps(expected_conf, indent=2, sort_keys=True)
 
