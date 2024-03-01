@@ -1,15 +1,5 @@
 {
-    "data_types": [
-        "image_pyramid",
-        "MALDI-IMS-neg"
-    ],
     "status": "QA",
-    "immediate_ancestors": [
-        {
-            "uuid": "3bc3ad124014a632d558255626bf38c9",
-            "data_types": ["MALDI-IMS-neg"]
-        }
-    ],
     "files": [
         {
             "rel_path": "ometiff-pyramids/ometiffs/separate/VAN0003-LK-32-21-IMS_NegMode_mz909.606.ome.tif"
@@ -31,5 +21,6 @@
         }
     ],
     "uuid": "a6116772446f6d1c1f6b3d2e9735cfe0",
-    "metadata": {"dag_provenance_list": []}
+    "metadata": {"dag_provenance_list": []},
+    "parent": {"uuid": "3bc3ad124014a632d558255626bf38c9"}
 }

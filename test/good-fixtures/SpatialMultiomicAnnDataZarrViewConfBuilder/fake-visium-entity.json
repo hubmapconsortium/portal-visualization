@@ -1,0 +1,22 @@
+{
+  "uuid": "72ec02cf1390428c1e9dc2c88928f5f5",
+  "status": "Published",
+  "files": [
+    {
+      "description": "AnnData Zarr store for storing and visualizing single cell sequencing outputs of UMAP/clustering analysis.",
+      "edam_term": "EDAM_1.24.format_2333",
+      "is_qa_qc": false,
+      "rel_path": "hubmap_ui/anndata-zarr/secondary_analysis.zarr/.zgroup",
+      "size": 24,
+      "type": "unknown"
+    }
+  ],
+  "metadata": {
+    "dag_provenance_list": [
+      {
+        "name": "anndata-to-ui.cwl",
+        "origin": "https://github.com/hubmapconsortium/portal-containers"
+      }
+    ]
+  }
+}

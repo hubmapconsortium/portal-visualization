@@ -7,11 +7,12 @@
       "A": "UMAP"
     },
     "obsLabelsType": {
-      "A": "Marker Gene 0",
-      "B": "Marker Gene 1",
-      "C": "Marker Gene 2",
-      "D": "Marker Gene 3",
-      "E": "Marker Gene 4"
+      "A": "Predicted CL ID",
+      "B": "Marker Gene 0",
+      "C": "Marker Gene 1",
+      "D": "Marker Gene 2",
+      "E": "Marker Gene 3",
+      "F": "Marker Gene 4"
     }
   },
   "datasets": [
@@ -35,6 +36,10 @@
               "path": "X"
             },
             "obsLabels": [
+              {
+                "obsLabelsType": "Predicted CL ID",
+                "path": "obs/predicted_CLID"
+              },
               {
                 "obsLabelsType": "Marker Gene 0",
                 "path": "obs/marker_gene_0"
@@ -92,7 +97,8 @@
           "B",
           "C",
           "D",
-          "E"
+          "E",
+          "F"
         ]
       },
       "h": 6,
@@ -109,7 +115,8 @@
           "B",
           "C",
           "D",
-          "E"
+          "E",
+          "F"
         ]
       },
       "h": 3,
@@ -126,7 +133,8 @@
           "B",
           "C",
           "D",
-          "E"
+          "E",
+          "F"
         ]
       },
       "h": 3,
@@ -143,7 +151,8 @@
           "B",
           "C",
           "D",
-          "E"
+          "E",
+          "F"
         ]
       },
       "h": 4,
@@ -160,7 +169,8 @@
           "B",
           "C",
           "D",
-          "E"
+          "E",
+          "F"
         ]
       },
       "h": 4,

@@ -10,7 +10,7 @@ import pytest
 import zarr
 
 from src.portal_visualization.builder_factory \
-    import get_ancestor_assaytypes, get_view_config_builder, has_visualization
+    import get_view_config_builder, has_visualization
 
 
 def str_presenter(dumper, data):
@@ -51,7 +51,7 @@ default_assaytype = {
 
 def get_assaytype(entity):
     uuid = entity.get('uuid')
-    if uuid is None:
+    if uuid is None:  # pragma: no cover
         return default_assaytype
     assay = json.loads(assaytypes_path.joinpath(f'{uuid}.json').read_text())
     return assay
@@ -60,10 +60,8 @@ def get_assaytype(entity):
 @pytest.mark.parametrize(
     "has_vis_entity",
     [
-        (False, {'uuid': "2c2179ea741d3bbb47772172a316a2bf",
-                 'data_types': [], 'metadata': {'dag_provenance_list': []}}),
-        (True, json.loads(Path.read_text(good_entity_paths[0]))),
-        (False, {'uuid': "2c2179ea741d3bbb47772172a316a2bf", 'data_types': []})
+        (False, {'uuid': "2c2179ea741d3bbb47772172a316a2bf"}),
+        (True, json.loads(Path.read_text(good_entity_paths[0])))
         # If the first fixture returns a Null builder this would break.
     ],
     ids=lambda has_vis_entity: f'has_visualization={has_vis_entity[0]}')
@@ -81,6 +79,7 @@ def mock_zarr_store(entity_path, mocker):
             z['obs/predicted.ASCT.celltype'] = True  # only checked for membership in zarr group
         elif 'predicted-label' in entity_path.name:
             z['obs/predicted_label'] = True  # only checked for membership in zarr group
+            z['obs/predicted_CLID'] = True
     if 'marker' in entity_path.name:
         obs = z.create_group('obs')
         obs.attrs['encoding-version'] = '0.1.0'
@@ -90,6 +89,8 @@ def mock_zarr_store(entity_path, mocker):
         var['hugo_symbol'] = zarr.array([0, 1, 2])
         var['hugo_symbol'].attrs['categories'] = 'hugo_categories'
         var['hugo_categories'] = zarr.array(['gene123', 'gene456', 'gene789'])
+    if 'visium' in entity_path.name:
+        z['uns/spatial/visium/scalefactors/spot_diameter_fullres'] = 100
     mocker.patch('zarr.open', return_value=z)
 
 
@@ -105,7 +106,8 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
         else None)
 
     entity = json.loads(entity_path.read_text())
-    Builder = get_view_config_builder(entity, get_assaytype)
+    parent = entity.get('parent') or None  # Only used for image pyramids
+    Builder = get_view_config_builder(entity, get_assaytype, parent)
     assert Builder.__name__ == entity_path.parent.name
 
     # Envvars should not be set during normal test runs,
@@ -138,7 +140,8 @@ def test_entity_to_error(entity_path, mocker):
 
     entity = json.loads(entity_path.read_text())
     with pytest.raises(Exception) as error_info:
-        Builder = get_view_config_builder(entity, get_assaytype)
+        parent = entity.get('parent') or None  # Only used for image pyramids
+        Builder = get_view_config_builder(entity, get_assaytype, parent=parent)
         builder = Builder(entity, 'groups_token', 'https://example.com/')
         builder.get_conf_cells()
     actual_error = f'{error_info.type.__name__}: {error_info.value.args[0]}'
@@ -156,14 +159,6 @@ def clean_cells(cells):
             if k not in {'metadata', 'id', 'execution_count', 'outputs'}
         } for c in cells
     ]
-
-
-@pytest.mark.parametrize(
-    "entity_path", image_pyramid_paths, ids=lambda path: f'{path.parent.name}/{path.name}')
-def test_get_ancestor_assaytype(entity_path):
-    entity = json.loads(entity_path.read_text())
-    ancestor_assaytypes = get_ancestor_assaytypes(entity, get_assaytype)
-    assert len(ancestor_assaytypes) > 0
 
 
 if __name__ == '__main__':  # pragma: no cover

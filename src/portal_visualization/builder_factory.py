@@ -10,7 +10,9 @@ from .builders.imaging_builders import (
     NanoDESIViewConfBuilder
 )
 from .builders.anndata_builders import (
-    SpatialRNASeqAnnDataZarrViewConfBuilder, RNASeqAnnDataZarrViewConfBuilder
+    SpatialRNASeqAnnDataZarrViewConfBuilder,
+    RNASeqAnnDataZarrViewConfBuilder,
+    SpatialMultiomicAnnDataZarrViewConfBuilder
 )
 from .builders.scatterplot_builders import (
     RNASeqViewConfBuilder, ATACSeqViewConfBuilder
@@ -23,10 +25,19 @@ from .assays import (
 )
 
 
-def get_ancestor_assaytypes(entity, get_assaytype):
-    return [get_assaytype(ancestor).get('assaytype')
-            for ancestor
-            in entity.get('immediate_ancestors')]
+# This function processes the hints and returns a tuple of booleans
+# indicating which builder to use for the given entity.
+def process_hints(hints):
+    hints = set(hints)
+    is_image = "is_image" in hints
+    is_rna = "rna" in hints
+    is_atac = "atac" in hints
+    is_sprm = "sprm" in hints
+    is_codex = "codex" in hints
+    is_anndata = "anndata" in hints
+    is_json = "json_based" in hints
+
+    return is_image, is_rna, is_atac, is_sprm, is_codex, is_anndata, is_json
 
 
 # This function is the main entrypoint for the builder factory.
@@ -35,53 +46,62 @@ def get_ancestor_assaytypes(entity, get_assaytype):
 # The entity is a dict that contains the entity UUID and metadata.
 # `get_assaytype` is a function which takes an entity UUID and returns
 # a dict containing the assaytype and vitessce-hints for that entity.
-def get_view_config_builder(entity, get_assaytype):
+def get_view_config_builder(entity, get_assaytype, parent=None):
     if (entity.get('uuid') is None):
         raise ValueError("Provided entity does not have a uuid")
     assay = get_assaytype(entity)
     assay_name = assay.get('assaytype')
     hints = assay.get('vitessce-hints', [])
-
-    dag_provenance_list = entity.get('metadata', {}).get('dag_provenance_list', [])
-    dag_names = [dag['name']
-                 for dag in dag_provenance_list if 'name' in dag]
-    if "is_image" in hints:
-        if 'sprm' in hints and 'anndata' in hints:
+    is_image, is_rna, is_atac, is_sprm, is_codex, is_anndata, is_json = process_hints(hints)
+    if is_image:
+        if is_rna:
+            # e.g. Visium (no probes) [Salmon + Scanpy]
+            # sample entity (on dev): 72ec02cf1390428c1e9dc2c88928f5f5
+            return SpatialMultiomicAnnDataZarrViewConfBuilder
+        if is_sprm and is_anndata:
             # e.g. CellDIVE [DeepCell + SPRM]
             # sample entity: c3be5650e93907b68ddbdb22b948db32
             return MultiImageSPRMAnndataViewConfBuilder
-        if "codex" in hints:
-            if ('sprm-to-anndata.cwl' in dag_names):
-                # e.g. 'CODEX [Cytokit + SPRM]
-                # sample entity: 43213991a54ce196d406707ffe2e86bd
-                return StitchedCytokitSPRMViewConfBuilder
-            # Cannot find an example of this in the wild, every CODEX entity has the
-            # sprm-to-anndata.cwl in its dag_provenance_list
-            return TiledSPRMViewConfBuilder
-        # Check types of image pyramid ancestors to determine which builder to use
-        ancestor_assaytypes = get_ancestor_assaytypes(entity, get_assaytype)
-        # e.g. c6a254b2dc2ed46b002500ade163a7cc
-        if SEQFISH in [assaytype for assaytype in ancestor_assaytypes]:
-            return SeqFISHViewConfBuilder
-        # e.g. 3bc3ad124014a632d558255626bf38c9
-        if MALDI_IMS in [assaytype for assaytype in ancestor_assaytypes]:
-            return IMSViewConfBuilder
-        # e.g. 6b93107731199733f266bbd0f3bc9747
-        if NANODESI in [assaytype for assaytype in ancestor_assaytypes]:
-            return NanoDESIViewConfBuilder
-        # e.g. f9ae931b8b49252f150d7f8bf1d2d13f
-        return ImagePyramidViewConfBuilder
-    if "rna" in hints:
-        # This is the zarr-backed anndata pipeline.
-        if "anndata-to-ui.cwl" in dag_names:
-            if assay_name == SALMON_RNASSEQ_SLIDE:
-                # e.g. 2a590db3d7ab1e1512816b165d95cdcf
-                return SpatialRNASeqAnnDataZarrViewConfBuilder
-            # e.g. e65175561b4b17da5352e3837aa0e497
-            return RNASeqAnnDataZarrViewConfBuilder
-        # e.g. c019a1cd35aab4d2b4a6ff221e92aaab
-        return RNASeqViewConfBuilder
-    if "atac" in hints:
+        if is_codex:
+            if is_json:
+                # legacy JSON-based dataset, e.g. b69d1e2ad1bf1455eee991fce301b191
+                return TiledSPRMViewConfBuilder
+            # e.g. CODEX [Cytokit + SPRM]
+            # sample entity: 43213991a54ce196d406707ffe2e86bd
+            return StitchedCytokitSPRMViewConfBuilder
+
+        # vis-lifted image pyramids
+        if (parent is not None):
+            ancestor_assaytype = get_assaytype(parent).get('assaytype')
+            if SEQFISH == ancestor_assaytype:
+                # e.g. parent  = c6a254b2dc2ed46b002500ade163a7cc
+                # e.g. support = 9db61adfc017670a196ea9b3ca1852a0
+                return SeqFISHViewConfBuilder
+            elif MALDI_IMS == ancestor_assaytype:
+                # e.g. parent  = 3bc3ad124014a632d558255626bf38c9
+                # e.g. support = a6116772446f6d1c1f6b3d2e9735cfe0
+                return IMSViewConfBuilder
+            elif NANODESI == ancestor_assaytype:
+                # e.g. parent  = 6b93107731199733f266bbd0f3bc9747
+                # e.g. support = e1c4370da5523ab5c9be581d1d76ca20
+                return NanoDESIViewConfBuilder
+            else:
+                # e.g. parent  = 8adc3c31ca84ec4b958ed20a7c4f4919
+                # e.g. support = f9ae931b8b49252f150d7f8bf1d2d13f
+                return ImagePyramidViewConfBuilder
+
+    if is_rna:
+        if is_json:
+            # e.g. c019a1cd35aab4d2b4a6ff221e92aaab
+            return RNASeqViewConfBuilder
+        # if not JSON, assume that the entity is AnnData-backed
+        # TODO - once "anndata" hint is added to the hints for this assay, use that instead
+        if assay_name == SALMON_RNASSEQ_SLIDE:
+            # e.g. 2a590db3d7ab1e1512816b165d95cdcf
+            return SpatialRNASeqAnnDataZarrViewConfBuilder
+        # e.g. e65175561b4b17da5352e3837aa0e497
+        return RNASeqAnnDataZarrViewConfBuilder
+    if is_atac:
         # e.g. d4493657cde29702c5ed73932da5317c
         return ATACSeqViewConfBuilder
     # any entity with no hints, e.g. 2c2179ea741d3bbb47772172a316a2bf

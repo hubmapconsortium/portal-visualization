@@ -1,19 +1,10 @@
 {
-    "data_types": [
-        "image_pyramid",
-        "PAS"
-    ],
-    "immediate_ancestors": [
-        {
-            "data_types": ["PAS"]
-        }
-    ],
-    "status": "QA",
-    "files": [
-        {
-            "rel_path": "output_offsets/processedMicroscopy/VAN0003-LK-33-2-PAS_FFPE.offsets.json"
-        }
-    ],
-    "uuid": "f9ae931b8b49252f150d7f8bf1d2d13f",
-    "metadata": {"dag_provenance_list": []}
+  "status": "QA",
+  "files": [
+    {
+      "rel_path": "output_offsets/processedMicroscopy/VAN0003-LK-33-2-PAS_FFPE.offsets.json"
+    }
+  ],
+  "uuid": "f9ae931b8b49252f150d7f8bf1d2d13f",
+  "parent": { "uuid": "8adc3c31ca84ec4b958ed20a7c4f4919" }
 }
