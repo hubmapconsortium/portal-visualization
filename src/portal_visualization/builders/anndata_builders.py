@@ -6,7 +6,8 @@ from vitessce import (
     Component as cm,
     CoordinationType as ct,
     ImageOmeTiffWrapper,
-    CoordinationLevel as CL
+    CoordinationLevel as CL,
+    get_initial_coordination_scope_prefix
 )
 
 import numpy as np
@@ -305,36 +306,20 @@ class SpatialMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewCon
         image_url = self._build_assets_url(
             'ometiff-pyramids/visium_histology_hires_pyramid.ome.tif', use_token=True)
         # Add dataset with Visium image and secondary analysis anndata
+        dataset_uid = self._uuid
         visium_image = ImageOmeTiffWrapper(
             img_url=image_url,
-            uid="visium",
+            uid=dataset_uid,
             request_init=self._get_request_init(),
-            coordination_values={
-                "fileUid": "visium"
-            }
         )
         visium_spots = AnnDataWrapper(
-            adata_url=adata_url,
-            obs_feature_matrix_path="X",
-            obs_spots_path="obsm/X_spatial",
-            obs_labels_names=self._obs_labels_names,
-            obs_labels_paths=self._obs_labels_paths,
-            feature_labels_path="var/hugo_symbol",
-            request_init=self._get_request_init(),
-            coordination_values={
-                "obsType": "spot",
-                "featureType": "gene",
-                "featureLabelsType": "gene",
-            }
-        )
-        obs_sets = AnnDataWrapper(
             adata_url=adata_url,
             obs_feature_matrix_path="X",
             obs_set_paths=self._obs_set_paths,
             obs_set_names=self._obs_set_names,
             obs_labels_names=self._obs_labels_names,
             obs_labels_paths=self._obs_labels_paths,
-            obs_locations_path="obsm/X_spatial",
+            obs_spots_path="obsm/X_spatial",
             obs_embedding_paths=["obsm/X_umap", "obsm/X_pca"],
             obs_embedding_names=["UMAP", "PCA"],
             obs_embedding_dims=[[0, 1], [0, 1]],
@@ -342,9 +327,7 @@ class SpatialMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewCon
             request_init=self._get_request_init(),
             initial_feature_filter_path="var/top_highly_variable",
             coordination_values={
-                "obsType": "cell",
-                "featureType": "gene",
-                "featureLabelsType": "gene",
+                "obsType": "spot",
             }
         )
         dataset = vc.add_dataset(
@@ -353,8 +336,6 @@ class SpatialMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewCon
             visium_image
         ).add_object(
             visium_spots
-        ).add_object(
-            obs_sets
         )
         return dataset
 
@@ -392,30 +373,21 @@ class SpatialMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewCon
 
         self._views = all_views
 
-        spot_views = [spatial, lc]
+        spatial_views = [spatial, lc]
 
         # selected_gene_views = [umap, gene_list, heatmap, spatial]
 
-        # Link spatial view and layer controller
-        vc.link_views_by_dict(all_views, {
-            "spatialTargetZ": 0,
-            "spatialTargetT": 0,
+        # Indicate obs type for all views
+        vc.link_views(all_views, ['obsType'], ['spot'])
+        vc.link_views_by_dict(spatial_views, {
             "imageLayer": CL([{
-                "fileUid": 'visium',
-                "spatialLayerOpacity": 1,
-                "spatialLayerVisible": True,
                 "photometricInterpretation": 'RGB',
             }]),
+        }, scope_prefix=get_initial_coordination_scope_prefix(self._uuid, 'image'))
+        vc.link_views_by_dict(spatial_views, {
             "spotLayer": CL([{
-                "obsType": 'spot',
-                "spatialLayerVisible": True,
                 "spatialLayerOpacity": 0.5,
                 "spatialSpotRadius": self._get_scale_factor(),
-                "featureValueColormapRange": [0, 1],
             }]),
-        })
-
-        # Indicate obs type for all views
-        vc.link_views(spot_views, ['obsType'], ['spot'])
-
+        }, scope_prefix=get_initial_coordination_scope_prefix(self._uuid, 'obsSpots'))
         return vc
