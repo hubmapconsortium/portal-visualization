@@ -331,7 +331,8 @@ class SpatialMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewCon
             }
         )
         dataset = vc.add_dataset(
-            name='Visium'
+            name='Visium',
+            uid=dataset_uid
         ).add_object(
             visium_image
         ).add_object(

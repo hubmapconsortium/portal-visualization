@@ -1,7 +1,7 @@
 {
   "coordinationSpace": {
     "dataset": {
-      "A": "A"
+      "A": "72ec02cf1390428c1e9dc2c88928f5f5"
     },
     "embeddingType": {
       "A": "UMAP"
@@ -137,7 +137,7 @@
         }
       ],
       "name": "Visium",
-      "uid": "A"
+      "uid": "72ec02cf1390428c1e9dc2c88928f5f5"
     }
   ],
   "description": "",
