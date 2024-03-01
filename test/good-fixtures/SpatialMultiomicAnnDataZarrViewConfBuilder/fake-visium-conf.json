@@ -6,61 +6,36 @@
     "embeddingType": {
       "A": "UMAP"
     },
-    "featureValueColormapRange": {
-      "A": [
-        0,
-        1
-      ]
-    },
-    "fileUid": {
-      "A": "visium"
-    },
     "imageLayer": {
-      "A": "__dummy__"
+      "init_72ec02cf1390428c1e9dc2c88928f5f5_image_0": "__dummy__"
     },
     "metaCoordinationScopes": {
-      "A": {
+      "init_72ec02cf1390428c1e9dc2c88928f5f5_image_0": {
         "imageLayer": [
-          "A"
-        ],
-        "spatialTargetT": "A",
-        "spatialTargetZ": "A",
+          "init_72ec02cf1390428c1e9dc2c88928f5f5_image_0"
+        ]
+      },
+      "init_72ec02cf1390428c1e9dc2c88928f5f5_obsSpots_0": {
         "spotLayer": [
-          "A"
+          "init_72ec02cf1390428c1e9dc2c88928f5f5_obsSpots_0"
         ]
       }
     },
     "metaCoordinationScopesBy": {
-      "A": {
+      "init_72ec02cf1390428c1e9dc2c88928f5f5_image_0": {
         "imageLayer": {
-          "fileUid": {
-            "A": "A"
-          },
           "photometricInterpretation": {
-            "A": "A"
-          },
-          "spatialLayerOpacity": {
-            "A": "A"
-          },
-          "spatialLayerVisible": {
-            "A": "A"
+            "init_72ec02cf1390428c1e9dc2c88928f5f5_image_0": "init_72ec02cf1390428c1e9dc2c88928f5f5_image_0"
           }
-        },
+        }
+      },
+      "init_72ec02cf1390428c1e9dc2c88928f5f5_obsSpots_0": {
         "spotLayer": {
-          "featureValueColormapRange": {
-            "A": "A"
-          },
-          "obsType": {
-            "A": "A"
-          },
           "spatialLayerOpacity": {
-            "A": "B"
-          },
-          "spatialLayerVisible": {
-            "A": "B"
+            "init_72ec02cf1390428c1e9dc2c88928f5f5_obsSpots_0": "init_72ec02cf1390428c1e9dc2c88928f5f5_obsSpots_0"
           },
           "spatialSpotRadius": {
-            "A": "A"
+            "init_72ec02cf1390428c1e9dc2c88928f5f5_obsSpots_0": "init_72ec02cf1390428c1e9dc2c88928f5f5_obsSpots_0"
           }
         }
       }
@@ -73,90 +48,31 @@
       "E": "Marker Gene 4"
     },
     "obsType": {
-      "A": "spot",
-      "B": "spot"
+      "A": "spot"
     },
     "photometricInterpretation": {
-      "A": "RGB"
+      "init_72ec02cf1390428c1e9dc2c88928f5f5_image_0": "RGB"
     },
     "spatialLayerOpacity": {
-      "A": 1,
-      "B": 0.5
-    },
-    "spatialLayerVisible": {
-      "A": true,
-      "B": true
+      "init_72ec02cf1390428c1e9dc2c88928f5f5_obsSpots_0": 0.5
     },
     "spatialSpotRadius": {
-      "A": 100
-    },
-    "spatialTargetT": {
-      "A": 0
-    },
-    "spatialTargetZ": {
-      "A": 0
+      "init_72ec02cf1390428c1e9dc2c88928f5f5_obsSpots_0": 100
     },
     "spotLayer": {
-      "A": "__dummy__"
+      "init_72ec02cf1390428c1e9dc2c88928f5f5_obsSpots_0": "__dummy__"
     }
   },
   "datasets": [
     {
       "files": [
         {
-          "coordinationValues": {
-            "fileUid": "visium"
-          },
           "fileType": "image.ome-tiff",
           "url": "https://example.com/72ec02cf1390428c1e9dc2c88928f5f5/ometiff-pyramids/visium_histology_hires_pyramid.ome.tif?token=groups_token"
         },
         {
           "coordinationValues": {
-            "featureLabelsType": "gene",
-            "featureType": "gene",
             "obsType": "spot"
-          },
-          "fileType": "anndata.zarr",
-          "options": {
-            "featureLabels": {
-              "path": "var/hugo_symbol"
-            },
-            "obsFeatureMatrix": {
-              "path": "X"
-            },
-            "obsLabels": [
-              {
-                "obsLabelsType": "Marker Gene 0",
-                "path": "obs/marker_gene_0"
-              },
-              {
-                "obsLabelsType": "Marker Gene 1",
-                "path": "obs/marker_gene_1"
-              },
-              {
-                "obsLabelsType": "Marker Gene 2",
-                "path": "obs/marker_gene_2"
-              },
-              {
-                "obsLabelsType": "Marker Gene 3",
-                "path": "obs/marker_gene_3"
-              },
-              {
-                "obsLabelsType": "Marker Gene 4",
-                "path": "obs/marker_gene_4"
-              }
-            ],
-            "obsSpots": {
-              "path": "obsm/X_spatial"
-            }
-          },
-          "url": "https://example.com/72ec02cf1390428c1e9dc2c88928f5f5/hubmap_ui/anndata-zarr/secondary_analysis.zarr"
-        },
-        {
-          "coordinationValues": {
-            "featureLabelsType": "gene",
-            "featureType": "gene",
-            "obsType": "cell"
           },
           "fileType": "anndata.zarr",
           "options": {
@@ -207,15 +123,15 @@
                 "path": "obs/marker_gene_4"
               }
             ],
-            "obsLocations": {
-              "path": "obsm/X_spatial"
-            },
             "obsSets": [
               {
                 "name": "Leiden",
                 "path": "obs/leiden"
               }
-            ]
+            ],
+            "obsSpots": {
+              "path": "obsm/X_spatial"
+            }
           },
           "url": "https://example.com/72ec02cf1390428c1e9dc2c88928f5f5/hubmap_ui/anndata-zarr/secondary_analysis.zarr"
         }
@@ -232,19 +148,14 @@
       "coordinationScopes": {
         "dataset": "A",
         "embeddingType": "A",
-        "metaCoordinationScopes": [
-          "A"
-        ],
-        "metaCoordinationScopesBy": [
-          "A"
-        ],
         "obsLabelsType": [
           "A",
           "B",
           "C",
           "D",
           "E"
-        ]
+        ],
+        "obsType": "A"
       },
       "h": 6,
       "w": 3,
@@ -256,10 +167,12 @@
       "coordinationScopes": {
         "dataset": "A",
         "metaCoordinationScopes": [
-          "A"
+          "init_72ec02cf1390428c1e9dc2c88928f5f5_image_0",
+          "init_72ec02cf1390428c1e9dc2c88928f5f5_obsSpots_0"
         ],
         "metaCoordinationScopesBy": [
-          "A"
+          "init_72ec02cf1390428c1e9dc2c88928f5f5_image_0",
+          "init_72ec02cf1390428c1e9dc2c88928f5f5_obsSpots_0"
         ],
         "obsLabelsType": [
           "A",
@@ -268,7 +181,7 @@
           "D",
           "E"
         ],
-        "obsType": "B"
+        "obsType": "A"
       },
       "h": 6,
       "w": 3,
@@ -279,19 +192,14 @@
       "component": "heatmap",
       "coordinationScopes": {
         "dataset": "A",
-        "metaCoordinationScopes": [
-          "A"
-        ],
-        "metaCoordinationScopesBy": [
-          "A"
-        ],
         "obsLabelsType": [
           "A",
           "B",
           "C",
           "D",
           "E"
-        ]
+        ],
+        "obsType": "A"
       },
       "h": 6,
       "props": {
@@ -306,10 +214,12 @@
       "coordinationScopes": {
         "dataset": "A",
         "metaCoordinationScopes": [
-          "A"
+          "init_72ec02cf1390428c1e9dc2c88928f5f5_image_0",
+          "init_72ec02cf1390428c1e9dc2c88928f5f5_obsSpots_0"
         ],
         "metaCoordinationScopesBy": [
-          "A"
+          "init_72ec02cf1390428c1e9dc2c88928f5f5_image_0",
+          "init_72ec02cf1390428c1e9dc2c88928f5f5_obsSpots_0"
         ],
         "obsLabelsType": [
           "A",
@@ -318,7 +228,7 @@
           "D",
           "E"
         ],
-        "obsType": "B"
+        "obsType": "A"
       },
       "h": 3,
       "w": 6,
@@ -329,19 +239,14 @@
       "component": "obsSets",
       "coordinationScopes": {
         "dataset": "A",
-        "metaCoordinationScopes": [
-          "A"
-        ],
-        "metaCoordinationScopesBy": [
-          "A"
-        ],
         "obsLabelsType": [
           "A",
           "B",
           "C",
           "D",
           "E"
-        ]
+        ],
+        "obsType": "A"
       },
       "h": 4,
       "w": 3,
@@ -352,19 +257,14 @@
       "component": "featureList",
       "coordinationScopes": {
         "dataset": "A",
-        "metaCoordinationScopes": [
-          "A"
-        ],
-        "metaCoordinationScopesBy": [
-          "A"
-        ],
         "obsLabelsType": [
           "A",
           "B",
           "C",
           "D",
           "E"
-        ]
+        ],
+        "obsType": "A"
       },
       "h": 4,
       "w": 3,
@@ -375,19 +275,14 @@
       "component": "obsSetFeatureValueDistribution",
       "coordinationScopes": {
         "dataset": "A",
-        "metaCoordinationScopes": [
-          "A"
-        ],
-        "metaCoordinationScopesBy": [
-          "A"
-        ],
         "obsLabelsType": [
           "A",
           "B",
           "C",
           "D",
           "E"
-        ]
+        ],
+        "obsType": "A"
       },
       "h": 5,
       "w": 6,
