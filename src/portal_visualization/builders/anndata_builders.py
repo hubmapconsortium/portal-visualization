@@ -387,7 +387,7 @@ class SpatialMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewCon
         }, scope_prefix=get_initial_coordination_scope_prefix(self._uuid, 'image'))
         vc.link_views_by_dict(spatial_views, {
             "spotLayer": CL([{
-                "spatialLayerOpacity": 0.5,
+                "spatialLayerOpacity": 1,
                 "spatialSpotRadius": self._get_scale_factor(),
             }]),
         }, scope_prefix=get_initial_coordination_scope_prefix(self._uuid, 'obsSpots'))
