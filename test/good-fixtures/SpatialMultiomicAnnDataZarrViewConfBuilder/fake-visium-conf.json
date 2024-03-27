@@ -54,7 +54,7 @@
       "init_72ec02cf1390428c1e9dc2c88928f5f5_image_0": "RGB"
     },
     "spatialLayerOpacity": {
-      "init_72ec02cf1390428c1e9dc2c88928f5f5_obsSpots_0": 0.5
+      "init_72ec02cf1390428c1e9dc2c88928f5f5_obsSpots_0": 1
     },
     "spatialSpotRadius": {
       "init_72ec02cf1390428c1e9dc2c88928f5f5_obsSpots_0": 100
