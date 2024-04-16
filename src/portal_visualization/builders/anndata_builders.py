@@ -66,6 +66,12 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         else:
             return False
 
+    @cached_property
+    def has_marker_genes(self):
+        z = self.zarr_store
+        if 'var/marker_genes_for_heatmap' in z:
+            return True
+
     def get_conf_cells(self, marker=None):
         zarr_path = 'hubmap_ui/anndata-zarr/secondary_analysis.zarr'
         file_paths_found = [file["rel_path"] for file in self._entity["files"]]
@@ -157,7 +163,11 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
                            additional_obs_labels_paths=[],
                            additional_obs_labels_names=[],
                            additional_obs_set_paths=[],
-                           additional_obs_set_names=[]):
+                           additional_obs_set_names=[],
+                           # Optionally skip default obs paths and labels
+                           skip_default_paths=False,
+                           # Support multiomic datasets
+                           modality_prefix=None):
         # Some of the keys (like marker_genes_for_heatmap) here are from our pipeline
         # https://github.com/hubmapconsortium/portal-containers/blob/master/containers/anndata-to-ui
         # while others come from Matt's standard scanpy pipeline
@@ -169,32 +179,32 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         # or help map predicted cell labels to their IDs
         obs_label_paths = []
         obs_label_names = []
-        dags = [
-            dag for dag in self._entity['metadata']['dag_provenance_list']
-            if 'name' in dag]
-        z = self.zarr_store
-        if (any(['azimuth-annotate' in dag['origin'] for dag in dags])):
-            if self.is_annotated:
-                if 'predicted.ASCT.celltype' in z['obs']:
-                    obs_set_paths.append("obs/predicted.ASCT.celltype")
-                    obs_set_names.append("Predicted ASCT Cell Type")
-                if 'predicted_label' in z['obs']:
-                    obs_set_paths.append("obs/predicted_label")
-                    obs_set_names.append("Cell Ontology Annotation")
-                if 'predicted_CLID' in z['obs']:
-                    obs_label_paths.append("obs/predicted_CLID")
-                    obs_label_names.append("Predicted CL ID")
-
-        obs_set_paths.append("obs/leiden")
-        obs_set_names.append("Leiden")
-        obs_label_paths.extend(RNA_SEQ_ANNDATA_FACTOR_PATHS)
-        obs_label_names.extend(RNA_SEQ_FACTOR_LABEL_NAMES)
 
         # Add additional obs labels and sets if provided
         obs_set_paths.extend(additional_obs_set_paths)
         obs_set_names.extend(additional_obs_set_names)
         obs_label_paths.extend(additional_obs_labels_paths)
         obs_label_names.extend(additional_obs_labels_names)
+
+        z = self.zarr_store
+        obs = z['obs'] if modality_prefix is None else z[f'{modality_prefix}/obs']
+
+        if not skip_default_paths:
+            if self.is_annotated:
+                if 'predicted.ASCT.celltype' in obs:
+                    obs_set_paths.append("obs/predicted.ASCT.celltype")
+                    obs_set_names.append("Predicted ASCT Cell Type")
+                if 'predicted_label' in obs:
+                    obs_set_paths.append("obs/predicted_label")
+                    obs_set_names.append("Cell Ontology Annotation")
+                if 'predicted_CLID' in obs:
+                    obs_label_paths.append("obs/predicted_CLID")
+                    obs_label_names.append("Predicted CL ID")
+            obs_set_paths.append("obs/leiden")
+            obs_set_names.append("Leiden")
+        if self.has_marker_genes:
+            obs_label_paths.extend(RNA_SEQ_ANNDATA_FACTOR_PATHS)
+            obs_label_names.extend(RNA_SEQ_FACTOR_LABEL_NAMES)
 
         self._obs_set_paths = obs_set_paths
         self._obs_set_names = obs_set_names
@@ -417,47 +427,82 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
         super().__init__(entity, groups_token, assets_endpoint, **kwargs)
         self._scatterplot_w = 3
 
+    @cached_property
+    def zarr_store(self):
+        zarr_path = 'hubmap_ui/mudata-zarr/secondary_analysis.zarr'
+        request_init = self._get_request_init() or {}
+        adata_url = self._build_assets_url(zarr_path, use_token=False)
+        return zarr.open(adata_url, mode='r', storage_options={'client_kwargs': request_init})
+
+    @cached_property
+    def is_annotated(self):
+        z = self.zarr_store
+        if 'mod/rna/uns/annotation_metadata/is_annotated' in z:
+            return z['mod/rna/uns/annotation_metadata/is_annotated'][()]
+        else:
+            return False
+
+    @cached_property
+    def has_marker_genes(self):
+        z = self.zarr_store
+        return 'mod/rna/var/marker_genes_for_heatmap' in z
+
+    @cached_property
+    def has_cbb(self):
+        z = self.zarr_store
+        return 'mod/atac_cbb' in z
+
     def get_conf_cells(self, marker=None):
-        zarr_path = 'hubmap_ui/mudata-zarr/multiome_downstream.zarr'
-        file_paths_found = [file["rel_path"] for file in self._entity["files"]]
-        # Use .zgroup file as proxy for whether or not the zarr store is present.
-        if f'{zarr_path}/.zgroup' not in file_paths_found:
-            message = f'Multiomic assay with uuid {self._uuid} has no .zarr store at {zarr_path}'
-            raise FileNotFoundError(message)
+
+        # TODO: The files array is empty for this entity, so we can't check for the zarr store
+
+        # zarr_path = 'hubmap_ui/mudata-zarr/secondary_analysis.zarr'
+        # file_paths_found = [file["rel_path"] for file in self._entity["files"]]
+        # # Use .zgroup file as proxy for whether or not the zarr store is present.
+        # if f'{zarr_path}/.zgroup' not in file_paths_found:
+        #     message = f'Multiomic assay with uuid {self._uuid} has no .zarr store at {zarr_path}'
+        #     raise FileNotFoundError(message)
 
         # Each clustering has its own genomic profile; since we can't currently toggle between
         # selected genomic profiles, each clustering needs its own view config.
         confs = []
         cluster_columns = [
             ["leiden_wnn", "Leiden (Weighted Nearest Neighbor)", "wnn"],
-            ["leiden_cbg", "Leiden (ATAC Cell x Gene)", "cbg"],
+            ["cluster_cbg", "Cluster (ATAC Cell x Gene)", "cbg"],
             ["leiden_rna", "Leiden (RNA)", "rna"],
-            ["cluster_cbb", "Cluster (ATAC Cell x Bin)", "cbb"]  # if has_cbb else None,
+            ["cluster_cbb", "Cluster (ATAC Cell x Bin)", "cbb"] if self.has_cbb else None,
+            ["predicted_label", "Cell Ontology Annotation", "label"] if self.is_annotated else None,
         ]
 
-        column_names, column_labels = [col[0] for col in cluster_columns], [
+        column_names, column_labels = [f'obs/{col[0]}' for col in cluster_columns], [
             col[1] for col in cluster_columns]
 
         self._set_up_marker_gene(marker)
         self._set_up_obs_labels(additional_obs_set_names=column_labels,
-                                additional_obs_set_paths=column_names)
+                                additional_obs_set_paths=column_names,
+                                skip_default_paths=True,
+                                modality_prefix='mod/rna')
 
         for column_name, column_label, multivec_label in cluster_columns:
-            vc = VitessceConfig(name=self._uuid, schema_version=self._schema_version)
+            vc = VitessceConfig(name=f'{column_label}',
+                                schema_version=self._schema_version)
             dataset = self._set_up_dataset(vc, multivec_label)
             vc = self._setup_anndata_view_config(vc, dataset, column_name, column_label)
             vc = self._link_marker_gene(vc)
-            confs.append(get_conf_cells(vc))
+            confs.append(vc.to_dict())
         return get_conf_cells(confs)
 
     def _set_up_dataset(self, vc, multivec_label):
-        h5mu_zarr = self._build_assets_url(
-            'hubmap_ui/mudata-zarr/multiome_downstream.zarr', use_token=False)
-        rna_zarr = f'{h5mu_zarr}/mod/rna'
-        atac_cbg_zarr = f'{h5mu_zarr}/mod/atac_cbg'
-        multivec_zarr = f'hubmap_ui/mudata-zarr/{multivec_label}.multivec.zarr'
+        zarr_base = 'hubmap_ui/mudata-zarr'
+        zarr_path = f'{zarr_base}/secondary_analysis.zarr'
+        h5mu_zarr = self._build_assets_url(zarr_path, use_token=False)
+        rna_zarr = self._build_assets_url(f'{zarr_path}/mod/rna', use_token=False)
+        atac_cbg_zarr = self._build_assets_url(f'{zarr_path}/mod/atac_cbg', use_token=False)
+        multivec_zarr = self._build_assets_url(
+            f'{zarr_base}/{multivec_label}.multivec.zarr', use_token=False)
         dataset = vc.add_dataset(name=multivec_label).add_object(MultivecZarrWrapper(
-            zarr_url=multivec_zarr
+            zarr_url=multivec_zarr,
+            request_init=self._get_request_init(),
         )).add_object(AnnDataWrapper(
             # We run add_object with adata_path=rna_zarr first to add the cell-by-gene matrix and associated metadata.
             adata_url=rna_zarr,
@@ -468,6 +513,7 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
             obs_feature_matrix_path="X",
             initial_feature_filter_path="var/highly_variable",
             feature_labels_path="var/hugo_symbol",
+            request_init=self._get_request_init(),
             # To be explicit that the features represent genes and gene expression, we specify that here.
             coordination_values={
                 "featureType": "gene",
@@ -481,16 +527,18 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
             obs_embedding_paths=["obsm/X_umap"],
             obs_embedding_names=["UMAP - ATAC"],
             feature_labels_path="var/hugo_symbol",
+            request_init=self._get_request_init(),
             # To be explicit that the features represent genes and gene expression, we specify that here.
             coordination_values={
                 "featureType": "peak",
                 "featureValueType": "count",
             }
         )).add_object(AnnDataWrapper(
-            adata_path=h5mu_zarr,
+            adata_url=h5mu_zarr,
             obs_feature_matrix_path="X",
             obs_embedding_paths=["obsm/X_umap"],
             obs_embedding_names=["UMAP - WNN"],
+            request_init=self._get_request_init(),
             coordination_values={
                 "featureType": "other"
             }
@@ -519,35 +567,45 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
         # and we want to make sure the color mappings are independent for each modality.
         coordination_types = [ct.FEATURE_TYPE, ct.FEATURE_VALUE_TYPE]
         vc.link_views([umap_scatterplot_by_rna, gene_list],
-                    coordination_types, ["gene", "expression"])
+                      coordination_types, ["gene", "expression"])
         vc.link_views([umap_scatterplot_by_atac, peak_list],
-                    coordination_types, ["peak", "count"])
+                      coordination_types, ["peak", "count"])
 
         # Coordinate the selection of cell sets between the scatterplots and lists of features/observations.
         coordination_types = [ct.FEATURE_SELECTION,
-                            ct.OBS_COLOR_ENCODING,
-                            ct.FEATURE_VALUE_COLORMAP_RANGE]
+                              ct.OBS_COLOR_ENCODING,
+                              ct.FEATURE_VALUE_COLORMAP_RANGE]
         vc.link_views([umap_scatterplot_by_rna,
-                    umap_scatterplot_by_atac,
-                    umap_scatterplot_by_wnn,
-                    gene_list, peak_list, cell_sets],
-                    coordination_types, [None, 'cellSetSelection', [0.0, 1.0]])
+                       umap_scatterplot_by_atac,
+                       umap_scatterplot_by_wnn,
+                       gene_list, peak_list, cell_sets],
+                      coordination_types, [None, 'cellSetSelection', [0.0, 1.0]])
 
         # Indicate genomic profiles' clusters; based on the display name for the ATAC CBB clusters.
-        obs_set_coordination, obs_color_coordination = vc.add_coordination(ct.OBS_SET_SELECTION, ct.OBS_COLOR_ENCODING)
+        obs_set_coordination, obs_color_coordination = vc.add_coordination(
+            ct.OBS_SET_SELECTION, ct.OBS_COLOR_ENCODING)
         genomic_profiles.use_coordination(obs_set_coordination, obs_color_coordination)
-        # TODO: dynamically determine the number of clusters in the given clustering
-        # This should be possible to retrieve from the .zattrs corresponding to the column_name
-        obs_set_coordinations = [[column_label, str(i)] for i in range(25)]
+
+        # Dynamically determine the number of clusters in the given clustering column
+        label_names = self._get_obs_set_members(column_name)
+        obs_set_coordinations = [[column_label, str(i)] for i in label_names]
         obs_set_coordination.set_value(obs_set_coordinations)
         obs_color_coordination.set_value('cellSetSelection')
 
         # Hide numeric cluster labels
         vc.link_views([umap_scatterplot_by_rna, umap_scatterplot_by_atac, umap_scatterplot_by_wnn], [
-                    ct.EMBEDDING_OBS_SET_LABELS_VISIBLE], [False])
+            ct.EMBEDDING_OBS_SET_LABELS_VISIBLE], [False])
 
         vc.layout(
             ((umap_scatterplot_by_rna | umap_scatterplot_by_atac) | (umap_scatterplot_by_wnn | cell_sets))
             / (genomic_profiles | (peak_list | gene_list))
         )
+
+        self._views = [umap_scatterplot_by_rna, umap_scatterplot_by_atac, umap_scatterplot_by_wnn,
+                       gene_list, peak_list, genomic_profiles, cell_sets]
         return vc
+
+    def _get_obs_set_members(self, column_name):
+        z = self.zarr_store
+        members = z[f'mod/rna/obs/{column_name}'].categories
+        return members
