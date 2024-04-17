@@ -73,11 +73,24 @@ def test_has_visualization(has_vis_entity):
 def mock_zarr_store(entity_path, mocker):
     # Need to mock zarr.open to yield correct values for different scenarios
     z = zarr.open()
-    obs = z.create_group('obs')
     gene_array = zarr.array(['ENSG00000139618', 'ENSG00000139619', 'ENSG00000139620'])
+    is_annotated = 'is-annotated' in entity_path.name
+    is_multiome = 'multiome' in entity_path.name
+    if is_multiome:
+        obs = z.create_group('mod/rna/obs')
+        var = z.create_group('mod/rna/var')
+        group_names = ['leiden_wnn', 'leiden_rna', 'cluster_cbg', 'cluster_cbb']
+        if is_annotated:
+            group_names.append('predicted_label')
+        groups = obs.create_groups(*group_names)
+        for group in groups:
+            group['categories'] = zarr.array(['0', '1', '2'])
+
+    obs = z.create_group('obs')
     obs['marker_gene_0'] = gene_array
-    if 'is-annotated' in entity_path.name:
-        z['uns/annotation_metadata/is_annotated'] = True
+    if is_annotated:
+        path = f'{"mod/rna/" if is_multiome else ""}uns/annotation_metadata/is_annotated'
+        z[path] = True
         if 'asct' in entity_path.name:
             z['obs/predicted.ASCT.celltype'] = True  # only checked for membership in zarr group
         elif 'predicted-label' in entity_path.name:
