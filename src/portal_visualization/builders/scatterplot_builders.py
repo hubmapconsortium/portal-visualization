@@ -42,8 +42,8 @@ class AbstractScatterplotViewConfBuilder(ViewConfBuilder):
 
 
 class RNASeqViewConfBuilder(AbstractScatterplotViewConfBuilder):
-    """Wrapper class for creating a JSON-backed scatterplot for "first generation" RNA-seq data like
-    https://portal.hubmapconsortium.org/browse/dataset/c019a1cd35aab4d2b4a6ff221e92aaab
+    """Wrapper class for creating a JSON-backed scatterplot for "first generation" RNA-seq data
+    like https://portal.hubmapconsortium.org/browse/dataset/c019a1cd35aab4d2b4a6ff221e92aaab
     from h5ad-to-arrow.cwl (August 2020 release).
     """
 
@@ -75,8 +75,8 @@ class RNASeqViewConfBuilder(AbstractScatterplotViewConfBuilder):
 
 
 class ATACSeqViewConfBuilder(AbstractScatterplotViewConfBuilder):
-    """Wrapper class for creating a JSON-backed scatterplot for "first generation" ATAC-seq data like
-    https://portal.hubmapconsortium.org/browse/dataset/d4493657cde29702c5ed73932da5317c
+    """Wrapper class for creating a JSON-backed scatterplot for "first generation" ATAC-seq data
+    like https://portal.hubmapconsortium.org/browse/dataset/d4493657cde29702c5ed73932da5317c
     from h5ad-to-arrow.cwl.
     """
 

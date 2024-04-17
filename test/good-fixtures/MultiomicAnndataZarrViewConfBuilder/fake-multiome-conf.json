@@ -1,0 +1,824 @@
+[
+    {
+      "coordinationSpace": {
+        "dataset": {
+          "A": "A"
+        },
+        "embeddingObsSetLabelsVisible": {
+          "A": false
+        },
+        "embeddingType": {
+          "A": "UMAP - RNA",
+          "B": "UMAP - ATAC",
+          "C": "UMAP - WNN"
+        },
+        "featureSelection": {
+          "A": null
+        },
+        "featureType": {
+          "A": "gene",
+          "B": "peak"
+        },
+        "featureValueColormapRange": {
+          "A": [
+            0.0,
+            1.0
+          ]
+        },
+        "featureValueType": {
+          "A": "expression",
+          "B": "count"
+        },
+        "obsColorEncoding": {
+          "A": "cellSetSelection",
+          "B": "cellSetSelection"
+        },
+        "obsSetSelection": {
+          "A": [
+            [
+              "Leiden (Weighted Nearest Neighbor)",
+              "0"
+            ],
+            [
+              "Leiden (Weighted Nearest Neighbor)",
+              "1"
+            ],
+            [
+              "Leiden (Weighted Nearest Neighbor)",
+              "2"
+            ]
+          ]
+        }
+      },
+      "datasets": [
+        {
+          "files": [
+            {
+              "fileType": "genomic-profiles.zarr",
+              "url": "https://example.com/272789a950b2b5d4b9387a1cf66ad487/hubmap_ui/mudata-zarr/wnn.multivec.zarr"
+            },
+            {
+              "coordinationValues": {
+                "featureLabelsType": "gene",
+                "featureType": "gene",
+                "featureValueType": "expression"
+              },
+              "fileType": "anndata.zarr",
+              "options": {
+                "featureLabels": {
+                  "path": "var/hugo_symbol"
+                },
+                "obsEmbedding": [
+                  {
+                    "dims": [
+                      0,
+                      1
+                    ],
+                    "embeddingType": "UMAP - RNA",
+                    "path": "obsm/X_umap"
+                  }
+                ],
+                "obsFeatureMatrix": {
+                  "initialFeatureFilterPath": "var/highly_variable",
+                  "path": "X"
+                },
+                "obsSets": [
+                  {
+                    "name": "Leiden (Weighted Nearest Neighbor)",
+                    "path": "obs/leiden_wnn"
+                  },
+                  {
+                    "name": "Cluster (ATAC Cell x Gene)",
+                    "path": "obs/cluster_cbg"
+                  },
+                  {
+                    "name": "Leiden (RNA)",
+                    "path": "obs/leiden_rna"
+                  }
+                ]
+              },
+              "url": "https://example.com/272789a950b2b5d4b9387a1cf66ad487/hubmap_ui/mudata-zarr/secondary_analysis.zarr/mod/rna"
+            },
+            {
+              "coordinationValues": {
+                "featureType": "peak",
+                "featureValueType": "count"
+              },
+              "fileType": "anndata.zarr",
+              "options": {
+                "featureLabels": {
+                  "path": "var/hugo_symbol"
+                },
+                "obsEmbedding": [
+                  {
+                    "dims": [
+                      0,
+                      1
+                    ],
+                    "embeddingType": "UMAP - ATAC",
+                    "path": "obsm/X_umap"
+                  }
+                ],
+                "obsFeatureMatrix": {
+                  "initialFeatureFilterPath": "var/highly_variable",
+                  "path": "X"
+                }
+              },
+              "url": "https://example.com/272789a950b2b5d4b9387a1cf66ad487/hubmap_ui/mudata-zarr/secondary_analysis.zarr/mod/atac_cbg"
+            },
+            {
+              "coordinationValues": {
+                "featureType": "other"
+              },
+              "fileType": "anndata.zarr",
+              "options": {
+                "obsEmbedding": [
+                  {
+                    "dims": [
+                      0,
+                      1
+                    ],
+                    "embeddingType": "UMAP - WNN",
+                    "path": "obsm/X_umap"
+                  }
+                ],
+                "obsFeatureMatrix": {
+                  "path": "X"
+                }
+              },
+              "url": "https://example.com/272789a950b2b5d4b9387a1cf66ad487/hubmap_ui/mudata-zarr/secondary_analysis.zarr"
+            }
+          ],
+          "name": "wnn",
+          "uid": "A"
+        }
+      ],
+      "description": "",
+      "initStrategy": "auto",
+      "layout": [
+        {
+          "component": "scatterplot",
+          "coordinationScopes": {
+            "dataset": "A",
+            "embeddingObsSetLabelsVisible": "A",
+            "embeddingType": "A",
+            "featureSelection": "A",
+            "featureType": "A",
+            "featureValueColormapRange": "A",
+            "featureValueType": "A",
+            "obsColorEncoding": "A"
+          },
+          "h": 6.0,
+          "props": {
+            "embeddingCellSetLabelsVisible": false
+          },
+          "w": 3.0,
+          "x": 0.0,
+          "y": 0.0
+        },
+        {
+          "component": "scatterplot",
+          "coordinationScopes": {
+            "dataset": "A",
+            "embeddingObsSetLabelsVisible": "A",
+            "embeddingType": "B",
+            "featureSelection": "A",
+            "featureType": "B",
+            "featureValueColormapRange": "A",
+            "featureValueType": "B",
+            "obsColorEncoding": "A"
+          },
+          "h": 6.0,
+          "props": {
+            "embeddingCellSetLabelsVisible": false
+          },
+          "w": 3.0,
+          "x": 3.0,
+          "y": 0.0
+        },
+        {
+          "component": "scatterplot",
+          "coordinationScopes": {
+            "dataset": "A",
+            "embeddingObsSetLabelsVisible": "A",
+            "embeddingType": "C",
+            "featureSelection": "A",
+            "featureValueColormapRange": "A",
+            "obsColorEncoding": "A"
+          },
+          "h": 6.0,
+          "props": {
+            "embeddingCellSetLabelsVisible": false
+          },
+          "w": 3.0,
+          "x": 6.0,
+          "y": 0.0
+        },
+        {
+          "component": "featureList",
+          "coordinationScopes": {
+            "dataset": "A",
+            "featureSelection": "A",
+            "featureType": "A",
+            "featureValueColormapRange": "A",
+            "featureValueType": "A",
+            "obsColorEncoding": "A"
+          },
+          "h": 6.0,
+          "w": 3.0,
+          "x": 9.0,
+          "y": 6.0
+        },
+        {
+          "component": "featureList",
+          "coordinationScopes": {
+            "dataset": "A",
+            "featureSelection": "A",
+            "featureType": "B",
+            "featureValueColormapRange": "A",
+            "featureValueType": "B",
+            "obsColorEncoding": "A"
+          },
+          "h": 6.0,
+          "w": 3.0,
+          "x": 6.0,
+          "y": 6.0
+        },
+        {
+          "component": "genomicProfiles",
+          "coordinationScopes": {
+            "dataset": "A",
+            "obsColorEncoding": "B",
+            "obsSetSelection": "A"
+          },
+          "h": 6.0,
+          "w": 6.0,
+          "x": 0.0,
+          "y": 6.0
+        },
+        {
+          "component": "obsSets",
+          "coordinationScopes": {
+            "dataset": "A",
+            "featureSelection": "A",
+            "featureValueColormapRange": "A",
+            "obsColorEncoding": "A"
+          },
+          "h": 6.0,
+          "w": 3.0,
+          "x": 9.0,
+          "y": 0.0
+        }
+      ],
+      "name": "Leiden (Weighted Nearest Neighbor)",
+      "version": "1.0.15"
+    },
+    {
+      "coordinationSpace": {
+        "dataset": {
+          "A": "A"
+        },
+        "embeddingObsSetLabelsVisible": {
+          "A": false
+        },
+        "embeddingType": {
+          "A": "UMAP - RNA",
+          "B": "UMAP - ATAC",
+          "C": "UMAP - WNN"
+        },
+        "featureSelection": {
+          "A": null
+        },
+        "featureType": {
+          "A": "gene",
+          "B": "peak"
+        },
+        "featureValueColormapRange": {
+          "A": [
+            0.0,
+            1.0
+          ]
+        },
+        "featureValueType": {
+          "A": "expression",
+          "B": "count"
+        },
+        "obsColorEncoding": {
+          "A": "cellSetSelection",
+          "B": "cellSetSelection"
+        },
+        "obsSetSelection": {
+          "A": [
+            [
+              "Cluster (ATAC Cell x Gene)",
+              "0"
+            ],
+            [
+              "Cluster (ATAC Cell x Gene)",
+              "1"
+            ],
+            [
+              "Cluster (ATAC Cell x Gene)",
+              "2"
+            ]
+          ]
+        }
+      },
+      "datasets": [
+        {
+          "files": [
+            {
+              "fileType": "genomic-profiles.zarr",
+              "url": "https://example.com/272789a950b2b5d4b9387a1cf66ad487/hubmap_ui/mudata-zarr/cbg.multivec.zarr"
+            },
+            {
+              "coordinationValues": {
+                "featureLabelsType": "gene",
+                "featureType": "gene",
+                "featureValueType": "expression"
+              },
+              "fileType": "anndata.zarr",
+              "options": {
+                "featureLabels": {
+                  "path": "var/hugo_symbol"
+                },
+                "obsEmbedding": [
+                  {
+                    "dims": [
+                      0,
+                      1
+                    ],
+                    "embeddingType": "UMAP - RNA",
+                    "path": "obsm/X_umap"
+                  }
+                ],
+                "obsFeatureMatrix": {
+                  "initialFeatureFilterPath": "var/highly_variable",
+                  "path": "X"
+                },
+                "obsSets": [
+                  {
+                    "name": "Leiden (Weighted Nearest Neighbor)",
+                    "path": "obs/leiden_wnn"
+                  },
+                  {
+                    "name": "Cluster (ATAC Cell x Gene)",
+                    "path": "obs/cluster_cbg"
+                  },
+                  {
+                    "name": "Leiden (RNA)",
+                    "path": "obs/leiden_rna"
+                  }
+                ]
+              },
+              "url": "https://example.com/272789a950b2b5d4b9387a1cf66ad487/hubmap_ui/mudata-zarr/secondary_analysis.zarr/mod/rna"
+            },
+            {
+              "coordinationValues": {
+                "featureType": "peak",
+                "featureValueType": "count"
+              },
+              "fileType": "anndata.zarr",
+              "options": {
+                "featureLabels": {
+                  "path": "var/hugo_symbol"
+                },
+                "obsEmbedding": [
+                  {
+                    "dims": [
+                      0,
+                      1
+                    ],
+                    "embeddingType": "UMAP - ATAC",
+                    "path": "obsm/X_umap"
+                  }
+                ],
+                "obsFeatureMatrix": {
+                  "initialFeatureFilterPath": "var/highly_variable",
+                  "path": "X"
+                }
+              },
+              "url": "https://example.com/272789a950b2b5d4b9387a1cf66ad487/hubmap_ui/mudata-zarr/secondary_analysis.zarr/mod/atac_cbg"
+            },
+            {
+              "coordinationValues": {
+                "featureType": "other"
+              },
+              "fileType": "anndata.zarr",
+              "options": {
+                "obsEmbedding": [
+                  {
+                    "dims": [
+                      0,
+                      1
+                    ],
+                    "embeddingType": "UMAP - WNN",
+                    "path": "obsm/X_umap"
+                  }
+                ],
+                "obsFeatureMatrix": {
+                  "path": "X"
+                }
+              },
+              "url": "https://example.com/272789a950b2b5d4b9387a1cf66ad487/hubmap_ui/mudata-zarr/secondary_analysis.zarr"
+            }
+          ],
+          "name": "cbg",
+          "uid": "A"
+        }
+      ],
+      "description": "",
+      "initStrategy": "auto",
+      "layout": [
+        {
+          "component": "scatterplot",
+          "coordinationScopes": {
+            "dataset": "A",
+            "embeddingObsSetLabelsVisible": "A",
+            "embeddingType": "A",
+            "featureSelection": "A",
+            "featureType": "A",
+            "featureValueColormapRange": "A",
+            "featureValueType": "A",
+            "obsColorEncoding": "A"
+          },
+          "h": 6.0,
+          "props": {
+            "embeddingCellSetLabelsVisible": false
+          },
+          "w": 3.0,
+          "x": 0.0,
+          "y": 0.0
+        },
+        {
+          "component": "scatterplot",
+          "coordinationScopes": {
+            "dataset": "A",
+            "embeddingObsSetLabelsVisible": "A",
+            "embeddingType": "B",
+            "featureSelection": "A",
+            "featureType": "B",
+            "featureValueColormapRange": "A",
+            "featureValueType": "B",
+            "obsColorEncoding": "A"
+          },
+          "h": 6.0,
+          "props": {
+            "embeddingCellSetLabelsVisible": false
+          },
+          "w": 3.0,
+          "x": 3.0,
+          "y": 0.0
+        },
+        {
+          "component": "scatterplot",
+          "coordinationScopes": {
+            "dataset": "A",
+            "embeddingObsSetLabelsVisible": "A",
+            "embeddingType": "C",
+            "featureSelection": "A",
+            "featureValueColormapRange": "A",
+            "obsColorEncoding": "A"
+          },
+          "h": 6.0,
+          "props": {
+            "embeddingCellSetLabelsVisible": false
+          },
+          "w": 3.0,
+          "x": 6.0,
+          "y": 0.0
+        },
+        {
+          "component": "featureList",
+          "coordinationScopes": {
+            "dataset": "A",
+            "featureSelection": "A",
+            "featureType": "A",
+            "featureValueColormapRange": "A",
+            "featureValueType": "A",
+            "obsColorEncoding": "A"
+          },
+          "h": 6.0,
+          "w": 3.0,
+          "x": 9.0,
+          "y": 6.0
+        },
+        {
+          "component": "featureList",
+          "coordinationScopes": {
+            "dataset": "A",
+            "featureSelection": "A",
+            "featureType": "B",
+            "featureValueColormapRange": "A",
+            "featureValueType": "B",
+            "obsColorEncoding": "A"
+          },
+          "h": 6.0,
+          "w": 3.0,
+          "x": 6.0,
+          "y": 6.0
+        },
+        {
+          "component": "genomicProfiles",
+          "coordinationScopes": {
+            "dataset": "A",
+            "obsColorEncoding": "B",
+            "obsSetSelection": "A"
+          },
+          "h": 6.0,
+          "w": 6.0,
+          "x": 0.0,
+          "y": 6.0
+        },
+        {
+          "component": "obsSets",
+          "coordinationScopes": {
+            "dataset": "A",
+            "featureSelection": "A",
+            "featureValueColormapRange": "A",
+            "obsColorEncoding": "A"
+          },
+          "h": 6.0,
+          "w": 3.0,
+          "x": 9.0,
+          "y": 0.0
+        }
+      ],
+      "name": "Cluster (ATAC Cell x Gene)",
+      "version": "1.0.15"
+    },
+    {
+      "coordinationSpace": {
+        "dataset": {
+          "A": "A"
+        },
+        "embeddingObsSetLabelsVisible": {
+          "A": false
+        },
+        "embeddingType": {
+          "A": "UMAP - RNA",
+          "B": "UMAP - ATAC",
+          "C": "UMAP - WNN"
+        },
+        "featureSelection": {
+          "A": null
+        },
+        "featureType": {
+          "A": "gene",
+          "B": "peak"
+        },
+        "featureValueColormapRange": {
+          "A": [
+            0.0,
+            1.0
+          ]
+        },
+        "featureValueType": {
+          "A": "expression",
+          "B": "count"
+        },
+        "obsColorEncoding": {
+          "A": "cellSetSelection",
+          "B": "cellSetSelection"
+        },
+        "obsSetSelection": {
+          "A": [
+            [
+              "Leiden (RNA)",
+              "0"
+            ],
+            [
+              "Leiden (RNA)",
+              "1"
+            ],
+            [
+              "Leiden (RNA)",
+              "2"
+            ]
+          ]
+        }
+      },
+      "datasets": [
+        {
+          "files": [
+            {
+              "fileType": "genomic-profiles.zarr",
+              "url": "https://example.com/272789a950b2b5d4b9387a1cf66ad487/hubmap_ui/mudata-zarr/rna.multivec.zarr"
+            },
+            {
+              "coordinationValues": {
+                "featureLabelsType": "gene",
+                "featureType": "gene",
+                "featureValueType": "expression"
+              },
+              "fileType": "anndata.zarr",
+              "options": {
+                "featureLabels": {
+                  "path": "var/hugo_symbol"
+                },
+                "obsEmbedding": [
+                  {
+                    "dims": [
+                      0,
+                      1
+                    ],
+                    "embeddingType": "UMAP - RNA",
+                    "path": "obsm/X_umap"
+                  }
+                ],
+                "obsFeatureMatrix": {
+                  "initialFeatureFilterPath": "var/highly_variable",
+                  "path": "X"
+                },
+                "obsSets": [
+                  {
+                    "name": "Leiden (Weighted Nearest Neighbor)",
+                    "path": "obs/leiden_wnn"
+                  },
+                  {
+                    "name": "Cluster (ATAC Cell x Gene)",
+                    "path": "obs/cluster_cbg"
+                  },
+                  {
+                    "name": "Leiden (RNA)",
+                    "path": "obs/leiden_rna"
+                  }
+                ]
+              },
+              "url": "https://example.com/272789a950b2b5d4b9387a1cf66ad487/hubmap_ui/mudata-zarr/secondary_analysis.zarr/mod/rna"
+            },
+            {
+              "coordinationValues": {
+                "featureType": "peak",
+                "featureValueType": "count"
+              },
+              "fileType": "anndata.zarr",
+              "options": {
+                "featureLabels": {
+                  "path": "var/hugo_symbol"
+                },
+                "obsEmbedding": [
+                  {
+                    "dims": [
+                      0,
+                      1
+                    ],
+                    "embeddingType": "UMAP - ATAC",
+                    "path": "obsm/X_umap"
+                  }
+                ],
+                "obsFeatureMatrix": {
+                  "initialFeatureFilterPath": "var/highly_variable",
+                  "path": "X"
+                }
+              },
+              "url": "https://example.com/272789a950b2b5d4b9387a1cf66ad487/hubmap_ui/mudata-zarr/secondary_analysis.zarr/mod/atac_cbg"
+            },
+            {
+              "coordinationValues": {
+                "featureType": "other"
+              },
+              "fileType": "anndata.zarr",
+              "options": {
+                "obsEmbedding": [
+                  {
+                    "dims": [
+                      0,
+                      1
+                    ],
+                    "embeddingType": "UMAP - WNN",
+                    "path": "obsm/X_umap"
+                  }
+                ],
+                "obsFeatureMatrix": {
+                  "path": "X"
+                }
+              },
+              "url": "https://example.com/272789a950b2b5d4b9387a1cf66ad487/hubmap_ui/mudata-zarr/secondary_analysis.zarr"
+            }
+          ],
+          "name": "rna",
+          "uid": "A"
+        }
+      ],
+      "description": "",
+      "initStrategy": "auto",
+      "layout": [
+        {
+          "component": "scatterplot",
+          "coordinationScopes": {
+            "dataset": "A",
+            "embeddingObsSetLabelsVisible": "A",
+            "embeddingType": "A",
+            "featureSelection": "A",
+            "featureType": "A",
+            "featureValueColormapRange": "A",
+            "featureValueType": "A",
+            "obsColorEncoding": "A"
+          },
+          "h": 6.0,
+          "props": {
+            "embeddingCellSetLabelsVisible": false
+          },
+          "w": 3.0,
+          "x": 0.0,
+          "y": 0.0
+        },
+        {
+          "component": "scatterplot",
+          "coordinationScopes": {
+            "dataset": "A",
+            "embeddingObsSetLabelsVisible": "A",
+            "embeddingType": "B",
+            "featureSelection": "A",
+            "featureType": "B",
+            "featureValueColormapRange": "A",
+            "featureValueType": "B",
+            "obsColorEncoding": "A"
+          },
+          "h": 6.0,
+          "props": {
+            "embeddingCellSetLabelsVisible": false
+          },
+          "w": 3.0,
+          "x": 3.0,
+          "y": 0.0
+        },
+        {
+          "component": "scatterplot",
+          "coordinationScopes": {
+            "dataset": "A",
+            "embeddingObsSetLabelsVisible": "A",
+            "embeddingType": "C",
+            "featureSelection": "A",
+            "featureValueColormapRange": "A",
+            "obsColorEncoding": "A"
+          },
+          "h": 6.0,
+          "props": {
+            "embeddingCellSetLabelsVisible": false
+          },
+          "w": 3.0,
+          "x": 6.0,
+          "y": 0.0
+        },
+        {
+          "component": "featureList",
+          "coordinationScopes": {
+            "dataset": "A",
+            "featureSelection": "A",
+            "featureType": "A",
+            "featureValueColormapRange": "A",
+            "featureValueType": "A",
+            "obsColorEncoding": "A"
+          },
+          "h": 6.0,
+          "w": 3.0,
+          "x": 9.0,
+          "y": 6.0
+        },
+        {
+          "component": "featureList",
+          "coordinationScopes": {
+            "dataset": "A",
+            "featureSelection": "A",
+            "featureType": "B",
+            "featureValueColormapRange": "A",
+            "featureValueType": "B",
+            "obsColorEncoding": "A"
+          },
+          "h": 6.0,
+          "w": 3.0,
+          "x": 6.0,
+          "y": 6.0
+        },
+        {
+          "component": "genomicProfiles",
+          "coordinationScopes": {
+            "dataset": "A",
+            "obsColorEncoding": "B",
+            "obsSetSelection": "A"
+          },
+          "h": 6.0,
+          "w": 6.0,
+          "x": 0.0,
+          "y": 6.0
+        },
+        {
+          "component": "obsSets",
+          "coordinationScopes": {
+            "dataset": "A",
+            "featureSelection": "A",
+            "featureValueColormapRange": "A",
+            "obsColorEncoding": "A"
+          },
+          "h": 6.0,
+          "w": 3.0,
+          "x": 9.0,
+          "y": 0.0
+        }
+      ],
+      "name": "Leiden (RNA)",
+      "version": "1.0.15"
+    }
+  ]
