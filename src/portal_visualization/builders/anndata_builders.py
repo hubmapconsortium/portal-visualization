@@ -506,7 +506,8 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
             zarr_url=multivec_zarr,
             request_init=self._get_request_init(),
         )).add_object(AnnDataWrapper(
-            # We run add_object with adata_path=rna_zarr first to add the cell-by-gene matrix and associated metadata.
+            # We run add_object with adata_path=rna_zarr first to add the cell-by-gene
+            # matrix and associated metadata.
             adata_url=rna_zarr,
             obs_embedding_paths=["obsm/X_umap"],
             obs_embedding_names=["UMAP - RNA"],
@@ -516,7 +517,8 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
             initial_feature_filter_path="var/highly_variable",
             feature_labels_path="var/hugo_symbol",
             request_init=self._get_request_init(),
-            # To be explicit that the features represent genes and gene expression, we specify that here.
+            # To be explicit that the features represent genes and gene expression, we
+            # specify that here.
             coordination_values={
                 "featureType": "gene",
                 "featureValueType": "expression",
@@ -530,7 +532,8 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
             obs_embedding_names=["UMAP - ATAC"],
             feature_labels_path="var/hugo_symbol",
             request_init=self._get_request_init(),
-            # To be explicit that the features represent genes and gene expression, we specify that here.
+            # To be explicit that the features represent genes and gene expression, we
+            # specify that here.
             coordination_values={
                 "featureType": "peak",
                 "featureValueType": "count",
@@ -549,11 +552,14 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
 
     def _setup_anndata_view_config(self, vc, dataset, column_name, column_label):
         umap_scatterplot_by_rna = vc.add_view(
-            vt.SCATTERPLOT, dataset=dataset, mapping="UMAP - RNA").set_props(embeddingCellSetLabelsVisible=False)
+            vt.SCATTERPLOT, dataset=dataset, mapping="UMAP - RNA"
+        ).set_props(embeddingCellSetLabelsVisible=False)
         umap_scatterplot_by_atac = vc.add_view(
-            vt.SCATTERPLOT, dataset=dataset, mapping="UMAP - ATAC").set_props(embeddingCellSetLabelsVisible=False)
+            vt.SCATTERPLOT, dataset=dataset, mapping="UMAP - ATAC"
+        ).set_props(embeddingCellSetLabelsVisible=False)
         umap_scatterplot_by_wnn = vc.add_view(
-            vt.SCATTERPLOT, dataset=dataset, mapping="UMAP - WNN").set_props(embeddingCellSetLabelsVisible=False)
+            vt.SCATTERPLOT, dataset=dataset, mapping="UMAP - WNN"
+        ).set_props(embeddingCellSetLabelsVisible=False)
 
         gene_list = vc.add_view(vt.FEATURE_LIST, dataset=dataset)
         peak_list = vc.add_view(vt.FEATURE_LIST, dataset=dataset)
@@ -564,8 +570,9 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
 
         cell_sets = vc.add_view(vt.OBS_SETS, dataset=dataset)
 
-        # We need to specify which of the two features (i.e., genes or tags) the different plots correspond to.
-        # We also need to make sure the selection of genes and tags are scoped to only the corresponding plots,
+        # specify which of the two features' (i.e., genes or peaks) views correspond to
+        # We also need to make sure the selection of genes and peaks are scoped only to
+        # the corresponding view,
         # and we want to make sure the color mappings are independent for each modality.
         coordination_types = [ct.FEATURE_TYPE, ct.FEATURE_VALUE_TYPE]
         vc.link_views([umap_scatterplot_by_rna, gene_list],
@@ -573,7 +580,8 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
         vc.link_views([umap_scatterplot_by_atac, peak_list],
                       coordination_types, ["peak", "count"])
 
-        # Coordinate the selection of cell sets between the scatterplots and lists of features/observations.
+        # Coordinate the selection of cell sets between the scatterplots and lists
+        # of features/observations.
         coordination_types = [ct.FEATURE_SELECTION,
                               ct.OBS_COLOR_ENCODING,
                               ct.FEATURE_VALUE_COLORMAP_RANGE]
@@ -598,10 +606,8 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
         vc.link_views([umap_scatterplot_by_rna, umap_scatterplot_by_atac, umap_scatterplot_by_wnn], [
             ct.EMBEDDING_OBS_SET_LABELS_VISIBLE], [False])
 
-        vc.layout(
-            ((umap_scatterplot_by_rna | umap_scatterplot_by_atac) | (umap_scatterplot_by_wnn | cell_sets))
-            / (genomic_profiles | (peak_list | gene_list))
-        )
+        vc.layout(((umap_scatterplot_by_rna | umap_scatterplot_by_atac) | (
+            umap_scatterplot_by_wnn | cell_sets)) / (genomic_profiles | (peak_list | gene_list)))
 
         self._views = [umap_scatterplot_by_rna, umap_scatterplot_by_atac, umap_scatterplot_by_wnn,
                        gene_list, peak_list, genomic_profiles, cell_sets]
