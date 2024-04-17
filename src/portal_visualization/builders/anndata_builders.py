@@ -473,6 +473,8 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
             ["cluster_cbb", "Cluster (ATAC Cell x Bin)", "cbb"] if self.has_cbb else None,
             ["predicted_label", "Cell Ontology Annotation", "label"] if self.is_annotated else None,
         ]
+        # Filter out None values
+        cluster_columns = [col for col in cluster_columns if col is not None]
 
         column_names, column_labels = [f'obs/{col[0]}' for col in cluster_columns], [
             col[1] for col in cluster_columns]

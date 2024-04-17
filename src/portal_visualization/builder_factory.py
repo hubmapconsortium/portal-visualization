@@ -58,9 +58,6 @@ def get_view_config_builder(entity, get_assaytype, parent=None):
         hints)
     if is_image:
         if is_rna:
-            # multiomic mudata, e.g. 10x Multiome, SNARE-Seq, etc.
-            if is_atac:
-                return MultiomicAnndataZarrViewConfBuilder
             # e.g. Visium (no probes) [Salmon + Scanpy]
             # sample entity (on dev): 72ec02cf1390428c1e9dc2c88928f5f5
             return SpatialMultiomicAnnDataZarrViewConfBuilder
@@ -97,6 +94,10 @@ def get_view_config_builder(entity, get_assaytype, parent=None):
                 return ImagePyramidViewConfBuilder
 
     if is_rna:
+        # multiomic mudata, e.g. 10x Multiome, SNARE-Seq, etc.
+        if is_atac:
+            print("Multiomic RNA and ATAC")
+            return MultiomicAnndataZarrViewConfBuilder
         if is_json:
             # e.g. c019a1cd35aab4d2b4a6ff221e92aaab
             return RNASeqViewConfBuilder
