@@ -95,8 +95,8 @@ def get_view_config_builder(entity, get_assaytype, parent=None):
 
     if is_rna:
         # multiomic mudata, e.g. 10x Multiome, SNARE-Seq, etc.
+        # e.g. 272789a950b2b5d4b9387a1cf66ad487 on dev
         if is_atac:
-            print("Multiomic RNA and ATAC")
             return MultiomicAnndataZarrViewConfBuilder
         if is_json:
             # e.g. c019a1cd35aab4d2b4a6ff221e92aaab
