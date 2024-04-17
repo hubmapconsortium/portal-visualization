@@ -33,6 +33,7 @@
                     "Marker Gene 3",
                     "Marker Gene 4",
                 ],
+                request_init=None,
                 gene_alias="var/hugo_symbol",
             )
         ],

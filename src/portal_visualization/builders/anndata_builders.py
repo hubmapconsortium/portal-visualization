@@ -69,7 +69,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
     @cached_property
     def has_marker_genes(self):
         z = self.zarr_store
-        if 'var/marker_genes_for_heatmap' in z:
+        if 'obs/marker_gene_0' in z:
             return True
 
     def get_conf_cells(self, marker=None):
