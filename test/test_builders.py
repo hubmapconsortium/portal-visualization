@@ -136,6 +136,9 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
     expected_conf = json.loads(expected_conf_path.read_text())
     # Compare normalized JSON strings so the diff is easier to read,
     # and there are fewer false positives.
+
+    print(json.dumps(conf, indent=2, sort_keys=True))
+
     assert json.dumps(conf, indent=2, sort_keys=True) \
         == json.dumps(expected_conf, indent=2, sort_keys=True)
 

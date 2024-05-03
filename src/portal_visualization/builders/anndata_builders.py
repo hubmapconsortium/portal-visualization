@@ -468,9 +468,8 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
         confs = []
         cluster_columns = [
             ["leiden_wnn", "Leiden (Weighted Nearest Neighbor)", "wnn"],
-            ["cluster_cbg", "Cluster (ATAC Cell x Gene)", "cbg"],
+            ["cluster_atac", "ArchR Clusters (ATAC)", "cbb"] if self.has_cbb else None,
             ["leiden_rna", "Leiden (RNA)", "rna"],
-            ["cluster_cbb", "Cluster (ATAC Cell x Bin)", "cbb"] if self.has_cbb else None,
             ["predicted_label", "Cell Ontology Annotation", "label"] if self.is_annotated else None,
         ]
         # Filter out None values
