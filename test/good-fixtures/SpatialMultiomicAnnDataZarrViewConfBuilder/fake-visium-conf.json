@@ -57,7 +57,7 @@
       "init_72ec02cf1390428c1e9dc2c88928f5f5_obsSpots_0": 1
     },
     "spatialSpotRadius": {
-      "init_72ec02cf1390428c1e9dc2c88928f5f5_obsSpots_0": 100
+      "init_72ec02cf1390428c1e9dc2c88928f5f5_obsSpots_0": 100.0
     },
     "spotLayer": {
       "init_72ec02cf1390428c1e9dc2c88928f5f5_obsSpots_0": "__dummy__"

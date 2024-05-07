@@ -317,11 +317,12 @@ class SpatialMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewCon
         self._scatterplot_w = 3
         self._spatial_w = 3
 
-    def _get_scale_factor(self):
+    def _get_spot_radius(self):
         z = self.zarr_store
-        visium_scalefactor_path = 'spatial/visium/scalefactors/spot_diameter_fullres'
+        visium_scalefactor_path = 'spatial/visium/scalefactors/spot_diameter_micrometers'
         if visium_scalefactor_path in z['uns']:
-            return z['uns'][visium_scalefactor_path][()].tolist()
+            # Since the scale factor is the diameter, we divide by 2 to get the radius
+            return z['uns'][visium_scalefactor_path][()].tolist() / 2
 
     def _set_up_dataset(self, vc):
         adata_url = self._build_assets_url(
@@ -411,7 +412,7 @@ class SpatialMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewCon
         vc.link_views_by_dict(spatial_views, {
             "spotLayer": CL([{
                 "spatialLayerOpacity": 1,
-                "spatialSpotRadius": self._get_scale_factor(),
+                "spatialSpotRadius": self._get_spot_radius(),
             }]),
         }, scope_prefix=get_initial_coordination_scope_prefix(self._uuid, 'obsSpots'))
         return vc
