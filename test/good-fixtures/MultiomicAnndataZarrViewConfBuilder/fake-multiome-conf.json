@@ -47,6 +47,20 @@
             "Leiden (Weighted Nearest Neighbor)",
             "2"
           ]
+        ],
+        "B": [
+          [
+            "Leiden (Weighted Nearest Neighbor)",
+            "0"
+          ],
+          [
+            "Leiden (Weighted Nearest Neighbor)",
+            "1"
+          ],
+          [
+            "Leiden (Weighted Nearest Neighbor)",
+            "2"
+          ]
         ]
       }
     },
@@ -162,7 +176,8 @@
           "featureType": "A",
           "featureValueColormapRange": "A",
           "featureValueType": "A",
-          "obsColorEncoding": "A"
+          "obsColorEncoding": "A",
+          "obsSetSelection": "A"
         },
         "h": 6.0,
         "props": {
@@ -182,7 +197,8 @@
           "featureType": "B",
           "featureValueColormapRange": "A",
           "featureValueType": "B",
-          "obsColorEncoding": "A"
+          "obsColorEncoding": "A",
+          "obsSetSelection": "A"
         },
         "h": 6.0,
         "props": {
@@ -200,7 +216,8 @@
           "embeddingType": "C",
           "featureSelection": "A",
           "featureValueColormapRange": "A",
-          "obsColorEncoding": "A"
+          "obsColorEncoding": "A",
+          "obsSetSelection": "A"
         },
         "h": 6.0,
         "props": {
@@ -218,7 +235,8 @@
           "featureType": "A",
           "featureValueColormapRange": "A",
           "featureValueType": "A",
-          "obsColorEncoding": "A"
+          "obsColorEncoding": "A",
+          "obsSetSelection": "A"
         },
         "h": 6.0,
         "w": 3.0,
@@ -233,7 +251,8 @@
           "featureType": "B",
           "featureValueColormapRange": "A",
           "featureValueType": "B",
-          "obsColorEncoding": "A"
+          "obsColorEncoding": "A",
+          "obsSetSelection": "A"
         },
         "h": 6.0,
         "w": 3.0,
@@ -245,9 +264,12 @@
         "coordinationScopes": {
           "dataset": "A",
           "obsColorEncoding": "B",
-          "obsSetSelection": "A"
+          "obsSetSelection": "B"
         },
         "h": 6.0,
+        "props": {
+          "title": "Leiden (Weighted Nearest Neighbor) Genomic Profiles"
+        },
         "w": 6.0,
         "x": 0.0,
         "y": 6.0
@@ -258,7 +280,8 @@
           "dataset": "A",
           "featureSelection": "A",
           "featureValueColormapRange": "A",
-          "obsColorEncoding": "A"
+          "obsColorEncoding": "A",
+          "obsSetSelection": "A"
         },
         "h": 6.0,
         "w": 3.0,
@@ -305,6 +328,20 @@
       },
       "obsSetSelection": {
         "A": [
+          [
+            "Leiden (RNA)",
+            "0"
+          ],
+          [
+            "Leiden (RNA)",
+            "1"
+          ],
+          [
+            "Leiden (RNA)",
+            "2"
+          ]
+        ],
+        "B": [
           [
             "Leiden (RNA)",
             "0"
@@ -432,7 +469,8 @@
           "featureType": "A",
           "featureValueColormapRange": "A",
           "featureValueType": "A",
-          "obsColorEncoding": "A"
+          "obsColorEncoding": "A",
+          "obsSetSelection": "A"
         },
         "h": 6.0,
         "props": {
@@ -452,7 +490,8 @@
           "featureType": "B",
           "featureValueColormapRange": "A",
           "featureValueType": "B",
-          "obsColorEncoding": "A"
+          "obsColorEncoding": "A",
+          "obsSetSelection": "A"
         },
         "h": 6.0,
         "props": {
@@ -470,7 +509,8 @@
           "embeddingType": "C",
           "featureSelection": "A",
           "featureValueColormapRange": "A",
-          "obsColorEncoding": "A"
+          "obsColorEncoding": "A",
+          "obsSetSelection": "A"
         },
         "h": 6.0,
         "props": {
@@ -488,7 +528,8 @@
           "featureType": "A",
           "featureValueColormapRange": "A",
           "featureValueType": "A",
-          "obsColorEncoding": "A"
+          "obsColorEncoding": "A",
+          "obsSetSelection": "A"
         },
         "h": 6.0,
         "w": 3.0,
@@ -503,7 +544,8 @@
           "featureType": "B",
           "featureValueColormapRange": "A",
           "featureValueType": "B",
-          "obsColorEncoding": "A"
+          "obsColorEncoding": "A",
+          "obsSetSelection": "A"
         },
         "h": 6.0,
         "w": 3.0,
@@ -515,9 +557,12 @@
         "coordinationScopes": {
           "dataset": "A",
           "obsColorEncoding": "B",
-          "obsSetSelection": "A"
+          "obsSetSelection": "B"
         },
         "h": 6.0,
+        "props": {
+          "title": "Leiden (RNA) Genomic Profiles"
+        },
         "w": 6.0,
         "x": 0.0,
         "y": 6.0
@@ -528,7 +573,8 @@
           "dataset": "A",
           "featureSelection": "A",
           "featureValueColormapRange": "A",
-          "obsColorEncoding": "A"
+          "obsColorEncoding": "A",
+          "obsSetSelection": "A"
         },
         "h": 6.0,
         "w": 3.0,
