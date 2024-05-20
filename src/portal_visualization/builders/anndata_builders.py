@@ -567,6 +567,7 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
         # rna_heatmap = vc.add_view(vt.HEATMAP, dataset=dataset).set_props(transpose=False)
         # atac_heatmap = vc.add_view(vt.HEATMAP, dataset=dataset).set_props(transpose=False)
         genomic_profiles = vc.add_view(vt.GENOMIC_PROFILES, dataset=dataset)
+        genomic_profiles.set_props(title=f'{column_label} Genomic Profiles')
 
         cell_sets = vc.add_view(vt.OBS_SETS, dataset=dataset)
 
