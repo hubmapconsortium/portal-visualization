@@ -584,21 +584,22 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
         # of features/observations.
         coordination_types = [ct.FEATURE_SELECTION,
                               ct.OBS_COLOR_ENCODING,
-                              ct.FEATURE_VALUE_COLORMAP_RANGE]
+                              ct.FEATURE_VALUE_COLORMAP_RANGE,
+                              ct.OBS_SET_SELECTION]
+
+        label_names = self._get_obs_set_members(column_name)
+        obs_set_coordinations = [[column_label, str(i)] for i in label_names]
         vc.link_views([umap_scatterplot_by_rna,
                        umap_scatterplot_by_atac,
                        umap_scatterplot_by_wnn,
                        gene_list, peak_list, cell_sets],
-                      coordination_types, [None, 'cellSetSelection', [0.0, 1.0]])
+                      coordination_types, [None, 'cellSetSelection', [0.0, 1.0], obs_set_coordinations])
 
         # Indicate genomic profiles' clusters; based on the display name for the ATAC CBB clusters.
         obs_set_coordination, obs_color_coordination = vc.add_coordination(
             ct.OBS_SET_SELECTION, ct.OBS_COLOR_ENCODING)
         genomic_profiles.use_coordination(obs_set_coordination, obs_color_coordination)
 
-        # Dynamically determine the number of clusters in the given clustering column
-        label_names = self._get_obs_set_members(column_name)
-        obs_set_coordinations = [[column_label, str(i)] for i in label_names]
         obs_set_coordination.set_value(obs_set_coordinations)
         obs_color_coordination.set_value('cellSetSelection')
 
