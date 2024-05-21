@@ -57,9 +57,10 @@ def get_view_config_builder(entity, get_assaytype, parent=None):
     hints = assay.get('vitessce-hints', [])
     is_image, is_rna, is_atac, is_sprm, is_codex, is_anndata, is_json, is_spatial, is_support = process_hints(
         hints)
-    if is_image:
-        # vis-lifted image pyramids
-        if (parent is not None and is_support):
+
+    # vis-lifted image pyramids
+    if (parent is not None):
+        if (is_support):
             ancestor_assaytype = get_assaytype(parent).get('assaytype')
             if SEQFISH == ancestor_assaytype:
                 # e.g. parent  = c6a254b2dc2ed46b002500ade163a7cc
@@ -77,6 +78,10 @@ def get_view_config_builder(entity, get_assaytype, parent=None):
                 # e.g. parent  = 8adc3c31ca84ec4b958ed20a7c4f4919
                 # e.g. support = f9ae931b8b49252f150d7f8bf1d2d13f
                 return ImagePyramidViewConfBuilder
+        else:
+            return NullViewConfBuilder
+
+    if is_image:
         if is_rna:
             # e.g. Visium (no probes) [Salmon + Scanpy]
             # sample entity (on dev): 72ec02cf1390428c1e9dc2c88928f5f5
