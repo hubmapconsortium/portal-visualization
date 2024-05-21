@@ -38,8 +38,9 @@ def process_hints(hints):
     is_anndata = "anndata" in hints
     is_json = "json_based" in hints
     is_spatial = "spatial" in hints
+    is_support = "is_support" in hints
 
-    return is_image, is_rna, is_atac, is_sprm, is_codex, is_anndata, is_json, is_spatial
+    return is_image, is_rna, is_atac, is_sprm, is_codex, is_anndata, is_json, is_spatial, is_support
 
 
 # This function is the main entrypoint for the builder factory.
@@ -54,27 +55,12 @@ def get_view_config_builder(entity, get_assaytype, parent=None):
     assay = get_assaytype(entity)
     assay_name = assay.get('assaytype')
     hints = assay.get('vitessce-hints', [])
-    is_image, is_rna, is_atac, is_sprm, is_codex, is_anndata, is_json, is_spatial = process_hints(
+    is_image, is_rna, is_atac, is_sprm, is_codex, is_anndata, is_json, is_spatial, is_support = process_hints(
         hints)
-    if is_image:
-        if is_rna:
-            # e.g. Visium (no probes) [Salmon + Scanpy]
-            # sample entity (on dev): 72ec02cf1390428c1e9dc2c88928f5f5
-            return SpatialMultiomicAnnDataZarrViewConfBuilder
-        if is_sprm and is_anndata:
-            # e.g. CellDIVE [DeepCell + SPRM]
-            # sample entity: c3be5650e93907b68ddbdb22b948db32
-            return MultiImageSPRMAnndataViewConfBuilder
-        if is_codex:
-            if is_json:
-                # legacy JSON-based dataset, e.g. b69d1e2ad1bf1455eee991fce301b191
-                return TiledSPRMViewConfBuilder
-            # e.g. CODEX [Cytokit + SPRM]
-            # sample entity: 43213991a54ce196d406707ffe2e86bd
-            return StitchedCytokitSPRMViewConfBuilder
 
-        # vis-lifted image pyramids
-        if (parent is not None):
+    # vis-lifted image pyramids
+    if (parent is not None):
+        if (is_support and is_image):
             ancestor_assaytype = get_assaytype(parent).get('assaytype')
             if SEQFISH == ancestor_assaytype:
                 # e.g. parent  = c6a254b2dc2ed46b002500ade163a7cc
@@ -92,6 +78,25 @@ def get_view_config_builder(entity, get_assaytype, parent=None):
                 # e.g. parent  = 8adc3c31ca84ec4b958ed20a7c4f4919
                 # e.g. support = f9ae931b8b49252f150d7f8bf1d2d13f
                 return ImagePyramidViewConfBuilder
+        else:
+            return NullViewConfBuilder
+
+    if is_image:
+        if is_rna:
+            # e.g. Visium (no probes) [Salmon + Scanpy]
+            # sample entity (on dev): 72ec02cf1390428c1e9dc2c88928f5f5
+            return SpatialMultiomicAnnDataZarrViewConfBuilder
+        if is_sprm and is_anndata:
+            # e.g. CellDIVE [DeepCell + SPRM]
+            # sample entity: c3be5650e93907b68ddbdb22b948db32
+            return MultiImageSPRMAnndataViewConfBuilder
+        if is_codex:
+            if is_json:
+                # legacy JSON-based dataset, e.g. b69d1e2ad1bf1455eee991fce301b191
+                return TiledSPRMViewConfBuilder
+            # e.g. CODEX [Cytokit + SPRM]
+            # sample entity: 43213991a54ce196d406707ffe2e86bd
+            return StitchedCytokitSPRMViewConfBuilder
 
     if is_rna:
         # multiomic mudata, e.g. 10x Multiome, SNARE-Seq, etc.
@@ -115,6 +120,6 @@ def get_view_config_builder(entity, get_assaytype, parent=None):
     return NullViewConfBuilder
 
 
-def has_visualization(entity, get_assaytype):
-    builder = get_view_config_builder(entity, get_assaytype)
+def has_visualization(entity, get_assaytype, parent=None):
+    builder = get_view_config_builder(entity, get_assaytype, parent)
     return builder != NullViewConfBuilder
