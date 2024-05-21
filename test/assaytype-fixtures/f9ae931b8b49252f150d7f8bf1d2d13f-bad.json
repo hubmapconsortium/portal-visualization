@@ -1,0 +1,7 @@
+{
+    "assaytype": "image_pyramid",
+    "contains-pii": false,
+    "description": "Image Pyramid",
+    "primary": false,
+    "vitessce-hints": []
+  }
