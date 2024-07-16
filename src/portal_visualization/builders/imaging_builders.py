@@ -76,6 +76,7 @@ class ImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
             )
             if 'separate/' not in path  # Exclude separate/* in MALDI-IMS
         ]
+        found_images = sorted(found_images)
         if len(found_images) == 0:
             message = f"Image pyramid assay with uuid {self._uuid} has no matching files"
             raise FileNotFoundError(message)
