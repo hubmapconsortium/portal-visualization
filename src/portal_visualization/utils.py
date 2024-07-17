@@ -71,6 +71,7 @@ def _get_cells_from_obj(vc_obj):
         nbformat.v4.new_code_cell(f'conf = {conf_expression}\nconf.widget()'),
     ]
 
+
 def files_from_response(response_json):
     '''
     >>> response_json = {'hits': {'hits': [

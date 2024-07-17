@@ -8,10 +8,11 @@ import requests
 import json
 from werkzeug.exceptions import HTTPException
 
+
 from .utils import files_from_response
 from .builder_factory import get_view_config_builder
+from .epic_factory import get_epic_builder
 from .builders.base_builders import ConfCells
-from .builders.epic_builders import SegmentationMaskBuilder
 
 Entity = namedtuple("Entity", ["uuid", "type", "name"], defaults=["TODO: name"])
 
@@ -45,12 +46,12 @@ def _handle_request(url, headers=None, body_json=None):
             if body_json
             else requests.get(url, headers=headers)
         )
-    except requests.exceptions.ConnectTimeout as error:
+    except requests.exceptions.ConnectTimeout as error:  # pragma: no cover
         current_app.logger.error(error)
         abort(504)
     try:
         response.raise_for_status()
-    except requests.exceptions.HTTPError as error:
+    except requests.exceptions.HTTPError as error:  # pragma: no cover
         current_app.logger.error(error.response.text)
         status = error.response.status_code
         if status in [400, 404]:
@@ -98,6 +99,11 @@ class ApiClient:
             if self.groups_token
             else {}
         )
+        return headers
+
+    def _clean_headers(self, headers):
+        if "Authorization" in headers:
+            headers["Authorization"] = "REDACTED"
         return headers
 
     def _request(self, url, body_json=None):
@@ -199,10 +205,13 @@ class ApiClient:
         """
         Returns a dataclass with vitessce_conf and is_lifted.
         """
-        vis_lifted_uuid = None  # default
+        vis_lifted_uuid = None  # default, only gets set if there is a vis-lifted entity
         image_pyramid_descendants = self.get_descendant_to_lift(entity["uuid"])
 
         # First, try "vis-lifting": Display image pyramids on their parent entity pages.
+        # Historical context: the visualization requires pyramidal ome tiff images, which
+        # are generated via an additional pipeline. Since we are displaying the visualization
+        # on the primary dataset page, we need to "lift" the visualization to the parent entity.
         if image_pyramid_descendants:
             derived_entity = image_pyramid_descendants
             # TODO: Entity structure will change in the future to be consistent
@@ -225,7 +234,8 @@ class ApiClient:
                         {entity["uuid"]}: {error}'
                 )
                 vitessce_conf = _create_vitessce_error(error)
-
+        # If the current entity does not have files and was not determined to have a
+        # visualization during search API indexing, stop here and return an empty conf.
         elif not entity.get("files") and not entity.get("visualization"):
             vitessce_conf = ConfCells(None, None)
 
@@ -233,9 +243,7 @@ class ApiClient:
         else:
             try:
                 Builder = get_view_config_builder(entity, self._get_assaytype(), parent)
-                builder = Builder(
-                    entity, self.groups_token, self.assets_endpoint
-                )
+                builder = Builder(entity, self.groups_token, self.assets_endpoint)
                 vitessce_conf = builder.get_conf_cells(marker=marker)
             except Exception as e:
                 if not wrap_error:
@@ -246,7 +254,8 @@ class ApiClient:
                 vitessce_conf = _create_vitessce_error(str(e))
 
         if epic_uuid:
-            vitessce_conf = SegmentationMaskBuilder(vitessce_conf).get_conf_cells()
+            EPICBuilder = get_epic_builder(epic_uuid)
+            vitessce_conf = EPICBuilder(vitessce_conf).get_conf_cells()
 
         return VitessceConfLiftedUUID(
             vitessce_conf=vitessce_conf, vis_lifted_uuid=vis_lifted_uuid
@@ -264,9 +273,7 @@ class ApiClient:
                 return response.json()
             except Exception as e:
                 # Redact Authorization header from logs
-                cleaned_headers = headers
-                if "Authorization" in headers:
-                    cleaned_headers["Authorization"] = "REDACTED"
+                cleaned_headers = self._clean_headers(headers)
                 if response:
                     status = response.status_code
                 else:
@@ -335,6 +342,9 @@ class ApiClient:
             source = None
         return source
 
+    # Helper function for HuBMAP publications
+    # Returns the publication ancillary json and the vis-lifted uuid
+    # from the publication support entity
     def get_publication_ancillary_json(self, entity):
         """
         Returns a dataclass with vitessce_conf and is_lifted.
@@ -363,9 +373,13 @@ class ApiClient:
             vis_lifted_uuid=publication_ancillary_uuid,
         )
 
+    # UBKG API methods
+
+    # Helper for making requests to the UBKG API
     def _get_ubkg(self, path):
         return self._request(f"{self.ubkg_endpoint}/{path}")
 
+    # Retrieves field descriptions from the UBKG API
     def get_metadata_descriptions(self):
         return self._get_ubkg("field-descriptions")
 

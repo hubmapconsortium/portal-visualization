@@ -2,7 +2,7 @@ import json
 from flask import Flask
 import pytest
 
-from .client import ApiClient
+from src.portal_visualization.client import ApiClient
 
 mock_hit_source = {
     'uuid': 'ABC123',
