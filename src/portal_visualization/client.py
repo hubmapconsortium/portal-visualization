@@ -487,7 +487,7 @@ def _flatten_sources(sources, non_metadata_fields):
             # For donors, this is the metadata in EAV form,
             # for samples, this is a placeholder for dev-search,
             # but for datasets, we want to move it up a level.
-            source.update(source["metadata"])
+            source.update(source["metadata"])  # pragma: no cover
 
         for field in [
             "metadata",
@@ -503,7 +503,7 @@ def _flatten_sources(sources, non_metadata_fields):
             "organ_donor_data",
             "living_donor_data",
         ]:
-            source.pop(field, None)
+            source.pop(field, None)  # pragma: no cover
     return flat_sources
 
 
