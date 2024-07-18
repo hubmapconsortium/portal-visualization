@@ -71,6 +71,9 @@ def get_view_config_builder(entity, get_assaytype, parent=None):
         is_support,
     ) = process_hints(hints)
 
+    print(entity)
+    print(hints)
+
     # vis-lifted image pyramids
     if parent is not None:
         if is_support and is_image:
@@ -134,5 +137,8 @@ def get_view_config_builder(entity, get_assaytype, parent=None):
 
 
 def has_visualization(entity, get_assaytype, parent=None):
+    print("entity: ", entity)
+    if (parent is not None):
+        print("parent: ", parent)
     builder = get_view_config_builder(entity, get_assaytype, parent)
     return builder != NullViewConfBuilder
