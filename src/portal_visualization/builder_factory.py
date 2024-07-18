@@ -1,29 +1,23 @@
 from .builders.base_builders import NullViewConfBuilder
 from .builders.sprm_builders import (
-    StitchedCytokitSPRMViewConfBuilder, TiledSPRMViewConfBuilder,
-    MultiImageSPRMAnndataViewConfBuilder
+    StitchedCytokitSPRMViewConfBuilder,
+    TiledSPRMViewConfBuilder,
+    MultiImageSPRMAnndataViewConfBuilder,
 )
 from .builders.imaging_builders import (
     SeqFISHViewConfBuilder,
     IMSViewConfBuilder,
     ImagePyramidViewConfBuilder,
-    NanoDESIViewConfBuilder
+    NanoDESIViewConfBuilder,
 )
 from .builders.anndata_builders import (
     MultiomicAnndataZarrViewConfBuilder,
     SpatialRNASeqAnnDataZarrViewConfBuilder,
     RNASeqAnnDataZarrViewConfBuilder,
-    SpatialMultiomicAnnDataZarrViewConfBuilder
+    SpatialMultiomicAnnDataZarrViewConfBuilder,
 )
-from .builders.scatterplot_builders import (
-    RNASeqViewConfBuilder, ATACSeqViewConfBuilder
-)
-from .assays import (
-    SEQFISH,
-    MALDI_IMS,
-    NANODESI,
-    SALMON_RNASSEQ_SLIDE
-)
+from .builders.scatterplot_builders import RNASeqViewConfBuilder, ATACSeqViewConfBuilder
+from .assays import SEQFISH, MALDI_IMS, NANODESI, SALMON_RNASSEQ_SLIDE
 
 
 # This function processes the hints and returns a tuple of booleans
@@ -40,7 +34,17 @@ def process_hints(hints):
     is_spatial = "spatial" in hints
     is_support = "is_support" in hints
 
-    return is_image, is_rna, is_atac, is_sprm, is_codex, is_anndata, is_json, is_spatial, is_support
+    return (
+        is_image,
+        is_rna,
+        is_atac,
+        is_sprm,
+        is_codex,
+        is_anndata,
+        is_json,
+        is_spatial,
+        is_support,
+    )
 
 
 # This function is the main entrypoint for the builder factory.
@@ -50,18 +54,27 @@ def process_hints(hints):
 # `get_assaytype` is a function which takes an entity UUID and returns
 # a dict containing the assaytype and vitessce-hints for that entity.
 def get_view_config_builder(entity, get_assaytype, parent=None):
-    if (entity.get('uuid') is None):
+    if entity.get("uuid") is None:
         raise ValueError("Provided entity does not have a uuid")
     assay = get_assaytype(entity)
-    assay_name = assay.get('assaytype')
-    hints = assay.get('vitessce-hints', [])
-    is_image, is_rna, is_atac, is_sprm, is_codex, is_anndata, is_json, is_spatial, is_support = process_hints(
-        hints)
+    assay_name = assay.get("assaytype")
+    hints = assay.get("vitessce-hints", [])
+    (
+        is_image,
+        is_rna,
+        is_atac,
+        is_sprm,
+        is_codex,
+        is_anndata,
+        is_json,
+        is_spatial,
+        is_support,
+    ) = process_hints(hints)
 
     # vis-lifted image pyramids
-    if (parent is not None):
-        if (is_support and is_image):
-            ancestor_assaytype = get_assaytype(parent).get('assaytype')
+    if parent is not None:
+        if is_support and is_image:
+            ancestor_assaytype = get_assaytype(parent).get("assaytype")
             if SEQFISH == ancestor_assaytype:
                 # e.g. parent  = c6a254b2dc2ed46b002500ade163a7cc
                 # e.g. support = 9db61adfc017670a196ea9b3ca1852a0
