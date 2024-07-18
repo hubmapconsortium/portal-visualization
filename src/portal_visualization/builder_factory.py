@@ -73,6 +73,7 @@ def get_view_config_builder(entity, get_assaytype, parent=None):
 
     print(entity)
     print(hints)
+    print("parent:", parent)
 
     # vis-lifted image pyramids
     if parent is not None:

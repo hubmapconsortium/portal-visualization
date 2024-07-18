@@ -80,7 +80,8 @@ def get_assaytype(entity):
 )
 def test_has_visualization(has_vis_entity):
     has_vis, entity = has_vis_entity
-    assert has_vis == has_visualization(entity, get_assaytype)
+    parent = entity.get("parent") or None  # Only used for image pyramids
+    assert has_vis == has_visualization(entity, get_assaytype, parent)
 
 
 def mock_zarr_store(entity_path, mocker):
