@@ -76,8 +76,12 @@ def get_view_config_builder(entity, get_assaytype, parent=None):
 
     # vis-lifted image pyramids
     if parent is not None:
+        print('is support? ', is_support)
+        print('is image? ', is_image)
         if is_support and is_image:
+            print("parent: ", parent)
             ancestor_assaytype = get_assaytype(parent).get("assaytype")
+            print("ancestor assaytype: ", ancestor_assaytype)
             if SEQFISH == ancestor_assaytype:
                 # e.g. parent  = c6a254b2dc2ed46b002500ade163a7cc
                 # e.g. support = 9db61adfc017670a196ea9b3ca1852a0
