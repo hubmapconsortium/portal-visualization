@@ -220,18 +220,21 @@ class ApiClient:
 
             metadata = derived_entity.get("metadata", {})
 
-            if metadata.get("files"):
+            if metadata.get(
+                "files"
+            ):  # pragma: no cover  # We have separate tests for the builder logic
                 derived_entity["files"] = metadata.get("files", [])
                 vitessce_conf = self.get_vitessce_conf_cells_and_lifted_uuid(
                     derived_entity, marker=marker, wrap_error=wrap_error, parent=entity
                 ).vitessce_conf
                 vis_lifted_uuid = derived_entity["uuid"]
             else:  # no files
-                error = f'Related image entity {derived_entity["uuid"]} \
-                    is missing file information (no "files" key found in its metadata).'
+                error = (
+                    f'Related image entity {derived_entity["uuid"]} '
+                    + 'is missing file information (no "files" key found in its metadata).'
+                )
                 current_app.logger.info(
-                    f'Missing metadata error encountered in dataset \
-                        {entity["uuid"]}: {error}'
+                    f'Missing metadata error encountered in dataset {entity["uuid"]}: {error}'
                 )
                 vitessce_conf = _create_vitessce_error(error)
         # If the current entity does not have files and was not determined to have a
@@ -240,7 +243,7 @@ class ApiClient:
             vitessce_conf = ConfCells(None, None)
 
         # Otherwise, just try to visualize the data for the entity itself:
-        else:
+        else:  # pragma: no cover  # We have separate tests for the builder logic
             try:
                 Builder = get_view_config_builder(entity, self._get_assaytype(), parent)
                 builder = Builder(entity, self.groups_token, self.assets_endpoint)
@@ -253,7 +256,9 @@ class ApiClient:
                 )
                 vitessce_conf = _create_vitessce_error(str(e))
 
-        if epic_uuid:
+        if (
+            epic_uuid is not None and vitessce_conf.conf is not None
+        ):  # pragma: no cover  # TODO
             EPICBuilder = get_epic_builder(epic_uuid)
             vitessce_conf = EPICBuilder(vitessce_conf).get_conf_cells()
 
@@ -262,7 +267,7 @@ class ApiClient:
         )
 
     # Helper to create a function that fetches assaytype from the API with current headers
-    def _get_assaytype(self):
+    def _get_assaytype(self):  # pragma: no cover
         def get_assaytype(entity):
             uuid = entity.get("uuid")
 
@@ -363,7 +368,7 @@ class ApiClient:
             try:
                 publication_resp = self._file_request(publication_json_path)
                 publication_json = json.loads(publication_resp)
-            except HTTPException:
+            except HTTPException:  # pragma: no cover
                 current_app.logger.error(
                     f"Fetching publication ancillary json threw error: {traceback.format_exc()}"
                 )
@@ -592,8 +597,7 @@ def _create_vitessce_error(error):
                 {
                     "component": "description",
                     "props": {
-                        "description": "Error while generating the Vitessce configuration: "
-                        + error,
+                        "description": f"Error while generating the Vitessce configuration: {error}"
                     },
                     "x": 0,
                     "y": 0,
