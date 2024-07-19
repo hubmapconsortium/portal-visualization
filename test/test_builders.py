@@ -176,20 +176,19 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
     epic_builder = get_epic_builder(entity["uuid"])
     assert epic_builder is not None
 
-    if (conf is None):
+    if conf is None:
         with pytest.raises(ValueError):
             epic_builder(ConfCells(conf, cells), entity["uuid"]).get_conf_cells()
         return
 
-    built_epic_conf, _ = epic_builder(ConfCells(conf, cells), entity["uuid"]).get_conf_cells()
-    # Since the `from_dict` function fails to copy over the `requestInit`,
-    # the following assertion will fail. Once this is implemented upstream,
-    # the following assertion can be uncommented:
-    # assert json.dumps(built_epic_conf, indent=2, sort_keys=True) == json.dumps(
-    #     conf, indent=2, sort_keys=True
-    # )
-    # For now we just check that the builder is not None
+    built_epic_conf, _ = epic_builder(
+        ConfCells(conf, cells), entity["uuid"]
+    ).get_conf_cells()
+
     assert built_epic_conf is not None
+    assert json.dumps(built_epic_conf, indent=2, sort_keys=True) == json.dumps(
+        conf, indent=2, sort_keys=True
+    )
 
 
 @pytest.mark.parametrize("entity_path", bad_entity_paths, ids=lambda path: path.name)

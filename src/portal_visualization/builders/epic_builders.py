@@ -9,41 +9,42 @@ from ..utils import get_conf_cells
 class EPICConfBuilder(ABC):
     def __init__(self, base_conf: ConfCells, epic_uuid) -> None:
 
-        if base_conf.conf is None:
+        conf, cells = base_conf
+
+        if conf is None:
             raise ValueError("ConfCells object must have a conf attribute")
 
-        self._is_plural = isinstance(base_conf.conf, list)
+        self._is_plural = isinstance(conf, list)
 
         if self._is_plural:
             self._base_conf = [
-                VitessceConfig.from_dict(conf) for conf in base_conf.conf
+                VitessceConfig.from_dict(conf) for conf in conf
             ]
         else:
             self._base_conf: VitessceConfig = VitessceConfig.from_dict(base_conf.conf)
-
-        # TODO: from_dict does not copy over requestInit options for dataset files,
-        # the function needs to be extended upstream to handle this.
 
         self._epic_uuid = epic_uuid
         pass
 
     def get_conf_cells(self):
         self.apply()
+        if (self._is_plural):
+            return get_conf_cells([conf.to_dict() for conf in self._base_conf])
         return get_conf_cells(self._base_conf)
 
-    @abstractmethod
-    def apply(self):  # pragma: no cover
-        pass
-
-
-class SegmentationMaskBuilder(EPICConfBuilder):
     def apply(self):
         if self._is_plural:
             for conf in self._base_conf:
                 self._apply(conf)
-            return
-        # Only expecting one dataset at this point
-        # dataset = datasets[0]
+        else:
+            self._apply(self._base_conf)
+
+    @abstractmethod
+    def _apply(self, conf):  # pragma: no cover
+        pass
+
+
+class SegmentationMaskBuilder(EPICConfBuilder):
 
     def _apply(self, conf):
         datasets = conf.get_datasets()
