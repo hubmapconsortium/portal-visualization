@@ -74,7 +74,10 @@ class ViewConfBuilder(ABC):
         'https://example.com/uuid/rel_path/to/clusters.ome.tiff?token=groups_token'
 
         """
-        base_url = urllib.parse.urljoin(self._assets_endpoint, f"{self._uuid}/{rel_path}")
+        uuid = self._uuid
+        if hasattr(self, "_epic_uuid"):
+            uuid = self._epic_uuid
+        base_url = urllib.parse.urljoin(self._assets_endpoint, f"{uuid}/{rel_path}")
         token_param = urllib.parse.urlencode({"token": self._groups_token})
         return f"{base_url}?{token_param}" if use_token else base_url
 

@@ -1,6 +1,6 @@
 # portal-visualization
 
-Given HuBMAP Dataset JSON, creates a Vitessce configuration.
+Given HuBMAP Dataset JSON (e.g. https://portal.hubmapconsortium.org/browse/dataset/004d4f157df4ba07356cd805131dfc04.json), creates a Vitessce configuration.
 
 ## Release process
 
@@ -26,11 +26,12 @@ usage: vis-preview.py [-h] (--url URL | --json JSON) [--assaytypes_url URL]
                       [--to_json]
 
 Given HuBMAP Dataset JSON, generate a Vitessce viewconf, and load vitessce.io.
+required arguments (one of the following):
+  --url URL             URL which returns Dataset JSON
+  --json JSON           File containing Dataset JSON
 
 optional arguments:
   -h, --help            show this help message and exit
-  --url URL             URL which returns Dataset JSON
-  --json JSON           File containing Dataset JSON
   --assaytypes_url URL  AssayType service; default:
                         https://ingest.api.hubmapconsortium.org/assaytype/
   --assets_url URL      Assets endpoint; default:
@@ -39,6 +40,11 @@ optional arguments:
   --marker MARKER       Marker to highlight in visualization; Only used in
                         some visualizations.
   --to_json             Output viewconf, rather than open in browser.
+  ```
+
+  ```
+  Note:  to get the token, look for Authorization Bearer {token represented by long string} under search-api calls under th network tab in developer's tool when browsing a dataset in portal
+  
   ```
 
 ## Background
