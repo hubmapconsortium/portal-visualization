@@ -40,6 +40,7 @@ optional arguments:
   --marker MARKER       Marker to highlight in visualization; Only used in
                         some visualizations.
   --to_json             Output viewconf, rather than open in browser.
+  --epic_uuid           uuid for EPIC dataset, if available.
   ```
 
   ```

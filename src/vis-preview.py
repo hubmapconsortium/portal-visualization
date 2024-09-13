@@ -42,26 +42,27 @@ def main():  # pragma: no cover
     parser.add_argument(
         '--to_json', action='store_true',
         help='Output viewconf, rather than open in browser.')
-    parser.add_argument(
-        '--parent_uuid', action='store_true',
-        help='Parent uuid for the dataset',
-        default=None)
     
+    # parser.add_argument(
+    #     '--parent_uuid', action='store_true',
+    #     help='Parent uuid for the dataset',
+    #     default=None)
     parser.add_argument(
         '--epic_uuid', metavar='URL',
         help='Epic dataset"s uuid',
         default=None)
     
-    parser.add_argument(
-        '--epic_builder',  action='store_true',
-        help='Whether to use the epic_builder or not',
-        default=None)
+    # 
+    # parser.add_argument(
+    #     '--epic_builder',  action='store_true',
+    #     help='Whether to use the epic_builder or not',
+    #     default=None)
 
     args = parser.parse_args()
     marker = args.marker
-    epic_builder = args.epic_builder
+    # epic_builder = args.epic_builder
     epic_uuid = args.epic_uuid
-    parent_uuid = args.parent_uuid # this may not be needed, as the --url provides the parent dataset json?
+    # parent_uuid = args.parent_uuid # this may not be needed, as the --url provides the parent dataset json?
 
     if args.url:
         response = requests.get(args.url)
@@ -111,6 +112,7 @@ def main():  # pragma: no cover
     if args.to_json:
         print(conf_as_json)
         
+    ## For testing
     # with open ('epic.json','w') as file:
     #     if isinstance(conf_cells.conf, list):
     #         json.dump( conf_cells.conf[0], file, indent=4, separators=(',', ': '))
