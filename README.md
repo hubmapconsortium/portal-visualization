@@ -23,15 +23,14 @@ $ pip install .
 $ src/vis-preview.py --help
 usage: vis-preview.py [-h] (--url URL | --json JSON) [--assaytypes_url URL]
                       [--assets_url URL] [--token TOKEN] [--marker MARKER]
-                      [--to_json]
+                      [--to_json] [--epic_uuid UUID]
 
 Given HuBMAP Dataset JSON, generate a Vitessce viewconf, and load vitessce.io.
-required arguments (one of the following):
-  --url URL             URL which returns Dataset JSON
-  --json JSON           File containing Dataset JSON
 
 optional arguments:
   -h, --help            show this help message and exit
+  --url URL             URL which returns Dataset JSON
+  --json JSON           File containing Dataset JSON
   --assaytypes_url URL  AssayType service; default:
                         https://ingest.api.hubmapconsortium.org/assaytype/
   --assets_url URL      Assets endpoint; default:
@@ -40,12 +39,25 @@ optional arguments:
   --marker MARKER       Marker to highlight in visualization; Only used in
                         some visualizations.
   --to_json             Output viewconf, rather than open in browser.
-  --epic_uuid           uuid for EPIC dataset, if available.
+  --epic_uuid UUID      uuid of the EPIC dataset
   ```
 
-  ```
-  Note:  To get the token, look for Authorization Bearer {token represented by a long string} under `search-api` network calls under th network tab in developer's tool when browsing a dataset in portal
 
+  ```
+  Notes:  
+  1. To get the token, look for Authorization Bearer {token represented by a long string} under `search-api` network calls under th network tab in developer's tool when browsing a dataset in portal
+  2. If you added an argument to the vis-preview.py script, do update the help docs in README, otherwise build will throw error
+  3. 
+
+  ```
+
+
+
+## Build & Testing
+  ``` 
+   To build: `python -m build`   
+  `To run the tests `./test.sh`. Install the `flake8` and `autopep8` packages.
+  
   ```
 
 ## Background

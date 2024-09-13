@@ -80,6 +80,7 @@ def get_assaytype(entity):
 )
 def test_has_visualization(has_vis_entity):
     has_vis, entity = has_vis_entity
+    print(has_vis, entity)
     parent = entity.get("parent") or None  # Only used for image pyramids
     assert has_vis == has_visualization(entity, get_assaytype, parent)
 
@@ -173,7 +174,7 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
     # TODO: This is a stub for now, real tests for the EPIC builders
     # will be added in a future PR.
 
-    epic_builder = get_epic_builder(entity["uuid"])
+    epic_builder = get_epic_builder(conf, entity["uuid"])
     assert epic_builder is not None
 
     if conf is None:

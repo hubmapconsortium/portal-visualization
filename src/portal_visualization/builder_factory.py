@@ -54,10 +54,9 @@ def process_hints(hints):
 # `get_assaytype` is a function which takes an entity UUID and returns
 # a dict containing the assaytype and vitessce-hints for that entity.
 def get_view_config_builder(entity, get_assaytype, parent=None):
-    uuid = entity.get("uuid") 
-    if uuid is None:
+    if entity.get("uuid") is None:
         raise ValueError("Provided entity does not have a uuid")
-    assay = get_assaytype(uuid)
+    assay = get_assaytype(entity)
     assay_name = assay.get("assaytype")
     hints = assay.get("vitessce-hints", [])
     (
@@ -132,6 +131,7 @@ def get_view_config_builder(entity, get_assaytype, parent=None):
         return ATACSeqViewConfBuilder
     # any entity with no hints, e.g. 2c2179ea741d3bbb47772172a316a2bf
     return NullViewConfBuilder
+
 
 def has_visualization(entity, get_assaytype, parent=None):
     builder = get_view_config_builder(entity, get_assaytype, parent)
