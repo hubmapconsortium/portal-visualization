@@ -43,8 +43,8 @@ optional arguments:
   ```
 
   ```
-  Note:  to get the token, look for Authorization Bearer {token represented by long string} under search-api calls under th network tab in developer's tool when browsing a dataset in portal
-  
+  Note:  To get the token, look for Authorization Bearer {token represented by a long string} under `search-api` network calls under th network tab in developer's tool when browsing a dataset in portal
+
   ```
 
 ## Background
@@ -53,7 +53,8 @@ optional arguments:
 
 Data for the Vitessce visualization almost always comes via raw data that is processed by [ingest-pipeline](https://github.com/hubmapconsortium/ingest-pipeline) airflow dags.
 Harvard often contributes our own custom pipelines to these dags that can be found in [portal-containers](https://github.com/hubmapconsortium/portal-containers).
-The outputs of these pipelines are then converted into view configurations for Vitessce by the [portal backend](https://github.com/hubmapconsortium/portal-ui/blob/0b43a468fff0256a466a3bf928a83893321ea1d9/context/app/api/client.py#L165),
+The outputs of these pipelines are then converted into view configurations for Vitessce by the [portal backend](https://github.com/hubmapconsortium/portal-ui/blob/0b43a468fff0256a466a3bf928a83893321ea1d9/context/app/api/client.py#L165), The `vis-preview.py` mimics the invocation of `get_view_config_builder` for development and testing purposes independently, i.e., without using the [portal backend](https://github.com/hubmapconsortium/portal-ui/blob/0b43a468fff0256a466a3bf928a83893321ea1d9/context/app/api/client.py#L165).
+
 using code in this repo, when a `Dataset` that should be visualized is requested in the client.
 The view configurations are built using the [Vitessce-Python API](https://vitessce.github.io/vitessce-python/).
 

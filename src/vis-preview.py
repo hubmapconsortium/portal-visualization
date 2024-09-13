@@ -61,7 +61,7 @@ def main():  # pragma: no cover
     marker = args.marker
     epic_builder = args.epic_builder
     epic_uuid = args.epic_uuid
-    parent_uuid = args.parent_uuid
+    parent_uuid = args.parent_uuid # this may not be needed, as the --url provides the parent dataset json?
 
     if args.url:
         response = requests.get(args.url)
