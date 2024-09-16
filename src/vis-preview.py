@@ -98,8 +98,8 @@ def main():  # pragma: no cover
     conf_cells = builder.get_conf_cells(marker=marker)
 
     if (epic_uuid is not None and conf_cells is not None):
-        EpicBuilder = get_epic_builder(conf_cells, epic_uuid)
-        epic_builder = EpicBuilder(conf_cells, epic_uuid, entity, args.token, args.assets_url)
+        EpicBuilder = get_epic_builder(epic_uuid)
+        epic_builder = EpicBuilder( epic_uuid, conf_cells, entity, args.token, args.assets_url)
         print(f'Using: {epic_builder.__class__.__name__}', file=stderr)
         conf_cells = epic_builder.get_conf_cells()
 

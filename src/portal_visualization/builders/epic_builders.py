@@ -5,6 +5,9 @@ from .base_builders import ConfCells
 from ..utils import get_conf_cells
 from .base_builders import ViewConfBuilder
 from requests import get
+import re
+
+from ..paths import OFFSETS_DIR, IMAGE_PYRAMID_DIR
 
 zarr_path = 'hubmap_ui/seg-to-mudata-zarr/secondary_analysis.zarr'
 
@@ -13,7 +16,7 @@ zarr_path = 'hubmap_ui/seg-to-mudata-zarr/secondary_analysis.zarr'
 
 
 class EPICConfBuilder(ViewConfBuilder):
-    def __init__(self, base_conf: ConfCells, epic_uuid, entity, groups_token, assets_endpoint, **kwargs) -> None:
+    def __init__(self, epic_uuid, base_conf: ConfCells, entity, groups_token, assets_endpoint, **kwargs) -> None:
         super().__init__(entity, groups_token, assets_endpoint, **kwargs)
 
         conf, cells = base_conf
@@ -54,17 +57,27 @@ class EPICConfBuilder(ViewConfBuilder):
         adata_url = self._build_assets_url(zarr_path, use_token=False)
         return adata_url
 
-    def segmentations_url(self):
-        seg_url = self._build_assets_url('', use_token=False)
-        return seg_url
+    def segmentations_url(self, img_path):
+        img_url = self._build_assets_url(img_path)
+        return (
+            img_url,
+            str(
+                re.sub(
+                    r"ome\.tiff?",
+                    "offsets.json",
+                    re.sub(IMAGE_PYRAMID_DIR, OFFSETS_DIR, img_url),
+                )
+            ),
+        )
 
 
 class SegmentationMaskBuilder(EPICConfBuilder):
     def _apply(self, conf):
         zarr_url = self.zarr_store_url()
         datasets = conf.get_datasets()
-        # TODO: add the correct path to the segmentation mask ome-tiff (image-pyramid)?
-        seg_path = f'{self.segmentations_url}/'
+        # TODO: add the correct path to the segmentation mask ome-tiff (image-pyramid)
+        seg_path = f'{self.segmentations_url("seg")}/'
+        # print(seg_path)
         seg_path = (
             'https://assets.hubmapconsortium.org/c9d9ab5c9ee9642b60dd351024968627/'
             'ometiff-pyramids/VAN0042-RK-3-18-registered-PAS-to-postAF-registered.ome_mask.ome.tif?'
@@ -127,7 +140,7 @@ class SegmentationMaskBuilder(EPICConfBuilder):
 def create_segmentation_objects(base_url, mask_names):
     segmentation_objects = []
     for mask_name in mask_names:
-        mask_url = f'{base_url}/{mask_name}.zarr',
+        mask_url = f'{base_url}/{mask_name}.zarr'
         segmentations_zarr = AnnDataWrapper(
             adata_url=mask_url,
             obs_locations_path="obsm/X_spatial",
