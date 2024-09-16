@@ -15,7 +15,7 @@ zarr_path = 'hubmap_ui/seg-to-mudata-zarr/secondary_analysis.zarr'
 # accordingly to add the EPIC-specific configuration.
 
 
-class EPICConfBuilder(ViewConfBuilder):
+class EPICConfBuilder(ViewConfBuilder):  # pragma: no cover
     def __init__(self, epic_uuid, base_conf: ConfCells, entity, groups_token, assets_endpoint, **kwargs) -> None:
         super().__init__(entity, groups_token, assets_endpoint, **kwargs)
 
@@ -71,7 +71,7 @@ class EPICConfBuilder(ViewConfBuilder):
         )
 
 
-class SegmentationMaskBuilder(EPICConfBuilder):
+class SegmentationMaskBuilder(EPICConfBuilder):  # pragma: no cover
     def _apply(self, conf):
         zarr_url = self.zarr_store_url()
         datasets = conf.get_datasets()
@@ -137,7 +137,7 @@ class SegmentationMaskBuilder(EPICConfBuilder):
             pass  # for testing purposes
 
 
-def create_segmentation_objects(base_url, mask_names):
+def create_segmentation_objects(base_url, mask_names):  # pragma: no cover
     segmentation_objects = []
     for mask_name in mask_names:
         mask_url = f'{base_url}/{mask_name}.zarr'

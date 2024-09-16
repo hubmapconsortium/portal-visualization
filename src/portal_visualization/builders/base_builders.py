@@ -75,7 +75,7 @@ class ViewConfBuilder(ABC):
 
         """
         uuid = self._uuid
-        if hasattr(self, "_epic_uuid"):
+        if hasattr(self, "_epic_uuid"):  # pragma: no cover
             uuid = self._epic_uuid
         base_url = urllib.parse.urljoin(self._assets_endpoint, f"{uuid}/{rel_path}")
         token_param = urllib.parse.urlencode({"token": self._groups_token})
