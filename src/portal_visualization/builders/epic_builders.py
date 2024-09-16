@@ -79,9 +79,9 @@ class SegmentationMaskBuilder(EPICConfBuilder):  # pragma: no cover
         seg_path = f'{self.segmentations_url("seg")}/'
         # print(seg_path)
         seg_path = (
-            'https://assets.hubmapconsortium.org/c9d9ab5c9ee9642b60dd351024968627/'
-            'ometiff-pyramids/VAN0042-RK-3-18-registered-PAS-to-postAF-registered.ome_mask.ome.tif?'
-            'token=AgzQXm7nvOW32vWw0EPpKonwbOqjNBzNvvW1p15855NoYglJxyfkC8rlJJWy8V6E8MeyXOwlpKdNBnHb5qnv7f8oeeG'
+            f"""https://assets.hubmapconsortium.org/c9d9ab5c9ee9642b60dd351024968627/
+            ometiff-pyramids/VAN0042-RK-3-18-registered-PAS-to-postAF-registered.ome_mask.ome.tif?
+            token={self._groups_token}"""
         )
         mask_names = self.read_metadata_from_url()
         mask_names = ['mask1', 'mask2']  # for testing purposes

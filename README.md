@@ -23,7 +23,7 @@ $ pip install .
 $ src/vis-preview.py --help
 usage: vis-preview.py [-h] (--url URL | --json JSON) [--assaytypes_url URL]
                       [--assets_url URL] [--token TOKEN] [--marker MARKER]
-                      [--to_json] [--epic_uuid UUID]
+                      [--to_json] [--epic_uuid UUID] [--parent_uuid UUID]
 
 Given HuBMAP Dataset JSON, generate a Vitessce viewconf, and load vitessce.io.
 
@@ -39,18 +39,18 @@ optional arguments:
   --marker MARKER       Marker to highlight in visualization; Only used in
                         some visualizations.
   --to_json             Output viewconf, rather than open in browser.
-  --epic_uuid UUID      uuid of the EPIC dataset
+  --epic_uuid UUID      uuid of the EPIC dataset.
+  --parent_uuid UUID    Parent uuid - Only needed for an image-pyramid support
+                        dataset.
   ```
 
 
   ```
   Notes:  
-  1. To get the token, look for Authorization Bearer {token represented by a long string} under `search-api` network calls under th network tab in developer's tool when browsing a dataset in portal
-  2. If you added an argument to the vis-preview.py script, do update the help docs in README, otherwise build will throw error
-  3. 
-
+  1. The token can be retrieved by looking for Authorization Bearer {token represented by a long string} under `search-api` network calls under the network tab in developer's tool when browsing a dataset in portal while logged in. The token is necessary to access non-public datasets, such as those in QA.
+  2. The documentation for the `vis-preview.py` script must match the contents of the readme. When a script argument is added or modified, the README must be updated to match the output of `./vis-preview.py --help`.
+  
   ```
-
 
 
 ## Build & Testing
@@ -66,7 +66,8 @@ optional arguments:
 
 Data for the Vitessce visualization almost always comes via raw data that is processed by [ingest-pipeline](https://github.com/hubmapconsortium/ingest-pipeline) airflow dags.
 Harvard often contributes our own custom pipelines to these dags that can be found in [portal-containers](https://github.com/hubmapconsortium/portal-containers).
-The outputs of these pipelines are then converted into view configurations for Vitessce by the [portal backend](https://github.com/hubmapconsortium/portal-ui/blob/0b43a468fff0256a466a3bf928a83893321ea1d9/context/app/api/client.py#L165), The `vis-preview.py` mimics the invocation of `get_view_config_builder` for development and testing purposes independently, i.e., without using the [portal backend](https://github.com/hubmapconsortium/portal-ui/blob/0b43a468fff0256a466a3bf928a83893321ea1d9/context/app/api/client.py#L165).
+
+The outputs of these pipelines are then converted into view configurations for Vitessce by the [portal backend](https://github.com/hubmapconsortium/portal-visualization/blob/main/src/portal_visualization/client.py), The `vis-preview.py` mimics the invocation of `get_view_config_builder` for development and testing purposes independently, i.e., without using the [portal backend](https://github.com/hubmapconsortium/portal-ui/blob/main/context/app/routes_browse.py#L126).
 
 using code in this repo, when a `Dataset` that should be visualized is requested in the client.
 The view configurations are built using the [Vitessce-Python API](https://vitessce.github.io/vitessce-python/).

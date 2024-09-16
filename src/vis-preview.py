@@ -43,13 +43,13 @@ def main():  # pragma: no cover
     parser.add_argument(
         '--to_json', action='store_true',
         help='Output viewconf, rather than open in browser.')
-    # parser.add_argument(
-    #     '--parent_uuid', action='store_true',
-    #     help='Parent uuid for the dataset',
-    #     default=None)
     parser.add_argument(
         '--epic_uuid', metavar='UUID',
-        help='uuid of the EPIC dataset',
+        help='uuid of the EPIC dataset.',
+        default=None)
+    parser.add_argument(
+        '--parent_uuid', metavar='UUID',
+        help='Parent uuid - Only needed for an image-pyramid support dataset.',
         default=None)
 
     #
@@ -62,10 +62,11 @@ def main():  # pragma: no cover
     marker = args.marker
     # epic_builder = args.epic_builder
     epic_uuid = args.epic_uuid
-    # parent_uuid = args.parent_uuid # this may not be needed, as the --url provides the parent dataset json?
+    parent_uuid = args.parent_uuid
 
+    headers = get_headers(args.token)
     if args.url:
-        response = requests.get(args.url)
+        response = requests.get(args.url, headers=headers)
         if response.status_code == 403:
             raise Exception('Protected data: Download JSON via browser; Redo with --json')
         response.raise_for_status()
@@ -76,9 +77,6 @@ def main():  # pragma: no cover
 
     def get_assaytype(entity):
         uuid = entity.get("uuid")
-        headers = {}
-        if args.token:
-            headers['Authorization'] = f'Bearer {args.token}'
         try:
             response = requests.get(f'{defaults["assaytypes_url"]}{uuid}', headers=headers)
             if response.status_code != 200:
@@ -92,7 +90,7 @@ def main():  # pragma: no cover
         except Exception as e:
             print(f"Error accessing {defaults['assaytypes_url']}{uuid}: {str(e)}")
 
-    Builder = get_view_config_builder(entity, get_assaytype)
+    Builder = get_view_config_builder(entity, get_assaytype, parent_uuid)
     builder = Builder(entity, args.token, args.assets_url)
     print(f'Using: {builder.__class__.__name__}', file=stderr)
     conf_cells = builder.get_conf_cells(marker=marker)
@@ -121,6 +119,13 @@ def main():  # pragma: no cover
     data_url = f'data:,{quote_plus(conf_as_json)}'
     vitessce_url = f'http://vitessce.io/#?url={data_url}'
     open_new_tab(vitessce_url)
+
+
+def get_headers(token):  # pragma: no cover
+    headers = {}
+    if token:
+        headers['Authorization'] = f'Bearer {token}'
+    return headers
 
 
 if __name__ == "__main__":  # pragma: no cover
