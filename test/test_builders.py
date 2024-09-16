@@ -9,8 +9,8 @@ from dataclasses import dataclass
 import pytest
 import zarr
 
-from src.portal_visualization.epic_factory import get_epic_builder
-from src.portal_visualization.builders.base_builders import ConfCells
+# from src.portal_visualization.epic_factory import get_epic_builder
+# from src.portal_visualization.builders.base_builders import ConfCells
 from src.portal_visualization.builder_factory import (
     get_view_config_builder,
     has_visualization,
@@ -147,7 +147,7 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
     # but to test the end-to-end integration, they are useful.
     groups_token = environ.get("GROUPS_TOKEN", "groups_token")
     assets_url = environ.get("ASSETS_URL", "https://example.com")
-    epic_uuid = environ.get("EPIC_UUID", "epic_uuid")
+    # epic_uuid = environ.get("EPIC_UUID", "epic_uuid")
     builder = Builder(entity, groups_token, assets_url)
     conf, cells = builder.get_conf_cells(marker=marker)
 
