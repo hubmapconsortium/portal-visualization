@@ -30,7 +30,6 @@ class AbstractScatterplotViewConfBuilder(ViewConfBuilder):
         dataset = vc.add_dataset(name="Visualization Files")
         # The sublcass initializes _files in its __init__ method
         for file in self._files:
-            print(f"Adding file: {file}")
             dataset = dataset.add_file(**(self._replace_url_in_file(file)))
         vc = self._setup_scatterplot_view_config(vc, dataset)
         return get_conf_cells(vc)
