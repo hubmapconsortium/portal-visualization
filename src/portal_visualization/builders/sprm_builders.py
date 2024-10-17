@@ -292,7 +292,6 @@ class MultiImageSPRMAnndataViewConfBuilder(ViewConfBuilder):
         found_ids = self._find_ids()
         confs = []
         for id in sorted(found_ids):
-            print(f'Adding SPRM view config for id {id}')
             builder = SPRMAnnDataViewConfBuilder(
                 entity=self._entity,
                 groups_token=self._groups_token,
@@ -304,7 +303,6 @@ class MultiImageSPRMAnndataViewConfBuilder(ViewConfBuilder):
                 mask_name=f"{id}_{self._mask_id}"
             )
             conf = builder.get_conf_cells(marker=marker).conf
-            print(f'Got SPRM view config for id {id}, conf: {conf}')
             if conf == {}:
                 raise MultiImageSPRMAnndataViewConfigError(  # pragma: no cover
                     f"Cytokit SPRM assay with uuid {self._uuid} has empty view\
@@ -325,7 +323,6 @@ class StitchedCytokitSPRMViewConfBuilder(MultiImageSPRMAnndataViewConfBuilder):
     # Need to override base class settings due to different directory structure
     def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
         super().__init__(entity, groups_token, assets_endpoint, **kwargs)
-        print('Using StitchedCytokitSPRMViewConfBuilder')
         self._image_pyramid_subdir = STITCHED_IMAGE_DIR
         # The ids don't match exactly with the replacement because all image files have
         # stitched_expressions appended while the subdirectory only has /stitched/
