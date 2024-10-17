@@ -58,11 +58,11 @@ def main():  # pragma: no cover
         json_str = args.json.read_text()
     entity = json.loads(json_str)
 
-    def get_assaytype(entity):
+    def get_assaytype(uuid):
         headers = {}
         if args.token:
             headers['Authorization'] = f'Bearer {args.token}'
-        return requests.get(f'{defaults["assaytypes_url"]}/{entity["uuid"]}', headers=headers).json()
+        requests.get(f'{defaults["assaytypes_url"]}/{uuid}', headers=headers).json()
 
     Builder = get_view_config_builder(entity, get_assaytype)
     builder = Builder(entity, args.token, args.assets_url)
