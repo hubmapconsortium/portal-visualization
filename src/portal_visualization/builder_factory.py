@@ -8,6 +8,7 @@ from .builders.imaging_builders import (
     SeqFISHViewConfBuilder,
     IMSViewConfBuilder,
     ImagePyramidViewConfBuilder,
+    SegImagePyramidViewConfBuilder,
     NanoDESIViewConfBuilder,
 )
 from .builders.anndata_builders import (
@@ -33,6 +34,7 @@ def process_hints(hints):
     is_json = "json_based" in hints
     is_spatial = "spatial" in hints
     is_support = "is_support" in hints
+    is_segmentation_mask = "segmentation_mask" in hints
 
     return (
         is_image,
@@ -44,6 +46,7 @@ def process_hints(hints):
         is_json,
         is_spatial,
         is_support,
+        is_segmentation_mask,
     )
 
 
@@ -56,7 +59,7 @@ def process_hints(hints):
 def get_view_config_builder(entity, get_assaytype, parent=None):
     if entity.get("uuid") is None:
         raise ValueError("Provided entity does not have a uuid")
-    assay = get_assaytype(entity)
+    assay = get_assaytype(entity.get('uuid'))
     assay_name = assay.get("assaytype")
     hints = assay.get("vitessce-hints", [])
     (
@@ -69,6 +72,7 @@ def get_view_config_builder(entity, get_assaytype, parent=None):
         is_json,
         is_spatial,
         is_support,
+        is_segmentation_mask
     ) = process_hints(hints)
 
     # vis-lifted image pyramids
@@ -91,6 +95,8 @@ def get_view_config_builder(entity, get_assaytype, parent=None):
                 # e.g. parent  = 8adc3c31ca84ec4b958ed20a7c4f4919
                 # e.g. support = f9ae931b8b49252f150d7f8bf1d2d13f
                 return ImagePyramidViewConfBuilder
+        elif is_segmentation_mask:
+            return SegImagePyramidViewConfBuilder
         else:
             return NullViewConfBuilder
 

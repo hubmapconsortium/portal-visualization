@@ -2,14 +2,16 @@ from abc import abstractmethod
 from vitessce import VitessceConfig, ObsSegmentationsOmeTiffWrapper, AnnDataWrapper, \
     get_initial_coordination_scope_prefix, CoordinationLevel as CL
 from .base_builders import ConfCells
-from ..utils import get_conf_cells
+from ..utils import get_conf_cells, get_matches
 from .base_builders import ViewConfBuilder
 from requests import get
 import re
+import random
 
-from ..paths import OFFSETS_DIR, IMAGE_PYRAMID_DIR
+from ..paths import OFFSETS_DIR, IMAGE_PYRAMID_DIR, SEGMENTATION_SUBDIR, SEGMENTATION_ZARR_STORES
 
-zarr_path = 'hubmap_ui/seg-to-mudata-zarr/secondary_analysis.zarr'
+
+zarr_path = f'{SEGMENTATION_SUBDIR}/{SEGMENTATION_ZARR_STORES}'
 
 # EPIC builders take in a vitessce conf output by a previous builder and modify it
 # accordingly to add the EPIC-specific configuration.
@@ -32,6 +34,9 @@ class EPICConfBuilder(ViewConfBuilder):  # pragma: no cover
             ]
         else:
             self._base_conf: VitessceConfig = VitessceConfig.from_dict(base_conf.conf)
+            # Starting from scratch with a base conf
+            # self._base_conf: VitessceConfig =  VitessceConfig(name="HuBMAP Data Portal",
+            # schema_version=self._schema_version)
 
         self._epic_uuid = epic_uuid
         pass
@@ -57,8 +62,8 @@ class EPICConfBuilder(ViewConfBuilder):  # pragma: no cover
         adata_url = self._build_assets_url(zarr_path, use_token=False)
         return adata_url
 
-    def segmentations_url(self, img_path):
-        img_url = self._build_assets_url(img_path)
+    def segmentations_ome_offset_url(self, img_path):
+        img_url = self._build_assets_url(f'{SEGMENTATION_SUBDIR}/{img_path}')
         return (
             img_url,
             str(
@@ -75,71 +80,80 @@ class SegmentationMaskBuilder(EPICConfBuilder):  # pragma: no cover
     def _apply(self, conf):
         zarr_url = self.zarr_store_url()
         datasets = conf.get_datasets()
-        # TODO: add the correct path to the segmentation mask ome-tiff (image-pyramid)
-        seg_path = f'{self.segmentations_url("seg")}/'
-        # print(seg_path)
-        seg_path = (
-            f"""https://assets.hubmapconsortium.org/c9d9ab5c9ee9642b60dd351024968627/
-            ometiff-pyramids/VAN0042-RK-3-18-registered-PAS-to-postAF-registered.ome_mask.ome.tif?
-            token={self._groups_token}"""
-        )
-        mask_names = self.read_metadata_from_url()
-        mask_names = ['mask1', 'mask2']  # for testing purposes
-        if (mask_names is not None):
-            segmentation_objects = create_segmentation_objects(zarr_url, mask_names)
-            segmentations = ObsSegmentationsOmeTiffWrapper(
-                img_url=seg_path,
-                obs_types_from_channel_names=True,
-                coordination_values={
-                    "fileUid": "segmentation-mask"
-                }
-            )
+        file_paths_found = self._get_file_paths()
 
+        found_images = [
+            path for path in get_matches(
+                file_paths_found, IMAGE_PYRAMID_DIR + r".*\.ome\.tiff?$",
+            )
+        ]
+        found_images = sorted(found_images)
+        # print(found_images)
+        if len(found_images) == 0:
+            message = f"Image pyramid assay with uuid {self._uuid} has no matching files"
+            raise FileNotFoundError(message)
+
+        if len(found_images) == 1:
+            img_url, offsets_url = self.segmentations_ome_offset_url(
+                found_images[0]
+            )
+        # print(offsets_url)
+        segmentations = ObsSegmentationsOmeTiffWrapper(
+            img_url=img_url,
+            offsets_url=offsets_url,
+            obs_types_from_channel_names=True,
+            coordination_values={
+                "fileUid": "segmentation-mask"
+            }
+        )
+
+        mask_names = self.read_metadata_from_url()
+        if (mask_names is not None):
+            segmentation_objects, segmentations_CL = create_segmentation_objects(zarr_url, mask_names)
             for dataset in datasets:
                 dataset.add_object(segmentations)
                 for obj in segmentation_objects:
                     dataset.add_object(obj)
 
-                # TODO: what happens if these views already exist , and if there are other views, how to place these?
-                spatial_view = conf.add_view("spatialBeta", dataset=dataset, w=8, h=12)
-                lc_view = conf.add_view("layerControllerBeta", dataset=dataset, w=4, h=12, x=8, y=0)
-                # without add_view can't access the metaCoordincatinSpace
-                # (e.g. get_coordination_scope() https://python-docs.vitessce.io/api_config.html?
-                # highlight=coordination#vitessce.config.VitessceChainableConfig.get_coordination_scope)
-                conf.link_views_by_dict([spatial_view, lc_view], {
-                    "segmentationLayer": CL([
-                        {
-                            "fileUid": "segmentation-mask",
-                            "spatialLayerVisible": True,
-                            "spatialLayerOpacity": 1,
-                        }
-                    ])
+            # print(spatial_view.to_dict())
+            # print(.to_dict())
+            # spatial_view = conf.add_view("spatialBeta", dataset=dataset, w=8, h=12)
+            # lc_view = conf.add_view("layerControllerBeta", dataset=dataset, w=4, h=12, x=8, y=0)
+            spatial_view = conf.get_first_view_by_type('spatialBeta')
+            lc_view = conf.get_first_view_by_type('layerControllerBeta')
+            conf.link_views_by_dict([spatial_view, lc_view], {
+                "segmentationLayer": CL([
+                    {
+                        "fileUid": "segmentation-mask",
+                        "spatialLayerVisible": True,
+                        "spatialLayerOpacity": 1,
+                        "segmentationChannel": CL(segmentations_CL)
+                    }
+                ])
 
-                }, meta=True, scope_prefix=get_initial_coordination_scope_prefix("A", "obsSegmentations"))
+            }, meta=True, scope_prefix=get_initial_coordination_scope_prefix("A", "obsSegmentations"))
 
     def read_metadata_from_url(self):
+        mask_names = []
         url = f'{self.zarr_store_url()}/metadata.json'
-        print(f"metadata.json URL: {url}")
-        # url ='https://portal.hubmapconsortium.org/browse/dataset/004d4f157df4ba07356cd805131dfc04.json'
         request_init = self._get_request_init() or {}
         response = get(url, **request_init)
         if response.status_code == 200:
             data = response.json()
-            if isinstance(data, dict) and "mask_name" in data:
-                mask_name = data["mask_name"]
-                print(f"Mask name found: {mask_name}")
-                return mask_name
+            if isinstance(data, dict) and "mask_names" in data:
+                mask_names = data["mask_names"]
             else:
-                print("'mask_name' key not found in the response.")
-                return None
+                print("'mask_names' key not found in the response.")
         else:
-            # raise Exception(f"Failed to retrieve data: {response.status_code} - {response.reason}")
-            pass  # for testing purposes
+            raise Exception(f"Failed to retrieve metadata.json: {response.status_code} - {response.reason}")
+        return mask_names
 
 
 def create_segmentation_objects(base_url, mask_names):  # pragma: no cover
     segmentation_objects = []
-    for mask_name in mask_names:
+    segmentations_CL = []
+    for index, mask_name in enumerate(mask_names):
+        color_channel = generate_unique_color()
         mask_url = f'{base_url}/{mask_name}.zarr'
         segmentations_zarr = AnnDataWrapper(
             adata_url=mask_url,
@@ -149,6 +163,21 @@ def create_segmentation_objects(base_url, mask_names):  # pragma: no cover
                 "obsType": mask_name
             }
         )
-        segmentation_objects.append(segmentations_zarr)
+        seg_CL = {
+            "spatialTargetC": index,
+            "obsType": mask_name,
+            "spatialChannelOpacity": 1,
+            "spatialChannelColor": color_channel
 
-    return segmentation_objects
+        }
+        segmentation_objects.append(segmentations_zarr)
+        segmentations_CL.append(seg_CL)
+    return segmentation_objects, segmentations_CL
+
+def generate_unique_color():
+    return [random.randint(0, 255) for _ in range(3)]
+
+# def get_modified_url(url, file_pattern):
+#     pattern = fr"(/[^/]+/)({file_pattern})"
+#     modified_url = re.sub(pattern, r"\1extras/transformations/\2", url)
+#     return modified_url

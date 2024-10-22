@@ -75,8 +75,7 @@ def main():  # pragma: no cover
         json_str = args.json.read_text()
     entity = json.loads(json_str)
 
-    def get_assaytype(entity):
-        uuid = entity.get("uuid")
+    def get_assaytype(uuid):
         try:
             response = requests.get(f'{defaults["assaytypes_url"]}{uuid}', headers=headers)
             if response.status_code != 200:

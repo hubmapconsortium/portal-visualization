@@ -1,4 +1,4 @@
 {
-  "assets_url": "https://assets.hubmapconsortium.org",
-  "assaytypes_url": "https://ingest.api.hubmapconsortium.org/assaytype/"
+  "assets_url": "https://assets.dev.hubmapconsortium.org",
+  "assaytypes_url": "https://ingest-api.dev.hubmapconsortium.org/assaytype/"
 }
