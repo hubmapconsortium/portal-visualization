@@ -9,8 +9,8 @@ from dataclasses import dataclass
 import pytest
 import zarr
 
-# from src.portal_visualization.epic_factory import get_epic_builder
-# from src.portal_visualization.builders.base_builders import ConfCells
+from src.portal_visualization.epic_factory import get_epic_builder
+from src.portal_visualization.builders.base_builders import ConfCells
 from src.portal_visualization.builder_factory import (
     get_view_config_builder,
     has_visualization,
@@ -61,7 +61,13 @@ default_assaytype = {
 }
 
 
-def get_assaytype(uuid):
+def get_assaytype(input):
+    # uuid = entity.get("uuid")
+    if not isinstance(input, str):
+        uuid = input.get("uuid")
+    else:
+        uuid = input
+    # print(uuid, assaytypes_path.joinpath(f"{uuid}.json"))
     if uuid is None:  # pragma: no cover
         return default_assaytype
     assay = json.loads(assaytypes_path.joinpath(f"{uuid}.json").read_text())
@@ -139,8 +145,8 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
 
     entity = json.loads(entity_path.read_text())
     parent = entity.get("parent") or None  # Only used for image pyramids
+    assay_type = get_assaytype(entity["uuid"])
     Builder = get_view_config_builder(entity, get_assaytype, parent)
-    assert Builder.__name__ == entity_path.parent.name
 
     # Envvars should not be set during normal test runs,
     # but to test the end-to-end integration, they are useful.
@@ -150,45 +156,48 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
     builder = Builder(entity, groups_token, assets_url)
     conf, cells = builder.get_conf_cells(marker=marker)
 
-    expected_conf_path = entity_path.parent / entity_path.name.replace(
-        "-entity", "-conf"
-    )
-    expected_conf = json.loads(expected_conf_path.read_text())
+    if 'segmentation_mask' not in assay_type['vitessce-hints']:
+        assert Builder.__name__ == entity_path.parent.name
+        expected_conf_path = entity_path.parent / entity_path.name.replace(
+            "-entity", "-conf"
+        )
+        expected_conf = json.loads(expected_conf_path.read_text())
 
-    # Compare normalized JSON strings so the diff is easier to read,
-    # and there are fewer false positives.
-    assert json.dumps(conf, indent=2, sort_keys=True) == json.dumps(
-        expected_conf, indent=2, sort_keys=True
-    )
+        # Compare normalized JSON strings so the diff is easier to read,
+        # and there are fewer false positives.
+        assert json.dumps(conf, indent=2, sort_keys=True) == json.dumps(
+            expected_conf, indent=2, sort_keys=True
+        )
 
-    expected_cells_path = entity_path.parent / entity_path.name.replace(
-        "-entity.json", "-cells.yaml"
-    )
-    if expected_cells_path.is_file():
-        expected_cells = yaml.safe_load(expected_cells_path.read_text())
+        expected_cells_path = entity_path.parent / entity_path.name.replace(
+            "-entity.json", "-cells.yaml"
+        )
+        if expected_cells_path.is_file():
+            expected_cells = yaml.safe_load(expected_cells_path.read_text())
 
-        # Compare as YAML to match fixture.
-        assert yaml.dump(clean_cells(cells)) == yaml.dump(expected_cells)
+            # Compare as YAML to match fixture.
+            assert yaml.dump(clean_cells(cells)) == yaml.dump(expected_cells)
 
-    # TODO: This is a stub for now, real tests for the EPIC builders
-    # will be added in a future PR.
 
-    # epic_builder = get_epic_builder(conf, epic_uuid)
-    # assert epic_builder is not None
+    if 'segmentation_mask' in assay_type['vitessce-hints']:
+        epic_builder = get_epic_builder(entity["uuid"])
+        assert epic_builder is not None
+        assert epic_builder.__name__ == entity_path.parent.name
 
-    # if conf is None:
-    #     with pytest.raises(ValueError):
-    #         epic_builder(ConfCells(conf, cells), epic_uuid, entity, groups_token, parent).get_conf_cells()
-    #     return
+        if conf is None:
+            with pytest.raises(ValueError):
+                epic_builder(entity["uuid"],
+                             ConfCells(conf, cells), entity, groups_token, assets_url).get_conf_cells()
+            return
 
-    # built_epic_conf, _ = epic_builder(
-    #     ConfCells(conf, cells), epic_uuid, entity, groups_token, parent
-    # ).get_conf_cells()
+        built_epic_conf, _ = epic_builder(entity["uuid"],
+                                          ConfCells(conf, cells), entity, groups_token, assets_url
+                                          ).get_conf_cells()
 
-    # assert built_epic_conf is not None
-    # assert json.dumps(built_epic_conf, indent=2, sort_keys=True) == json.dumps(
-    #     conf, indent=2, sort_keys=True
-    # )
+        assert built_epic_conf is not None
+        # assert json.dumps(built_epic_conf, indent=2, sort_keys=True) == json.dumps(
+        #     conf, indent=2, sort_keys=True
+        # )
 
 
 @pytest.mark.parametrize("entity_path", bad_entity_paths, ids=lambda path: path.name)

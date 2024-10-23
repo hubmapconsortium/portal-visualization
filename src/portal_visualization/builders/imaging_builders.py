@@ -6,8 +6,6 @@ from vitessce import (
     MultiImageWrapper,
     OmeTiffWrapper,
     Component as cm,
-    # get_initial_coordination_scope_prefix,
-    # CoordinationLevel as CL
 )
 
 from ..utils import get_matches, group_by_file_name, get_conf_cells
@@ -59,29 +57,12 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
         return vc
 
     def _setup_view_config_seg(self, vc, dataset, disable_3d=[], use_full_resolution=[]):
-        spatial_view = vc.add_view("spatialBeta", dataset=dataset, x=3, y=0, w=9, h=12).set_props(
+        vc.add_view("spatialBeta", dataset=dataset, x=3, y=0, w=9, h=12).set_props(
             useFullResolutionImage=use_full_resolution
         )
         # vc.add_view(cm.DESCRIPTION, dataset=dataset, x=0, y=8, w=3, h=4)
-        lc_view = vc.add_view("layerControllerBeta", dataset=dataset, x=0, y=0, w=3, h=8).set_props(
+        vc.add_view("layerControllerBeta", dataset=dataset, x=0, y=0, w=3, h=8).set_props(
             disable3d=disable_3d, disableChannelsIfRgbDetected=True
-        )
-
-        # IMAGE_LAYERS = [
-        #     {
-        #         "fileUid": "ome-image",
-        #         "photometricInterpretation": "RGB",
-        #         "spatialLayerOpacity": 1.0,
-        #         "spatialLayerTransparentColor": None,
-        #         "spatialLayerVisible": True,
-        #     }
-        # ]
-        vc.link_views_by_dict([spatial_view, lc_view], {
-            "spatialTargetZ": 0,
-            "spatialTargetT": 0,
-            # "imageLayer": CL(IMAGE_LAYERS),
-        }
-            # , meta=True, scope_prefix=get_initial_coordination_scope_prefix("A", "image"))
         )
         return vc
 
@@ -138,9 +119,9 @@ class ImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
 
 class SegImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
     def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
-        """Wrapper class for creating a standard view configuration for image pyramids,
+        """Wrapper class for creating a standard view configuration for image pyramids for segmenation mask,
         i.e for high resolution viz-lifted imaging datasets like
-        https://portal.hubmapconsortium.org/browse/dataset/dc289471333309925e46ceb9bafafaf4
+        https://portal.hubmapconsortium.org/browse/dataset/
         """
         self.image_pyramid_regex = IMAGE_PYRAMID_DIR
         self.use_full_resolution = []

@@ -17,7 +17,7 @@ zarr_path = f'{SEGMENTATION_SUBDIR}/{SEGMENTATION_ZARR_STORES}'
 # accordingly to add the EPIC-specific configuration.
 
 
-class EPICConfBuilder(ViewConfBuilder):  # pragma: no cover
+class EPICConfBuilder(ViewConfBuilder):
     def __init__(self, epic_uuid, base_conf: ConfCells, entity, groups_token, assets_endpoint, **kwargs) -> None:
         super().__init__(entity, groups_token, assets_endpoint, **kwargs)
 
@@ -34,9 +34,6 @@ class EPICConfBuilder(ViewConfBuilder):  # pragma: no cover
             ]
         else:
             self._base_conf: VitessceConfig = VitessceConfig.from_dict(base_conf.conf)
-            # Starting from scratch with a base conf
-            # self._base_conf: VitessceConfig =  VitessceConfig(name="HuBMAP Data Portal",
-            # schema_version=self._schema_version)
 
         self._epic_uuid = epic_uuid
         pass
@@ -76,10 +73,11 @@ class EPICConfBuilder(ViewConfBuilder):  # pragma: no cover
         )
 
 
-class SegmentationMaskBuilder(EPICConfBuilder):  # pragma: no cover
+class SegmentationMaskBuilder(EPICConfBuilder):
     def _apply(self, conf):
         zarr_url = self.zarr_store_url()
         datasets = conf.get_datasets()
+
         file_paths_found = self._get_file_paths()
 
         found_images = [
@@ -149,7 +147,7 @@ class SegmentationMaskBuilder(EPICConfBuilder):  # pragma: no cover
         return mask_names
 
 
-def create_segmentation_objects(base_url, mask_names):  # pragma: no cover
+def create_segmentation_objects(base_url, mask_names):
     segmentation_objects = []
     segmentations_CL = []
     for index, mask_name in enumerate(mask_names):
@@ -164,20 +162,18 @@ def create_segmentation_objects(base_url, mask_names):  # pragma: no cover
             }
         )
         seg_CL = {
-            "spatialTargetC": index,
+            # TODO: manually to match image channels - need to be fixed on the JS side
+            "spatialTargetC": index+2, 
             "obsType": mask_name,
             "spatialChannelOpacity": 1,
-            "spatialChannelColor": color_channel
+            "spatialChannelColor": color_channel,
+             "obsHighlight": None
 
         }
         segmentation_objects.append(segmentations_zarr)
         segmentations_CL.append(seg_CL)
     return segmentation_objects, segmentations_CL
 
+
 def generate_unique_color():
     return [random.randint(0, 255) for _ in range(3)]
-
-# def get_modified_url(url, file_pattern):
-#     pattern = fr"(/[^/]+/)({file_pattern})"
-#     modified_url = re.sub(pattern, r"\1extras/transformations/\2", url)
-#     return modified_url

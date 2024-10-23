@@ -1,6 +1,9 @@
 pytest==5.2.1
 flake8==7.0.0
-autopep8==1.4.4
+autopep8==2.0.4
 pytest-mock==3.7.0
-coverage==6.3.1
-pyyaml==6.0
+coverage==7.6.4
+pyyaml==6.0.2
+anywidget==0.9.13
+starlette==0.41.0
+uvicorn==0.32.0
