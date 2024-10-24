@@ -14,11 +14,11 @@
             "usePhysicalSizeScaling": false,
             "images": [
               {
-                "name": "91706.segmentations.ome.tif",
+                "name": "VAN0003-LK-33-2-PAS_FFPE.ome.tif",
                 "type": "ome-tiff",
-                "url": "https://assets.dev.hubmapconsortium.org/fcd7f68678d85a4a4d28a4b269de379e/ometiff-pyramids/91706.segmentations.ome.tif?token=AggGX1kE5EmVeNlDvJzYjmBe2q70EM38ylKy53DqpkJN7rzpQ1FJCgXyaNJr0gMPoQO5p6rOzo3xkaU0k9OvpsY9OOB",
+                "url": "https://example.com/f9ae931b8b49252f150d7f8bf1d2d13f/ometiff-pyramids/processedMicroscopy/VAN0003-LK-33-2-PAS_FFPE.ome.tif?token=groups_token",
                 "metadata": {
-                  "omeTiffOffsetsUrl": "https://assets.dev.hubmapconsortium.org/fcd7f68678d85a4a4d28a4b269de379e/output_offsets/91706.segmentations.offsets.json?token=AggGX1kE5EmVeNlDvJzYjmBe2q70EM38ylKy53DqpkJN7rzpQ1FJCgXyaNJr0gMPoQO5p6rOzo3xkaU0k9OvpsY9OOB",
+                  "omeTiffOffsetsUrl": "https://example.com/f9ae931b8b49252f150d7f8bf1d2d13f/output_offsets/processedMicroscopy/VAN0003-LK-33-2-PAS_FFPE.offsets.json?token=groups_token",
                   "isBitmask": false
                 }
               }
@@ -27,10 +27,10 @@
         },
         {
           "fileType": "obsSegmentations.ome-tiff",
-          "url": "https://assets.dev.hubmapconsortium.org/fcd7f68678d85a4a4d28a4b269de379e/extras/transformations/ometiff-pyramids/91706.segmentations.ome.tif?token=AggGX1kE5EmVeNlDvJzYjmBe2q70EM38ylKy53DqpkJN7rzpQ1FJCgXyaNJr0gMPoQO5p6rOzo3xkaU0k9OvpsY9OOB",
+          "url": "https://example.com/fcd7f68678d85a4a4d28a4b269de379e/extras/transformations/ometiff-pyramids/processedMicroscopy/VAN0003-LK-33-2-PAS_FFPE.ome.tif?token=groups_token",
           "options": {
             "obsTypesFromChannelNames": true,
-            "offsetsUrl": "https://assets.dev.hubmapconsortium.org/fcd7f68678d85a4a4d28a4b269de379e/extras/transformations/output_offsets/91706.segmentations.offsets.json?token=AggGX1kE5EmVeNlDvJzYjmBe2q70EM38ylKy53DqpkJN7rzpQ1FJCgXyaNJr0gMPoQO5p6rOzo3xkaU0k9OvpsY9OOB"
+            "offsetsUrl": "https://example.com/fcd7f68678d85a4a4d28a4b269de379e/extras/transformations/output_offsets/processedMicroscopy/VAN0003-LK-33-2-PAS_FFPE.offsets.json?token=groups_token"
           },
           "coordinationValues": {
             "fileUid": "segmentation-mask"
@@ -38,7 +38,7 @@
         },
         {
           "fileType": "anndata.zarr",
-          "url": "https://assets.dev.hubmapconsortium.org/fcd7f68678d85a4a4d28a4b269de379e/extras/transformations/hubmap_ui/seg-to-mudata-zarr/objects.zarr/arteries-arterioles.zarr",
+          "url": "https://example.com/fcd7f68678d85a4a4d28a4b269de379e/extras/transformations/hubmap_ui/seg-to-mudata-zarr/objects.zarr/arteries-arterioles.zarr",
           "options": {
             "obsLocations": {
               "path": "obsm/X_spatial"
@@ -50,7 +50,7 @@
         },
         {
           "fileType": "anndata.zarr",
-          "url": "https://assets.dev.hubmapconsortium.org/fcd7f68678d85a4a4d28a4b269de379e/extras/transformations/hubmap_ui/seg-to-mudata-zarr/objects.zarr/glomeruli.zarr",
+          "url": "https://example.com/fcd7f68678d85a4a4d28a4b269de379e/extras/transformations/hubmap_ui/seg-to-mudata-zarr/objects.zarr/glomeruli.zarr",
           "options": {
             "obsLocations": {
               "path": "obsm/X_spatial"
@@ -62,7 +62,7 @@
         },
         {
           "fileType": "anndata.zarr",
-          "url": "https://assets.dev.hubmapconsortium.org/fcd7f68678d85a4a4d28a4b269de379e/extras/transformations/hubmap_ui/seg-to-mudata-zarr/objects.zarr/tubules.zarr",
+          "url": "https://example.com/fcd7f68678d85a4a4d28a4b269de379e/extras/transformations/hubmap_ui/seg-to-mudata-zarr/objects.zarr/tubules.zarr",
           "options": {
             "obsLocations": {
               "path": "obsm/X_spatial"
@@ -113,19 +113,19 @@
     },
     "spatialChannelColor": {
       "init_A_obsSegmentations_0": [
-        101,
-        80,
-        6
+        128,
+        51,
+        49
       ],
       "init_A_obsSegmentations_1": [
-        15,
-        84,
-        124
+        95,
+        94,
+        232
       ],
       "init_A_obsSegmentations_2": [
-        20,
-        157,
-        134
+        131,
+        105,
+        96
       ]
     },
     "obsHighlight": {

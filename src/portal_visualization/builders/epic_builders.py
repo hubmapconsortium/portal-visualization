@@ -7,7 +7,7 @@ from .base_builders import ViewConfBuilder
 from requests import get
 import re
 import random
-
+import json
 from ..paths import OFFSETS_DIR, IMAGE_PYRAMID_DIR, SEGMENTATION_SUBDIR, SEGMENTATION_ZARR_STORES
 
 
@@ -18,7 +18,7 @@ zarr_path = f'{SEGMENTATION_SUBDIR}/{SEGMENTATION_ZARR_STORES}'
 
 
 class EPICConfBuilder(ViewConfBuilder):
-    def __init__(self, epic_uuid, base_conf: ConfCells, entity, groups_token, assets_endpoint, **kwargs) -> None:
+    def __init__(self, epic_uuid, base_conf: ConfCells, entity, epic_entity, groups_token, assets_endpoint, **kwargs) -> None:
         super().__init__(entity, groups_token, assets_endpoint, **kwargs)
 
         conf, cells = base_conf
@@ -35,7 +35,11 @@ class EPICConfBuilder(ViewConfBuilder):
         else:
             self._base_conf: VitessceConfig = VitessceConfig.from_dict(base_conf.conf)
 
+        with open ('epic_conf.json','w') as file:
+            json.dump( conf, file, indent=4, separators=(',', ': '))
         self._epic_uuid = epic_uuid
+        self._epic_entity = epic_entity
+
         pass
 
     def get_conf_cells(self):
@@ -77,8 +81,10 @@ class SegmentationMaskBuilder(EPICConfBuilder):
     def _apply(self, conf):
         zarr_url = self.zarr_store_url()
         datasets = conf.get_datasets()
-
-        file_paths_found = self._get_file_paths()
+        #TODO: if extracting epic_entity on the fly is preferred rather than sending as param
+        # epic_entity = self._get_epic_entity()
+        # print(epic_entity)
+        file_paths_found = [file["rel_path"] for file in self._epic_entity["files"]]
 
         found_images = [
             path for path in get_matches(
@@ -86,7 +92,6 @@ class SegmentationMaskBuilder(EPICConfBuilder):
             )
         ]
         found_images = sorted(found_images)
-        # print(found_images)
         if len(found_images) == 0:
             message = f"Image pyramid assay with uuid {self._uuid} has no matching files"
             raise FileNotFoundError(message)
@@ -95,7 +100,6 @@ class SegmentationMaskBuilder(EPICConfBuilder):
             img_url, offsets_url = self.segmentations_ome_offset_url(
                 found_images[0]
             )
-        # print(offsets_url)
         segmentations = ObsSegmentationsOmeTiffWrapper(
             img_url=img_url,
             offsets_url=offsets_url,
@@ -113,10 +117,6 @@ class SegmentationMaskBuilder(EPICConfBuilder):
                 for obj in segmentation_objects:
                     dataset.add_object(obj)
 
-            # print(spatial_view.to_dict())
-            # print(.to_dict())
-            # spatial_view = conf.add_view("spatialBeta", dataset=dataset, w=8, h=12)
-            # lc_view = conf.add_view("layerControllerBeta", dataset=dataset, w=4, h=12, x=8, y=0)
             spatial_view = conf.get_first_view_by_type('spatialBeta')
             lc_view = conf.get_first_view_by_type('layerControllerBeta')
             conf.link_views_by_dict([spatial_view, lc_view], {
@@ -163,11 +163,11 @@ def create_segmentation_objects(base_url, mask_names):
         )
         seg_CL = {
             # TODO: manually to match image channels - need to be fixed on the JS side
-            "spatialTargetC": index+2, 
+            "spatialTargetC": index + 2,
             "obsType": mask_name,
             "spatialChannelOpacity": 1,
             "spatialChannelColor": color_channel,
-             "obsHighlight": None
+            "obsHighlight": None
 
         }
         segmentation_objects.append(segmentations_zarr)

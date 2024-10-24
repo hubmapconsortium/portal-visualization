@@ -5,11 +5,12 @@ from vitessce import (
     VitessceConfig,
     MultiImageWrapper,
     OmeTiffWrapper,
+    ImageOmeTiffWrapper,
     Component as cm,
 )
 
 from ..utils import get_matches, group_by_file_name, get_conf_cells
-from ..paths import IMAGE_PYRAMID_DIR, OFFSETS_DIR, SEQFISH_HYB_CYCLE_REGEX, SEQFISH_FILE_REGEX
+from ..paths import IMAGE_PYRAMID_DIR, OFFSETS_DIR, SEQFISH_HYB_CYCLE_REGEX, SEQFISH_FILE_REGEX,SEGMENTATION_SUPPORT_IMAGE_SUBDIR
 from .base_builders import ViewConfBuilder
 
 
@@ -45,6 +46,26 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
                 )
             ),
         )
+    def _get_img_and_offset_url_seg(self, img_path, img_dir):
+        """Create a url for the offsets and img for the EPICs base-image support datasets.
+        :param str img_path: The path of the image
+        :param str img_dir: The image-specific part of the path to be
+        replaced by the OFFSETS_DIR constant.
+        :rtype: tuple The image url and the offsets url
+
+        """
+        img_url = self._build_assets_url(img_path)
+        offset_path = f'{OFFSETS_DIR}/{SEGMENTATION_SUPPORT_IMAGE_SUBDIR}'
+        return (
+            img_url,
+            str(
+                re.sub(
+                    r"ome\.tiff?",
+                    "offsets.json",
+                    re.sub(img_dir, offset_path, img_url),
+                )
+            ),
+        )
 
     def _setup_view_config_raster(self, vc, dataset, disable_3d=[], use_full_resolution=[]):
         vc.add_view(cm.SPATIAL, dataset=dataset, x=3, y=0, w=9, h=12).set_props(
@@ -60,8 +81,7 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
         vc.add_view("spatialBeta", dataset=dataset, x=3, y=0, w=9, h=12).set_props(
             useFullResolutionImage=use_full_resolution
         )
-        # vc.add_view(cm.DESCRIPTION, dataset=dataset, x=0, y=8, w=3, h=4)
-        vc.add_view("layerControllerBeta", dataset=dataset, x=0, y=0, w=3, h=8).set_props(
+        vc.add_view("layerControllerBeta", dataset=dataset,x=0, y=0, w=3, h=8).set_props(
             disable3d=disable_3d, disableChannelsIfRgbDetected=True
         )
         return vc
@@ -123,7 +143,7 @@ class SegImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
         i.e for high resolution viz-lifted imaging datasets like
         https://portal.hubmapconsortium.org/browse/dataset/
         """
-        self.image_pyramid_regex = IMAGE_PYRAMID_DIR
+        self.image_pyramid_regex = f'{IMAGE_PYRAMID_DIR}/{SEGMENTATION_SUPPORT_IMAGE_SUBDIR}'
         self.use_full_resolution = []
         self.use_physical_size_scaling = False
         super().__init__(entity, groups_token, assets_endpoint, **kwargs)
@@ -143,26 +163,20 @@ class SegImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
 
         vc = VitessceConfig(name="HuBMAP Data Portal", schema_version=self._schema_version)
         dataset = vc.add_dataset(name="Visualization Files")
-        images = []
-        for img_path in found_images:
-            img_url, offsets_url = self._get_img_and_offset_url(
-                img_path, self.image_pyramid_regex
+        # The base-image will always be 1
+        if len(found_images) == 1:
+            img_url, offsets_url = self._get_img_and_offset_url_seg(
+                found_images[0], self.image_pyramid_regex
             )
-            images.append(
-                OmeTiffWrapper(
-                    img_url=img_url, offsets_url=offsets_url, name=Path(img_path).name
+
+            image = ImageOmeTiffWrapper(
+                    img_url=img_url, offsets_url=offsets_url, name=Path(found_images[0]).name
                 )
-            )
-        dataset = dataset.add_object(
-            MultiImageWrapper(
-                images,
-                use_physical_size_scaling=self.use_physical_size_scaling
-            )
-        )
+            
+            dataset = dataset.add_object(image)
         vc = self._setup_view_config_seg(
             vc, dataset, use_full_resolution=self.use_full_resolution)
         conf = vc.to_dict()
-        del conf["datasets"][0]["files"][0]["options"]["renderLayers"]
         return get_conf_cells(conf)
 
 

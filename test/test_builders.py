@@ -178,7 +178,6 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
             # Compare as YAML to match fixture.
             assert yaml.dump(clean_cells(cells)) == yaml.dump(expected_cells)
 
-
     if 'segmentation_mask' in assay_type['vitessce-hints']:
         epic_builder = get_epic_builder(entity["uuid"])
         assert epic_builder is not None

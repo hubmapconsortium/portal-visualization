@@ -27,14 +27,14 @@ usage: vis-preview.py [-h] (--url URL | --json JSON) [--assaytypes_url URL]
 
 Given HuBMAP Dataset JSON, generate a Vitessce viewconf, and load vitessce.io.
 
-optional arguments:
+options:
   -h, --help            show this help message and exit
   --url URL             URL which returns Dataset JSON
   --json JSON           File containing Dataset JSON
-  --assaytypes_url URL  AssayType service; default:
-                        https://ingest.api.hubmapconsortium.org/assaytype/
+  --assaytypes_url URL  AssayType service; default: https://ingest-
+                        api.dev.hubmapconsortium.org/assaytype/
   --assets_url URL      Assets endpoint; default:
-                        https://assets.hubmapconsortium.org
+                        https://assets.dev.hubmapconsortium.org
   --token TOKEN         Globus groups token; Only needed if data is not public
   --marker MARKER       Marker to highlight in visualization; Only used in
                         some visualizations.

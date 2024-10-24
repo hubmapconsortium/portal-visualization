@@ -56,7 +56,7 @@ def process_hints(hints):
 # The entity is a dict that contains the entity UUID and metadata.
 # `get_assaytype` is a function which takes an entity UUID and returns
 # a dict containing the assaytype and vitessce-hints for that entity.
-def get_view_config_builder(entity, get_assaytype, parent=None):
+def get_view_config_builder(entity, get_assaytype, parent=None, epic_uuid=None):
     if entity.get("uuid") is None:
         raise ValueError("Provided entity does not have a uuid")
     assay = get_assaytype(entity.get('uuid'))
@@ -77,7 +77,11 @@ def get_view_config_builder(entity, get_assaytype, parent=None):
 
     # vis-lifted image pyramids
     if parent is not None:
-        if is_support and is_image:
+        # TODO: For now epic (base image's) support datasets doesn't have any hints
+        if epic_uuid is not None:
+                return SegImagePyramidViewConfBuilder
+        
+        elif is_support and is_image:
             ancestor_assaytype = get_assaytype(parent).get("assaytype")
             if SEQFISH == ancestor_assaytype:
                 # e.g. parent  = c6a254b2dc2ed46b002500ade163a7cc
@@ -95,8 +99,6 @@ def get_view_config_builder(entity, get_assaytype, parent=None):
                 # e.g. parent  = 8adc3c31ca84ec4b958ed20a7c4f4919
                 # e.g. support = f9ae931b8b49252f150d7f8bf1d2d13f
                 return ImagePyramidViewConfBuilder
-        elif is_segmentation_mask:
-            return SegImagePyramidViewConfBuilder
         else:
             return NullViewConfBuilder
 
@@ -140,5 +142,5 @@ def get_view_config_builder(entity, get_assaytype, parent=None):
 
 
 def has_visualization(entity, get_assaytype, parent=None):
-    builder = get_view_config_builder(entity, get_assaytype, parent)
+    builder = get_view_config_builder(entity, get_assaytype, parent, None)
     return builder != NullViewConfBuilder
