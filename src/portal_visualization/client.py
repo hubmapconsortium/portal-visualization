@@ -268,8 +268,8 @@ class ApiClient:
 
     # Helper to create a function that fetches assaytype from the API with current headers
     def _get_assaytype(self):  # pragma: no cover
-        def get_assaytype(uuid):
-            # uuid = entity.get("uuid")
+        def get_assaytype(entity):
+            uuid = entity.get("uuid")
 
             url = f"{self.soft_assay_url}/{uuid}"
             headers = self._get_headers()
