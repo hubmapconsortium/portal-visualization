@@ -1,76 +1,55 @@
 {
-  "version": "1.0.15",
-  "name": "HuBMAP Data Portal",
-  "description": "",
-  "datasets": [
-      {
-          "uid": "A",
-          "name": "Visualization Files",
-          "files": [
-              {
-                  "fileType": "raster.json",
-                  "options": {
-                      "schemaVersion": "0.0.2",
-                      "usePhysicalSizeScaling": false,
-                      "images": [
-                          {
-                              "name": "VAN0003-LK-33-2-PAS_FFPE.ome.tif",
-                              "type": "ome-tiff",
-                              "url": "https://example.com/f9ae931b8b49252f150d7f8bf1d2d13f/ometiff-pyramids/processedMicroscopy/VAN0003-LK-33-2-PAS_FFPE.ome.tif?token=AgpKjY23v3EznNg38j78OXJoBvXVy780bPDa9y7mgMVe5lB0dPuvCx9JQ15W4B5gpmqN97W25wEd2JtyMj7oGIWVGG7",
-                              "metadata": {
-                                  "omeTiffOffsetsUrl": "https://example.com/f9ae931b8b49252f150d7f8bf1d2d13f/output_offsets/processedMicroscopy/VAN0003-LK-33-2-PAS_FFPE.offsets.json?token=AgpKjY23v3EznNg38j78OXJoBvXVy780bPDa9y7mgMVe5lB0dPuvCx9JQ15W4B5gpmqN97W25wEd2JtyMj7oGIWVGG7",
-                                  "isBitmask": false
-                              }
-                          }
-                      ]
-                  }
-              }
-          ]
-      }
-  ],
-  "coordinationSpace": {
-      "dataset": {
-          "A": "A"
-      }
-  },
-  "layout": [
-      {
-          "component": "spatial",
-          "coordinationScopes": {
-              "dataset": "A"
-          },
-          "x": 3,
-          "y": 0,
-          "w": 9,
-          "h": 12,
-          "props": {
-              "useFullResolutionImage": []
-          }
-      },
-      {
-          "component": "description",
-          "coordinationScopes": {
-              "dataset": "A"
-          },
-          "x": 0,
-          "y": 8,
-          "w": 3,
-          "h": 4
-      },
-      {
-          "component": "layerController",
-          "coordinationScopes": {
-              "dataset": "A"
-          },
-          "x": 0,
-          "y": 0,
-          "w": 3,
-          "h": 8,
-          "props": {
-              "disable3d": [],
-              "disableChannelsIfRgbDetected": true
-          }
-      }
-  ],
-  "initStrategy": "auto"
+    "version": "1.0.15",
+    "name": "HuBMAP Data Portal",
+    "description": "",
+    "datasets": [
+        {
+            "uid": "A",
+            "name": "Visualization Files",
+            "files": [
+                {
+                    "fileType": "image.ome-tiff",
+                    "url": "https://example.com/d58d16d515fe3237b0ca793da68a5d48/ometiff-pyramids/lab_processed/images/91706.ome.tif?token=groups_token",
+                    "options": {
+                        "offsetsUrl": "https://example.com/d58d16d515fe3237b0ca793da68a5d48/output_offsets/lab_processed/images/91706.offsets.json?token=groups_token"
+                    }
+                }
+            ]
+        }
+    ],
+    "coordinationSpace": {
+        "dataset": {
+            "A": "A"
+        }
+    },
+    "layout": [
+        {
+            "component": "spatialBeta",
+            "coordinationScopes": {
+                "dataset": "A"
+            },
+            "x": 3,
+            "y": 0,
+            "w": 9,
+            "h": 12,
+            "props": {
+                "useFullResolutionImage": []
+            }
+        },
+        {
+            "component": "layerControllerBeta",
+            "coordinationScopes": {
+                "dataset": "A"
+            },
+            "x": 0,
+            "y": 0,
+            "w": 3,
+            "h": 8,
+            "props": {
+                "disable3d": [],
+                "disableChannelsIfRgbDetected": true
+            }
+        }
+    ],
+    "initStrategy": "auto"
 }

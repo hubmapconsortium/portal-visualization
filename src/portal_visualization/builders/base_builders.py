@@ -1,9 +1,9 @@
 import urllib
 from collections import namedtuple
 from abc import ABC, abstractmethod
-import json
-import requests
-from pathlib import Path
+# import json
+# import requests
+# from pathlib import Path
 
 ConfCells = namedtuple('ConfCells', ['conf', 'cells'])
 
@@ -122,7 +122,6 @@ class ViewConfBuilder(ABC):
         ['path/to/file', 'path/to/other_file']
         """
         return [file["rel_path"] for file in self._entity["files"]]
-    
 
     # def _get_epic_entity(self):
     # TODO: might need this if we decide to read the epic_entity on run time

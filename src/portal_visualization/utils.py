@@ -94,5 +94,6 @@ def files_from_response(response_json):
         ] for hit in hits
     }
 
+
 def get_image_size(url):
     print(url)

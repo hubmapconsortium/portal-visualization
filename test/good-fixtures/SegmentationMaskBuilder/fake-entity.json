@@ -18,7 +18,23 @@
         },
         {
             "rel_path": "extras/transformations/output_offsets/91706.segmentations.offsets.json"
+        },
+        {
+            "rel_path": "extras/transformations/objects.zarr/arteries-arterioles.zarr/.zgroup"
+        },
+        {
+            "rel_path": "extras/transformations/objects.zarr/tubules.zarr/.zgroup"
+        },
+        {
+            "rel_path": "extras/transformations/objects.zarr/glomeruli.zarr/.zgroup"
+        },
+        {
+            "rel_path": "extras/transformations/objects.zarr/metadata.json"
+        },
+        {
+            "rel_path": "extras/transformations.json"
         }
+
     ],
     "uuid": "fcd7f68678d85a4a4d28a4b269de379e",
     "metadata": {"dag_provenance_list": []},

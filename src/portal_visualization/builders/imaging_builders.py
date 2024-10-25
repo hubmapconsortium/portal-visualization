@@ -10,7 +10,8 @@ from vitessce import (
 )
 
 from ..utils import get_matches, group_by_file_name, get_conf_cells
-from ..paths import IMAGE_PYRAMID_DIR, OFFSETS_DIR, SEQFISH_HYB_CYCLE_REGEX, SEQFISH_FILE_REGEX,SEGMENTATION_SUPPORT_IMAGE_SUBDIR
+from ..paths import (IMAGE_PYRAMID_DIR, OFFSETS_DIR, SEQFISH_HYB_CYCLE_REGEX,
+                     SEQFISH_FILE_REGEX, SEGMENTATION_SUPPORT_IMAGE_SUBDIR)
 from .base_builders import ViewConfBuilder
 
 
@@ -46,6 +47,7 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
                 )
             ),
         )
+
     def _get_img_and_offset_url_seg(self, img_path, img_dir):
         """Create a url for the offsets and img for the EPICs base-image support datasets.
         :param str img_path: The path of the image
@@ -81,7 +83,7 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
         vc.add_view("spatialBeta", dataset=dataset, x=3, y=0, w=9, h=12).set_props(
             useFullResolutionImage=use_full_resolution
         )
-        vc.add_view("layerControllerBeta", dataset=dataset,x=0, y=0, w=3, h=8).set_props(
+        vc.add_view("layerControllerBeta", dataset=dataset, x=0, y=0, w=3, h=8).set_props(
             disable3d=disable_3d, disableChannelsIfRgbDetected=True
         )
         return vc
@@ -170,9 +172,9 @@ class SegImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
             )
 
             image = ImageOmeTiffWrapper(
-                    img_url=img_url, offsets_url=offsets_url, name=Path(found_images[0]).name
-                )
-            
+                img_url=img_url, offsets_url=offsets_url, name=Path(found_images[0]).name
+            )
+
             dataset = dataset.add_object(image)
         vc = self._setup_view_config_seg(
             vc, dataset, use_full_resolution=self.use_full_resolution)

@@ -42,6 +42,11 @@ image_pyramids = [
     "SeqFISHViewConfBuilder",
     "NanoDESIViewConfBuilder",
 ]
+
+EPIC_UUID = 'fcd7f68678d85a4a4d28a4b269de379e'
+SEG_PYRAMID_BUILDER = "SegImagePyramidViewConfBuilder"
+EPIC_BUILDER = 'SegmentationMaskBuilder'
+
 image_pyramid_paths = [
     path for path in good_entity_paths if path.parent.name in image_pyramids
 ]
@@ -142,21 +147,22 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
     marker = (
         possible_marker.split("=")[1] if possible_marker.startswith("marker=") else None
     )
-
+    epic_uuid = None
     entity = json.loads(entity_path.read_text())
     parent = entity.get("parent") or None  # Only used for image pyramids
     assay_type = get_assaytype(entity["uuid"])
-    Builder = get_view_config_builder(entity, get_assaytype, parent)
-
-    # Envvars should not be set during normal test runs,
-    # but to test the end-to-end integration, they are useful.
-    groups_token = environ.get("GROUPS_TOKEN", "groups_token")
-    assets_url = environ.get("ASSETS_URL", "https://example.com")
-    # epic_uuid = environ.get("EPIC_UUID", "epic_uuid")
-    builder = Builder(entity, groups_token, assets_url)
-    conf, cells = builder.get_conf_cells(marker=marker)
-
     if 'segmentation_mask' not in assay_type['vitessce-hints']:
+        if (SEG_PYRAMID_BUILDER == entity_path.parent.name):
+            epic_uuid = EPIC_UUID
+        Builder = get_view_config_builder(entity, get_assaytype, parent, epic_uuid)
+        # Envvars should not be set during normal test runs,
+        # but to test the end-to-end integration, they are useful.
+        groups_token = environ.get("GROUPS_TOKEN", "groups_token")
+        assets_url = environ.get("ASSETS_URL", "https://example.com")
+        # epic_uuid = environ.get("EPIC_UUID", "epic_uuid")
+        builder = Builder(entity, groups_token, assets_url)
+        conf, cells = builder.get_conf_cells(marker=marker)
+
         assert Builder.__name__ == entity_path.parent.name
         expected_conf_path = entity_path.parent / entity_path.name.replace(
             "-entity", "-conf"
@@ -178,25 +184,30 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
             # Compare as YAML to match fixture.
             assert yaml.dump(clean_cells(cells)) == yaml.dump(expected_cells)
 
-    if 'segmentation_mask' in assay_type['vitessce-hints']:
-        epic_builder = get_epic_builder(entity["uuid"])
-        assert epic_builder is not None
-        assert epic_builder.__name__ == entity_path.parent.name
+        if (SEG_PYRAMID_BUILDER == entity_path.parent.name):
+            epic_uuid = EPIC_UUID
+            epic_entity_path = next(entity_path.parent.parent.rglob(EPIC_BUILDER), None)
+            epic_builder = get_epic_builder(epic_uuid)
+            assert epic_builder is not None
+            assert epic_builder.__name__ == epic_entity_path.name
+            epic_entity = json.loads(Path(f'{epic_entity_path}/fake-entity.json').read_text())
+            if conf is None:
+                with pytest.raises(ValueError):
+                    epic_builder(epic_uuid,
+                                 ConfCells(conf, cells), entity, epic_entity, groups_token, assets_url).get_conf_cells()
+                return
 
-        if conf is None:
-            with pytest.raises(ValueError):
-                epic_builder(entity["uuid"],
-                             ConfCells(conf, cells), entity, groups_token, assets_url).get_conf_cells()
-            return
+            built_epic_conf, _ = epic_builder(epic_uuid,
+                                              ConfCells(conf, cells), entity, epic_entity, groups_token, assets_url
+                                              ).get_conf_cells()
+            assert built_epic_conf is not None
 
-        built_epic_conf, _ = epic_builder(entity["uuid"],
-                                          ConfCells(conf, cells), entity, groups_token, assets_url
-                                          ).get_conf_cells()
+            expected_conf_path = Path(f'{epic_entity_path}/fake-conf.json')
+            expected_conf = json.loads(expected_conf_path.read_text())
 
-        assert built_epic_conf is not None
-        # assert json.dumps(built_epic_conf, indent=2, sort_keys=True) == json.dumps(
-        #     conf, indent=2, sort_keys=True
-        # )
+            assert json.dumps(built_epic_conf, indent=2, sort_keys=True) == json.dumps(
+                expected_conf, indent=2, sort_keys=True
+            )
 
 
 @pytest.mark.parametrize("entity_path", bad_entity_paths, ids=lambda path: path.name)

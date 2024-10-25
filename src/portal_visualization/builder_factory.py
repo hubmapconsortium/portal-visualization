@@ -79,8 +79,8 @@ def get_view_config_builder(entity, get_assaytype, parent=None, epic_uuid=None):
     if parent is not None:
         # TODO: For now epic (base image's) support datasets doesn't have any hints
         if epic_uuid is not None:
-                return SegImagePyramidViewConfBuilder
-        
+            return SegImagePyramidViewConfBuilder
+
         elif is_support and is_image:
             ancestor_assaytype = get_assaytype(parent).get("assaytype")
             if SEQFISH == ancestor_assaytype:

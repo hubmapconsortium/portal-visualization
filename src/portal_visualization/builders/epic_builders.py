@@ -7,8 +7,7 @@ from .base_builders import ViewConfBuilder
 from requests import get
 import re
 import random
-import json
-from ..paths import OFFSETS_DIR, IMAGE_PYRAMID_DIR, SEGMENTATION_SUBDIR, SEGMENTATION_ZARR_STORES
+from ..paths import OFFSETS_DIR, IMAGE_PYRAMID_DIR, SEGMENTATION_SUBDIR, SEGMENTATION_ZARR_STORES, SEGMENTATION_DIR
 
 
 zarr_path = f'{SEGMENTATION_SUBDIR}/{SEGMENTATION_ZARR_STORES}'
@@ -18,7 +17,8 @@ zarr_path = f'{SEGMENTATION_SUBDIR}/{SEGMENTATION_ZARR_STORES}'
 
 
 class EPICConfBuilder(ViewConfBuilder):
-    def __init__(self, epic_uuid, base_conf: ConfCells, entity, epic_entity, groups_token, assets_endpoint, **kwargs) -> None:
+    def __init__(self, epic_uuid, base_conf: ConfCells, entity, epic_entity,
+                 groups_token, assets_endpoint, **kwargs) -> None:
         super().__init__(entity, groups_token, assets_endpoint, **kwargs)
 
         conf, cells = base_conf
@@ -35,8 +35,6 @@ class EPICConfBuilder(ViewConfBuilder):
         else:
             self._base_conf: VitessceConfig = VitessceConfig.from_dict(base_conf.conf)
 
-        with open ('epic_conf.json','w') as file:
-            json.dump( conf, file, indent=4, separators=(',', ': '))
         self._epic_uuid = epic_uuid
         self._epic_entity = epic_entity
 
@@ -63,6 +61,10 @@ class EPICConfBuilder(ViewConfBuilder):
         adata_url = self._build_assets_url(zarr_path, use_token=False)
         return adata_url
 
+    def image_transofrmations_url(self):
+        transformations_url = self._build_assets_url(SEGMENTATION_DIR, use_token=True)
+        return transformations_url
+
     def segmentations_ome_offset_url(self, img_path):
         img_url = self._build_assets_url(f'{SEGMENTATION_SUBDIR}/{img_path}')
         return (
@@ -81,7 +83,7 @@ class SegmentationMaskBuilder(EPICConfBuilder):
     def _apply(self, conf):
         zarr_url = self.zarr_store_url()
         datasets = conf.get_datasets()
-        #TODO: if extracting epic_entity on the fly is preferred rather than sending as param
+        # TODO: if extracting epic_entity on the fly is preferred rather than sending as param
         # epic_entity = self._get_epic_entity()
         # print(epic_entity)
         file_paths_found = [file["rel_path"] for file in self._epic_entity["files"]]
@@ -96,13 +98,16 @@ class SegmentationMaskBuilder(EPICConfBuilder):
             message = f"Image pyramid assay with uuid {self._uuid} has no matching files"
             raise FileNotFoundError(message)
 
-        if len(found_images) == 1:
+        elif len(found_images) >= 1:
             img_url, offsets_url = self.segmentations_ome_offset_url(
                 found_images[0]
             )
+
+        segmentation_scale = self.read_segmentation_scale()
         segmentations = ObsSegmentationsOmeTiffWrapper(
             img_url=img_url,
             offsets_url=offsets_url,
+            coordinate_transformations=[{"type": "scale", "scale": segmentation_scale}],
             obs_types_from_channel_names=True,
             coordination_values={
                 "fileUid": "segmentation-mask"
@@ -120,6 +125,8 @@ class SegmentationMaskBuilder(EPICConfBuilder):
             spatial_view = conf.get_first_view_by_type('spatialBeta')
             lc_view = conf.get_first_view_by_type('layerControllerBeta')
             conf.link_views_by_dict([spatial_view, lc_view], {
+                # Neutralizing the base-image colors
+                'imageLayer': CL([{'photometricInterpretation': 'RGB', }]),
                 "segmentationLayer": CL([
                     {
                         "fileUid": "segmentation-mask",
@@ -143,8 +150,26 @@ class SegmentationMaskBuilder(EPICConfBuilder):
             else:
                 print("'mask_names' key not found in the response.")
         else:
-            raise Exception(f"Failed to retrieve metadata.json: {response.status_code} - {response.reason}")
+            # in this case, the code won't execute for this
+            print(f"Failed to retrieve metadata.json: {response.status_code} - {response.reason}")
         return mask_names
+
+    def read_segmentation_scale(self):
+        url = self._build_assets_url(f'{SEGMENTATION_DIR}/transformations.json')
+        request_init = self._get_request_init() or {}
+        # By default no scaling should be applied, format accepted by vitessce
+        scale = [1, 1, 1, 1, 1]
+        response = get(url, **request_init)
+        if response.status_code == 200:
+            data = response.json()
+            print(data)
+            if isinstance(data, dict) and "scale" in data:
+                scale = data["scale"]
+            else:
+                print("'scale' key not found in the response.")
+        else:
+            print(f"Failed to retrieve trasformations.json: {response.status_code} - {response.reason}")
+        return scale
 
 
 def create_segmentation_objects(base_url, mask_names):

@@ -3,233 +3,139 @@
   "name": "HuBMAP Data Portal",
   "description": "",
   "datasets": [
-    {
-      "uid": "A",
-      "name": "Visualization Files",
-      "files": [
-        {
-          "fileType": "raster.json",
-          "options": {
-            "schemaVersion": "0.0.2",
-            "usePhysicalSizeScaling": false,
-            "images": [
+      {
+          "uid": "A",
+          "name": "Visualization Files",
+          "files": [
               {
-                "name": "VAN0003-LK-33-2-PAS_FFPE.ome.tif",
-                "type": "ome-tiff",
-                "url": "https://example.com/f9ae931b8b49252f150d7f8bf1d2d13f/ometiff-pyramids/processedMicroscopy/VAN0003-LK-33-2-PAS_FFPE.ome.tif?token=groups_token",
-                "metadata": {
-                  "omeTiffOffsetsUrl": "https://example.com/f9ae931b8b49252f150d7f8bf1d2d13f/output_offsets/processedMicroscopy/VAN0003-LK-33-2-PAS_FFPE.offsets.json?token=groups_token",
-                  "isBitmask": false
-                }
+                  "fileType": "image.ome-tiff",
+                  "url": "https://example.com/d58d16d515fe3237b0ca793da68a5d48/ometiff-pyramids/lab_processed/images/91706.ome.tif?token=groups_token",
+                  "options": {
+                      "offsetsUrl": "https://example.com/d58d16d515fe3237b0ca793da68a5d48/output_offsets/lab_processed/images/91706.offsets.json?token=groups_token"
+                  }
+              },
+              {
+                  "fileType": "obsSegmentations.ome-tiff",
+                  "url": "https://example.com/fcd7f68678d85a4a4d28a4b269de379e/extras/transformations/ometiff-pyramids/91706.segmentations.ome.tif?token=groups_token",
+                  "options": {
+                      "coordinateTransformations": [
+                          {
+                              "type": "scale",
+                              "scale": [
+                                  1,
+                                  1,
+                                  1,
+                                  1,
+                                  1
+                              ]
+                          }
+                      ],
+                      "obsTypesFromChannelNames": true,
+                      "offsetsUrl": "https://example.com/fcd7f68678d85a4a4d28a4b269de379e/extras/transformations/output_offsets/91706.segmentations.offsets.json?token=groups_token"
+                  },
+                  "coordinationValues": {
+                      "fileUid": "segmentation-mask"
+                  }
               }
-            ]
-          }
-        },
-        {
-          "fileType": "obsSegmentations.ome-tiff",
-          "url": "https://example.com/fcd7f68678d85a4a4d28a4b269de379e/extras/transformations/ometiff-pyramids/processedMicroscopy/VAN0003-LK-33-2-PAS_FFPE.ome.tif?token=groups_token",
-          "options": {
-            "obsTypesFromChannelNames": true,
-            "offsetsUrl": "https://example.com/fcd7f68678d85a4a4d28a4b269de379e/extras/transformations/output_offsets/processedMicroscopy/VAN0003-LK-33-2-PAS_FFPE.offsets.json?token=groups_token"
-          },
-          "coordinationValues": {
-            "fileUid": "segmentation-mask"
-          }
-        },
-        {
-          "fileType": "anndata.zarr",
-          "url": "https://example.com/fcd7f68678d85a4a4d28a4b269de379e/extras/transformations/hubmap_ui/seg-to-mudata-zarr/objects.zarr/arteries-arterioles.zarr",
-          "options": {
-            "obsLocations": {
-              "path": "obsm/X_spatial"
-            }
-          },
-          "coordinationValues": {
-            "obsType": "arteries-arterioles"
-          }
-        },
-        {
-          "fileType": "anndata.zarr",
-          "url": "https://example.com/fcd7f68678d85a4a4d28a4b269de379e/extras/transformations/hubmap_ui/seg-to-mudata-zarr/objects.zarr/glomeruli.zarr",
-          "options": {
-            "obsLocations": {
-              "path": "obsm/X_spatial"
-            }
-          },
-          "coordinationValues": {
-            "obsType": "glomeruli"
-          }
-        },
-        {
-          "fileType": "anndata.zarr",
-          "url": "https://example.com/fcd7f68678d85a4a4d28a4b269de379e/extras/transformations/hubmap_ui/seg-to-mudata-zarr/objects.zarr/tubules.zarr",
-          "options": {
-            "obsLocations": {
-              "path": "obsm/X_spatial"
-            }
-          },
-          "coordinationValues": {
-            "obsType": "tubules"
-          }
-        }
-      ]
-    }
+          ]
+      }
   ],
   "coordinationSpace": {
-    "dataset": {
-      "A": "A"
-    },
-    "segmentationLayer": {
-      "init_A_obsSegmentations_0": "__dummy__"
-    },
-    "fileUid": {
-      "init_A_obsSegmentations_0": "segmentation-mask"
-    },
-    "spatialLayerVisible": {
-      "init_A_obsSegmentations_0": true
-    },
-    "spatialLayerOpacity": {
-      "init_A_obsSegmentations_0": 1
-    },
-    "segmentationChannel": {
-      "init_A_obsSegmentations_0": "__dummy__",
-      "init_A_obsSegmentations_1": "__dummy__",
-      "init_A_obsSegmentations_2": "__dummy__"
-    },
-    "spatialTargetC": {
-      "init_A_obsSegmentations_0": 2,
-      "init_A_obsSegmentations_1": 3,
-      "init_A_obsSegmentations_2": 4
-    },
-    "obsType": {
-      "init_A_obsSegmentations_0": "arteries-arterioles",
-      "init_A_obsSegmentations_1": "glomeruli",
-      "init_A_obsSegmentations_2": "tubules"
-    },
-    "spatialChannelOpacity": {
-      "init_A_obsSegmentations_0": 1,
-      "init_A_obsSegmentations_1": 1,
-      "init_A_obsSegmentations_2": 1
-    },
-    "spatialChannelColor": {
-      "init_A_obsSegmentations_0": [
-        128,
-        51,
-        49
-      ],
-      "init_A_obsSegmentations_1": [
-        95,
-        94,
-        232
-      ],
-      "init_A_obsSegmentations_2": [
-        131,
-        105,
-        96
-      ]
-    },
-    "obsHighlight": {
-      "init_A_obsSegmentations_0": null,
-      "init_A_obsSegmentations_1": null,
-      "init_A_obsSegmentations_2": null
-    },
-    "metaCoordinationScopes": {
-      "init_A_obsSegmentations_0": {
-        "segmentationLayer": [
-          "init_A_obsSegmentations_0"
-        ]
-      }
-    },
-    "metaCoordinationScopesBy": {
-      "init_A_obsSegmentations_0": {
-        "segmentationLayer": {
-          "fileUid": {
-            "init_A_obsSegmentations_0": "init_A_obsSegmentations_0"
-          },
-          "spatialLayerVisible": {
-            "init_A_obsSegmentations_0": "init_A_obsSegmentations_0"
-          },
-          "spatialLayerOpacity": {
-            "init_A_obsSegmentations_0": "init_A_obsSegmentations_0"
-          },
-          "segmentationChannel": {
-            "init_A_obsSegmentations_0": [
-              "init_A_obsSegmentations_0",
-              "init_A_obsSegmentations_1",
-              "init_A_obsSegmentations_2"
-            ]
+      "dataset": {
+          "A": "A"
+      },
+      "imageLayer": {
+          "init_A_obsSegmentations_0": "__dummy__"
+      },
+      "photometricInterpretation": {
+          "init_A_obsSegmentations_0": "RGB"
+      },
+      "segmentationLayer": {
+          "init_A_obsSegmentations_0": "__dummy__"
+      },
+      "fileUid": {
+          "init_A_obsSegmentations_0": "segmentation-mask"
+      },
+      "spatialLayerVisible": {
+          "init_A_obsSegmentations_0": true
+      },
+      "spatialLayerOpacity": {
+          "init_A_obsSegmentations_0": 1
+      },
+      "metaCoordinationScopes": {
+          "init_A_obsSegmentations_0": {
+              "imageLayer": [
+                  "init_A_obsSegmentations_0"
+              ],
+              "segmentationLayer": [
+                  "init_A_obsSegmentations_0"
+              ]
           }
-        },
-        "segmentationChannel": {
-          "spatialTargetC": {
-            "init_A_obsSegmentations_0": "init_A_obsSegmentations_0",
-            "init_A_obsSegmentations_1": "init_A_obsSegmentations_1",
-            "init_A_obsSegmentations_2": "init_A_obsSegmentations_2"
-          },
-          "obsType": {
-            "init_A_obsSegmentations_0": "init_A_obsSegmentations_0",
-            "init_A_obsSegmentations_1": "init_A_obsSegmentations_1",
-            "init_A_obsSegmentations_2": "init_A_obsSegmentations_2"
-          },
-          "spatialChannelOpacity": {
-            "init_A_obsSegmentations_0": "init_A_obsSegmentations_0",
-            "init_A_obsSegmentations_1": "init_A_obsSegmentations_1",
-            "init_A_obsSegmentations_2": "init_A_obsSegmentations_2"
-          },
-          "spatialChannelColor": {
-            "init_A_obsSegmentations_0": "init_A_obsSegmentations_0",
-            "init_A_obsSegmentations_1": "init_A_obsSegmentations_1",
-            "init_A_obsSegmentations_2": "init_A_obsSegmentations_2"
-          },
-          "obsHighlight": {
-            "init_A_obsSegmentations_0": "init_A_obsSegmentations_0",
-            "init_A_obsSegmentations_1": "init_A_obsSegmentations_1",
-            "init_A_obsSegmentations_2": "init_A_obsSegmentations_2"
+      },
+      "metaCoordinationScopesBy": {
+          "init_A_obsSegmentations_0": {
+              "imageLayer": {
+                  "photometricInterpretation": {
+                      "init_A_obsSegmentations_0": "init_A_obsSegmentations_0"
+                  }
+              },
+              "segmentationLayer": {
+                  "fileUid": {
+                      "init_A_obsSegmentations_0": "init_A_obsSegmentations_0"
+                  },
+                  "spatialLayerVisible": {
+                      "init_A_obsSegmentations_0": "init_A_obsSegmentations_0"
+                  },
+                  "spatialLayerOpacity": {
+                      "init_A_obsSegmentations_0": "init_A_obsSegmentations_0"
+                  },
+                  "segmentationChannel": {
+                      "init_A_obsSegmentations_0": []
+                  }
+              }
           }
-        }
       }
-    }
   },
   "layout": [
-    {
-      "component": "spatialBeta",
-      "coordinationScopes": {
-        "dataset": "A",
-        "metaCoordinationScopes": [
-          "init_A_obsSegmentations_0"
-        ],
-        "metaCoordinationScopesBy": [
-          "init_A_obsSegmentations_0"
-        ]
+      {
+          "component": "spatialBeta",
+          "coordinationScopes": {
+              "dataset": "A",
+              "metaCoordinationScopes": [
+                  "init_A_obsSegmentations_0"
+              ],
+              "metaCoordinationScopesBy": [
+                  "init_A_obsSegmentations_0"
+              ]
+          },
+          "x": 3,
+          "y": 0,
+          "w": 9,
+          "h": 12,
+          "props": {
+              "useFullResolutionImage": []
+          }
       },
-      "x": 3,
-      "y": 0,
-      "w": 9,
-      "h": 12,
-      "props": {
-        "useFullResolutionImage": []
+      {
+          "component": "layerControllerBeta",
+          "coordinationScopes": {
+              "dataset": "A",
+              "metaCoordinationScopes": [
+                  "init_A_obsSegmentations_0"
+              ],
+              "metaCoordinationScopesBy": [
+                  "init_A_obsSegmentations_0"
+              ]
+          },
+          "x": 0,
+          "y": 0,
+          "w": 3,
+          "h": 8,
+          "props": {
+              "disable3d": [],
+              "disableChannelsIfRgbDetected": true
+          }
       }
-    },
-    {
-      "component": "layerControllerBeta",
-      "coordinationScopes": {
-        "dataset": "A",
-        "metaCoordinationScopes": [
-          "init_A_obsSegmentations_0"
-        ],
-        "metaCoordinationScopesBy": [
-          "init_A_obsSegmentations_0"
-        ]
-      },
-      "x": 0,
-      "y": 0,
-      "w": 3,
-      "h": 8,
-      "props": {
-        "disable3d": [],
-        "disableChannelsIfRgbDetected": true
-      }
-    }
   ],
   "initStrategy": "auto"
 }

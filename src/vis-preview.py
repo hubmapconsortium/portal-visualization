@@ -52,7 +52,7 @@ def main():  # pragma: no cover
         help='Parent uuid - Only needed for an image-pyramid support dataset.',
         default=None)
     parser.add_argument(
-        '--epic_url',help='URL which returns Dataset JSON for the EPIC dataset')
+        '--epic_url', help='URL which returns Dataset JSON for the EPIC dataset')
     parser.add_argument(
         '--epic_json', type=Path, help='File containing Dataset JSON for the EPIC dataset')
     #
@@ -66,7 +66,6 @@ def main():  # pragma: no cover
     # epic_builder = args.epic_builder
     epic_uuid = args.epic_uuid
     parent_uuid = args.parent_uuid
-    
 
     headers = get_headers(args.token)
     entity = get_entity(args.url, args.json, headers)
@@ -89,7 +88,7 @@ def main():  # pragma: no cover
             print(f"Error accessing {defaults['assaytypes_url']}{uuid}: {str(e)}")
 
     Builder = get_view_config_builder(entity, get_assaytype, parent_uuid, epic_uuid)
-    builder = Builder(entity, args.token, args.assets_url, parent_uuid)
+    builder = Builder(entity, args.token, args.assets_url)
     print(f'Using: {builder.__class__.__name__}', file=stderr)
     conf_cells = builder.get_conf_cells(marker=marker)
 
@@ -108,11 +107,11 @@ def main():  # pragma: no cover
         print(conf_as_json)
 
     # For testing
-    with open ('conf.json','w') as file:
-        if isinstance(conf_cells.conf, list):
-            json.dump( conf_cells.conf[0], file, indent=4, separators=(',', ': '))
-        else:
-            json.dump( conf_cells.conf, file, indent=4, separators=(',', ': '))
+    # with open('conf.json', 'w') as file:
+    #     if isinstance(conf_cells.conf, list):
+    #         json.dump(conf_cells.conf[0], file, indent=4, separators=(',', ': '))
+    #     else:
+    #         json.dump(conf_cells.conf, file, indent=4, separators=(',', ': '))
 
     data_url = f'data:,{quote_plus(conf_as_json)}'
     vitessce_url = f'http://vitessce.io/#?url={data_url}'
@@ -125,17 +124,19 @@ def get_headers(token):  # pragma: no cover
         headers['Authorization'] = f'Bearer {token}'
     return headers
 
-def get_entity(url_arg, json_arg, headers):
-        if url_arg:
-            response = requests.get(url_arg, headers=headers)
-            if response.status_code == 403:
-                raise Exception('Protected data: Download JSON via browser; Redo with --json')
-            response.raise_for_status()
-            json_str = response.text
-        else:
-            json_str = json_arg.read_text()
-        entity = json.loads(json_str)
-        return entity
+
+def get_entity(url_arg, json_arg, headers):  # pragma: no cover
+    if url_arg:
+        response = requests.get(url_arg, headers=headers)
+        if response.status_code == 403:
+            raise Exception('Protected data: Download JSON via browser; Redo with --json')
+        response.raise_for_status()
+        json_str = response.text
+    else:
+        json_str = json_arg.read_text()
+    entity = json.loads(json_str)
+    return entity
+
 
 if __name__ == "__main__":  # pragma: no cover
     main()
