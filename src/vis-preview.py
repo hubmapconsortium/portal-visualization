@@ -55,22 +55,18 @@ def main():  # pragma: no cover
         '--epic_url', help='URL which returns Dataset JSON for the EPIC dataset')
     parser.add_argument(
         '--epic_json', type=Path, help='File containing Dataset JSON for the EPIC dataset')
-    #
-    # parser.add_argument(
-    #     '--epic_builder',  action='store_true',
-    #     help='Whether to use the epic_builder or not',
-    #     default=None)
 
     args = parser.parse_args()
     marker = args.marker
-    # epic_builder = args.epic_builder
     epic_uuid = args.epic_uuid
     parent_uuid = args.parent_uuid
 
     headers = get_headers(args.token)
     entity = get_entity(args.url, args.json, headers)
-    # print(args.epic_json)
+
     if epic_uuid is not None:
+        if args.epic_url is None and args.epic_json is None:
+            raise ValueError('Provide the epic_url or epic_json parameter')
         epic_entity = get_entity(args.epic_url, args.epic_json, headers)
 
     def get_assaytype(uuid):
