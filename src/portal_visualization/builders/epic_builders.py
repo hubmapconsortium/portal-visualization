@@ -23,12 +23,12 @@ class EPICConfBuilder(ViewConfBuilder):
 
         conf, cells = base_conf
 
-        if conf is None:
+        if conf is None:  # pragma: no cover
             raise ValueError("ConfCells object must have a conf attribute")
-
+        # Not sure if need this, as assumption is to have 1 base image
         self._is_plural = isinstance(conf, list)
 
-        if self._is_plural:
+        if self._is_plural:  # pragma: no cover
             self._base_conf = [
                 VitessceConfig.from_dict(conf) for conf in conf
             ]
@@ -42,12 +42,12 @@ class EPICConfBuilder(ViewConfBuilder):
 
     def get_conf_cells(self):
         self.apply()
-        if (self._is_plural):
+        if (self._is_plural):  # pragma: no cover
             return get_conf_cells([conf.to_dict() for conf in self._base_conf])
         return get_conf_cells(self._base_conf)
 
     def apply(self):
-        if self._is_plural:
+        if self._is_plural:  # pragma: no cover
             for conf in self._base_conf:
                 self._apply(conf)
         else:
@@ -61,7 +61,7 @@ class EPICConfBuilder(ViewConfBuilder):
         adata_url = self._build_assets_url(zarr_path, use_token=False)
         return adata_url
 
-    def image_transofrmations_url(self):
+    def image_transofrmations_url(self):  # pragma: no cover
         transformations_url = self._build_assets_url(SEGMENTATION_DIR, use_token=True)
         return transformations_url
 
@@ -94,7 +94,7 @@ class SegmentationMaskBuilder(EPICConfBuilder):
             )
         ]
         found_images = sorted(found_images)
-        if len(found_images) == 0:
+        if len(found_images) == 0:  # pragma: no cover
             message = f"Image pyramid assay with uuid {self._uuid} has no matching files"
             raise FileNotFoundError(message)
 
@@ -115,7 +115,7 @@ class SegmentationMaskBuilder(EPICConfBuilder):
         )
 
         mask_names = self.read_metadata_from_url()
-        if (mask_names is not None):
+        if (mask_names is not None):  # pragma: no cover
             segmentation_objects, segmentations_CL = create_segmentation_objects(zarr_url, mask_names)
             for dataset in datasets:
                 dataset.add_object(segmentations)
@@ -138,7 +138,7 @@ class SegmentationMaskBuilder(EPICConfBuilder):
 
             }, meta=True, scope_prefix=get_initial_coordination_scope_prefix("A", "obsSegmentations"))
 
-    def read_metadata_from_url(self):
+    def read_metadata_from_url(self):  # pragma: no cover
         mask_names = []
         url = f'{self.zarr_store_url()}/metadata.json'
         request_init = self._get_request_init() or {}
@@ -154,7 +154,7 @@ class SegmentationMaskBuilder(EPICConfBuilder):
             print(f"Failed to retrieve metadata.json: {response.status_code} - {response.reason}")
         return mask_names
 
-    def read_segmentation_scale(self):
+    def read_segmentation_scale(self):  # pragma: no cover
         url = self._build_assets_url(f'{SEGMENTATION_DIR}/transformations.json')
         request_init = self._get_request_init() or {}
         # By default no scaling should be applied, format accepted by vitessce

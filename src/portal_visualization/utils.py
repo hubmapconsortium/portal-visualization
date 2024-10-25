@@ -93,7 +93,3 @@ def files_from_response(response_json):
             file['rel_path'] for file in hit['_source'].get('files', [])
         ] for hit in hits
     }
-
-
-def get_image_size(url):
-    print(url)

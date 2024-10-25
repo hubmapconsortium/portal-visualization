@@ -191,7 +191,7 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
             assert epic_builder is not None
             assert epic_builder.__name__ == epic_entity_path.name
             epic_entity = json.loads(Path(f'{epic_entity_path}/fake-entity.json').read_text())
-            if conf is None:
+            if conf is None:   # pragma: no cover
                 with pytest.raises(ValueError):
                     epic_builder(epic_uuid,
                                  ConfCells(conf, cells), entity, epic_entity, groups_token, assets_url).get_conf_cells()

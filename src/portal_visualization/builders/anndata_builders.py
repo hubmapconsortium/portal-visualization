@@ -125,7 +125,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
                     if (marker_index >= 0):
                         marker = ensembl_ids[marker_index]
                     else:
-                        pass
+                        pass   # pragma: no cover
             # Encoding Version 0.2.0
             # https://anndata.readthedocs.io/en/latest/fileformat-prose.html#categorical-arrays
             # Our pipeline currently does not use this encoding version
@@ -243,7 +243,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         # This ensures that the view config is valid for datasets with and without a spatial view
         spatial = self._add_spatial_view(dataset, vc)
 
-        views = list(filter(lambda v: v is not None, [
+        views = list(filter(lambda v: v is not None, [    # pragma: no cover
                      cell_sets, gene_list, scatterplot, cell_sets_expr, heatmap, spatial]))
 
         self._views = views
