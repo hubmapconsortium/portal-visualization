@@ -28,7 +28,7 @@ usage: vis-preview.py [-h] (--url URL | --json JSON) [--assaytypes_url URL]
 
 Given HuBMAP Dataset JSON, generate a Vitessce viewconf, and load vitessce.io.
 
-options:
+optional arguments:
   -h, --help            show this help message and exit
   --url URL             URL which returns Dataset JSON
   --json JSON           File containing Dataset JSON
