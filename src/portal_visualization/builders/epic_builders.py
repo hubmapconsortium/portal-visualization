@@ -172,7 +172,7 @@ class SegmentationMaskBuilder(EPICConfBuilder):
         return scale
 
 
-def create_segmentation_objects(base_url, mask_names): # pragma: no cover
+def create_segmentation_objects(base_url, mask_names):  # pragma: no cover
     segmentation_objects = []
     segmentations_CL = []
     for index, mask_name in enumerate(mask_names):
@@ -200,5 +200,5 @@ def create_segmentation_objects(base_url, mask_names): # pragma: no cover
     return segmentation_objects, segmentations_CL
 
 
-def generate_unique_color(): # pragma: no cover
+def generate_unique_color():  # pragma: no cover
     return [random.randint(0, 255) for _ in range(3)]
