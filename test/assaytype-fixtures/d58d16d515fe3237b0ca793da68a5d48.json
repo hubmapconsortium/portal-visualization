@@ -5,7 +5,6 @@
     "primary": false,
     "vitessce-hints": [
       "is_image",
-      "is_support",
-      "pyramid"
+      "segmentation_base"
     ]
   }
