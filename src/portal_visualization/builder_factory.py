@@ -8,6 +8,7 @@ from .builders.imaging_builders import (
     SeqFISHViewConfBuilder,
     IMSViewConfBuilder,
     ImagePyramidViewConfBuilder,
+    SegImagePyramidViewConfBuilder,
     NanoDESIViewConfBuilder,
 )
 from .builders.anndata_builders import (
@@ -33,6 +34,7 @@ def process_hints(hints):
     is_json = "json_based" in hints
     is_spatial = "spatial" in hints
     is_support = "is_support" in hints
+    is_segmentation_base = "segmentation_base" in hints
 
     return (
         is_image,
@@ -44,6 +46,7 @@ def process_hints(hints):
         is_json,
         is_spatial,
         is_support,
+        is_segmentation_base,
     )
 
 
@@ -53,10 +56,10 @@ def process_hints(hints):
 # The entity is a dict that contains the entity UUID and metadata.
 # `get_assaytype` is a function which takes an entity UUID and returns
 # a dict containing the assaytype and vitessce-hints for that entity.
-def get_view_config_builder(entity, get_assaytype, parent=None):
+def get_view_config_builder(entity, get_assaytype, parent=None, epic_uuid=None):
     if entity.get("uuid") is None:
         raise ValueError("Provided entity does not have a uuid")
-    assay = get_assaytype(entity)
+    assay = get_assaytype(entity.get('uuid'))
     assay_name = assay.get("assaytype")
     hints = assay.get("vitessce-hints", [])
     (
@@ -69,11 +72,16 @@ def get_view_config_builder(entity, get_assaytype, parent=None):
         is_json,
         is_spatial,
         is_support,
+        is_segmentation_base
     ) = process_hints(hints)
 
     # vis-lifted image pyramids
     if parent is not None:
-        if is_support and is_image:
+        # TODO: For now epic (base image's) support datasets doesn't have any hints
+        if epic_uuid is not None or is_segmentation_base:
+            return SegImagePyramidViewConfBuilder
+
+        elif is_support and is_image:
             ancestor_assaytype = get_assaytype(parent).get("assaytype")
             if SEQFISH == ancestor_assaytype:
                 # e.g. parent  = c6a254b2dc2ed46b002500ade163a7cc
@@ -134,5 +142,5 @@ def get_view_config_builder(entity, get_assaytype, parent=None):
 
 
 def has_visualization(entity, get_assaytype, parent=None):
-    builder = get_view_config_builder(entity, get_assaytype, parent)
+    builder = get_view_config_builder(entity, get_assaytype, parent, epic_uuid=None)
     return builder != NullViewConfBuilder

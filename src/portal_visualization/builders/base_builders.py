@@ -1,7 +1,9 @@
 import urllib
 from collections import namedtuple
 from abc import ABC, abstractmethod
-
+# import json
+# import requests
+# from pathlib import Path
 
 ConfCells = namedtuple('ConfCells', ['conf', 'cells'])
 
@@ -74,7 +76,10 @@ class ViewConfBuilder(ABC):
         'https://example.com/uuid/rel_path/to/clusters.ome.tiff?token=groups_token'
 
         """
-        base_url = urllib.parse.urljoin(self._assets_endpoint, f"{self._uuid}/{rel_path}")
+        uuid = self._uuid
+        if hasattr(self, "_epic_uuid"):  # pragma: no cover
+            uuid = self._epic_uuid
+        base_url = urllib.parse.urljoin(self._assets_endpoint, f"{uuid}/{rel_path}")
         token_param = urllib.parse.urlencode({"token": self._groups_token})
         return f"{base_url}?{token_param}" if use_token else base_url
 
@@ -117,6 +122,23 @@ class ViewConfBuilder(ABC):
         ['path/to/file', 'path/to/other_file']
         """
         return [file["rel_path"] for file in self._entity["files"]]
+
+    # def _get_epic_entity(self):
+    # TODO: might need this if we decide to read the epic_entity on run time
+    #     request_init = self._get_request_init()
+    #     file_path = Path(__file__).resolve().parent.parent.parent / 'defaults.json'
+    #     print(file_path)
+    #     defaults = json.load(file_path.open())
+    #     # headers = {"headers": {"Authorization": f"Bearer {self._groups_token}"}}
+    #     url = f'{defaults['dataset_url']}/{self._epic_uuid}.json'
+    #     print(url)
+    #     response = requests.get(url, request_init)
+    #     if response.status_code == 403:
+    #         raise Exception('Protected data: Download JSON via browser; Redo with --json')
+    #     response.raise_for_status()
+    #     json_str = response.text
+    #     entity = json.loads(json_str)
+    #     return entity
 
 
 class _DocTestBuilder(ViewConfBuilder):  # pragma: no cover
