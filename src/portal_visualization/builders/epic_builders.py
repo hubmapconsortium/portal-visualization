@@ -10,6 +10,7 @@ import random
 from ..paths import OFFSETS_DIR, IMAGE_PYRAMID_DIR, SEGMENTATION_SUBDIR, SEGMENTATION_ZARR_STORES, SEGMENTATION_DIR
 
 
+transformations_filename = 'transformations.json'
 zarr_path = f'{SEGMENTATION_SUBDIR}/{SEGMENTATION_ZARR_STORES}'
 
 # EPIC builders take in a vitessce conf output by a previous builder and modify it
@@ -155,20 +156,19 @@ class SegmentationMaskBuilder(EPICConfBuilder):
         return mask_names
 
     def read_segmentation_scale(self):  # pragma: no cover
-        url = self._build_assets_url(f'{SEGMENTATION_DIR}/transformations.json')
+        url = self._build_assets_url(f'{SEGMENTATION_DIR}/{transformations_filename}')
         request_init = self._get_request_init() or {}
         # By default no scaling should be applied, format accepted by vitessce
         scale = [1, 1, 1, 1, 1]
         response = get(url, **request_init)
         if response.status_code == 200:
             data = response.json()
-            print(data)
             if isinstance(data, dict) and "scale" in data:
                 scale = data["scale"]
             else:
                 print("'scale' key not found in the response.")
         else:
-            print(f"Failed to retrieve trasformations.json: {response.status_code} - {response.reason}")
+            print(f"Failed to retrieve {transformations_filename}: {response.status_code} - {response.reason}")
         return scale
 
 
