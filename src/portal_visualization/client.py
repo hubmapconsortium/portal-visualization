@@ -200,7 +200,7 @@ class ApiClient:
         return files_from_response(response_json)
 
     def get_vitessce_conf_cells_and_lifted_uuid(
-        self, entity, marker=None, wrap_error=True, parent=None, epic_uuid=None
+        self, entity, marker=None, wrap_error=True, parent=None, epic_uuid=None, epic_entity=None
     ):
         """
         Returns a dataclass with vitessce_conf and is_lifted.
@@ -225,7 +225,8 @@ class ApiClient:
             ):  # pragma: no cover  # We have separate tests for the builder logic
                 derived_entity["files"] = metadata.get("files", [])
                 vitessce_conf = self.get_vitessce_conf_cells_and_lifted_uuid(
-                    derived_entity, marker=marker, wrap_error=wrap_error, parent=entity
+                    derived_entity, marker=marker, wrap_error=wrap_error, parent=entity,
+                    epic_uuid=epic_uuid, epic_entity=epic_entity
                 ).vitessce_conf
                 vis_lifted_uuid = derived_entity["uuid"]
             else:  # no files
@@ -245,7 +246,7 @@ class ApiClient:
         # Otherwise, just try to visualize the data for the entity itself:
         else:  # pragma: no cover  # We have separate tests for the builder logic
             try:
-                Builder = get_view_config_builder(entity, self._get_assaytype(), parent)
+                Builder = get_view_config_builder(entity, self._get_assaytype(), parent, epic_uuid)
                 builder = Builder(entity, self.groups_token, self.assets_endpoint)
                 vitessce_conf = builder.get_conf_cells(marker=marker)
             except Exception as e:
@@ -260,7 +261,13 @@ class ApiClient:
             epic_uuid is not None and vitessce_conf.conf is not None
         ):  # pragma: no cover  # TODO
             EPICBuilder = get_epic_builder(epic_uuid)
-            vitessce_conf = EPICBuilder(vitessce_conf).get_conf_cells()
+            vitessce_conf = EPICBuilder(
+                epic_uuid,
+                vitessce_conf,
+                entity,
+                epic_entity,
+                self.groups_token,
+                self.assets_endpoint).get_conf_cells()
 
         return VitessceConfLiftedUUID(
             vitessce_conf=vitessce_conf, vis_lifted_uuid=vis_lifted_uuid
@@ -268,8 +275,11 @@ class ApiClient:
 
     # Helper to create a function that fetches assaytype from the API with current headers
     def _get_assaytype(self):  # pragma: no cover
-        def get_assaytype(entity):
-            uuid = entity.get("uuid")
+        def get_assaytype(param):
+            if isinstance(param, str):
+                uuid = param
+            else:
+                uuid = param.get("uuid")
 
             url = f"{self.soft_assay_url}/{uuid}"
             headers = self._get_headers()
