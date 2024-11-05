@@ -46,7 +46,6 @@ def process_hints(hints):
         is_json,
         is_spatial,
         is_support,
-        is_segmentation_base,
     )
 
 
@@ -71,14 +70,13 @@ def get_view_config_builder(entity, get_assaytype, parent=None, epic_uuid=None):
         is_anndata,
         is_json,
         is_spatial,
-        is_support,
-        is_segmentation_base
+        is_support
     ) = process_hints(hints)
 
     # vis-lifted image pyramids
     if parent is not None:
         # TODO: For now epic (base image's) support datasets doesn't have any hints
-        if epic_uuid is not None or is_segmentation_base:
+        if epic_uuid is not None:
             return SegImagePyramidViewConfBuilder
 
         elif is_support and is_image:
