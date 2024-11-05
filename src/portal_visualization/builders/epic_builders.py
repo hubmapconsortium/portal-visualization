@@ -90,15 +90,14 @@ class SegmentationMaskBuilder(EPICConfBuilder):
             )
         ]
         # Remove the base-image pyramids from the found_images
-        filtered_strings = [img_path for img_path in found_images if SEGMENTATION_SUPPORT_IMAGE_SUBDIR not in img_path]
-        if len(filtered_strings) == 0:  # pragma: no cover
-            img_url, offsets_url = None, None
+        filtered_images = [img_path for img_path in found_images if SEGMENTATION_SUPPORT_IMAGE_SUBDIR not in img_path]
+        if len(filtered_images) == 0:  # pragma: no cover
             message = f"Image pyramid assay with uuid {self._uuid} has no matching files"
             raise FileNotFoundError(message)
 
-        elif len(filtered_strings) >= 1:
+        elif len(filtered_images) >= 1:
             img_url, offsets_url = self.segmentations_ome_offset_url(
-                filtered_strings[0]
+                filtered_images[0]
             )
 
         segmentation_scale = self.read_segmentation_scale()
