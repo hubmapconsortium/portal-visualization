@@ -18,7 +18,7 @@ zarr_path = f'{SEGMENTATION_SUBDIR}/{SEGMENTATION_ZARR_STORES}'
 
 
 class EPICConfBuilder(ViewConfBuilder):
-    def __init__(self, epic_uuid, base_conf: ConfCells, entity, epic_entity,
+    def __init__(self, epic_uuid, base_conf: ConfCells, entity,
                  groups_token, assets_endpoint, **kwargs) -> None:
         super().__init__(entity, groups_token, assets_endpoint, **kwargs)
 
@@ -37,7 +37,6 @@ class EPICConfBuilder(ViewConfBuilder):
             self._base_conf: VitessceConfig = VitessceConfig.from_dict(base_conf.conf)
 
         self._epic_uuid = epic_uuid
-        self._epic_entity = epic_entity
 
         pass
 
@@ -84,10 +83,7 @@ class SegmentationMaskBuilder(EPICConfBuilder):
     def _apply(self, conf):
         zarr_url = self.zarr_store_url()
         datasets = conf.get_datasets()
-        # TODO: if extracting epic_entity on the fly is preferred rather than sending as param
-        # epic_entity = self._get_epic_entity()
-        # print(epic_entity)
-        file_paths_found = [file["rel_path"] for file in self._epic_entity["files"]]
+        file_paths_found = [file["rel_path"] for file in self._entity["files"]]
 
         found_images = [
             path for path in get_matches(

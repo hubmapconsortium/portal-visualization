@@ -51,10 +51,6 @@ def main():  # pragma: no cover
         '--parent_uuid', metavar='UUID',
         help='Parent uuid - Only needed for an image-pyramid support dataset.',
         default=None)
-    parser.add_argument(
-        '--epic_url', help='URL which returns Dataset JSON for the EPIC dataset')
-    parser.add_argument(
-        '--epic_json', type=Path, help='File containing Dataset JSON for the EPIC dataset')
 
     args = parser.parse_args()
     marker = args.marker
@@ -63,11 +59,6 @@ def main():  # pragma: no cover
 
     headers = get_headers(args.token)
     entity = get_entity(args.url, args.json, headers)
-
-    if epic_uuid is not None:
-        if args.epic_url is None and args.epic_json is None:
-            raise ValueError('Provide the epic_url or epic_json parameter')
-        epic_entity = get_entity(args.epic_url, args.epic_json, headers)
 
     def get_assaytype(uuid):
         try:
@@ -88,11 +79,11 @@ def main():  # pragma: no cover
     print(f'Using: {builder.__class__.__name__}', file=stderr)
     conf_cells = builder.get_conf_cells(marker=marker)
 
-    if (epic_uuid is not None and conf_cells is not None):  # pragma: no cover
-        EpicBuilder = get_epic_builder(epic_uuid)
-        epic_builder = EpicBuilder(epic_uuid, conf_cells, entity, epic_entity, args.token, args.assets_url)
-        print(f'Using: {epic_builder.__class__.__name__}', file=stderr)
-        conf_cells = epic_builder.get_conf_cells()
+    # if (epic_uuid is not None and conf_cells is not None):  # pragma: no cover
+    #     EpicBuilder = get_epic_builder(epic_uuid)
+    #     epic_builder = EpicBuilder(epic_uuid, conf_cells, entity, args.token, args.assets_url)
+    #     print(f'Using: {epic_builder.__class__.__name__}', file=stderr)
+    #     conf_cells = epic_builder.get_conf_cells()
 
     if isinstance(conf_cells.conf, list):
         conf_as_json = json.dumps(conf_cells.conf[0])
@@ -103,11 +94,11 @@ def main():  # pragma: no cover
         print(conf_as_json)
 
     # For testing
-    # with open('conf.json', 'w') as file:
-    #     if isinstance(conf_cells.conf, list):
-    #         json.dump(conf_cells.conf[0], file, indent=4, separators=(',', ': '))
-    #     else:
-    #         json.dump(conf_cells.conf, file, indent=4, separators=(',', ': '))
+    with open('conf.json', 'w') as file:
+        if isinstance(conf_cells.conf, list):
+            json.dump(conf_cells.conf[0], file, indent=4, separators=(',', ': '))
+        else:
+            json.dump(conf_cells.conf, file, indent=4, separators=(',', ': '))
 
     data_url = f'data:,{quote_plus(conf_as_json)}'
     vitessce_url = f'http://vitessce.io/#?url={data_url}'

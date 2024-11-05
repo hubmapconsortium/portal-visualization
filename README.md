@@ -24,7 +24,6 @@ $ src/vis-preview.py --help
 usage: vis-preview.py [-h] (--url URL | --json JSON) [--assaytypes_url URL]
                       [--assets_url URL] [--token TOKEN] [--marker MARKER]
                       [--to_json] [--epic_uuid UUID] [--parent_uuid UUID]
-                      [--epic_url EPIC_URL] [--epic_json EPIC_JSON]
 
 Given HuBMAP Dataset JSON, generate a Vitessce viewconf, and load vitessce.io.
 
@@ -43,9 +42,6 @@ optional arguments:
   --epic_uuid UUID      uuid of the EPIC dataset.
   --parent_uuid UUID    Parent uuid - Only needed for an image-pyramid support
                         dataset.
-  --epic_url EPIC_URL   URL which returns Dataset JSON for the EPIC dataset
-  --epic_json EPIC_JSON
-                        File containing Dataset JSON for the EPIC dataset
   ```
 
 
