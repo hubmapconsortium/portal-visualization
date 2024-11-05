@@ -34,7 +34,6 @@ def process_hints(hints):
     is_json = "json_based" in hints
     is_spatial = "spatial" in hints
     is_support = "is_support" in hints
-    is_segmentation_base = "segmentation_base" in hints
 
     return (
         is_image,
@@ -139,6 +138,6 @@ def get_view_config_builder(entity, get_assaytype, parent=None, epic_uuid=None):
     return NullViewConfBuilder
 
 
-def has_visualization(entity, get_assaytype, parent=None):
-    builder = get_view_config_builder(entity, get_assaytype, parent, epic_uuid=None)
+def has_visualization(entity, get_assaytype, parent=None, epic_uuid=None):
+    builder = get_view_config_builder(entity, get_assaytype, parent, epic_uuid)
     return builder != NullViewConfBuilder

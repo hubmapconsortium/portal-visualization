@@ -121,7 +121,6 @@ class ViewConfBuilder(ABC):
         return [file["rel_path"] for file in self._entity["files"]]
 
 
-
 class _DocTestBuilder(ViewConfBuilder):  # pragma: no cover
     # The doctests on the methods in this file need a concrete class to instantiate:
     # We need a concrete definition for this method, even if it's never used.

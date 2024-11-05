@@ -7,8 +7,8 @@ from .base_builders import ViewConfBuilder
 from requests import get
 import re
 import random
-from ..paths import OFFSETS_DIR, IMAGE_PYRAMID_DIR, SEGMENTATION_SUBDIR, SEGMENTATION_ZARR_STORES, SEGMENTATION_DIR
-
+from ..paths import OFFSETS_DIR, IMAGE_PYRAMID_DIR, SEGMENTATION_SUBDIR, SEGMENTATION_ZARR_STORES, \
+    SEGMENTATION_DIR, SEGMENTATION_SUPPORT_IMAGE_SUBDIR
 
 transformations_filename = 'transformations.json'
 zarr_path = f'{SEGMENTATION_SUBDIR}/{SEGMENTATION_ZARR_STORES}'
@@ -84,20 +84,21 @@ class SegmentationMaskBuilder(EPICConfBuilder):
         zarr_url = self.zarr_store_url()
         datasets = conf.get_datasets()
         file_paths_found = [file["rel_path"] for file in self._entity["files"]]
-
         found_images = [
             path for path in get_matches(
                 file_paths_found, IMAGE_PYRAMID_DIR + r".*\.ome\.tiff?$",
             )
         ]
-        found_images = sorted(found_images)
-        if len(found_images) == 0:  # pragma: no cover
+        # Remove the base-image pyramids from the found_images
+        filtered_strings = [img_path for img_path in found_images if SEGMENTATION_SUPPORT_IMAGE_SUBDIR not in img_path]
+        if len(filtered_strings) == 0:  # pragma: no cover
+            img_url, offsets_url = None, None
             message = f"Image pyramid assay with uuid {self._uuid} has no matching files"
             raise FileNotFoundError(message)
 
-        elif len(found_images) >= 1:
+        elif len(filtered_strings) >= 1:
             img_url, offsets_url = self.segmentations_ome_offset_url(
-                found_images[0]
+                filtered_strings[0]
             )
 
         segmentation_scale = self.read_segmentation_scale()
@@ -193,7 +194,7 @@ def create_segmentation_objects(base_url, mask_names):  # pragma: no cover
         else:
             channelIndex = index
         seg_CL = {
-            "spatialTargetC": channelIndex ,
+            "spatialTargetC": channelIndex,
             "obsType": mask_name,
             "spatialChannelOpacity": 1,
             "spatialChannelColor": color_channel,

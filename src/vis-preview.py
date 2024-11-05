@@ -79,11 +79,11 @@ def main():  # pragma: no cover
     print(f'Using: {builder.__class__.__name__}', file=stderr)
     conf_cells = builder.get_conf_cells(marker=marker)
 
-    # if (epic_uuid is not None and conf_cells is not None):  # pragma: no cover
-    #     EpicBuilder = get_epic_builder(epic_uuid)
-    #     epic_builder = EpicBuilder(epic_uuid, conf_cells, entity, args.token, args.assets_url)
-    #     print(f'Using: {epic_builder.__class__.__name__}', file=stderr)
-    #     conf_cells = epic_builder.get_conf_cells()
+    if (epic_uuid is not None and conf_cells is not None):  # pragma: no cover
+        EpicBuilder = get_epic_builder(epic_uuid)
+        epic_builder = EpicBuilder(epic_uuid, conf_cells, entity, args.token, args.assets_url)
+        print(f'Using: {epic_builder.__class__.__name__}', file=stderr)
+        conf_cells = epic_builder.get_conf_cells()
 
     if isinstance(conf_cells.conf, list):
         conf_as_json = json.dumps(conf_cells.conf[0])
@@ -94,11 +94,11 @@ def main():  # pragma: no cover
         print(conf_as_json)
 
     # For testing
-    with open('conf.json', 'w') as file:
-        if isinstance(conf_cells.conf, list):
-            json.dump(conf_cells.conf[0], file, indent=4, separators=(',', ': '))
-        else:
-            json.dump(conf_cells.conf, file, indent=4, separators=(',', ': '))
+    # with open('conf.json', 'w') as file:
+    #     if isinstance(conf_cells.conf, list):
+    #         json.dump(conf_cells.conf[0], file, indent=4, separators=(',', ': '))
+    #     else:
+    #         json.dump(conf_cells.conf, file, indent=4, separators=(',', ': '))
 
     data_url = f'data:,{quote_plus(conf_as_json)}'
     vitessce_url = f'http://vitessce.io/#?url={data_url}'
