@@ -169,6 +169,11 @@ class SegmentationMaskBuilder(EPICConfBuilder):
 
 
 def create_segmentation_objects(base_url, mask_names):  # pragma: no cover
+    spatialTargetCMapping = {
+        'arteries-arterioles': 4,
+        'glomeruli': 2,
+        'tubules': 3,
+    }
     segmentation_objects = []
     segmentations_CL = []
     for index, mask_name in enumerate(mask_names):
@@ -182,9 +187,13 @@ def create_segmentation_objects(base_url, mask_names):  # pragma: no cover
                 "obsType": mask_name
             }
         )
+        # TODO: manually adjusted for the test dataset, need to be fixed on Vitessce side
+        if all(mask in mask_names for mask in spatialTargetCMapping.keys()):
+            channelIndex = spatialTargetCMapping[mask_name]
+        else:
+            channelIndex = index
         seg_CL = {
-            # TODO: manually to match image channels - need to be fixed on the JS side
-            "spatialTargetC": index + 2,
+            "spatialTargetC": channelIndex ,
             "obsType": mask_name,
             "spatialChannelOpacity": 1,
             "spatialChannelColor": color_channel,
