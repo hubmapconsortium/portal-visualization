@@ -200,7 +200,7 @@ class ApiClient:
         return files_from_response(response_json)
 
     def get_vitessce_conf_cells_and_lifted_uuid(
-        self, entity, marker=None, wrap_error=True, parent=None, epic_uuid=None, epic_entity=None
+        self, entity, marker=None, wrap_error=True, parent=None, epic_uuid=None,
     ):
         """
         Returns a dataclass with vitessce_conf and is_lifted.
@@ -226,7 +226,7 @@ class ApiClient:
                 derived_entity["files"] = metadata.get("files", [])
                 vitessce_conf = self.get_vitessce_conf_cells_and_lifted_uuid(
                     derived_entity, marker=marker, wrap_error=wrap_error, parent=entity,
-                    epic_uuid=epic_uuid, epic_entity=epic_entity
+                    epic_uuid=epic_uuid
                 ).vitessce_conf
                 vis_lifted_uuid = derived_entity["uuid"]
             else:  # no files
@@ -265,7 +265,6 @@ class ApiClient:
                 epic_uuid,
                 vitessce_conf,
                 entity,
-                epic_entity,
                 self.groups_token,
                 self.assets_endpoint).get_conf_cells()
 
