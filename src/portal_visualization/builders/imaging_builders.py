@@ -11,7 +11,8 @@ from vitessce import (
 
 from ..utils import get_matches, group_by_file_name, get_conf_cells
 from ..paths import (IMAGE_PYRAMID_DIR, OFFSETS_DIR, SEQFISH_HYB_CYCLE_REGEX,
-                     SEQFISH_FILE_REGEX, SEGMENTATION_SUPPORT_IMAGE_SUBDIR)
+                     SEQFISH_FILE_REGEX, SEGMENTATION_SUPPORT_IMAGE_SUBDIR,
+                     SEGMENTATION_SUBDIR)
 from .base_builders import ViewConfBuilder
 
 
@@ -57,7 +58,7 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
 
         """
         img_url = self._build_assets_url(img_path)
-        offset_path = f'{OFFSETS_DIR}/{SEGMENTATION_SUPPORT_IMAGE_SUBDIR}'
+        offset_path = f'{SEGMENTATION_SUBDIR}/{OFFSETS_DIR}/{SEGMENTATION_SUPPORT_IMAGE_SUBDIR}'
         return (
             img_url,
             str(
@@ -145,7 +146,7 @@ class SegImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
         i.e for high resolution viz-lifted imaging datasets like
         https://portal.hubmapconsortium.org/browse/dataset/
         """
-        self.image_pyramid_regex = f'{IMAGE_PYRAMID_DIR}/{SEGMENTATION_SUPPORT_IMAGE_SUBDIR}'
+        self.image_pyramid_regex = f'{SEGMENTATION_SUBDIR}/{IMAGE_PYRAMID_DIR}/{SEGMENTATION_SUPPORT_IMAGE_SUBDIR}'
         self.use_full_resolution = []
         self.use_physical_size_scaling = False
         super().__init__(entity, groups_token, assets_endpoint, **kwargs)

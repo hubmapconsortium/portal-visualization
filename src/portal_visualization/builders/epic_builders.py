@@ -7,8 +7,8 @@ from .base_builders import ViewConfBuilder
 from requests import get
 import re
 import random
-from ..paths import OFFSETS_DIR, IMAGE_PYRAMID_DIR, SEGMENTATION_SUBDIR, SEGMENTATION_ZARR_STORES, SEGMENTATION_DIR
-
+from ..paths import OFFSETS_DIR, IMAGE_PYRAMID_DIR, SEGMENTATION_SUBDIR, SEGMENTATION_ZARR_STORES, \
+    SEGMENTATION_DIR, SEGMENTATION_SUPPORT_IMAGE_SUBDIR
 
 transformations_filename = 'transformations.json'
 zarr_path = f'{SEGMENTATION_SUBDIR}/{SEGMENTATION_ZARR_STORES}'
@@ -18,7 +18,7 @@ zarr_path = f'{SEGMENTATION_SUBDIR}/{SEGMENTATION_ZARR_STORES}'
 
 
 class EPICConfBuilder(ViewConfBuilder):
-    def __init__(self, epic_uuid, base_conf: ConfCells, entity, epic_entity,
+    def __init__(self, epic_uuid, base_conf: ConfCells, entity,
                  groups_token, assets_endpoint, **kwargs) -> None:
         super().__init__(entity, groups_token, assets_endpoint, **kwargs)
 
@@ -37,7 +37,6 @@ class EPICConfBuilder(ViewConfBuilder):
             self._base_conf: VitessceConfig = VitessceConfig.from_dict(base_conf.conf)
 
         self._epic_uuid = epic_uuid
-        self._epic_entity = epic_entity
 
         pass
 
@@ -84,24 +83,21 @@ class SegmentationMaskBuilder(EPICConfBuilder):
     def _apply(self, conf):
         zarr_url = self.zarr_store_url()
         datasets = conf.get_datasets()
-        # TODO: if extracting epic_entity on the fly is preferred rather than sending as param
-        # epic_entity = self._get_epic_entity()
-        # print(epic_entity)
-        file_paths_found = [file["rel_path"] for file in self._epic_entity["files"]]
-
+        file_paths_found = [file["rel_path"] for file in self._entity["files"]]
         found_images = [
             path for path in get_matches(
                 file_paths_found, IMAGE_PYRAMID_DIR + r".*\.ome\.tiff?$",
             )
         ]
-        found_images = sorted(found_images)
-        if len(found_images) == 0:  # pragma: no cover
+        # Remove the base-image pyramids from the found_images
+        filtered_images = [img_path for img_path in found_images if SEGMENTATION_SUPPORT_IMAGE_SUBDIR not in img_path]
+        if len(filtered_images) == 0:  # pragma: no cover
             message = f"Image pyramid assay with uuid {self._uuid} has no matching files"
             raise FileNotFoundError(message)
 
-        elif len(found_images) >= 1:
+        elif len(filtered_images) >= 1:
             img_url, offsets_url = self.segmentations_ome_offset_url(
-                found_images[0]
+                filtered_images[0]
             )
 
         segmentation_scale = self.read_segmentation_scale()
@@ -173,6 +169,11 @@ class SegmentationMaskBuilder(EPICConfBuilder):
 
 
 def create_segmentation_objects(base_url, mask_names):  # pragma: no cover
+    spatialTargetCMapping = {
+        'arteries-arterioles': 4,
+        'glomeruli': 2,
+        'tubules': 3,
+    }
     segmentation_objects = []
     segmentations_CL = []
     for index, mask_name in enumerate(mask_names):
@@ -186,9 +187,13 @@ def create_segmentation_objects(base_url, mask_names):  # pragma: no cover
                 "obsType": mask_name
             }
         )
+        # TODO: manually adjusted for the test dataset, need to be fixed on Vitessce side
+        if all(mask in mask_names for mask in spatialTargetCMapping.keys()):
+            channelIndex = spatialTargetCMapping[mask_name]
+        else:
+            channelIndex = index
         seg_CL = {
-            # TODO: manually to match image channels - need to be fixed on the JS side
-            "spatialTargetC": index + 2,
+            "spatialTargetC": channelIndex,
             "obsType": mask_name,
             "spatialChannelOpacity": 1,
             "spatialChannelColor": color_channel,
