@@ -81,10 +81,10 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
         return vc
 
     def _setup_view_config_seg(self, vc, dataset, disable_3d=[], use_full_resolution=[]):
-        vc.add_view("spatialBeta", dataset=dataset, x=3, y=0, w=9, h=12).set_props(
+        vc.add_view("spatialBeta", dataset=dataset, x=4, y=0, w=8, h=12).set_props(
             useFullResolutionImage=use_full_resolution
         )
-        vc.add_view("layerControllerBeta", dataset=dataset, x=0, y=0, w=3, h=8).set_props(
+        vc.add_view("layerControllerBeta", dataset=dataset, x=0, y=0, w=4, h=8).set_props(
             disable3d=disable_3d, disableChannelsIfRgbDetected=True
         )
         return vc
