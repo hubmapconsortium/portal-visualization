@@ -108,9 +108,9 @@
                     "init_A_obsSegmentations_0"
                 ]
             },
-            "x": 3,
+            "x": 4,
             "y": 0,
-            "w": 9,
+            "w": 8,
             "h": 12,
             "props": {
                 "useFullResolutionImage": []
@@ -129,7 +129,7 @@
             },
             "x": 0,
             "y": 0,
-            "w": 3,
+            "w": 4,
             "h": 8,
             "props": {
                 "disable3d": [],
