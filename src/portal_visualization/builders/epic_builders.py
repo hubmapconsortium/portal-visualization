@@ -169,14 +169,9 @@ class SegmentationMaskBuilder(EPICConfBuilder):
 
 
 def create_segmentation_objects(base_url, mask_names):  # pragma: no cover
-    spatialTargetCMapping = {
-        'arteries-arterioles': 4,
-        'glomeruli': 2,
-        'tubules': 3,
-    }
     segmentation_objects = []
     segmentations_CL = []
-    for index, mask_name in enumerate(mask_names):
+    for mask_name in enumerate(mask_names):
         color_channel = generate_unique_color()
         mask_url = f'{base_url}/{mask_name}.zarr'
         segmentations_zarr = AnnDataWrapper(
@@ -187,13 +182,8 @@ def create_segmentation_objects(base_url, mask_names):  # pragma: no cover
                 "obsType": mask_name
             }
         )
-        # TODO: manually adjusted for the test dataset, need to be fixed on Vitessce side
-        if all(mask in mask_names for mask in spatialTargetCMapping.keys()):
-            channelIndex = spatialTargetCMapping[mask_name]
-        else:
-            channelIndex = index
         seg_CL = {
-            "spatialTargetC": channelIndex,
+            "spatialTargetC": mask_name,
             "obsType": mask_name,
             "spatialChannelOpacity": 1,
             "spatialChannelColor": color_channel,
