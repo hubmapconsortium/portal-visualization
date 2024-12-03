@@ -171,7 +171,7 @@ class SegmentationMaskBuilder(EPICConfBuilder):
 def create_segmentation_objects(base_url, mask_names):  # pragma: no cover
     segmentation_objects = []
     segmentations_CL = []
-    for mask_name in enumerate(mask_names):
+    for mask_name in mask_names:
         color_channel = generate_unique_color()
         mask_url = f'{base_url}/{mask_name}.zarr'
         segmentations_zarr = AnnDataWrapper(
