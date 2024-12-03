@@ -183,13 +183,13 @@
           "obsColorEncoding": "A",
           "obsSetSelection": "A"
         },
-        "h": 6.0,
+        "h": 6,
         "props": {
           "embeddingCellSetLabelsVisible": false
         },
-        "w": 3.0,
-        "x": 0.0,
-        "y": 0.0
+        "w": 3,
+        "x": 0,
+        "y": 0
       },
       {
         "component": "scatterplot",
@@ -204,13 +204,13 @@
           "obsColorEncoding": "A",
           "obsSetSelection": "A"
         },
-        "h": 6.0,
+        "h": 6,
         "props": {
           "embeddingCellSetLabelsVisible": false
         },
-        "w": 3.0,
-        "x": 3.0,
-        "y": 0.0
+        "w": 3,
+        "x": 3,
+        "y": 0
       },
       {
         "component": "scatterplot",
@@ -223,13 +223,13 @@
           "obsColorEncoding": "A",
           "obsSetSelection": "A"
         },
-        "h": 6.0,
+        "h": 6,
         "props": {
           "embeddingCellSetLabelsVisible": false
         },
-        "w": 3.0,
-        "x": 6.0,
-        "y": 0.0
+        "w": 3,
+        "x": 6,
+        "y": 0
       },
       {
         "component": "featureList",
@@ -242,10 +242,10 @@
           "obsColorEncoding": "A",
           "obsSetSelection": "A"
         },
-        "h": 6.0,
-        "w": 3.0,
-        "x": 9.0,
-        "y": 6.0
+        "h": 6,
+        "w": 3,
+        "x": 9,
+        "y": 6
       },
       {
         "component": "featureList",
@@ -258,10 +258,10 @@
           "obsColorEncoding": "A",
           "obsSetSelection": "A"
         },
-        "h": 6.0,
-        "w": 3.0,
-        "x": 6.0,
-        "y": 6.0
+        "h": 6,
+        "w": 3,
+        "x": 6,
+        "y": 6
       },
       {
         "component": "genomicProfiles",
@@ -270,13 +270,13 @@
           "obsColorEncoding": "B",
           "obsSetSelection": "B"
         },
-        "h": 6.0,
+        "h": 6,
         "props": {
           "title": "Leiden (Weighted Nearest Neighbor) Genomic Profiles"
         },
-        "w": 6.0,
-        "x": 0.0,
-        "y": 6.0
+        "w": 6,
+        "x": 0,
+        "y": 6
       },
       {
         "component": "obsSets",
@@ -287,10 +287,10 @@
           "obsColorEncoding": "A",
           "obsSetSelection": "A"
         },
-        "h": 6.0,
-        "w": 3.0,
-        "x": 9.0,
-        "y": 0.0
+        "h": 6,
+        "w": 3,
+        "x": 9,
+        "y": 0
       }
     ],
     "name": "Leiden (Weighted Nearest Neighbor)",
@@ -480,13 +480,13 @@
           "obsColorEncoding": "A",
           "obsSetSelection": "A"
         },
-        "h": 6.0,
+        "h": 6,
         "props": {
           "embeddingCellSetLabelsVisible": false
         },
-        "w": 3.0,
-        "x": 0.0,
-        "y": 0.0
+        "w": 3,
+        "x": 0,
+        "y": 0
       },
       {
         "component": "scatterplot",
@@ -501,13 +501,13 @@
           "obsColorEncoding": "A",
           "obsSetSelection": "A"
         },
-        "h": 6.0,
+        "h": 6,
         "props": {
           "embeddingCellSetLabelsVisible": false
         },
-        "w": 3.0,
-        "x": 3.0,
-        "y": 0.0
+        "w": 3,
+        "x": 3,
+        "y": 0
       },
       {
         "component": "scatterplot",
@@ -520,13 +520,13 @@
           "obsColorEncoding": "A",
           "obsSetSelection": "A"
         },
-        "h": 6.0,
+        "h": 6,
         "props": {
           "embeddingCellSetLabelsVisible": false
         },
-        "w": 3.0,
-        "x": 6.0,
-        "y": 0.0
+        "w": 3,
+        "x": 6,
+        "y": 0
       },
       {
         "component": "featureList",
@@ -539,10 +539,10 @@
           "obsColorEncoding": "A",
           "obsSetSelection": "A"
         },
-        "h": 6.0,
-        "w": 3.0,
-        "x": 9.0,
-        "y": 6.0
+        "h": 6,
+        "w": 3,
+        "x": 9,
+        "y": 6
       },
       {
         "component": "featureList",
@@ -555,10 +555,10 @@
           "obsColorEncoding": "A",
           "obsSetSelection": "A"
         },
-        "h": 6.0,
-        "w": 3.0,
-        "x": 6.0,
-        "y": 6.0
+        "h": 6,
+        "w": 3,
+        "x": 6,
+        "y": 6
       },
       {
         "component": "genomicProfiles",
@@ -567,13 +567,13 @@
           "obsColorEncoding": "B",
           "obsSetSelection": "B"
         },
-        "h": 6.0,
+        "h": 6,
         "props": {
           "title": "Leiden (RNA) Genomic Profiles"
         },
-        "w": 6.0,
-        "x": 0.0,
-        "y": 6.0
+        "w": 6,
+        "x": 0,
+        "y": 6
       },
       {
         "component": "obsSets",
@@ -584,10 +584,10 @@
           "obsColorEncoding": "A",
           "obsSetSelection": "A"
         },
-        "h": 6.0,
-        "w": 3.0,
-        "x": 9.0,
-        "y": 0.0
+        "h": 6,
+        "w": 3,
+        "x": 9,
+        "y": 0
       }
     ],
     "name": "Leiden (RNA)",
@@ -777,13 +777,13 @@
           "obsColorEncoding": "A",
           "obsSetSelection": "A"
         },
-        "h": 6.0,
+        "h": 6,
         "props": {
           "embeddingCellSetLabelsVisible": false
         },
-        "w": 3.0,
-        "x": 0.0,
-        "y": 0.0
+        "w": 3,
+        "x": 0,
+        "y": 0
       },
       {
         "component": "scatterplot",
@@ -798,13 +798,13 @@
           "obsColorEncoding": "A",
           "obsSetSelection": "A"
         },
-        "h": 6.0,
+        "h": 6,
         "props": {
           "embeddingCellSetLabelsVisible": false
         },
-        "w": 3.0,
-        "x": 3.0,
-        "y": 0.0
+        "w": 3,
+        "x": 3,
+        "y": 0
       },
       {
         "component": "scatterplot",
@@ -817,13 +817,13 @@
           "obsColorEncoding": "A",
           "obsSetSelection": "A"
         },
-        "h": 6.0,
+        "h": 6,
         "props": {
           "embeddingCellSetLabelsVisible": false
         },
-        "w": 3.0,
-        "x": 6.0,
-        "y": 0.0
+        "w": 3,
+        "x": 6,
+        "y": 0
       },
       {
         "component": "featureList",
@@ -836,10 +836,10 @@
           "obsColorEncoding": "A",
           "obsSetSelection": "A"
         },
-        "h": 6.0,
-        "w": 3.0,
-        "x": 9.0,
-        "y": 6.0
+        "h": 6,
+        "w": 3,
+        "x": 9,
+        "y": 6
       },
       {
         "component": "featureList",
@@ -852,10 +852,10 @@
           "obsColorEncoding": "A",
           "obsSetSelection": "A"
         },
-        "h": 6.0,
-        "w": 3.0,
-        "x": 6.0,
-        "y": 6.0
+        "h": 6,
+        "w": 3,
+        "x": 6,
+        "y": 6
       },
       {
         "component": "genomicProfiles",
@@ -864,13 +864,13 @@
           "obsColorEncoding": "B",
           "obsSetSelection": "B"
         },
-        "h": 6.0,
+        "h": 6,
         "props": {
           "title": "Cell Ontology Annotation Genomic Profiles"
         },
-        "w": 6.0,
-        "x": 0.0,
-        "y": 6.0
+        "w": 6,
+        "x": 0,
+        "y": 6
       },
       {
         "component": "obsSets",
@@ -881,10 +881,10 @@
           "obsColorEncoding": "A",
           "obsSetSelection": "A"
         },
-        "h": 6.0,
-        "w": 3.0,
-        "x": 9.0,
-        "y": 0.0
+        "h": 6,
+        "w": 3,
+        "x": 9,
+        "y": 0
       }
     ],
     "name": "Cell Ontology Annotation",
