@@ -1,9 +1,4 @@
 {
-    "assaytype": "seqFish",
-    "contains-pii": false,
-    "description": "seqFISH",
-    "dir-schema": "seqfish-v0",
-    "primary": true,
-    "tbl-schema": "seqfish-v0",
+    "soft_assaytype": "seqFish",
     "vitessce-hints": []
   }

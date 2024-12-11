@@ -55,5 +55,7 @@
     }
   ],
   "status": "QA",
-  "uuid": "c3be5650e93907b68ddbdb22b948db32"
+  "uuid": "c3be5650e93907b68ddbdb22b948db32",
+  "soft_assaytype": "celldive_deepcell",
+  "vitessce-hints": ["is_tiled", "is_image", "anndata", "sprm"]
 }

@@ -1,26 +1,25 @@
 {
-    "data_types": [
-        "image_pyramid",
-        "PAS"
-    ],
-    "status": "QA",
-    "immediate_ancestors": [
-        {
-            "data_types": ["PAS"]
-        }
-    ],
-    "files": [
-        {
-            "rel_path": "ometiff-pyramids/processedMicroscopy/VAN0003-LK-33-2-PAS_FFPE.ome.tif"
-        },
-        {
-            "rel_path": "ometiff-pyramids/separate/should-be-ignored.ome.tif"
-        },
-        {
-            "rel_path": "output_offsets/processedMicroscopy/VAN0003-LK-33-2-PAS_FFPE.offsets.json"
-        }
-    ],
-    "uuid": "f9ae931b8b49252f150d7f8bf1d2d13f",
-    "metadata": {"dag_provenance_list": []},
-    "parent": { "uuid": "8adc3c31ca84ec4b958ed20a7c4f4919" }
+  "data_types": ["image_pyramid", "PAS"],
+  "status": "QA",
+  "immediate_ancestors": [
+    {
+      "data_types": ["PAS"]
+    }
+  ],
+  "files": [
+    {
+      "rel_path": "ometiff-pyramids/processedMicroscopy/VAN0003-LK-33-2-PAS_FFPE.ome.tif"
+    },
+    {
+      "rel_path": "ometiff-pyramids/separate/should-be-ignored.ome.tif"
+    },
+    {
+      "rel_path": "output_offsets/processedMicroscopy/VAN0003-LK-33-2-PAS_FFPE.offsets.json"
+    }
+  ],
+  "uuid": "f9ae931b8b49252f150d7f8bf1d2d13f",
+  "metadata": { "dag_provenance_list": [] },
+  "parent": { "uuid": "8adc3c31ca84ec4b958ed20a7c4f4919" },
+  "soft_assaytype": "image_pyramid",
+  "vitessce-hints": ["is_support", "pyramid", "is_image"]
 }

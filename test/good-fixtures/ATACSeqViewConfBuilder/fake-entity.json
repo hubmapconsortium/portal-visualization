@@ -87,5 +87,10 @@
         }
     ],
     "uuid": "d4493657cde29702c5ed73932da5317c",
-    "metadata": {"dag_provenance_list": []}
+    "metadata": {"dag_provenance_list": []},
+    "soft_assaytype": "sc_atac_seq_sci",
+    "vitessce-hints": [
+      "is_sc",
+      "atac"
+    ]
 }

@@ -1,8 +1,5 @@
 {
-    "assaytype": "image_pyramid",
-    "contains-pii": false,
-    "description": "Image Pyramid",
-    "primary": false,
+    "soft_assaytype": "image_pyramid",
     "vitessce-hints": [
       "is_image",
       "pyramid",

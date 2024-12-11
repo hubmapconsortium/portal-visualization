@@ -1,8 +1,5 @@
 {
-    "assaytype": "salmon_sn_rnaseq_10x",
-    "contains-pii": false,
-    "description": "snRNA-seq [Salmon]",
-    "primary": false,
+    "soft_assaytype": "salmon_sn_rnaseq_10x",
     "vitessce-hints": [
       "is_sc",
       "rna",

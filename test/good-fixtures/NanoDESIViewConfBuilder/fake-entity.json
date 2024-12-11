@@ -11,5 +11,11 @@
   ],
   "uuid": "e1c4370da5523ab5c9be581d1d76ca20",
   "metadata": { "dag_provenance_list": [] },
-  "parent": { "uuid": "6b93107731199733f266bbd0f3bc9747" }
+  "parent": { "uuid": "6b93107731199733f266bbd0f3bc9747" },
+  "soft_assaytype": "image_pyramid",
+  "vitessce-hints": [
+    "is_image",
+    "pyramid",
+    "is_support"
+  ]
 }

@@ -6,5 +6,10 @@
     "files": [
     ],
     "uuid": "210d118a14c8624b6bb9610a9062656e",
-    "metadata": {"dag_provenance_list": []}
+    "metadata": {"dag_provenance_list": []},
+    "soft_assaytype": "sn_atac_seq",
+    "vitessce-hints": [
+      "is_sc",
+      "atac"
+    ]
 }
