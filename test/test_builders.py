@@ -57,12 +57,12 @@ assert assaytypes_path.is_dir()
 defaults = json.load((Path(__file__).parent.parent / "src/defaults.json").open())
 
 default_assaytype = {
-    "assaytype": "Null",
+    "soft_assaytype": "Null",
     "vitessce-hints": [],
 }
 
 
-def get_assaytype(input):
+def get_entity(input):
     # uuid = entity.get("uuid")
     if not isinstance(input, str):
         uuid = input.get("uuid")
@@ -87,7 +87,7 @@ def get_assaytype(input):
 def test_has_visualization(has_vis_entity):
     has_vis, entity = has_vis_entity
     parent = entity.get("parent") or None  # Only used for image pyramids
-    assert has_vis == has_visualization(entity, get_assaytype, parent)
+    assert has_vis == has_visualization(entity, get_entity, parent)
 
 
 def mock_zarr_store(entity_path, mocker):
@@ -146,10 +146,10 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
     epic_uuid = None
     entity = json.loads(entity_path.read_text())
     parent = entity.get("parent") or None  # Only used for image pyramids
-    assay_type = get_assaytype(entity["uuid"])
+    assay_type = get_entity(entity["uuid"])
     if 'segmentation_mask' in assay_type['vitessce-hints']:
         epic_uuid = entity.get("uuid")
-    Builder = get_view_config_builder(entity, get_assaytype, parent, epic_uuid)
+    Builder = get_view_config_builder(entity, get_entity, parent, epic_uuid)
     # Envvars should not be set during normal test runs,
     # but to test the end-to-end integration, they are useful.
     groups_token = environ.get("GROUPS_TOKEN", "groups_token")
@@ -185,7 +185,7 @@ def test_entity_to_error(entity_path, mocker):
     entity = json.loads(entity_path.read_text())
     with pytest.raises(Exception) as error_info:
         parent = entity.get("parent") or None  # Only used for image pyramids
-        Builder = get_view_config_builder(entity, get_assaytype, parent=parent)
+        Builder = get_view_config_builder(entity, get_entity, parent=parent)
         builder = Builder(entity, "groups_token", "https://example.com/")
         builder.get_conf_cells()
     actual_error = f"{error_info.type.__name__}: {error_info.value.args[0]}"
@@ -236,7 +236,7 @@ if __name__ == "__main__":  # pragma: no cover
 
     args = parser.parse_args()
     entity = json.loads(args.input.read_text())
-    Builder = get_view_config_builder(entity, get_assaytype)
+    Builder = get_view_config_builder(entity, get_entity)
     builder = Builder(entity, "groups_token", "https://example.com/")
     conf, cells = builder.get_conf_cells()
 
