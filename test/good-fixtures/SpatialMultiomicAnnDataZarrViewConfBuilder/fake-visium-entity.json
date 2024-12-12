@@ -18,5 +18,12 @@
         "origin": "https://github.com/hubmapconsortium/portal-containers"
       }
     ]
-  }
+  },
+  "soft_assaytype": "visium-no-probes",
+  "vitessce-hints": [
+    "rna",
+    "is_image",
+    "anndata",
+    "spatial"
+  ]
 }

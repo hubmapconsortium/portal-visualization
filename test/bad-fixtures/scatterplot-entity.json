@@ -10,5 +10,11 @@
     "dag_provenance_list": []
   }, 
   "status": "Published", 
-  "uuid": "c019a1cd35aab4d2b4a6ff221e92aaab"
+  "uuid": "c019a1cd35aab4d2b4a6ff221e92aaab",
+  "soft_assaytype": "salmon_sn_rnaseq_10x",
+  "vitessce-hints": [
+    "is_sc",
+    "rna",
+    "json_based"
+  ]
 }

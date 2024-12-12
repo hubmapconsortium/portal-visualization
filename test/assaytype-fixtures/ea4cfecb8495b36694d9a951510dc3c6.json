@@ -1,8 +1,5 @@
 {
-    "assaytype": "salmon_rnaseq_slideseq",
-    "contains-pii": false,
-    "description": "Slide-seq [Salmon]",
-    "primary": false,
+    "soft_assaytype": "salmon_rnaseq_slideseq",
     "vitessce-hints": [
       "is_sc",
       "rna"

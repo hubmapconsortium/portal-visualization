@@ -1,8 +1,5 @@
 {
-    "assaytype": "celldive_deepcell",
-    "contains-pii": false,
-    "description": "CellDIVE [DeepCell + SPRM]",
-    "primary": false,
+    "soft_assaytype": "celldive_deepcell",
     "vitessce-hints": [
       "sprm",
       "anndata",

@@ -22,5 +22,7 @@
     ],
     "uuid": "a6116772446f6d1c1f6b3d2e9735cfe0",
     "metadata": {"dag_provenance_list": []},
-    "parent": {"uuid": "3bc3ad124014a632d558255626bf38c9"}
+    "parent": {"uuid": "3bc3ad124014a632d558255626bf38c9"},
+    "soft_assaytype": "image_pyramid",
+    "vitessce-hints": ["is_support", "pyramid", "is_image"]
 }

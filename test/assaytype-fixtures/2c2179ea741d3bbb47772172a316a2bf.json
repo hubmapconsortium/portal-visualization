@@ -1,9 +1,4 @@
 {
-    "assaytype": "bulk-RNA",
-    "contains-pii": true,
-    "description": "Bulk RNA-seq",
-    "dir-schema": "bulkrnaseq-v0",
-    "primary": true,
-    "tbl-schema": "bulkrnaseq-v0",
+    "soft_assaytype": "bulk-RNA",
     "vitessce-hints": []
   }

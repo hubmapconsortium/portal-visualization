@@ -1,9 +1,3 @@
 {
-    "contains-pii": false,
-    "dataset-type": "Histology",
-    "description": "Segmentation Mask",
-    "dir-schema": "stained-v0",
-    "primary": true,
-    "tbl-schema": "stained-v0",
-    "vitessce-hints":  ["segmentation_mask","is_image","pyramid"]
-  }
+  "vitessce-hints": ["segmentation_mask", "is_image", "pyramid"]
+}

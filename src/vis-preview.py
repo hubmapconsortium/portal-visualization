@@ -16,7 +16,6 @@ from portal_visualization.epic_factory import get_epic_builder
 def main():  # pragma: no cover
     defaults = json.load((Path(__file__).parent / 'defaults.json').open())
     assets_default_url = defaults['assets_url']
-    assaytypes_default_url = defaults['assaytypes_url']
 
     parser = argparse.ArgumentParser(description='''
         Given HuBMAP Dataset JSON, generate a Vitessce viewconf, and load vitessce.io.''')
@@ -26,10 +25,6 @@ def main():  # pragma: no cover
     input.add_argument(
         '--json', type=Path, help='File containing Dataset JSON')
 
-    parser.add_argument(
-        '--assaytypes_url', metavar='URL',
-        help=f'AssayType service; default: {assaytypes_default_url}',
-        default=assaytypes_default_url)
     parser.add_argument(
         '--assets_url', metavar='URL',
         help=f'Assets endpoint; default: {assets_default_url}',
@@ -60,21 +55,7 @@ def main():  # pragma: no cover
     headers = get_headers(args.token)
     entity = get_entity(args.url, args.json, headers)
 
-    def get_assaytype(uuid):
-        try:
-            response = requests.get(f'{defaults["assaytypes_url"]}{uuid}', headers=headers)
-            if response.status_code != 200:
-                print(f"Error: Received status code {response.status_code}")
-            else:
-                try:
-                    data = response.json()
-                    return data
-                except Exception as e:
-                    print(f"Error in parsing the response {str(e)}")
-        except Exception as e:
-            print(f"Error accessing {defaults['assaytypes_url']}{uuid}: {str(e)}")
-
-    Builder = get_view_config_builder(entity, get_assaytype, parent_uuid, epic_uuid)
+    Builder = get_view_config_builder(entity, get_entity, parent_uuid, epic_uuid)
     builder = Builder(entity, args.token, args.assets_url)
     print(f'Using: {builder.__class__.__name__}', file=stderr)
     conf_cells = builder.get_conf_cells(marker=marker)

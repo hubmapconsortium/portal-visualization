@@ -1,9 +1,5 @@
 {
-    "assaytype": "multiome-10x",
-    "contains-pii": false,
-    "description": "10X Multiome [Salmon + ArchR + Muon]",
-    "is-multi-assay": true,
-    "primary": false,
+    "soft_assaytype": "multiome-10x",
     "vitessce-hints": [
       "is_sc",
       "rna",
