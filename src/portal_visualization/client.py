@@ -246,7 +246,8 @@ class ApiClient:
         # Otherwise, just try to visualize the data for the entity itself:
         else:  # pragma: no cover  # We have separate tests for the builder logic
             try:
-                Builder = get_view_config_builder(entity, self.get_entity(), parent, epic_uuid)
+                print("YES PARENTHESES")
+                Builder = get_view_config_builder(entity, self.get_entity, parent, epic_uuid)
                 builder = Builder(entity, self.groups_token, self.assets_endpoint)
                 vitessce_conf = builder.get_conf_cells(marker=marker)
             except Exception as e:
