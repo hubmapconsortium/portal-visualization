@@ -246,8 +246,8 @@ class ApiClient:
         # Otherwise, just try to visualize the data for the entity itself:
         else:  # pragma: no cover  # We have separate tests for the builder logic
             try:
-                def get_entity(uuid):
-                    return self.get_entity(uuid=uuid)
+                def get_entity(entity):
+                    return self.get_entity(uuid=entity.get('uuid'))
                 Builder = get_view_config_builder(entity, get_entity, parent, epic_uuid)
                 builder = Builder(entity, self.groups_token, self.assets_endpoint)
                 vitessce_conf = builder.get_conf_cells(marker=marker)
