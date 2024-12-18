@@ -1,9 +1,5 @@
 {
-    "assaytype": "visium-no-probes",
-    "contains-pii": false,
-    "description": "Visium (no probes) [Salmon + Scanpy]",
-    "is-multi-assay": true,
-    "primary": false,
+    "soft_assaytype": "visium-no-probes",
     "vitessce-hints": [
       "rna",
       "is_image",

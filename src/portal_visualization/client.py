@@ -246,7 +246,11 @@ class ApiClient:
         # Otherwise, just try to visualize the data for the entity itself:
         else:  # pragma: no cover  # We have separate tests for the builder logic
             try:
-                Builder = get_view_config_builder(entity, self._get_assaytype(), parent, epic_uuid)
+                def get_entity(entity):
+                    if (type(entity) is str):
+                        return self.get_entity(uuid=entity)
+                    return self.get_entity(uuid=entity.get('uuid'))
+                Builder = get_view_config_builder(entity, get_entity, parent, epic_uuid)
                 builder = Builder(entity, self.groups_token, self.assets_endpoint)
                 vitessce_conf = builder.get_conf_cells(marker=marker)
             except Exception as e:
@@ -271,42 +275,6 @@ class ApiClient:
         return VitessceConfLiftedUUID(
             vitessce_conf=vitessce_conf, vis_lifted_uuid=vis_lifted_uuid
         )
-
-    # Helper to create a function that fetches assaytype from the API with current headers
-    def _get_assaytype(self):  # pragma: no cover
-        def get_assaytype(param):
-            if isinstance(param, str):
-                uuid = param
-            else:
-                uuid = param.get("uuid")
-
-            url = f"{self.soft_assay_url}/{uuid}"
-            headers = self._get_headers()
-            try:
-                response = requests.get(url, headers=headers)
-                return response.json()
-            except Exception as e:
-                # Redact Authorization header from logs
-                cleaned_headers = self._clean_headers(headers)
-                if response:
-                    status = response.status_code
-                else:
-                    status = None
-                current_app.logger.error(
-                    {
-                        "source": "get_assaytype",
-                        "url": url,
-                        "headers": cleaned_headers,
-                        "status": status,
-                        "error": str(e),
-                    }
-                )
-                current_app.logger.error(
-                    f"Fetching assaytype threw error: {traceback.format_exc()}"
-                )
-                raise e
-
-        return get_assaytype
 
     def _file_request(self, url):
         headers = (

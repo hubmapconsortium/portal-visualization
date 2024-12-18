@@ -1,10 +1,4 @@
 {
-    "assaytype": "PAS",
-    "contains-pii": false,
-    "dataset-type": "Histology",
-    "description": "PAS Stained Microscopy",
-    "dir-schema": "stained-v0",
-    "primary": true,
-    "tbl-schema": "stained-v0",
+    "soft_assaytype": "PAS",
     "vitessce-hints": []
   }

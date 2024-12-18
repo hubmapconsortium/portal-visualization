@@ -16,5 +16,10 @@
         ]
     },
     "status": "Published",
-    "uuid": "2a590db3d7ab1e1512816b165d95cdcf"
+    "uuid": "2a590db3d7ab1e1512816b165d95cdcf",
+    "soft_assaytype": "salmon_rnaseq_slideseq",
+    "vitessce-hints": [
+      "is_sc",
+      "rna"
+    ]
 }

@@ -38,5 +38,11 @@
     ]
   }, 
   "status": "Published", 
-  "uuid": "04e7385339167e541ad42a2636e18398"
+  "uuid": "04e7385339167e541ad42a2636e18398",
+  "soft_assaytype": "codex_cytokit_v1",
+  "vitessce-hints": [
+    "codex",
+    "is_image",
+    "is_tiled"
+  ]
 }

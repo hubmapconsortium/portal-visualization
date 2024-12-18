@@ -1,9 +1,4 @@
 {
-  "assaytype": "NanoDESI",
-  "contains-pii": false,
-  "description": "NanoDESI",
-  "dir-schema": "ims-v0",
-  "primary": true,
-  "tbl-schema": "ims-v2",
+  "soft_assaytype": "NanoDESI",
   "vitessce-hints": []
 }

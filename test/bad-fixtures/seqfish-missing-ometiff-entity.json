@@ -16,5 +16,11 @@
     }
   ],
   "uuid": "9db61adfc017670a196ea9b3ca1852a0",
-  "parent": {"uuid": "c6a254b2dc2ed46b002500ade163a7cc"}
+  "parent": {"uuid": "c6a254b2dc2ed46b002500ade163a7cc"},
+  "soft_assaytype": "image_pyramid",
+  "vitessce-hints": [
+    "is_image",
+    "pyramid",
+    "is_support"
+  ]
 }

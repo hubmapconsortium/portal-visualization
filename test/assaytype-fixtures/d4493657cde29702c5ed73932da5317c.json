@@ -1,8 +1,5 @@
 {
-    "assaytype": "sc_atac_seq_sci",
-    "contains-pii": false,
-    "description": "sciATAC-seq [SnapATAC]",
-    "primary": false,
+    "soft_assaytype": "sc_atac_seq_sci",
     "vitessce-hints": [
       "is_sc",
       "atac"

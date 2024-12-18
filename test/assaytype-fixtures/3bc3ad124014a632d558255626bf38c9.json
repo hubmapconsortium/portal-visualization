@@ -1,10 +1,5 @@
 {
-    "assaytype": "MALDI-IMS",
-    "contains-pii": false,
-    "description": "MALDI IMS",
-    "dir-schema": "ims-v0",
-    "primary": true,
-    "tbl-schema": "ims-v2",
+    "soft_assaytype": "MALDI-IMS",
     "vitessce-hints": [
       "maldi"
     ]

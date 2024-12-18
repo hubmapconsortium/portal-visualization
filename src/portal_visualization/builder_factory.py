@@ -52,14 +52,11 @@ def process_hints(hints):
 # It returns the correct builder for the given entity.
 #
 # The entity is a dict that contains the entity UUID and metadata.
-# `get_assaytype` is a function which takes an entity UUID and returns
-# a dict containing the assaytype and vitessce-hints for that entity.
-def get_view_config_builder(entity, get_assaytype, parent=None, epic_uuid=None):
+def get_view_config_builder(entity, get_entity, parent=None, epic_uuid=None):
     if entity.get("uuid") is None:
         raise ValueError("Provided entity does not have a uuid")
-    assay = get_assaytype(entity.get('uuid'))
-    assay_name = assay.get("assaytype")
-    hints = assay.get("vitessce-hints", [])
+    assay_name = entity.get("soft_assaytype")
+    hints = entity.get("vitessce-hints", [])
     (
         is_image,
         is_rna,
@@ -79,7 +76,7 @@ def get_view_config_builder(entity, get_assaytype, parent=None, epic_uuid=None):
             return SegImagePyramidViewConfBuilder
 
         elif is_support and is_image:
-            ancestor_assaytype = get_assaytype(parent).get("assaytype")
+            ancestor_assaytype = get_entity(parent).get("soft_assaytype")
             if SEQFISH == ancestor_assaytype:
                 # e.g. parent  = c6a254b2dc2ed46b002500ade163a7cc
                 # e.g. support = 9db61adfc017670a196ea9b3ca1852a0
@@ -138,6 +135,6 @@ def get_view_config_builder(entity, get_assaytype, parent=None, epic_uuid=None):
     return NullViewConfBuilder
 
 
-def has_visualization(entity, get_assaytype, parent=None, epic_uuid=None):
-    builder = get_view_config_builder(entity, get_assaytype, parent, epic_uuid)
+def has_visualization(entity, get_entity, parent=None, epic_uuid=None):
+    builder = get_view_config_builder(entity, get_entity, parent, epic_uuid)
     return builder != NullViewConfBuilder

@@ -1,4 +1,11 @@
 {
   "uuid": "272789a950b2b5d4b9387a1cf66ad487",
-  "status": "Published"
+  "status": "Published",
+  "soft_assaytype": "multiome-10x",
+  "vitessce-hints": [
+    "is_sc",
+    "rna",
+    "atac",
+    "anndata"
+  ]
 }
