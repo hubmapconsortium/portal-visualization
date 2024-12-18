@@ -132,7 +132,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
             # Future improvement to be implemented in CAT-137
             # elif (encoding_version == "0.2.0"):
             #     print('TODO - Encoding Version 0.2.0 support')
-        self._marker = marker
+        self._marker = str(marker) if marker is not None else None
         self._gene_alias = gene_alias
 
     def _set_up_dataset(self, vc):
@@ -600,7 +600,6 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
         obs_set_coordination, obs_color_coordination = vc.add_coordination(
             ct.OBS_SET_SELECTION, ct.OBS_COLOR_ENCODING)
         genomic_profiles.use_coordination(obs_set_coordination, obs_color_coordination)
-
         obs_set_coordination.set_value(obs_set_coordinations)
         obs_color_coordination.set_value('cellSetSelection')
 
