@@ -22,6 +22,7 @@ from .base_builders import ViewConfBuilder
 class AbstractImagingViewConfBuilder(ViewConfBuilder):
     def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
         self.image_pyramid_regex = None
+        self.seg_image_pyramid_regex = None
         self.use_full_resolution = []
         self.use_physical_size_scaling = False
         super().__init__(entity, groups_token, assets_endpoint, **kwargs)
@@ -78,9 +79,24 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
                 )
             ),
         )
+    
+    def _add_segmentation_image(self, dataset):
+            file_paths_found = self._get_file_paths()
+            found_images = get_found_images(self.seg_image_pyramid_regex, file_paths_found)
+            filtered_images = [img for img in found_images if SEGMENTATION_SUPPORT_IMAGE_SUBDIR not in img]
+
+            if not filtered_images:
+                raise FileNotFoundError(f"Segmentation assay with uuid {self._uuid} has no matching files")
+
+            img_url, offsets_url = self._get_img_and_offset_url(filtered_images[0], self.seg_image_pyramid_regex)
+            dataset.add_object(
+                ObsSegmentationsOmeTiffWrapper(img_url=img_url, offsets_url=offsets_url, obs_types_from_channel_names=True,
+                # coordinate_transformations=[{"type": "scale", "scale": [0.377.,0.377,1,1,1]}] # need to read from a file
+                )
+            )
 
     def _setup_view_config(self, vc, dataset, view_type, disable_3d=[], use_full_resolution=[]):
-        if view_type == "raster":
+        if view_type == "image":
             vc.add_view(cm.SPATIAL, dataset=dataset, x=3, y=0, w=9, h=12).set_props(
                 useFullResolutionImage=use_full_resolution
             )
@@ -98,7 +114,6 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
             # Adding the segmentation mask on top of the image
             if view_type == 'kaggle_seg':
                 vc.link_views_by_dict([spatial_view, lc_view], {
-                # Neutralizing the base-image colors
                 'imageLayer': CL([{'photometricInterpretation': 'RGB', }]),
             }, meta=True, scope_prefix=get_initial_coordination_scope_prefix("A", "image"))
 
@@ -121,39 +136,22 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
                 ImageOmeTiffWrapper(img_url=img_url, offsets_url=offsets_url, name=Path(found_images[0]).name)
             )
             if self.view_type == 'kaggle-seg':
-                file_paths_found = self._get_file_paths()
-                found_images = get_found_images(self.seg_image_pyramid_regex, file_paths_found)
-                filtered_images = [img_path for img_path in found_images if SEGMENTATION_SUPPORT_IMAGE_SUBDIR not in img_path]
-                if len(filtered_images) == 0:  # pragma: no cover
-                    message = f"Image pyramid assay with uuid {self._uuid} has no matching files"
-                    raise FileNotFoundError(message)
-
-                elif len(filtered_images) >= 1:
-                    img_url, offsets_url = self._get_img_and_offset_url(
-                        filtered_images[0],  self.seg_image_pyramid_regex
-                    )
-                dataset = dataset.add_object(
-                   ObsSegmentationsOmeTiffWrapper(img_url=img_url, offsets_url=offsets_url, obs_types_from_channel_names=True))
+                self._add_segmentation_image(dataset)
+                
                 
         else:
-            images = []
-            for img_path in found_images:
-                img_url, offsets_url = get_img_and_offset_url_func(
-                    img_path, self.image_pyramid_regex
+            images = [
+                OmeTiffWrapper(
+                    img_url=img_url, offsets_url=offsets_url, name=Path(img_path).name
                 )
-                images.append(
-                    OmeTiffWrapper(
-                        img_url=img_url, offsets_url=offsets_url, name=Path(img_path).name
-                    )
-                )
-            dataset = dataset.add_object(
-                MultiImageWrapper(
-                    images,
-                    use_physical_size_scaling=self.use_physical_size_scaling
-                )
+                for img_path in found_images
+                for img_url, offsets_url in [get_img_and_offset_url_func(img_path, self.image_pyramid_regex)]
+            ]
+            dataset.add_object(
+                MultiImageWrapper(images, use_physical_size_scaling=self.use_physical_size_scaling)
             )
         conf = self._setup_view_config(vc, dataset, self.view_type, use_full_resolution=self.use_full_resolution).to_dict()
-        if "raster" in self.view_type:
+        if "image" in self.view_type:
             del conf["datasets"][0]["files"][0]["options"]["renderLayers"]
         return get_conf_cells(conf)
 
@@ -166,7 +164,7 @@ class ImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
     def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
         super().__init__(entity, groups_token, assets_endpoint, **kwargs)
         self.image_pyramid_regex = IMAGE_PYRAMID_DIR
-        self.view_type = "raster"
+        self.view_type = "image"
 
     def get_conf_cells(self, **kwargs):
         return self.get_conf_cells_common(self._get_img_and_offset_url, **kwargs)
