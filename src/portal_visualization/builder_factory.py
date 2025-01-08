@@ -9,6 +9,7 @@ from .builders.imaging_builders import (
     IMSViewConfBuilder,
     ImagePyramidViewConfBuilder,
     SegImagePyramidViewConfBuilder,
+    KaggleSegImagePyramidViewConfBuilder,
     NanoDESIViewConfBuilder,
 )
 from .builders.anndata_builders import (
@@ -34,6 +35,7 @@ def process_hints(hints):
     is_json = "json_based" in hints
     is_spatial = "spatial" in hints
     is_support = "is_support" in hints
+    is_seg_mask = "segmentation_mask" in hints
 
     return (
         is_image,
@@ -45,6 +47,7 @@ def process_hints(hints):
         is_json,
         is_spatial,
         is_support,
+        is_seg_mask,
     )
 
 
@@ -66,14 +69,17 @@ def get_view_config_builder(entity, get_entity, parent=None, epic_uuid=None):
         is_anndata,
         is_json,
         is_spatial,
-        is_support
+        is_support,
+        is_seg_mask,
     ) = process_hints(hints)
 
     # vis-lifted image pyramids
     if parent is not None:
         # TODO: For now epic (base image's) support datasets doesn't have any hints
-        if epic_uuid is not None:
+        if is_seg_mask and epic_uuid:
             return SegImagePyramidViewConfBuilder
+        elif is_seg_mask:
+            return KaggleSegImagePyramidViewConfBuilder
 
         elif is_support and is_image:
             ancestor_assaytype = get_entity(parent).get("soft_assaytype")
