@@ -72,6 +72,16 @@ def _get_cells_from_obj(vc_obj):
     ]
 
 
+def get_found_images(image_pyramid_regex, file_paths_found):
+    found_images = [
+        path for path in get_matches(
+            file_paths_found, image_pyramid_regex + r".*\.ome\.tiff?$",
+        )
+        if 'separate/' not in path
+    ]
+    return found_images
+
+
 def files_from_response(response_json):
     '''
     >>> response_json = {'hits': {'hits': [

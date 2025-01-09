@@ -9,6 +9,7 @@ from dataclasses import dataclass
 import pytest
 import zarr
 
+from src.portal_visualization.utils import get_found_images
 from src.portal_visualization.epic_factory import get_epic_builder
 from src.portal_visualization.builders.base_builders import ConfCells
 from src.portal_visualization.builder_factory import (
@@ -94,6 +95,17 @@ def test_has_visualization(has_vis_entity):
         else None
     )
     assert has_vis == has_visualization(entity, get_entity, parent, epic_uuid)
+
+
+def test_get_found_images():
+    file_paths = [
+        "image_pyramid/sample.ome.tiff",
+        "image_pyramid/sample_separate/sample.ome.tiff",
+    ]
+    regex = "image_pyramid"
+    result = get_found_images(regex, file_paths)
+    assert len(result) == 1
+    assert result[0] == "image_pyramid/sample.ome.tiff"
 
 
 def mock_zarr_store(entity_path, mocker):

@@ -12,7 +12,7 @@ from vitessce import (
     Component as cm,
 )
 
-from ..utils import get_matches, group_by_file_name, get_conf_cells
+from ..utils import get_matches, group_by_file_name, get_conf_cells, get_found_images
 from ..paths import (IMAGE_PYRAMID_DIR, OFFSETS_DIR, SEQFISH_HYB_CYCLE_REGEX,
                      SEQFISH_FILE_REGEX, SEGMENTATION_SUPPORT_IMAGE_SUBDIR,
                      SEGMENTATION_SUBDIR)
@@ -90,7 +90,7 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
         found_images = get_found_images(self.seg_image_pyramid_regex, file_paths_found)
         filtered_images = [img for img in found_images if SEGMENTATION_SUPPORT_IMAGE_SUBDIR not in img]
 
-        if not filtered_images:
+        if not filtered_images:  # pragma: no cover
             raise FileNotFoundError(f"Segmentation assay with uuid {self._uuid} has no matching files")
 
         img_url, offsets_url = self._get_img_and_offset_url(filtered_images[0], self.seg_image_pyramid_regex)
@@ -293,13 +293,3 @@ class SeqFISHViewConfBuilder(AbstractImagingViewConfBuilder):
         return re.search(SEQFISH_FILE_REGEX, image_path)[0].split(".")[
             0
         ]
-
-
-def get_found_images(image_pyramid_regex, file_paths_found):
-    found_images = [
-        path for path in get_matches(
-            file_paths_found, image_pyramid_regex + r".*\.ome\.tiff?$",
-        )
-        if 'separate/' not in path
-    ]
-    return found_images
