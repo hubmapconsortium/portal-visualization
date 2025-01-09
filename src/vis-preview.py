@@ -94,7 +94,7 @@ def get_headers(token):  # pragma: no cover
     return headers
 
 
-def get_entity(uuid):
+def get_entity(uuid):  # pragma: no cover
     try:
         response = requests.get(f'{defaults["dataset_url"]}{uuid}.json', headers=headers)
         if response.status_code != 200:
