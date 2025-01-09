@@ -22,12 +22,14 @@ BASE_IMAGE_VIEW_TYPE = 'image'
 SEG_IMAGE_VIEW_TYPE = 'seg'
 KAGGLE_IMAGE_VIEW_TYPE = 'kaggle-seg'
 
+
 class AbstractImagingViewConfBuilder(ViewConfBuilder):
     def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
         self.image_pyramid_regex = None
         self.seg_image_pyramid_regex = None
         self.use_full_resolution = []
         self.use_physical_size_scaling = False
+        self.view_type = BASE_IMAGE_VIEW_TYPE
         super().__init__(entity, groups_token, assets_endpoint, **kwargs)
 
     def _get_img_and_offset_url(self, img_path, img_dir):
@@ -71,7 +73,7 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
 
         """
         img_url = self._build_assets_url(img_path)
-        offsets_path= re.sub(IMAGE_PYRAMID_DIR, OFFSETS_DIR, img_dir)
+        offsets_path = re.sub(IMAGE_PYRAMID_DIR, OFFSETS_DIR, img_dir)
         return (
             img_url,
             str(
@@ -82,21 +84,22 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
                 )
             ),
         )
-    
+
     def _add_segmentation_image(self, dataset):
-            file_paths_found = self._get_file_paths()
-            found_images = get_found_images(self.seg_image_pyramid_regex, file_paths_found)
-            filtered_images = [img for img in found_images if SEGMENTATION_SUPPORT_IMAGE_SUBDIR not in img]
+        file_paths_found = self._get_file_paths()
+        found_images = get_found_images(self.seg_image_pyramid_regex, file_paths_found)
+        filtered_images = [img for img in found_images if SEGMENTATION_SUPPORT_IMAGE_SUBDIR not in img]
 
-            if not filtered_images:
-                raise FileNotFoundError(f"Segmentation assay with uuid {self._uuid} has no matching files")
+        if not filtered_images:
+            raise FileNotFoundError(f"Segmentation assay with uuid {self._uuid} has no matching files")
 
-            img_url, offsets_url = self._get_img_and_offset_url(filtered_images[0], self.seg_image_pyramid_regex)
-            dataset.add_object(
-                ObsSegmentationsOmeTiffWrapper(img_url=img_url, offsets_url=offsets_url, obs_types_from_channel_names=True,
-                # coordinate_transformations=[{"type": "scale", "scale": [0.377.,0.377,1,1,1]}] # need to read from a file
-                )
-            )
+        img_url, offsets_url = self._get_img_and_offset_url(filtered_images[0], self.seg_image_pyramid_regex)
+        dataset.add_object(
+            ObsSegmentationsOmeTiffWrapper(img_url=img_url, offsets_url=offsets_url, obs_types_from_channel_names=True,
+                                           # coordinate_transformations=[{"type": "scale", "scale":
+                                           # [0.377.,0.377,1,1,1]}] # need to read from a file
+                                           )
+        )
 
     def _setup_view_config(self, vc, dataset, view_type, disable_3d=[], use_full_resolution=[]):
         if view_type == BASE_IMAGE_VIEW_TYPE:
@@ -142,7 +145,7 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
             )
             if self.view_type == KAGGLE_IMAGE_VIEW_TYPE:
                 self._add_segmentation_image(dataset)
-                
+
         else:
             images = [
                 OmeTiffWrapper(
@@ -154,7 +157,11 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
             dataset.add_object(
                 MultiImageWrapper(images, use_physical_size_scaling=self.use_physical_size_scaling)
             )
-        conf = self._setup_view_config(vc, dataset, self.view_type, use_full_resolution=self.use_full_resolution).to_dict()
+        conf = self._setup_view_config(
+            vc,
+            dataset,
+            self.view_type,
+            use_full_resolution=self.use_full_resolution).to_dict()
         if self.view_type == BASE_IMAGE_VIEW_TYPE:
             del conf["datasets"][0]["files"][0]["options"]["renderLayers"]
         return get_conf_cells(conf)
@@ -165,6 +172,7 @@ class ImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
         i.e for high resolution viz-lifted imaging datasets like
         https://portal.hubmapconsortium.org/browse/dataset/dc289471333309925e46ceb9bafafaf4
     """
+
     def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
         super().__init__(entity, groups_token, assets_endpoint, **kwargs)
         self.image_pyramid_regex = IMAGE_PYRAMID_DIR
@@ -179,6 +187,7 @@ class SegImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
     i.e for high resolution viz-lifted imaging datasets like
     https://portal.hubmapconsortium.org/browse/dataset/
     """
+
     def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
         super().__init__(entity, groups_token, assets_endpoint, **kwargs)
         self.image_pyramid_regex = f"{SEGMENTATION_SUBDIR}/{IMAGE_PYRAMID_DIR}/{SEGMENTATION_SUPPORT_IMAGE_SUBDIR}"
@@ -186,7 +195,8 @@ class SegImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
 
     def get_conf_cells(self, **kwargs):
         return self.get_conf_cells_common(self._get_img_and_offset_url_seg, **kwargs)
-  
+
+
 class KaggleSegImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
     # The difference from EPIC segmentation is only the file path and transformations
     def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
@@ -264,9 +274,10 @@ class SeqFISHViewConfBuilder(AbstractImagingViewConfBuilder):
                     )
                 )
             dataset = dataset.add_object(MultiImageWrapper(image_wrappers))
-            vc = self._setup_view_config_raster(
+            vc = self._setup_view_config(
                 vc,
                 dataset,
+                self.view_type,
                 disable_3d=[self._get_hybcycle(img_path) for img_path in sorted_images]
             )
             conf = vc.to_dict()
@@ -282,7 +293,8 @@ class SeqFISHViewConfBuilder(AbstractImagingViewConfBuilder):
         return re.search(SEQFISH_FILE_REGEX, image_path)[0].split(".")[
             0
         ]
-    
+
+
 def get_found_images(image_pyramid_regex, file_paths_found):
     found_images = [
         path for path in get_matches(

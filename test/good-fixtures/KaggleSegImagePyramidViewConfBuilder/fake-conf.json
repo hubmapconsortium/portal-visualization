@@ -1,0 +1,97 @@
+{
+  "version": "1.0.15",
+  "name": "HuBMAP Data Portal",
+  "description": "",
+  "datasets": [
+    {
+      "uid": "A",
+      "name": "Visualization Files",
+      "files": [
+        {
+          "fileType": "image.ome-tiff",
+          "url": "https://example.com/23a25976beb8c02ab589b13a05b28c55/ometiff-pyramids/lab_processed/images/B001_SB-reg005.ome.tif?token=groups_token",
+          "options": {
+            "offsetsUrl": "https://example.com/23a25976beb8c02ab589b13a05b28c55/output_offsets/lab_processed/images/B001_SB-reg005.offsets.json?token=groups_token"
+          }
+        },
+        {
+          "fileType": "obsSegmentations.ome-tiff",
+          "url": "https://example.com/23a25976beb8c02ab589b13a05b28c55/ometiff-pyramids/B001_SB-reg005.segmentations.ome.tif?token=groups_token",
+          "options": {
+            "obsTypesFromChannelNames": true,
+            "offsetsUrl": "https://example.com/23a25976beb8c02ab589b13a05b28c55/output_offsets/B001_SB-reg005.segmentations.offsets.json?token=groups_token"
+          }
+        }
+      ]
+    }
+  ],
+  "coordinationSpace": {
+    "dataset": {
+      "A": "A"
+    },
+    "imageLayer": {
+      "init_A_image_0": "__dummy__"
+    },
+    "photometricInterpretation": {
+      "init_A_image_0": "RGB"
+    },
+    "metaCoordinationScopes": {
+      "init_A_image_0": {
+        "imageLayer": [
+          "init_A_image_0"
+        ]
+      }
+    },
+    "metaCoordinationScopesBy": {
+      "init_A_image_0": {
+        "imageLayer": {
+          "photometricInterpretation": {
+            "init_A_image_0": "init_A_image_0"
+          }
+        }
+      }
+    }
+  },
+  "layout": [
+    {
+      "component": "spatialBeta",
+      "coordinationScopes": {
+        "dataset": "A",
+        "metaCoordinationScopes": [
+          "init_A_image_0"
+        ],
+        "metaCoordinationScopesBy": [
+          "init_A_image_0"
+        ]
+      },
+      "x": 4,
+      "y": 0,
+      "w": 8,
+      "h": 12,
+      "props": {
+        "useFullResolutionImage": []
+      }
+    },
+    {
+      "component": "layerControllerBeta",
+      "coordinationScopes": {
+        "dataset": "A",
+        "metaCoordinationScopes": [
+          "init_A_image_0"
+        ],
+        "metaCoordinationScopesBy": [
+          "init_A_image_0"
+        ]
+      },
+      "x": 0,
+      "y": 0,
+      "w": 4,
+      "h": 8,
+      "props": {
+        "disable3d": [],
+        "disableChannelsIfRgbDetected": true
+      }
+    }
+  ],
+  "initStrategy": "auto"
+}

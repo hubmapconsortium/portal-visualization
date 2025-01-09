@@ -90,7 +90,7 @@ def test_has_visualization(has_vis_entity):
     # TODO: Once other epic hints exist, this may need to be adjusted
     epic_uuid = (
         entity.get("uuid")
-        if "segmentation_mask" in entity.get("vitessce-hints", {})
+        if "epic" in entity.get("vitessce-hints", {})
         else None
     )
     assert has_vis == has_visualization(entity, get_entity, parent, epic_uuid)
@@ -153,7 +153,7 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
     entity = json.loads(entity_path.read_text())
     parent = entity.get("parent") or None  # Only used for image pyramids
     assay_type = get_entity(entity["uuid"])
-    if "segmentation_mask" in assay_type["vitessce-hints"]:
+    if "epic" in assay_type["vitessce-hints"]:
         epic_uuid = entity.get("uuid")
     Builder = get_view_config_builder(entity, get_entity, parent, epic_uuid)
     # Envvars should not be set during normal test runs,
@@ -163,10 +163,10 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
     # epic_uuid = environ.get("EPIC_UUID", "epic_uuid")
     builder = Builder(entity, groups_token, assets_url)
     conf, cells = builder.get_conf_cells(marker=marker)
-    if "segmentation_mask" not in assay_type["vitessce-hints"]:
+    if "epic" not in assay_type["vitessce-hints"]:
         assert Builder.__name__ == entity_path.parent.name
         compare_confs(entity_path, conf, cells)
-    if "segmentation_mask" in assay_type["vitessce-hints"]:
+    if "epic" in assay_type["vitessce-hints"]:
         epic_builder = get_epic_builder(epic_uuid)
         assert epic_builder is not None
         assert epic_builder.__name__ == entity_path.parent.name

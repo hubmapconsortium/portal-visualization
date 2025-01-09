@@ -13,6 +13,7 @@ from portal_visualization.builder_factory import get_view_config_builder
 from portal_visualization.epic_factory import get_epic_builder
 defaults = json.load((Path(__file__).parent / 'defaults.json').open())
 
+
 def main():  # pragma: no cover
     assets_default_url = defaults['assets_url']
 
@@ -92,19 +93,20 @@ def get_headers(token):  # pragma: no cover
         headers['Authorization'] = f'Bearer {token}'
     return headers
 
+
 def get_entity(uuid):
-        try:
-            response = requests.get(f'{defaults["dataset_url"]}{uuid}.json', headers=headers)
-            if response.status_code != 200:
-                print(f"Error: Received status code {response.status_code}")
-            else:
-                try:
-                    data = response.json()
-                    return data
-                except Exception as e:
-                    print(f"Error in parsing the response {str(e)}")
-        except Exception as e:
-            print(f"Error accessing {defaults['assaytypes_url']}{uuid}: {str(e)}")
+    try:
+        response = requests.get(f'{defaults["dataset_url"]}{uuid}.json', headers=headers)
+        if response.status_code != 200:
+            print(f"Error: Received status code {response.status_code}")
+        else:
+            try:
+                data = response.json()
+                return data
+            except Exception as e:
+                print(f"Error in parsing the response {str(e)}")
+    except Exception as e:
+        print(f"Error accessing {defaults['assaytypes_url']}{uuid}: {str(e)}")
 
 
 def get_entity_from_args(url_arg, json_arg, headers):  # pragma: no cover

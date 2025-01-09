@@ -39,5 +39,5 @@
     "uuid": "df7cac7cb67a822f7007b57c4d8f5e7d",
     "metadata": {"dag_provenance_list": []},
     "parent": { "uuid": "22901da5f080b219a514e38381acbb0e" },
-    "vitessce-hints": ["segmentation_mask", "is_image", "pyramid"]
+    "vitessce-hints": ["segmentation_mask", "is_image", "pyramid", "epic"]
 }

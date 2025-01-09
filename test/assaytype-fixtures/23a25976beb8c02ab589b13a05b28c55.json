@@ -1,0 +1,4 @@
+{
+  "soft_assaytype": "h-and-e",
+  "vitessce-hints": ["segmentation_mask", "pyramid", "is_image"]
+}
