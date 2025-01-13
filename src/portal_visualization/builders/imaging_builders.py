@@ -90,7 +90,7 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
         found_images = get_found_images(self.seg_image_pyramid_regex, file_paths_found)
         filtered_images = [img for img in found_images if SEGMENTATION_SUPPORT_IMAGE_SUBDIR not in img]
 
-        if not filtered_images:  # pragma: no cover
+        if not filtered_images:
             raise FileNotFoundError(f"Segmentation assay with uuid {self._uuid} has no matching files")
 
         img_url, offsets_url = self._get_img_and_offset_url(filtered_images[0], self.seg_image_pyramid_regex)
@@ -182,10 +182,10 @@ class ImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
         return self.get_conf_cells_common(self._get_img_and_offset_url, **kwargs)
 
 
-class SegImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
-    """Wrapper class for creating a standard view configuration for image pyramids for segmenation mask,
+class EpicSegImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
+    """Wrapper class for creating a standard view configuration for image pyramids for EPIC segmentation mask,
     i.e for high resolution viz-lifted imaging datasets like
-    https://portal.hubmapconsortium.org/browse/dataset/
+    https://portal.dev.hubmapconsortium.org/browse/dataset/df7cac7cb67a822f7007b57c4d8f5e7d
     """
 
     def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
@@ -198,7 +198,13 @@ class SegImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
 
 
 class KaggleSegImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
-    # The difference from EPIC segmentation is only the file path and transformations
+    """Wrapper class for creating a standard view configuration for image pyramids for kaggle-2 datasets, that show,
+    segmentation mask layered over a base image-pyramid, however, the file structure is different than
+    EPIC segmentation masks (EpicSegImagePyramidViewConfBuilder)
+    i.e for high resolution viz-lifted imaging datasets like
+    https://portal.dev.hubmapconsortium.org/browse/dataset/534a590d7336aa99c7fc7afd41e995fc
+    """
+
     def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
         super().__init__(entity, groups_token, assets_endpoint, **kwargs)
         self.image_pyramid_regex = f"{IMAGE_PYRAMID_DIR}/{SEGMENTATION_SUPPORT_IMAGE_SUBDIR}"

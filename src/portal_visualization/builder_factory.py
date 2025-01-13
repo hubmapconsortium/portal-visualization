@@ -8,7 +8,7 @@ from .builders.imaging_builders import (
     SeqFISHViewConfBuilder,
     IMSViewConfBuilder,
     ImagePyramidViewConfBuilder,
-    SegImagePyramidViewConfBuilder,
+    EpicSegImagePyramidViewConfBuilder,
     KaggleSegImagePyramidViewConfBuilder,
     NanoDESIViewConfBuilder,
 )
@@ -77,7 +77,7 @@ def get_view_config_builder(entity, get_entity, parent=None, epic_uuid=None):
     if parent is not None:
         # TODO: For now epic (base image's) support datasets doesn't have any hints
         if is_seg_mask and epic_uuid:
-            return SegImagePyramidViewConfBuilder
+            return EpicSegImagePyramidViewConfBuilder
         elif is_seg_mask:
             return KaggleSegImagePyramidViewConfBuilder
 
