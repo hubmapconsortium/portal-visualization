@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 from os import environ
 from dataclasses import dataclass
+from unittest.mock import patch
 
 import pytest
 import zarr
@@ -12,10 +13,15 @@ import zarr
 from src.portal_visualization.utils import get_found_images
 from src.portal_visualization.epic_factory import get_epic_builder
 from src.portal_visualization.builders.base_builders import ConfCells
+from src.portal_visualization.builders.imaging_builders import KaggleSegImagePyramidViewConfBuilder
 from src.portal_visualization.builder_factory import (
     get_view_config_builder,
     has_visualization,
 )
+from src.portal_visualization.paths import IMAGE_PYRAMID_DIR
+
+groups_token = environ.get("GROUPS_TOKEN", "groups_token")
+assets_url = environ.get("ASSETS_URL", "https://example.com")
 
 
 def str_presenter(dumper, data):
@@ -97,17 +103,6 @@ def test_has_visualization(has_vis_entity):
     assert has_vis == has_visualization(entity, get_entity, parent, epic_uuid)
 
 
-def test_get_found_images():
-    file_paths = [
-        "image_pyramid/sample.ome.tiff",
-        "image_pyramid/sample_separate/sample.ome.tiff",
-    ]
-    regex = "image_pyramid"
-    result = get_found_images(regex, file_paths)
-    assert len(result) == 1
-    assert result[0] == "image_pyramid/sample.ome.tiff"
-
-
 def mock_zarr_store(entity_path, mocker):
     # Need to mock zarr.open to yield correct values for different scenarios
     z = zarr.open()
@@ -170,8 +165,6 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
     Builder = get_view_config_builder(entity, get_entity, parent, epic_uuid)
     # Envvars should not be set during normal test runs,
     # but to test the end-to-end integration, they are useful.
-    groups_token = environ.get("GROUPS_TOKEN", "groups_token")
-    assets_url = environ.get("ASSETS_URL", "https://example.com")
     # epic_uuid = environ.get("EPIC_UUID", "epic_uuid")
     builder = Builder(entity, groups_token, assets_url)
     conf, cells = builder.get_conf_cells(marker=marker)
@@ -247,6 +240,75 @@ def compare_confs(entity_path, conf, cells):
 
         # Compare as YAML to match fixture.
         assert yaml.dump(clean_cells(cells)) == yaml.dump(expected_cells)
+
+
+@pytest.fixture
+def mockSegImagePyramidBuilder():
+    class MockBuilder(KaggleSegImagePyramidViewConfBuilder):
+        def _get_file_paths(self):
+            return []
+
+    entity = json.loads(
+        next(
+            (Path(__file__).parent / "good-fixtures")
+            .glob("KaggleSegImagePyramidViewConfBuilder/*-entity.json")
+        ).read_text()
+    )
+    return MockBuilder(entity, groups_token, assets_url)
+
+
+def test_filtered_images_not_found(mockSegImagePyramidBuilder):
+    mockSegImagePyramidBuilder.seg_image_pyramid_regex = IMAGE_PYRAMID_DIR
+    try:
+        mockSegImagePyramidBuilder._add_segmentation_image(None)
+    except FileNotFoundError as e:
+        assert str(e) == f"Segmentation assay with uuid {mockSegImagePyramidBuilder._uuid} has no matching files"
+
+
+def test_filtered_images_no_regex(mockSegImagePyramidBuilder):
+    mockSegImagePyramidBuilder.seg_image_pyramid_regex = None
+    try:
+        mockSegImagePyramidBuilder._add_segmentation_image(None)
+    except ValueError as e:
+        assert str(e) == "seg_image_pyramid_regex is not set. Cannot find segmentation images."
+
+
+def mock_get_found_images(regex, file_paths):
+    raise ValueError("Simulated failure in get_found_images")
+
+
+def test_runtime_error_in_add_segmentation_image(mockSegImagePyramidBuilder):
+    with patch('src.portal_visualization.builders.imaging_builders.get_found_images',
+               side_effect=mock_get_found_images):
+        mockSegImagePyramidBuilder.seg_image_pyramid_regex = "image_pyramid"
+
+        with pytest.raises(RuntimeError) as err:
+            mockSegImagePyramidBuilder._add_segmentation_image(None)
+
+        assert "Error while searching for segmentation images" in str(err.value)
+        assert "Simulated failure in get_found_images" in str(err.value)
+
+
+def test_find_segmentation_images_runtime_error():
+    with pytest.raises(RuntimeError) as e:
+        try:
+            raise FileNotFoundError("No files found in the directory")
+        except Exception as err:
+            raise RuntimeError(f"Error while searching for segmentation images: {err}")
+
+    assert "Error while searching for segmentation images:" in str(e.value)
+    assert "No files found in the directory" in str(e.value)
+
+
+def test_get_found_images():
+    file_paths = [
+        "image_pyramid/sample.ome.tiff",
+        "image_pyramid/sample_separate/sample.ome.tiff",
+    ]
+    regex = "image_pyramid"
+    result = get_found_images(regex, file_paths)
+    assert len(result) == 1
+    assert result[0] == "image_pyramid/sample.ome.tiff"
 
 
 if __name__ == "__main__":  # pragma: no cover

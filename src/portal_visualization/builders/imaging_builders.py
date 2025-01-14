@@ -87,19 +87,28 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
 
     def _add_segmentation_image(self, dataset):
         file_paths_found = self._get_file_paths()
-        found_images = get_found_images(self.seg_image_pyramid_regex, file_paths_found)
+        if self.seg_image_pyramid_regex is None:
+            raise ValueError("seg_image_pyramid_regex is not set. Cannot find segmentation images.")
+
+        try:
+            found_images = get_found_images(self.seg_image_pyramid_regex, file_paths_found)
+        except Exception as e:
+            raise RuntimeError(f"Error while searching for segmentation images: {e}")
+
         filtered_images = [img for img in found_images if SEGMENTATION_SUPPORT_IMAGE_SUBDIR not in img]
 
         if not filtered_images:
             raise FileNotFoundError(f"Segmentation assay with uuid {self._uuid} has no matching files")
 
         img_url, offsets_url = self._get_img_and_offset_url(filtered_images[0], self.seg_image_pyramid_regex)
-        dataset.add_object(
-            ObsSegmentationsOmeTiffWrapper(img_url=img_url, offsets_url=offsets_url, obs_types_from_channel_names=True,
-                                           # coordinate_transformations=[{"type": "scale", "scale":
-                                           # [0.377.,0.377,1,1,1]}] # need to read from a file
-                                           )
-        )
+        if dataset is not None:
+            dataset.add_object(
+                ObsSegmentationsOmeTiffWrapper(img_url=img_url, offsets_url=offsets_url,
+                                               obs_types_from_channel_names=True,
+                                               # coordinate_transformations=[{"type": "scale", "scale":
+                                               # [0.377.,0.377,1,1,1]}] # need to read from a file
+                                               )
+            )
 
     def _setup_view_config(self, vc, dataset, view_type, disable_3d=[], use_full_resolution=[]):
         if view_type == BASE_IMAGE_VIEW_TYPE:
