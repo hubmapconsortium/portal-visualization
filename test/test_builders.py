@@ -5,16 +5,23 @@ import json
 from pathlib import Path
 from os import environ
 from dataclasses import dataclass
+from unittest.mock import patch
 
 import pytest
 import zarr
 
+from src.portal_visualization.utils import get_found_images
 from src.portal_visualization.epic_factory import get_epic_builder
 from src.portal_visualization.builders.base_builders import ConfCells
+from src.portal_visualization.builders.imaging_builders import KaggleSegImagePyramidViewConfBuilder
 from src.portal_visualization.builder_factory import (
     get_view_config_builder,
     has_visualization,
 )
+from src.portal_visualization.paths import IMAGE_PYRAMID_DIR
+
+groups_token = environ.get("GROUPS_TOKEN", "groups_token")
+assets_url = environ.get("ASSETS_URL", "https://example.com")
 
 
 def str_presenter(dumper, data):
@@ -90,7 +97,7 @@ def test_has_visualization(has_vis_entity):
     # TODO: Once other epic hints exist, this may need to be adjusted
     epic_uuid = (
         entity.get("uuid")
-        if "segmentation_mask" in entity.get("vitessce-hints", {})
+        if "epic" in entity.get("vitessce-hints", {})
         else None
     )
     assert has_vis == has_visualization(entity, get_entity, parent, epic_uuid)
@@ -153,20 +160,18 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
     entity = json.loads(entity_path.read_text())
     parent = entity.get("parent") or None  # Only used for image pyramids
     assay_type = get_entity(entity["uuid"])
-    if "segmentation_mask" in assay_type["vitessce-hints"]:
+    if "epic" in assay_type["vitessce-hints"]:
         epic_uuid = entity.get("uuid")
     Builder = get_view_config_builder(entity, get_entity, parent, epic_uuid)
     # Envvars should not be set during normal test runs,
     # but to test the end-to-end integration, they are useful.
-    groups_token = environ.get("GROUPS_TOKEN", "groups_token")
-    assets_url = environ.get("ASSETS_URL", "https://example.com")
     # epic_uuid = environ.get("EPIC_UUID", "epic_uuid")
     builder = Builder(entity, groups_token, assets_url)
     conf, cells = builder.get_conf_cells(marker=marker)
-    if "segmentation_mask" not in assay_type["vitessce-hints"]:
+    if "epic" not in assay_type["vitessce-hints"]:
         assert Builder.__name__ == entity_path.parent.name
         compare_confs(entity_path, conf, cells)
-    if "segmentation_mask" in assay_type["vitessce-hints"]:
+    if "epic" in assay_type["vitessce-hints"]:
         epic_builder = get_epic_builder(epic_uuid)
         assert epic_builder is not None
         assert epic_builder.__name__ == entity_path.parent.name
@@ -235,6 +240,75 @@ def compare_confs(entity_path, conf, cells):
 
         # Compare as YAML to match fixture.
         assert yaml.dump(clean_cells(cells)) == yaml.dump(expected_cells)
+
+
+@pytest.fixture
+def mock_seg_image_pyramid_builder():
+    class MockBuilder(KaggleSegImagePyramidViewConfBuilder):
+        def _get_file_paths(self):
+            return []
+
+    entity = json.loads(
+        next(
+            (Path(__file__).parent / "good-fixtures")
+            .glob("KaggleSegImagePyramidViewConfBuilder/*-entity.json")
+        ).read_text()
+    )
+    return MockBuilder(entity, groups_token, assets_url)
+
+
+def test_filtered_images_not_found(mock_seg_image_pyramid_builder):
+    mock_seg_image_pyramid_builder.seg_image_pyramid_regex = IMAGE_PYRAMID_DIR
+    try:
+        mock_seg_image_pyramid_builder._add_segmentation_image(None)
+    except FileNotFoundError as e:
+        assert str(e) == f"Segmentation assay with uuid {mock_seg_image_pyramid_builder._uuid} has no matching files"
+
+
+def test_filtered_images_no_regex(mock_seg_image_pyramid_builder):
+    mock_seg_image_pyramid_builder.seg_image_pyramid_regex = None
+    try:
+        mock_seg_image_pyramid_builder._add_segmentation_image(None)
+    except ValueError as e:
+        assert str(e) == "seg_image_pyramid_regex is not set. Cannot find segmentation images."
+
+
+def mock_get_found_images(regex, file_paths):
+    raise ValueError("Simulated failure in get_found_images")
+
+
+def test_runtime_error_in_add_segmentation_image(mock_seg_image_pyramid_builder):
+    with patch('src.portal_visualization.builders.imaging_builders.get_found_images',
+               side_effect=mock_get_found_images):
+        mock_seg_image_pyramid_builder.seg_image_pyramid_regex = "image_pyramid"
+
+        with pytest.raises(RuntimeError) as err:
+            mock_seg_image_pyramid_builder._add_segmentation_image(None)
+
+        assert "Error while searching for segmentation images" in str(err.value)
+        assert "Simulated failure in get_found_images" in str(err.value)
+
+
+def test_find_segmentation_images_runtime_error():
+    with pytest.raises(RuntimeError) as e:
+        try:
+            raise FileNotFoundError("No files found in the directory")
+        except Exception as err:
+            raise RuntimeError(f"Error while searching for segmentation images: {err}")
+
+    assert "Error while searching for segmentation images:" in str(e.value)
+    assert "No files found in the directory" in str(e.value)
+
+
+def test_get_found_images():
+    file_paths = [
+        "image_pyramid/sample.ome.tiff",
+        "image_pyramid/sample_separate/sample.ome.tiff",
+    ]
+    regex = "image_pyramid"
+    result = get_found_images(regex, file_paths)
+    assert len(result) == 1
+    assert result[0] == "image_pyramid/sample.ome.tiff"
 
 
 if __name__ == "__main__":  # pragma: no cover

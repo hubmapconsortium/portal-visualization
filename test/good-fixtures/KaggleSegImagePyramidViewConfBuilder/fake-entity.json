@@ -1,0 +1,28 @@
+{
+  "data_types": ["Histology"],
+  "status": "QA",
+  "immediate_ancestors": [
+    {
+      "data_types": ["Histology"]
+    }
+  ],
+  "files": [
+    {
+      "rel_path": "ometiff-pyramids/lab_processed/images/B001_SB-reg005.ome.tif"
+    },
+    {
+      "rel_path": "output_offsets/lab_processed/images/B001_SB-reg005.offsets.json"
+    },
+    {
+      "rel_path": "ometiff-pyramids/B001_SB-reg005.segmentations.ome.tif"
+    },
+    {
+      "rel_path": "output_offsets/B001_SB-reg005.segmentations.offsets.json"
+    }
+  ],
+  "uuid": "23a25976beb8c02ab589b13a05b28c55",
+  "metadata": { "dag_provenance_list": [] },
+  "parent": { "uuid": "8adc3c31ca84ec4b958ed20a7c4f4919" },
+  "soft_assaytype": "h-and-e",
+  "vitessce-hints": ["segmentation_mask", "pyramid", "is_image"]
+}

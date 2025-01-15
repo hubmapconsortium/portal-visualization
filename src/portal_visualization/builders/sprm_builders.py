@@ -118,7 +118,7 @@ class SPRMJSONViewConfBuilder(SPRMViewConfBuilder):
         if self._files[0]["rel_path"] not in file_paths_found:
             # This tile has no segmentations,
             # so only show Spatial component without cells sets, genes etc.
-            vc = self._setup_view_config_raster(vc, dataset, disable_3d=[self._image_name])
+            vc = self._setup_view_config(vc, dataset, self.view_type, disable_3d=[self._image_name])
         else:
             # This tile has segmentations so show the analysis results.
             for file in self._files:
