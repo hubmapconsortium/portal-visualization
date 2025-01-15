@@ -243,7 +243,7 @@ def compare_confs(entity_path, conf, cells):
 
 
 @pytest.fixture
-def mockSegImagePyramidBuilder():
+def mock_seg_image_pyramid_builder():
     class MockBuilder(KaggleSegImagePyramidViewConfBuilder):
         def _get_file_paths(self):
             return []
@@ -257,18 +257,18 @@ def mockSegImagePyramidBuilder():
     return MockBuilder(entity, groups_token, assets_url)
 
 
-def test_filtered_images_not_found(mockSegImagePyramidBuilder):
-    mockSegImagePyramidBuilder.seg_image_pyramid_regex = IMAGE_PYRAMID_DIR
+def test_filtered_images_not_found(mock_seg_image_pyramid_builder):
+    mock_seg_image_pyramid_builder.seg_image_pyramid_regex = IMAGE_PYRAMID_DIR
     try:
-        mockSegImagePyramidBuilder._add_segmentation_image(None)
+        mock_seg_image_pyramid_builder._add_segmentation_image(None)
     except FileNotFoundError as e:
-        assert str(e) == f"Segmentation assay with uuid {mockSegImagePyramidBuilder._uuid} has no matching files"
+        assert str(e) == f"Segmentation assay with uuid {mock_seg_image_pyramid_builder._uuid} has no matching files"
 
 
-def test_filtered_images_no_regex(mockSegImagePyramidBuilder):
-    mockSegImagePyramidBuilder.seg_image_pyramid_regex = None
+def test_filtered_images_no_regex(mock_seg_image_pyramid_builder):
+    mock_seg_image_pyramid_builder.seg_image_pyramid_regex = None
     try:
-        mockSegImagePyramidBuilder._add_segmentation_image(None)
+        mock_seg_image_pyramid_builder._add_segmentation_image(None)
     except ValueError as e:
         assert str(e) == "seg_image_pyramid_regex is not set. Cannot find segmentation images."
 
@@ -277,13 +277,13 @@ def mock_get_found_images(regex, file_paths):
     raise ValueError("Simulated failure in get_found_images")
 
 
-def test_runtime_error_in_add_segmentation_image(mockSegImagePyramidBuilder):
+def test_runtime_error_in_add_segmentation_image(mock_seg_image_pyramid_builder):
     with patch('src.portal_visualization.builders.imaging_builders.get_found_images',
                side_effect=mock_get_found_images):
-        mockSegImagePyramidBuilder.seg_image_pyramid_regex = "image_pyramid"
+        mock_seg_image_pyramid_builder.seg_image_pyramid_regex = "image_pyramid"
 
         with pytest.raises(RuntimeError) as err:
-            mockSegImagePyramidBuilder._add_segmentation_image(None)
+            mock_seg_image_pyramid_builder._add_segmentation_image(None)
 
         assert "Error while searching for segmentation images" in str(err.value)
         assert "Simulated failure in get_found_images" in str(err.value)
