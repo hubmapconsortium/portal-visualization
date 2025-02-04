@@ -84,6 +84,14 @@ def get_found_images(image_pyramid_regex, file_paths_found):
     ]
     return found_images
 
+def get_found_images_all(file_paths_found):
+    found_images = [
+        path for path in get_matches(
+            file_paths_found, r".*\.ome\.tiff?$",
+        )
+        if 'separate/' not in path
+    ]
+    return found_images
 
 def get_image_metadata(self, img_url):
     """

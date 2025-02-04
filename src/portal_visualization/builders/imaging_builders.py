@@ -17,7 +17,9 @@ from vitessce import (
 )
 
 from ..utils import get_matches, group_by_file_name, get_conf_cells, get_found_images, \
-    get_image_scale, get_image_metadata
+    get_found_images_all, get_image_scale, get_image_metadata
+
+from ..constants import base_image_dirs
 
 BASE_IMAGE_VIEW_TYPE = 'image'
 SEG_IMAGE_VIEW_TYPE = 'seg'
@@ -113,7 +115,10 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
         except Exception as e:
             raise RuntimeError(f"Error while searching for segmentation images: {e}")
 
-        filtered_images = [img for img in found_images if SEGMENTATION_SUPPORT_IMAGE_SUBDIR not in img]
+        filtered_images = [
+            img for img in found_images 
+            if not any(subdir in img for subdir in base_image_dirs)
+        ]
 
         if not filtered_images:
             raise FileNotFoundError(f"Segmentation assay with uuid {self._uuid} has no matching files")
@@ -239,9 +244,20 @@ class KaggleSegImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
 
     def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
         super().__init__(entity, groups_token, assets_endpoint, **kwargs)
-        self.image_pyramid_regex = f"{IMAGE_PYRAMID_DIR}/{SEGMENTATION_SUPPORT_IMAGE_SUBDIR}"
         self.seg_image_pyramid_regex = IMAGE_PYRAMID_DIR
         self.view_type = KAGGLE_IMAGE_VIEW_TYPE
+
+        # Needed to adjust to various directory structures. For older datasets, the image pyramids will be present in either 'processed_microscopy' , 'processedMicroscopy'
+        # while newer datasets have lab_processed as directory. 
+
+        image_dir = SEGMENTATION_SUPPORT_IMAGE_SUBDIR
+        file_paths_found = self._get_file_paths()
+        paths = get_found_images_all(file_paths_found)
+        matched_dirs = {dir for dir in base_image_dirs if any(dir in img for img in paths)}
+
+        image_dir = list(matched_dirs)[0] if len(matched_dirs) >= 0 else image_dir
+
+        self.image_pyramid_regex = f"{IMAGE_PYRAMID_DIR}/{image_dir}"
 
     def get_conf_cells(self, **kwargs):
         return self.get_conf_cells_common(self._get_img_and_offset_url_seg, **kwargs)
