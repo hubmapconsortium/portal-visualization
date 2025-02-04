@@ -1,3 +1,7 @@
+from .base_builders import ViewConfBuilder
+from ..paths import (IMAGE_PYRAMID_DIR, OFFSETS_DIR, SEQFISH_HYB_CYCLE_REGEX,
+                     SEQFISH_FILE_REGEX, SEGMENTATION_SUPPORT_IMAGE_SUBDIR,
+                     SEGMENTATION_SUBDIR, IMAGE_METADATA_DIR)
 from pathlib import Path
 import re
 
@@ -12,11 +16,8 @@ from vitessce import (
     Component as cm,
 )
 
-from ..utils import get_matches, group_by_file_name, get_conf_cells, get_found_images, get_image_scale, get_image_metadata
-from ..paths import (IMAGE_PYRAMID_DIR, OFFSETS_DIR, SEQFISH_HYB_CYCLE_REGEX,
-                     SEQFISH_FILE_REGEX, SEGMENTATION_SUPPORT_IMAGE_SUBDIR,
-                     SEGMENTATION_SUBDIR, IMAGE_METADATA_DIR)
-from .base_builders import ViewConfBuilder
+from ..utils import get_matches, group_by_file_name, get_conf_cells, get_found_images, \
+    get_image_scale, get_image_metadata
 
 BASE_IMAGE_VIEW_TYPE = 'image'
 SEG_IMAGE_VIEW_TYPE = 'seg'
@@ -50,7 +51,8 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
         ...   assets_endpoint='https://example.com')
         >>> pprint(builder._get_img_and_offset_url("rel_path/to/clusters.ome.tiff", "rel_path/to"))
         ('https://example.com/uuid/rel_path/to/clusters.ome.tiff?token=groups_token',\n\
-         'https://example.com/uuid/output_offsets/clusters.offsets.json?token=groups_token')
+         'https://example.com/uuid/output_offsets/clusters.offsets.json?token=groups_token',\n\
+         'https://example.com/uuid/image_metadata/clusters.metadata.json?token=groups_token')
 
         """
         img_url = self._build_assets_url(img_path)
@@ -183,7 +185,7 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
                     img_url=img_url, offsets_url=offsets_url, name=Path(img_path).name
                 )
                 for img_path in found_images
-                for img_url, offsets_url in [get_img_and_offset_url_func(img_path, self.image_pyramid_regex)]
+                for img_url, offsets_url, _ in [get_img_and_offset_url_func(img_path, self.image_pyramid_regex)]
             ]
             dataset.add_object(
                 MultiImageWrapper(images, use_physical_size_scaling=self.use_physical_size_scaling)
@@ -300,7 +302,7 @@ class SeqFISHViewConfBuilder(AbstractImagingViewConfBuilder):
             dataset = vc.add_dataset(name=pos_name)
             sorted_images = sorted(images, key=self._get_hybcycle)
             for img_path in sorted_images:
-                img_url, offsets_url = self._get_img_and_offset_url(
+                img_url, offsets_url, _ = self._get_img_and_offset_url(
                     img_path, IMAGE_PYRAMID_DIR
                 )
                 image_wrappers.append(
