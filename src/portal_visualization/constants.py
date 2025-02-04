@@ -8,4 +8,4 @@ image_units = {
 }
 
 # To filter base image pyramids when finding segmentation mask images (kaggle-1, kaggle-2)
-base_image_dirs = ['lab_processed', 'processed_microscopy' , 'processedMicroscopy']
+base_image_dirs = ['lab_processed', 'processed_microscopy', 'processedMicroscopy']

@@ -116,7 +116,7 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
             raise RuntimeError(f"Error while searching for segmentation images: {e}")
 
         filtered_images = [
-            img for img in found_images 
+            img for img in found_images
             if not any(subdir in img for subdir in base_image_dirs)
         ]
 
@@ -247,15 +247,15 @@ class KaggleSegImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
         self.seg_image_pyramid_regex = IMAGE_PYRAMID_DIR
         self.view_type = KAGGLE_IMAGE_VIEW_TYPE
 
-        # Needed to adjust to various directory structures. For older datasets, the image pyramids will be present in either 'processed_microscopy' , 'processedMicroscopy'
-        # while newer datasets have lab_processed as directory. 
+        # Needed to adjust to various directory structures. For older datasets, the image pyramids will be present in
+        # either 'processed_microscopy' , 'processedMicroscopy' while newer datasets have lab_processed as directory.
 
         image_dir = SEGMENTATION_SUPPORT_IMAGE_SUBDIR
         file_paths_found = self._get_file_paths()
         paths = get_found_images_all(file_paths_found)
         matched_dirs = {dir for dir in base_image_dirs if any(dir in img for img in paths)}
 
-        image_dir = list(matched_dirs)[0] if len(matched_dirs) >= 0 else image_dir
+        image_dir = next(iter(matched_dirs), image_dir)
 
         self.image_pyramid_regex = f"{IMAGE_PYRAMID_DIR}/{image_dir}"
 
