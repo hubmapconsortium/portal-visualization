@@ -171,7 +171,6 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
         if 'seg' in self.view_type:
             img_url, offsets_url, metadata_url = get_img_and_offset_url_func(found_images[0], self.image_pyramid_regex)
             meta_data = get_image_metadata(self, metadata_url)
-            print("base", meta_data)
             self.base_image_metadata = meta_data
             dataset = dataset.add_object(
                 ImageOmeTiffWrapper(img_url=img_url, offsets_url=offsets_url, name=Path(found_images[0]).name)
