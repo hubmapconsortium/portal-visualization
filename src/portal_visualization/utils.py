@@ -1,12 +1,13 @@
 from pathlib import Path
 import re
 from itertools import groupby
+from requests import get
 
 import nbformat
 from vitessce import VitessceConfig
 
 from .builders.base_builders import ConfCells
-
+from .constants import image_units
 
 def get_matches(files, regex):
     return list(
@@ -81,6 +82,29 @@ def get_found_images(image_pyramid_regex, file_paths_found):
     ]
     return found_images
 
+def get_image_metadata(self, img_url):
+    meta_data = None
+    request_init = self._get_request_init() or {}
+    response = get(img_url, **request_init)
+    if response.status_code == 200:
+        data = response.json()
+        if isinstance(data, dict) and "PhysicalSizeX" in data and data['PhysicalSizeX'] is not None:
+            meta_data = data
+        else:
+            print("Image does not have Physical sizes ")         
+    else:
+        print(f"Failed to retrieve {img_url}: {response.status_code} - {response.reason}")
+    return meta_data
+
+def get_image_scale(base_metadata, seg_metadata):
+    scale = [1, 1, 1, 1, 1]
+    if seg_metadata is None and base_metadata is not None:
+        if base_metadata['PhysicalSizeUnitX'] in image_units and base_metadata['PhysicalSizeUnitY'] in image_units:
+            scale_x = base_metadata['PhysicalSizeX']/image_units[ base_metadata['PhysicalSizeUnitX']]
+            scale_y = base_metadata['PhysicalSizeY']/image_units[ base_metadata['PhysicalSizeUnitY']]
+
+            scale = [scale_x, scale_y, 1, 1, 1]
+    return scale
 
 def files_from_response(response_json):
     '''

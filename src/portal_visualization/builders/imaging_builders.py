@@ -12,10 +12,10 @@ from vitessce import (
     Component as cm,
 )
 
-from ..utils import get_matches, group_by_file_name, get_conf_cells, get_found_images
+from ..utils import get_matches, group_by_file_name, get_conf_cells, get_found_images, get_image_scale, get_image_metadata
 from ..paths import (IMAGE_PYRAMID_DIR, OFFSETS_DIR, SEQFISH_HYB_CYCLE_REGEX,
                      SEQFISH_FILE_REGEX, SEGMENTATION_SUPPORT_IMAGE_SUBDIR,
-                     SEGMENTATION_SUBDIR)
+                     SEGMENTATION_SUBDIR, IMAGE_METADATA_DIR)
 from .base_builders import ViewConfBuilder
 
 BASE_IMAGE_VIEW_TYPE = 'image'
@@ -30,6 +30,7 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
         self.use_full_resolution = []
         self.use_physical_size_scaling = False
         self.view_type = BASE_IMAGE_VIEW_TYPE
+        self.base_image_metadata = None
         super().__init__(entity, groups_token, assets_endpoint, **kwargs)
 
     def _get_img_and_offset_url(self, img_path, img_dir):
@@ -62,6 +63,13 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
                     re.sub(img_dir, OFFSETS_DIR, img_url),
                 )
             ),
+            str(
+                re.sub(
+                    r"ome\.tiff?",
+                    "metadata.json",
+                    re.sub(img_dir, IMAGE_METADATA_DIR, img_url),
+                )
+            ),
         )
 
     def _get_img_and_offset_url_seg(self, img_path, img_dir):
@@ -74,6 +82,7 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
         """
         img_url = self._build_assets_url(img_path)
         offsets_path = re.sub(IMAGE_PYRAMID_DIR, OFFSETS_DIR, img_dir)
+        metadata_path = re.sub(IMAGE_PYRAMID_DIR, IMAGE_METADATA_DIR, img_dir)
         return (
             img_url,
             str(
@@ -83,8 +92,15 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
                     re.sub(img_dir, offsets_path, img_url),
                 )
             ),
+             str(
+                re.sub(
+                    r"ome\.tiff?",
+                    "metadata.json",
+                    re.sub(img_dir, metadata_path, img_url),
+                )
+            ),
         )
-
+    
     def _add_segmentation_image(self, dataset):
         file_paths_found = self._get_file_paths()
         if self.seg_image_pyramid_regex is None:
@@ -100,13 +116,15 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
         if not filtered_images:
             raise FileNotFoundError(f"Segmentation assay with uuid {self._uuid} has no matching files")
 
-        img_url, offsets_url = self._get_img_and_offset_url(filtered_images[0], self.seg_image_pyramid_regex)
+        img_url, offsets_url, metadata_url = self._get_img_and_offset_url(filtered_images[0], self.seg_image_pyramid_regex)
+        seg_meta_data = get_image_metadata(self, metadata_url)
+        
+        scale= get_image_scale(self.base_image_metadata, seg_meta_data )
         if dataset is not None:
             dataset.add_object(
                 ObsSegmentationsOmeTiffWrapper(img_url=img_url, offsets_url=offsets_url,
                                                obs_types_from_channel_names=True,
-                                               # coordinate_transformations=[{"type": "scale", "scale":
-                                               # [0.377.,0.377,1,1,1]}] # need to read from a file
+                                               coordinate_transformations=[{"type": "scale", "scale": scale}]
                                                )
             )
 
@@ -148,7 +166,10 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
         dataset = vc.add_dataset(name="Visualization Files")
 
         if 'seg' in self.view_type:
-            img_url, offsets_url = get_img_and_offset_url_func(found_images[0], self.image_pyramid_regex)
+            img_url, offsets_url, metadata_url  = get_img_and_offset_url_func(found_images[0], self.image_pyramid_regex)
+            meta_data = get_image_metadata(self, metadata_url)
+            print("base", meta_data)
+            self.base_image_metadata = meta_data
             dataset = dataset.add_object(
                 ImageOmeTiffWrapper(img_url=img_url, offsets_url=offsets_url, name=Path(found_images[0]).name)
             )
