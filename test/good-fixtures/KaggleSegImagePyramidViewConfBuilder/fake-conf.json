@@ -18,6 +18,18 @@
           "fileType": "obsSegmentations.ome-tiff",
           "url": "https://example.com/23a25976beb8c02ab589b13a05b28c55/ometiff-pyramids/B001_SB-reg005.segmentations.ome.tif?token=groups_token",
           "options": {
+            "coordinateTransformations": [
+              {
+                "type": "scale",
+                "scale": [
+                  1,
+                  1,
+                  1,
+                  1,
+                  1
+                ]
+              }
+            ],
             "obsTypesFromChannelNames": true,
             "offsetsUrl": "https://example.com/23a25976beb8c02ab589b13a05b28c55/output_offsets/B001_SB-reg005.segmentations.offsets.json?token=groups_token"
           }

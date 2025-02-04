@@ -1,3 +1,7 @@
+from .base_builders import ViewConfBuilder
+from ..paths import (IMAGE_PYRAMID_DIR, OFFSETS_DIR, SEQFISH_HYB_CYCLE_REGEX,
+                     SEQFISH_FILE_REGEX, SEGMENTATION_SUPPORT_IMAGE_SUBDIR,
+                     SEGMENTATION_SUBDIR, IMAGE_METADATA_DIR)
 from pathlib import Path
 import re
 
@@ -12,11 +16,10 @@ from vitessce import (
     Component as cm,
 )
 
-from ..utils import get_matches, group_by_file_name, get_conf_cells, get_found_images
-from ..paths import (IMAGE_PYRAMID_DIR, OFFSETS_DIR, SEQFISH_HYB_CYCLE_REGEX,
-                     SEQFISH_FILE_REGEX, SEGMENTATION_SUPPORT_IMAGE_SUBDIR,
-                     SEGMENTATION_SUBDIR)
-from .base_builders import ViewConfBuilder
+from ..utils import get_matches, group_by_file_name, get_conf_cells, get_found_images, \
+    get_found_images_all, get_image_scale, get_image_metadata
+
+from ..constants import base_image_dirs
 
 BASE_IMAGE_VIEW_TYPE = 'image'
 SEG_IMAGE_VIEW_TYPE = 'seg'
@@ -30,6 +33,7 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
         self.use_full_resolution = []
         self.use_physical_size_scaling = False
         self.view_type = BASE_IMAGE_VIEW_TYPE
+        self.base_image_metadata = None
         super().__init__(entity, groups_token, assets_endpoint, **kwargs)
 
     def _get_img_and_offset_url(self, img_path, img_dir):
@@ -49,7 +53,8 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
         ...   assets_endpoint='https://example.com')
         >>> pprint(builder._get_img_and_offset_url("rel_path/to/clusters.ome.tiff", "rel_path/to"))
         ('https://example.com/uuid/rel_path/to/clusters.ome.tiff?token=groups_token',\n\
-         'https://example.com/uuid/output_offsets/clusters.offsets.json?token=groups_token')
+         'https://example.com/uuid/output_offsets/clusters.offsets.json?token=groups_token',\n\
+         'https://example.com/uuid/image_metadata/clusters.metadata.json?token=groups_token')
 
         """
         img_url = self._build_assets_url(img_path)
@@ -60,6 +65,13 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
                     r"ome\.tiff?",
                     "offsets.json",
                     re.sub(img_dir, OFFSETS_DIR, img_url),
+                )
+            ),
+            str(
+                re.sub(
+                    r"ome\.tiff?",
+                    "metadata.json",
+                    re.sub(img_dir, IMAGE_METADATA_DIR, img_url),
                 )
             ),
         )
@@ -74,6 +86,7 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
         """
         img_url = self._build_assets_url(img_path)
         offsets_path = re.sub(IMAGE_PYRAMID_DIR, OFFSETS_DIR, img_dir)
+        metadata_path = re.sub(IMAGE_PYRAMID_DIR, IMAGE_METADATA_DIR, img_dir)
         return (
             img_url,
             str(
@@ -81,6 +94,13 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
                     r"ome\.tiff?",
                     "offsets.json",
                     re.sub(img_dir, offsets_path, img_url),
+                )
+            ),
+            str(
+                re.sub(
+                    r"ome\.tiff?",
+                    "metadata.json",
+                    re.sub(img_dir, metadata_path, img_url),
                 )
             ),
         )
@@ -95,18 +115,24 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
         except Exception as e:
             raise RuntimeError(f"Error while searching for segmentation images: {e}")
 
-        filtered_images = [img for img in found_images if SEGMENTATION_SUPPORT_IMAGE_SUBDIR not in img]
+        filtered_images = [
+            img for img in found_images
+            if not any(subdir in img for subdir in base_image_dirs)
+        ]
 
         if not filtered_images:
             raise FileNotFoundError(f"Segmentation assay with uuid {self._uuid} has no matching files")
 
-        img_url, offsets_url = self._get_img_and_offset_url(filtered_images[0], self.seg_image_pyramid_regex)
+        img_url, offsets_url, metadata_url = self._get_img_and_offset_url(
+            filtered_images[0], self.seg_image_pyramid_regex)
+        seg_meta_data = get_image_metadata(self, metadata_url)
+
+        scale = get_image_scale(self.base_image_metadata, seg_meta_data)
         if dataset is not None:
             dataset.add_object(
                 ObsSegmentationsOmeTiffWrapper(img_url=img_url, offsets_url=offsets_url,
                                                obs_types_from_channel_names=True,
-                                               # coordinate_transformations=[{"type": "scale", "scale":
-                                               # [0.377.,0.377,1,1,1]}] # need to read from a file
+                                               coordinate_transformations=[{"type": "scale", "scale": scale}]
                                                )
             )
 
@@ -148,7 +174,9 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
         dataset = vc.add_dataset(name="Visualization Files")
 
         if 'seg' in self.view_type:
-            img_url, offsets_url = get_img_and_offset_url_func(found_images[0], self.image_pyramid_regex)
+            img_url, offsets_url, metadata_url = get_img_and_offset_url_func(found_images[0], self.image_pyramid_regex)
+            meta_data = get_image_metadata(self, metadata_url)
+            self.base_image_metadata = meta_data
             dataset = dataset.add_object(
                 ImageOmeTiffWrapper(img_url=img_url, offsets_url=offsets_url, name=Path(found_images[0]).name)
             )
@@ -161,7 +189,7 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
                     img_url=img_url, offsets_url=offsets_url, name=Path(img_path).name
                 )
                 for img_path in found_images
-                for img_url, offsets_url in [get_img_and_offset_url_func(img_path, self.image_pyramid_regex)]
+                for img_url, offsets_url, _ in [get_img_and_offset_url_func(img_path, self.image_pyramid_regex)]
             ]
             dataset.add_object(
                 MultiImageWrapper(images, use_physical_size_scaling=self.use_physical_size_scaling)
@@ -216,9 +244,20 @@ class KaggleSegImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
 
     def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
         super().__init__(entity, groups_token, assets_endpoint, **kwargs)
-        self.image_pyramid_regex = f"{IMAGE_PYRAMID_DIR}/{SEGMENTATION_SUPPORT_IMAGE_SUBDIR}"
         self.seg_image_pyramid_regex = IMAGE_PYRAMID_DIR
         self.view_type = KAGGLE_IMAGE_VIEW_TYPE
+
+        # Needed to adjust to various directory structures. For older datasets, the image pyramids will be present in
+        # 'processed_microscopy' or 'processedMicroscopy' while newer datasets are listed under lab_processed.
+
+        image_dir = SEGMENTATION_SUPPORT_IMAGE_SUBDIR
+        file_paths_found = self._get_file_paths()
+        paths = get_found_images_all(file_paths_found)
+        matched_dirs = {dir for dir in base_image_dirs if any(dir in img for img in paths)}
+
+        image_dir = next(iter(matched_dirs), image_dir)
+
+        self.image_pyramid_regex = f"{IMAGE_PYRAMID_DIR}/{image_dir}"
 
     def get_conf_cells(self, **kwargs):
         return self.get_conf_cells_common(self._get_img_and_offset_url_seg, **kwargs)
@@ -278,7 +317,7 @@ class SeqFISHViewConfBuilder(AbstractImagingViewConfBuilder):
             dataset = vc.add_dataset(name=pos_name)
             sorted_images = sorted(images, key=self._get_hybcycle)
             for img_path in sorted_images:
-                img_url, offsets_url = self._get_img_and_offset_url(
+                img_url, offsets_url, _ = self._get_img_and_offset_url(
                     img_path, IMAGE_PYRAMID_DIR
                 )
                 image_wrappers.append(

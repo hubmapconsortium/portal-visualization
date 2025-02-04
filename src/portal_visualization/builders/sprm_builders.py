@@ -67,7 +67,7 @@ class SPRMViewConfBuilder(ImagePyramidViewConfBuilder):
         :param str found_image_file: The path to look for the image itself
         :param str found_image_path: The folder to be replaced with the offsets path
         """
-        img_url, offsets_url = self._get_img_and_offset_url(
+        img_url, offsets_url, _ = self._get_img_and_offset_url(
             found_image_file, re.escape(found_image_path),
         )
         return OmeTiffWrapper(
@@ -172,7 +172,7 @@ class SPRMAnnDataViewConfBuilder(SPRMViewConfBuilder):
         return f"{self._mask_path_regex}/{self._mask_name}" + r"\.ome\.tiff?"
 
     def _get_ometiff_mask_wrapper(self, found_bitmask_file):
-        bitmask_img_url, bitmask_offsets_url = self._get_img_and_offset_url(
+        bitmask_img_url, bitmask_offsets_url, _ = self._get_img_and_offset_url(
             found_bitmask_file, self.image_pyramid_regex,
         )
         return OmeTiffWrapper(

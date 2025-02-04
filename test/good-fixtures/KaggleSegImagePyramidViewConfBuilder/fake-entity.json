@@ -14,10 +14,16 @@
       "rel_path": "output_offsets/lab_processed/images/B001_SB-reg005.offsets.json"
     },
     {
+      "rel_path": "image_metadata/lab_processed/images/B001_SB-reg005.metadata.json"
+    },
+    {
       "rel_path": "ometiff-pyramids/B001_SB-reg005.segmentations.ome.tif"
     },
     {
       "rel_path": "output_offsets/B001_SB-reg005.segmentations.offsets.json"
+    },
+    {
+      "rel_path": "image_metadata/B001_SB-reg005.segmentations.metadata.json"
     }
   ],
   "uuid": "23a25976beb8c02ab589b13a05b28c55",
