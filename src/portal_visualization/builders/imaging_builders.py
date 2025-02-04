@@ -92,7 +92,7 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
                     re.sub(img_dir, offsets_path, img_url),
                 )
             ),
-             str(
+            str(
                 re.sub(
                     r"ome\.tiff?",
                     "metadata.json",
@@ -100,7 +100,7 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
                 )
             ),
         )
-    
+
     def _add_segmentation_image(self, dataset):
         file_paths_found = self._get_file_paths()
         if self.seg_image_pyramid_regex is None:
@@ -116,10 +116,11 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
         if not filtered_images:
             raise FileNotFoundError(f"Segmentation assay with uuid {self._uuid} has no matching files")
 
-        img_url, offsets_url, metadata_url = self._get_img_and_offset_url(filtered_images[0], self.seg_image_pyramid_regex)
+        img_url, offsets_url, metadata_url = self._get_img_and_offset_url(
+            filtered_images[0], self.seg_image_pyramid_regex)
         seg_meta_data = get_image_metadata(self, metadata_url)
-        
-        scale= get_image_scale(self.base_image_metadata, seg_meta_data )
+
+        scale = get_image_scale(self.base_image_metadata, seg_meta_data)
         if dataset is not None:
             dataset.add_object(
                 ObsSegmentationsOmeTiffWrapper(img_url=img_url, offsets_url=offsets_url,
@@ -166,7 +167,7 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
         dataset = vc.add_dataset(name="Visualization Files")
 
         if 'seg' in self.view_type:
-            img_url, offsets_url, metadata_url  = get_img_and_offset_url_func(found_images[0], self.image_pyramid_regex)
+            img_url, offsets_url, metadata_url = get_img_and_offset_url_func(found_images[0], self.image_pyramid_regex)
             meta_data = get_image_metadata(self, metadata_url)
             print("base", meta_data)
             self.base_image_metadata = meta_data
