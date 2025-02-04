@@ -7,5 +7,7 @@ image_units = {
     "dm": 10
 }
 
-# To filter base image pyramids when finding segmentation mask images (kaggle-1, kaggle-2)
+# The base image pyramids for kaggle-1 and kaggle-2 may have various directory structures depending
+#  upon when they were processed. For older datasets, the image pyramids will be present
+#  either in 'processed_microscopy', or 'processedMicroscopy' while newer datasets will be listed under lab_processed.
 base_image_dirs = ['lab_processed', 'processed_microscopy', 'processedMicroscopy']

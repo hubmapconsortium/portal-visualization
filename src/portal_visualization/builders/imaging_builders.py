@@ -248,7 +248,7 @@ class KaggleSegImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
         self.view_type = KAGGLE_IMAGE_VIEW_TYPE
 
         # Needed to adjust to various directory structures. For older datasets, the image pyramids will be present in
-        # either 'processed_microscopy' , 'processedMicroscopy' while newer datasets have lab_processed as directory.
+        # 'processed_microscopy' or 'processedMicroscopy' while newer datasets are listed under lab_processed.
 
         image_dir = SEGMENTATION_SUPPORT_IMAGE_SUBDIR
         file_paths_found = self._get_file_paths()
