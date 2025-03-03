@@ -173,10 +173,10 @@ def get_image_scale(base_metadata, seg_metadata):
 
     if all([base_x_unit, base_y_unit, seg_x_unit, seg_y_unit]) and \
             all([unit in image_units for unit in [base_x_unit, base_y_unit, seg_x_unit, seg_y_unit]]):
-        scale_x = (base_x / seg_x) * (image_units[seg_x_unit] / image_units[base_x_unit])
-        scale_y = (base_y / seg_y) * (image_units[seg_y_unit] / image_units[base_y_unit])
+        scale_x = (int(base_x) / int(seg_x)) * (image_units[seg_x_unit] / image_units[base_x_unit])
+        scale_y = (int(base_y) / int(seg_y)) * (image_units[seg_y_unit] / image_units[base_y_unit])
 
-        scale = [scale_x, scale_y, 1, 1, 1]
+        scale = [round(scale_x, 5), round(scale_y, 5), 1, 1, 1]
     else:
         print("PhysicalSize units are not correct")
     print("Scaling factor: ", scale)
