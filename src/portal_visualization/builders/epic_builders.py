@@ -106,7 +106,6 @@ class SegmentationMaskBuilder(EPICConfBuilder):
         segmentation_metadata = get_image_metadata(self, metadata_url)
 
         segmentation_scale = get_image_scale(self.base_image_metadata, segmentation_metadata)
-        # seg_scale = [1.25, 1.25, 1, 1, 1]
         segmentations = ObsSegmentationsOmeTiffWrapper(
             img_url=img_url,
             offsets_url=offsets_url,
