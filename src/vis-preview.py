@@ -14,7 +14,8 @@ from portal_visualization.builder_factory import get_view_config_builder
 from portal_visualization.epic_factory import get_epic_builder
 defaults = json.load((Path(__file__).parent / 'defaults.json').open())
 # Change to prod if needed to access those resources
-ENV = 'dev'
+ENV = 'prod'
+
 
 def main():  # pragma: no cover
     assets_default_url = defaults[ENV]['assets_url']
@@ -66,7 +67,7 @@ def main():  # pragma: no cover
     #     soft_assay_endpoint=defaults[ENV]["soft_assay_endpoint"],
     #     entity_api_endpoint=defaults[ENV]["entity_api_endpoint"],
     # )
-    
+
     # conf = client.get_vitessce_conf_cells_and_lifted_uuid(entity, None, True, parent_uuid, epic_uuid).vitessce_conf
 
     Builder = get_view_config_builder(entity, get_entity, parent_uuid, epic_uuid)
