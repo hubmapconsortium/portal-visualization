@@ -2,15 +2,14 @@ from abc import abstractmethod
 from vitessce import VitessceConfig, ObsSegmentationsOmeTiffWrapper, AnnDataWrapper, \
     get_initial_coordination_scope_prefix, CoordinationLevel as CL
 from .base_builders import ConfCells
-from ..utils import get_conf_cells, get_matches
+from ..utils import get_conf_cells, get_matches, get_image_metadata, get_image_scale
 from .base_builders import ViewConfBuilder
 from requests import get
 import re
 import random
 from ..paths import OFFSETS_DIR, IMAGE_PYRAMID_DIR, SEGMENTATION_SUBDIR, SEGMENTATION_ZARR_STORES, \
-    SEGMENTATION_DIR, SEGMENTATION_SUPPORT_IMAGE_SUBDIR
+    SEGMENTATION_SUPPORT_IMAGE_SUBDIR, IMAGE_METADATA_DIR
 
-transformations_filename = 'transformations.json'
 zarr_path = f'{SEGMENTATION_SUBDIR}/{SEGMENTATION_ZARR_STORES}'
 
 # EPIC builders take in a vitessce conf output by a previous builder and modify it
@@ -19,7 +18,7 @@ zarr_path = f'{SEGMENTATION_SUBDIR}/{SEGMENTATION_ZARR_STORES}'
 
 class EPICConfBuilder(ViewConfBuilder):
     def __init__(self, epic_uuid, base_conf: ConfCells, entity,
-                 groups_token, assets_endpoint, **kwargs) -> None:
+                 groups_token, assets_endpoint, base_image_metadata, **kwargs) -> None:
         super().__init__(entity, groups_token, assets_endpoint, **kwargs)
 
         conf, cells = base_conf
@@ -37,6 +36,7 @@ class EPICConfBuilder(ViewConfBuilder):
             self._base_conf: VitessceConfig = VitessceConfig.from_dict(base_conf.conf)
 
         self._epic_uuid = epic_uuid
+        self.base_image_metadata = base_image_metadata
 
         pass
 
@@ -61,10 +61,6 @@ class EPICConfBuilder(ViewConfBuilder):
         adata_url = self._build_assets_url(zarr_path, use_token=False)
         return adata_url
 
-    def image_transofrmations_url(self):  # pragma: no cover
-        transformations_url = self._build_assets_url(SEGMENTATION_DIR, use_token=True)
-        return transformations_url
-
     def segmentations_ome_offset_url(self, img_path):
         img_url = self._build_assets_url(f'{SEGMENTATION_SUBDIR}/{img_path}')
         return (
@@ -76,6 +72,14 @@ class EPICConfBuilder(ViewConfBuilder):
                     re.sub(IMAGE_PYRAMID_DIR, OFFSETS_DIR, img_url),
                 )
             ),
+            str(
+                re.sub(
+                    r"ome\.tiff?",
+                    "metadata.json",
+                    re.sub(IMAGE_PYRAMID_DIR, IMAGE_METADATA_DIR, img_url),
+                )
+            ),
+
         )
 
 
@@ -96,11 +100,12 @@ class SegmentationMaskBuilder(EPICConfBuilder):
             raise FileNotFoundError(message)
 
         elif len(filtered_images) >= 1:
-            img_url, offsets_url = self.segmentations_ome_offset_url(
+            img_url, offsets_url, metadata_url = self.segmentations_ome_offset_url(
                 filtered_images[0]
             )
+        segmentation_metadata = get_image_metadata(self, metadata_url)
 
-        segmentation_scale = self.read_segmentation_scale()
+        segmentation_scale = get_image_scale(self.base_image_metadata, segmentation_metadata)
         segmentations = ObsSegmentationsOmeTiffWrapper(
             img_url=img_url,
             offsets_url=offsets_url,
@@ -150,22 +155,6 @@ class SegmentationMaskBuilder(EPICConfBuilder):
             # in this case, the code won't execute for this
             print(f"Failed to retrieve metadata.json: {response.status_code} - {response.reason}")
         return mask_names
-
-    def read_segmentation_scale(self):  # pragma: no cover
-        url = self._build_assets_url(f'{SEGMENTATION_DIR}/{transformations_filename}')
-        request_init = self._get_request_init() or {}
-        # By default no scaling should be applied, format accepted by vitessce
-        scale = [1, 1, 1, 1, 1]
-        response = get(url, **request_init)
-        if response.status_code == 200:
-            data = response.json()
-            if isinstance(data, dict) and "scale" in data:
-                scale = data["scale"]
-            else:
-                print("'scale' key not found in the response.")
-        else:
-            print(f"Failed to retrieve {transformations_filename}: {response.status_code} - {response.reason}")
-        return scale
 
 
 def create_segmentation_objects(base_url, mask_names):  # pragma: no cover

@@ -178,12 +178,12 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
         if conf is None:  # pragma: no cover
             with pytest.raises(ValueError):
                 epic_builder(
-                    epic_uuid, ConfCells(conf, cells), entity, groups_token, assets_url
+                    epic_uuid, ConfCells(conf, cells), entity, groups_token, assets_url, builder.base_image_metadata
                 ).get_conf_cells()
             return
 
         built_epic_conf, cells = epic_builder(
-            epic_uuid, ConfCells(conf, cells), entity, groups_token, assets_url
+            epic_uuid, ConfCells(conf, cells), entity, groups_token, assets_url, builder.base_image_metadata
         ).get_conf_cells()
         assert built_epic_conf is not None
 
