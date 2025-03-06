@@ -6,6 +6,7 @@ import json
 from webbrowser import open_new_tab
 from urllib.parse import quote_plus
 from sys import stderr
+from portal_visualization.client import ApiClient
 
 import requests
 
@@ -54,6 +55,18 @@ def main():  # pragma: no cover
 
     headers = get_headers(args.token)
     entity = get_entity_from_args(args.url, args.json, headers)
+    # For testing client
+    # client = ApiClient(
+    #     groups_token= args.token,
+    #     elasticsearch_endpoint=defaults['elastic_search_api'],
+    #     portal_index_path=defaults['portal_index_path'],
+    #     ubkg_endpoint=defaults['ubkg_endpoint'],
+    #     assets_endpoint=assets_default_url,
+    #     soft_assay_endpoint=defaults["soft_assay_endpoint"],
+    #     entity_api_endpoint=defaults["entity_api_endpoint"],
+    # )
+    
+    # conf = client.get_vitessce_conf_cells_and_lifted_uuid(entity, None, True, parent_uuid, epic_uuid).vitessce_conf
 
     Builder = get_view_config_builder(entity, get_entity, parent_uuid, epic_uuid)
     builder = Builder(entity, args.token, args.assets_url)
