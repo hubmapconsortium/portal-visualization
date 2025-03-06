@@ -6,7 +6,7 @@ import json
 from webbrowser import open_new_tab
 from urllib.parse import quote_plus
 from sys import stderr
-from portal_visualization.client import ApiClient
+# from portal_visualization.client import ApiClient
 
 import requests
 
