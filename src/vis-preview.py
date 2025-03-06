@@ -13,10 +13,11 @@ import requests
 from portal_visualization.builder_factory import get_view_config_builder
 from portal_visualization.epic_factory import get_epic_builder
 defaults = json.load((Path(__file__).parent / 'defaults.json').open())
-
+# Change to prod if needed to access those resources
+ENV = 'dev'
 
 def main():  # pragma: no cover
-    assets_default_url = defaults['assets_url']
+    assets_default_url = defaults[ENV]['assets_url']
 
     parser = argparse.ArgumentParser(description='''
         Given HuBMAP Dataset JSON, generate a Vitessce viewconf, and load vitessce.io.''')
@@ -58,12 +59,12 @@ def main():  # pragma: no cover
     # For testing client
     # client = ApiClient(
     #     groups_token= args.token,
-    #     elasticsearch_endpoint=defaults['elastic_search_api'],
-    #     portal_index_path=defaults['portal_index_path'],
-    #     ubkg_endpoint=defaults['ubkg_endpoint'],
+    #     elasticsearch_endpoint=defaults[ENV]['elastic_search_api'],
+    #     portal_index_path=defaults[ENV]['portal_index_path'],
+    #     ubkg_endpoint=defaults[ENV]['ubkg_endpoint'],
     #     assets_endpoint=assets_default_url,
-    #     soft_assay_endpoint=defaults["soft_assay_endpoint"],
-    #     entity_api_endpoint=defaults["entity_api_endpoint"],
+    #     soft_assay_endpoint=defaults[ENV]["soft_assay_endpoint"],
+    #     entity_api_endpoint=defaults[ENV]["entity_api_endpoint"],
     # )
     
     # conf = client.get_vitessce_conf_cells_and_lifted_uuid(entity, None, True, parent_uuid, epic_uuid).vitessce_conf
@@ -115,7 +116,7 @@ def get_headers(token):  # pragma: no cover
 
 def get_entity(uuid):  # pragma: no cover
     try:
-        response = requests.get(f'{defaults["dataset_url"]}{uuid}.json', headers=headers)
+        response = requests.get(f'{defaults[ENV]["dataset_url"]}{uuid}.json', headers=headers)
         if response.status_code != 200:
             print(f"Error: Received status code {response.status_code}")
         else:
@@ -125,7 +126,7 @@ def get_entity(uuid):  # pragma: no cover
             except Exception as e:
                 print(f"Error in parsing the response {str(e)}")
     except Exception as e:
-        print(f"Error accessing {defaults['assaytypes_url']}{uuid}: {str(e)}")
+        print(f"Error accessing {defaults[ENV]['assaytypes_url']}{uuid}: {str(e)}")
 
 
 def get_entity_from_args(url_arg, json_arg, headers):  # pragma: no cover
