@@ -271,7 +271,7 @@ class ApiClient:
                 entity,
                 self.groups_token,
                 self.assets_endpoint,
-                builder.base_image_metadata).get_conf_cells(),
+                builder.base_image_metadata).get_conf_cells()
 
         return VitessceConfLiftedUUID(
             vitessce_conf=vitessce_conf, vis_lifted_uuid=vis_lifted_uuid

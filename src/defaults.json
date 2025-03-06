@@ -1,4 +1,16 @@
 {
-  "assets_url": "https://assets.dev.hubmapconsortium.org",
-  "dataset_url":"https://portal.dev.hubmapconsortium.org/browse/dataset/"
+  "prod": {
+    "assets_url": "https://assets.hubmapconsortium.org",
+    "dataset_url": "https://portal.hubmapconsortium.org/browse/dataset/",
+    "soft_assay_endpoint": "https://ingest-api.hubmapconsortium.org",
+    "elastic_search_api": "https://search.api.hubmapconsortium.org/v3/portal/search",
+    "entity_api_endpoint": "https://entity.api.hubmapconsortium.org"
+  },
+  "dev": {
+    "assets_url": "https://assets.dev.hubmapconsortium.org",
+    "dataset_url": "https://portal.dev.hubmapconsortium.org/browse/dataset/",
+    "soft_assay_endpoint": "https://ingest-api.dev.hubmapconsortium.org",
+    "elastic_search_api": "https://search-api.dev.hubmapconsortium.org/v3/portal/search",
+    "entity_api_endpoint": "https://entity-api.dev.hubmapconsortium.org"
+  }
 }
