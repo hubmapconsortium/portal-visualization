@@ -200,7 +200,7 @@ class SPRMAnnDataViewConfBuilder(SPRMViewConfBuilder):
 
         additional_cluster_names = list(self.zarr_store().uns.get("cluster_columns", []))
 
-        obs_set_names = additional_cluster_names + DEFAULT_SPRM_ANNDATA_FACTORS
+        obs_set_names = list(set(additional_cluster_names + DEFAULT_SPRM_ANNDATA_FACTORS))
         obs_set_paths = [f"obs/{key}" for key in obs_set_names]
 
         anndata_wrapper = AnnDataWrapper(
