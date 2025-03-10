@@ -10,6 +10,7 @@ from vitessce import (
     Component as cm,
     FileType as ft,
 )
+import zarr
 
 from .base_builders import ViewConfBuilder
 from ..utils import create_coordination_values, get_matches, get_conf_cells
@@ -21,7 +22,7 @@ from .imaging_builders import ImagePyramidViewConfBuilder
 
 # https://github.com/hubmapconsortium/portal-containers/blob/master/containers/sprm-to-anndata
 # has information on how these keys are generated.
-SPRM_ANNDATA_FACTORS = [
+DEFAULT_SPRM_ANNDATA_FACTORS = [
     "Cell K-Means [tSNE_All_Features]",
     "Cell K-Means [Mean-All-SubRegions] Expression",
     "Cell K-Means [Mean] Expression",
@@ -30,8 +31,6 @@ SPRM_ANNDATA_FACTORS = [
     "Cell K-Means [Total] Expression",
     "Cell K-Means [Covariance] Expression",
 ]
-
-SPRM_ANNDATA_FACTOR_PATHS = [f"obs/{key}" for key in SPRM_ANNDATA_FACTORS]
 
 
 class CytokitSPRMViewConfigError(Exception):
@@ -168,6 +167,12 @@ class SPRMAnnDataViewConfBuilder(SPRMViewConfBuilder):
         self._imaging_path_regex = f"{self.image_pyramid_regex}/{kwargs['imaging_path']}"
         self._mask_path_regex = f"{self.image_pyramid_regex}/{kwargs['mask_path']}"
 
+    def zarr_store(self):
+        zarr_path = f"anndata-zarr/{self._image_name}-anndata.zarr"
+        request_init = self._get_request_init() or {}
+        adata_url = self._build_assets_url(zarr_path, use_token=False)
+        return zarr.open(adata_url, mode='r', storage_options={'client_kwargs': request_init})
+
     def _get_bitmask_image_path(self):
         return f"{self._mask_path_regex}/{self._mask_name}" + r"\.ome\.tiff?"
 
@@ -193,13 +198,18 @@ class SPRMAnnDataViewConfBuilder(SPRMViewConfBuilder):
             raise FileNotFoundError(message)
         adata_url = self._build_assets_url(zarr_path, use_token=False)
 
+        additional_cluster_names = list(self.zarr_store().uns.get("cluster_columns", []))
+
+        obs_set_names = additional_cluster_names + DEFAULT_SPRM_ANNDATA_FACTORS
+        obs_set_paths = [f"obs/{key}" for key in obs_set_names]
+
         anndata_wrapper = AnnDataWrapper(
             adata_url=adata_url,
             obs_feature_matrix_path="X",
             obs_embedding_paths=["obsm/tsne"],
             obs_embedding_names=["t-SNE"],
-            obs_set_names=SPRM_ANNDATA_FACTORS,
-            obs_set_paths=SPRM_ANNDATA_FACTOR_PATHS,
+            obs_set_names=obs_set_names,
+            obs_set_paths=obs_set_paths,
             obs_locations_path="obsm/xy",
             request_init=self._get_request_init(),
         )
