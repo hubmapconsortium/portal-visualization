@@ -143,6 +143,8 @@ def mock_zarr_store(entity_path, mocker):
         var["hugo_categories"] = zarr.array(["gene123", "gene456", "gene789"])
     if "visium" in entity_path.name:
         z["uns/spatial/visium/scalefactors/spot_diameter_micrometers"] = 200.0
+    if "SPRM" in entity_path.name:
+        z["uns/cluster_columns"] = []
     mocker.patch("zarr.open", return_value=z)
 
 

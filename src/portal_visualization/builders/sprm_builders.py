@@ -198,9 +198,9 @@ class SPRMAnnDataViewConfBuilder(SPRMViewConfBuilder):
             raise FileNotFoundError(message)
         adata_url = self._build_assets_url(zarr_path, use_token=False)
 
-        additional_cluster_names = list(self.zarr_store().uns.get("cluster_columns", []))
+        additional_cluster_names = list(self.zarr_store().get("uns/cluster_columns", []))
 
-        obs_set_names = list(set(additional_cluster_names + DEFAULT_SPRM_ANNDATA_FACTORS))
+        obs_set_names = sorted(list(set(additional_cluster_names + DEFAULT_SPRM_ANNDATA_FACTORS)))
         obs_set_paths = [f"obs/{key}" for key in obs_set_names]
 
         anndata_wrapper = AnnDataWrapper(

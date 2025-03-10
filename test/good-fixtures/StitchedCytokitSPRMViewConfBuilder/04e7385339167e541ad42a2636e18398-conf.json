@@ -15,7 +15,10 @@
           "options": {
             "obsEmbedding": [
               {
-                "dims": [0, 1],
+                "dims": [
+                  0,
+                  1
+                ],
                 "embeddingType": "t-SNE",
                 "path": "obsm/tsne"
               }
@@ -28,8 +31,8 @@
             },
             "obsSets": [
               {
-                "name": "Cell K-Means [tSNE_All_Features]",
-                "path": "obs/Cell K-Means [tSNE_All_Features]"
+                "name": "Cell K-Means [Covariance] Expression",
+                "path": "obs/Cell K-Means [Covariance] Expression"
               },
               {
                 "name": "Cell K-Means [Mean-All-SubRegions] Expression",
@@ -52,8 +55,8 @@
                 "path": "obs/Cell K-Means [Total] Expression"
               },
               {
-                "name": "Cell K-Means [Covariance] Expression",
-                "path": "obs/Cell K-Means [Covariance] Expression"
+                "name": "Cell K-Means [tSNE_All_Features]",
+                "path": "obs/Cell K-Means [tSNE_All_Features]"
               }
             ]
           },
@@ -82,7 +85,10 @@
                 "url": "https://example.com/04e7385339167e541ad42a2636e18398/ometiff-pyramids/stitched/mask/reg1_stitched_mask.ome.tif?token=groups_token"
               }
             ],
-            "renderLayers": ["reg1_stitched_expressions", "reg1_stitched_mask"],
+            "renderLayers": [
+              "reg1_stitched_expressions",
+              "reg1_stitched_mask"
+            ],
             "schemaVersion": "0.0.2",
             "usePhysicalSizeScaling": false
           }
