@@ -12,5 +12,11 @@
     "soft_assay_endpoint": "https://ingest-api.dev.hubmapconsortium.org",
     "elastic_search_api": "https://search-api.dev.hubmapconsortium.org/v3/portal/search",
     "entity_api_endpoint": "https://entity-api.dev.hubmapconsortium.org"
+  },
+
+  "sunnet":{
+    "assets_url": "https://assets.dev.sennetconsortium.org",
+    "dataset_url": "https://data.dev.sennetconsortium.org/api/json/dataset",
+    "test": "https://data.dev.sennetconsortium.org/api/json/dataset?uuid=<uuid>"
   }
 }

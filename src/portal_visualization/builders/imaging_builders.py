@@ -1,7 +1,7 @@
 from .base_builders import ViewConfBuilder
 from ..paths import (IMAGE_PYRAMID_DIR, OFFSETS_DIR, SEQFISH_HYB_CYCLE_REGEX,
                      SEQFISH_FILE_REGEX, SEGMENTATION_SUPPORT_IMAGE_SUBDIR,
-                     SEGMENTATION_SUBDIR, IMAGE_METADATA_DIR)
+                     SEGMENTATION_SUBDIR, IMAGE_METADATA_DIR, GEOMX_DIR)
 from pathlib import Path
 import re
 
@@ -262,6 +262,36 @@ class KaggleSegImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
     def get_conf_cells(self, **kwargs):
         return self.get_conf_cells_common(self._get_img_and_offset_url_seg, **kwargs)
 
+class GeoMxImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
+    """Wrapper class for creating a standard view configuration for image pyramids for kaggle-2 datasets, that show,
+    segmentation mask layered over a base image-pyramid, however, the file structure is different than
+    EPIC segmentation masks (EpicSegImagePyramidViewConfBuilder)
+    i.e for high resolution viz-lifted imaging datasets like
+    https://portal.dev.hubmapconsortium.org/browse/dataset/534a590d7336aa99c7fc7afd41e995fc
+    """
+
+    def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
+        super().__init__(entity, groups_token, assets_endpoint, **kwargs)
+        self.seg_image_pyramid_regex = IMAGE_PYRAMID_DIR
+        self.view_type = KAGGLE_IMAGE_VIEW_TYPE
+
+        # Needed to adjust to various directory structures. For older datasets, the image pyramids will be present in
+        # 'processed_microscopy' or 'processedMicroscopy' while newer datasets are listed under lab_processed.
+
+        image_dir = GEOMX_DIR
+        print("dir", image_dir)
+        file_paths_found = self._get_file_paths()
+        paths = get_found_images_all(file_paths_found)
+        print("path", paths)
+        matched_dirs = {dir for dir in base_image_dirs if any(dir in img for img in paths)}
+
+        image_dir = next(iter(matched_dirs), image_dir)
+        print("image", image_dir)
+
+        self.image_pyramid_regex = f"{IMAGE_PYRAMID_DIR}/{image_dir}"
+
+    def get_conf_cells(self, **kwargs):
+        return self.get_conf_cells_common(self._get_img_and_offset_url_seg, **kwargs)
 
 class IMSViewConfBuilder(ImagePyramidViewConfBuilder):
     """Wrapper class for generating a Vitessce configurations

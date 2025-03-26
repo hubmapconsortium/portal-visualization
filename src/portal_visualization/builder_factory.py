@@ -10,6 +10,7 @@ from .builders.imaging_builders import (
     ImagePyramidViewConfBuilder,
     EpicSegImagePyramidViewConfBuilder,
     KaggleSegImagePyramidViewConfBuilder,
+    GeoMxImagePyramidViewConfBuilder,
     NanoDESIViewConfBuilder,
 )
 from .builders.anndata_builders import (
@@ -36,6 +37,7 @@ def process_hints(hints):
     is_spatial = "spatial" in hints
     is_support = "is_support" in hints
     is_seg_mask = "segmentation_mask" in hints
+    is_geomx = "geomx" in hints
 
     return (
         is_image,
@@ -48,6 +50,7 @@ def process_hints(hints):
         is_spatial,
         is_support,
         is_seg_mask,
+        is_geomx
     )
 
 
@@ -71,6 +74,7 @@ def get_view_config_builder(entity, get_entity, parent=None, epic_uuid=None):
         is_spatial,
         is_support,
         is_seg_mask,
+        is_geomx,
     ) = process_hints(hints)
 
     # vis-lifted image pyramids
@@ -118,6 +122,8 @@ def get_view_config_builder(entity, get_entity, parent=None, epic_uuid=None):
             # e.g. CODEX [Cytokit + SPRM]
             # sample entity: 43213991a54ce196d406707ffe2e86bd
             return StitchedCytokitSPRMViewConfBuilder
+        if is_geomx:
+            return GeoMxImagePyramidViewConfBuilder
 
     if is_rna:
         # multiomic mudata, e.g. 10x Multiome, SNARE-Seq, etc.
