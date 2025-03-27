@@ -17,7 +17,7 @@ import zarr
 
 
 from .base_builders import ViewConfBuilder
-from ..utils import get_conf_cells
+from ..utils import get_conf_cells, get_spots_scaling_factor
 
 RNA_SEQ_ANNDATA_FACTOR_PATHS = [f"obs/{key}" for key in [
     "marker_gene_0",
@@ -324,30 +324,6 @@ class SpatialMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewCon
             # Since the scale factor is the diameter, we divide by 2 to get the radius
             return z['uns'][visium_scalefactor_path][()].tolist() / 2
 
-    def _get_scaling_factor(self):
-        z = self.zarr_store
-        scale_factor = 1
-        diameter= 'spatial/visium/scalefactors/spot_diameter_micrometers'
-        res= 'spatial/visium/scalefactors/spot_diameter_fullres'
-        try:
-            if diameter in z.get('uns', {}) and res in z.get('uns', {}):
-                diameter_val = z['uns'][diameter][()]
-                res_val = z['uns'][res][()]
-                diameter_val = float(diameter_val) if isinstance(diameter_val, (np.integer, np.floating)) else diameter_val
-                res_val = float(res_val) if isinstance(res_val, (np.integer, np.floating)) else res_val
-                if isinstance(diameter_val, (int, float)) and isinstance(res_val, (int, float)) and diameter_val != 0:
-                    scale_factor = round(res_val / diameter_val, 5)
-                else:
-                    print("Warning: Invalid or zero values in scalefactors. Using default scale factor.")
-
-            else:
-                print(f"Warning: Missing keys in zarr store. Expected '{diameter}' and '{res}'.")
-
-        except Exception as e:
-            print("Error occurred while computing the scale factor for spots:", e)
-
-        return scale_factor
-
     def _set_up_dataset(self, vc):
         adata_url = self._build_assets_url(
             'hubmap_ui/anndata-zarr/secondary_analysis.zarr', use_token=False)
@@ -355,7 +331,7 @@ class SpatialMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewCon
             'ometiff-pyramids/visium_histology_hires_pyramid.ome.tif', use_token=True)
         # Add dataset with Visium image and secondary analysis anndata
         dataset_uid = self._uuid
-        scale_factor = self._get_scaling_factor()
+        scale_factor = get_spots_scaling_factor(self.zarr_store)
         visium_image = ImageOmeTiffWrapper(
             img_url=image_url,
             uid=dataset_uid,
