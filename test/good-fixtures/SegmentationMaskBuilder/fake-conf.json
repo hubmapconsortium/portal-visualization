@@ -7,7 +7,10 @@
             "uid": "A",
             "name": "Visualization Files",
             "files": [
-                {
+                {   
+                    "coordinationValues": {
+                       "fileUid": "image"
+                    },
                     "fileType": "image.ome-tiff",
                     "url": "https://example.com/df7cac7cb67a822f7007b57c4d8f5e7d/extras/transformations/ometiff-pyramids/lab_processed/images/91706.ome.tif?token=groups_token",
                     "options": {

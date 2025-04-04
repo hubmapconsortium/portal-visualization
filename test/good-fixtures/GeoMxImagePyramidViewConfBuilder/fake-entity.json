@@ -1,0 +1,43 @@
+{
+    "data_types": ["Histology"],
+    "status": "QA",
+    "immediate_ancestors": [
+      {
+        "data_types": ["Histology"]
+      }
+    ],
+    "files": [
+      {
+        "rel_path": "ometiff-pyramids/GeoMx4_Niedernhofer_Project_060.segmentations.ome.tif"
+      },
+      {
+        "rel_path":  "ometiff-pyramids/lab_processed/images/GeoMx4_Niedernhofer_Project_060.ome.tif"
+      },
+      {
+        "rel_path":  "output_offsets/GeoMx4_Niedernhofer_Project_060.segmentations.offsets.json"
+      },
+      {
+        "rel_path": "output_offsets/lab_processed/images/GeoMx4_Niedernhofer_Project_060.offsets.json"
+      },
+      {
+        "rel_path": "image_metadata/GeoMx4_Niedernhofer_Project_060.segmentations.metadata.json"
+      },
+      {
+        "rel_path": "image_metadata/lab_processed/images/GeoMx4_Niedernhofer_Project_060.metadata.json"
+      },
+      {
+        "rel_path": "output_ome_segments/GeoMx4_Niedernhofer_Project_060.obsSegmentations.json"
+      },
+      {
+        "rel_path":  "output_ome_segments/GeoMx4_Niedernhofer_Project_060.roi.zarr/.zgroup"
+      },
+      {
+        "rel_path": "output_ome_segments/GeoMx4_Niedernhofer_Project_060.aoi.zarr/.zgroup"
+      }
+    ],
+    "uuid": "bc7239d27b79e087c788600261f073e5",
+    "metadata": { "dag_provenance_list": [] },
+    "soft_assaytype": "",
+    "vitessce-hints": ["geomx", "is_image"]
+  }
+  

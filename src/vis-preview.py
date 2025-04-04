@@ -14,12 +14,11 @@ from portal_visualization.builder_factory import get_view_config_builder
 from portal_visualization.epic_factory import get_epic_builder
 defaults = json.load((Path(__file__).parent / 'defaults.json').open())
 # Change to prod if needed to access those resources
-ENV = 'sunnet'
+ENV = 'dev'
 
 
 def main():  # pragma: no cover
     assets_default_url = defaults[ENV]['assets_url']
-
     parser = argparse.ArgumentParser(description='''
         Given HuBMAP Dataset JSON, generate a Vitessce viewconf, and load vitessce.io.''')
     input = parser.add_mutually_exclusive_group(required=True)
@@ -104,7 +103,7 @@ def main():  # pragma: no cover
 
     data_url = f'data:,{quote_plus(conf_as_json)}'
     vitessce_url = f'http://vitessce.io/#?url={data_url}'
-    # open_new_tab(vitessce_url)
+    open_new_tab(vitessce_url)
 
 
 def get_headers(token):  # pragma: no cover
