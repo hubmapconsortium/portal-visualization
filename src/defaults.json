@@ -14,7 +14,7 @@
     "entity_api_endpoint": "https://entity-api.dev.hubmapconsortium.org"
   },
 
-  "sunnet":{
+  "sennet":{
     "assets_url": "https://assets.dev.sennetconsortium.org",
     "dataset_url": "https://data.dev.sennetconsortium.org/api/json/dataset",
     "test": "https://data.dev.sennetconsortium.org/api/json/dataset?uuid=<uuid>"

@@ -109,7 +109,6 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
         )
 
     def _add_segmentation_image(self, dataset):
-        print("added")
         file_paths_found = self._get_file_paths()
         if self.seg_image_pyramid_regex is None:
             raise ValueError("seg_image_pyramid_regex is not set. Cannot find segmentation images.")
@@ -133,13 +132,21 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
 
         scale = get_image_scale(self.base_image_metadata, seg_meta_data)
         if dataset is not None:
-            dataset.add_object(
-                ObsSegmentationsOmeTiffWrapper(img_url=img_url, offsets_url=offsets_url,
-                                               coordination_values={"fileUid": "segmentations"},
-                                               obs_types_from_channel_names=True,
-                                               coordinate_transformations=[{"type": "scale", "scale": scale}]
-                                               )
-            )
+            if self.view_type == GEOMX_IMAGE_VIEW_TYPE:
+                dataset.add_object(
+                    ObsSegmentationsOmeTiffWrapper(img_url=img_url, offsets_url=offsets_url,
+                                                   coordination_values={"fileUid": "segmentations"},
+                                                   obs_types_from_channel_names=True,
+                                                   coordinate_transformations=[{"type": "scale", "scale": scale}]
+                                                   )
+                )
+            else:
+                dataset.add_object(
+                    ObsSegmentationsOmeTiffWrapper(img_url=img_url, offsets_url=offsets_url,
+                                                   obs_types_from_channel_names=True,
+                                                   coordinate_transformations=[{"type": "scale", "scale": scale}]
+                                                   )
+                )
 
     def _add_aoi_rois(self, dataset):
         segment_file_url = self._build_assets_url(self.segment_files_regex)
@@ -180,6 +187,7 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
             )
         if view_type == GEOMX_IMAGE_VIEW_TYPE:
             self._add_views(vc, dataset)
+
         elif "seg" in view_type:
             spatial_view = vc.add_view("spatialBeta", dataset=dataset, x=4, y=0, w=8, h=12).set_props(
                 useFullResolutionImage=use_full_resolution
@@ -194,6 +202,7 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
                 vc.link_views_by_dict([spatial_view, lc_view], {
                     'imageLayer': CL([{'photometricInterpretation': 'RGB', }]),
                 }, meta=True, scope_prefix=get_initial_coordination_scope_prefix("A", "image"))
+
         return vc
 
     def _add_views(self, vc, dataset):
@@ -269,10 +278,15 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
             img_url, offsets_url, metadata_url = get_img_and_offset_url_func(found_images[0], self.image_pyramid_regex)
             meta_data = get_image_metadata(self, metadata_url)
             self.base_image_metadata = meta_data
-            dataset = dataset.add_object(
-                ImageOmeTiffWrapper(img_url=img_url, offsets_url=offsets_url, name=Path(found_images[0]).name,
-                                    coordination_values={"fileUid": "image"})
-            )
+            if self.view_type == GEOMX_IMAGE_VIEW_TYPE:
+                dataset = dataset.add_object(
+                    ImageOmeTiffWrapper(img_url=img_url, offsets_url=offsets_url, name=Path(found_images[0]).name,
+                                        coordination_values={"fileUid": "image"})
+                )
+            else:
+                dataset = dataset.add_object(
+                    ImageOmeTiffWrapper(img_url=img_url, offsets_url=offsets_url, name=Path(found_images[0]).name,)
+                )
             if self.view_type in [KAGGLE_IMAGE_VIEW_TYPE, GEOMX_IMAGE_VIEW_TYPE]:
                 self._add_segmentation_image(dataset)
 

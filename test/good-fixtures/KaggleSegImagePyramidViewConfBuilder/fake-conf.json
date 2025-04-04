@@ -8,9 +8,6 @@
       "name": "Visualization Files",
       "files": [
         {
-          "coordinationValues": {
-            "fileUid": "image"
-         },
           "fileType": "image.ome-tiff",
           "url": "https://example.com/23a25976beb8c02ab589b13a05b28c55/ometiff-pyramids/lab_processed/images/B001_SB-reg005.ome.tif?token=groups_token",
           "options": {
@@ -18,9 +15,6 @@
           }
         },
         {
-          "coordinationValues": {
-            "fileUid": "segmentations"
-          },
           "fileType": "obsSegmentations.ome-tiff",
           "url": "https://example.com/23a25976beb8c02ab589b13a05b28c55/ometiff-pyramids/B001_SB-reg005.segmentations.ome.tif?token=groups_token",
           "options": {
