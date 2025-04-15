@@ -15,7 +15,8 @@ from vitessce import (
     ImageOmeTiffWrapper,
     Component as cm,
     AnnDataWrapper,
-    JsonWrapper
+    JsonWrapper,
+    DataType as dt
 )
 
 from ..utils import get_matches, group_by_file_name, get_conf_cells, get_found_images, \
@@ -150,7 +151,7 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
 
     def _add_aoi_rois(self, dataset):
         segment_file_url = self._build_assets_url(self.segment_files_regex)
-        areaZarr = AnnDataWrapper(
+        area_zarr = AnnDataWrapper(
             adata_url=f'{segment_file_url}/aoi.zarr',
             obs_set_paths=['obs/roi_id'],
             obs_set_names=['ROI'],
@@ -159,17 +160,17 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
             },
         )
 
-        regionZarr = AnnDataWrapper(
+        region_zarr = AnnDataWrapper(
             adata_url=f'{segment_file_url}/roi.zarr',
             coordination_values={
                 "obsType": "region"
             },
         )
-        dataset.add_object(regionZarr)
-        dataset.add_object(areaZarr)
+        dataset.add_object(region_zarr)
+        dataset.add_object(area_zarr)
         dataset.add_object(JsonWrapper(
             json_url=f"{segment_file_url}/obsSegmentations.json",
-            data_type="obsSegmentations",
+            data_type=dt.OBS_SEGMENTATIONS,
             coordination_values={
                 "obsType": "region",
                 "fileUid": "region_json_segmentations"
@@ -303,7 +304,6 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
             )
 
         if self.view_type == GEOMX_IMAGE_VIEW_TYPE:
-            # self._add_segmentation_image(dataset)
             self._add_aoi_rois(dataset)
         conf = self._setup_view_config(
             vc,

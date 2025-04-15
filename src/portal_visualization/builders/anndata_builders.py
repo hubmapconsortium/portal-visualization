@@ -17,7 +17,8 @@ import zarr
 
 
 from .base_builders import ViewConfBuilder
-from ..utils import get_conf_cells, get_spots_scaling_factor
+from ..utils import get_conf_cells
+# , get_spots_scaling_factor - uncomment when scaling factor is sorted out
 
 RNA_SEQ_ANNDATA_FACTOR_PATHS = [f"obs/{key}" for key in [
     "marker_gene_0",
@@ -331,12 +332,13 @@ class SpatialMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewCon
             'ometiff-pyramids/visium_histology_hires_pyramid.ome.tif', use_token=True)
         # Add dataset with Visium image and secondary analysis anndata
         dataset_uid = self._uuid
-        scale_factor = get_spots_scaling_factor(self.zarr_store)
+        # TODO: The scaling for visium datasets is pending further investigation
+        # scale_factor = get_spots_scaling_factor(self.zarr_store)
         visium_image = ImageOmeTiffWrapper(
             img_url=image_url,
             uid=dataset_uid,
             request_init=self._get_request_init(),
-            coordinate_transformations=[{"type": "scale", "scale": [scale_factor, scale_factor, 1, 1, 1]}]
+            # coordinate_transformations=[{"type": "scale", "scale": [scale_factor, scale_factor, 1, 1, 1]}]
         )
         visium_spots = AnnDataWrapper(
             adata_url=adata_url,

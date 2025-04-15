@@ -68,21 +68,7 @@
       "files": [
         {
           "fileType": "image.ome-tiff",
-          "url": "https://example.com/72ec02cf1390428c1e9dc2c88928f5f5/ometiff-pyramids/visium_histology_hires_pyramid.ome.tif?token=groups_token",
-          "options": {
-            "coordinateTransformations": [
-              {
-                "type": "scale",
-                "scale": [
-                  1,
-                  1,
-                  1,
-                  1,
-                  1
-                ]
-              }
-            ]
-          }
+          "url": "https://example.com/72ec02cf1390428c1e9dc2c88928f5f5/ometiff-pyramids/visium_histology_hires_pyramid.ome.tif?token=groups_token"
         },
         {
           "coordinationValues": {
