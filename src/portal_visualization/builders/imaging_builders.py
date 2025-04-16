@@ -1,7 +1,7 @@
 from .base_builders import ViewConfBuilder
 from ..paths import (IMAGE_PYRAMID_DIR, OFFSETS_DIR, SEQFISH_HYB_CYCLE_REGEX,
                      SEQFISH_FILE_REGEX, SEGMENTATION_SUPPORT_IMAGE_SUBDIR,
-                     SEGMENTATION_SUBDIR, IMAGE_METADATA_DIR)
+                     SEGMENTATION_SUBDIR, IMAGE_METADATA_DIR, GEOMX_DIR)
 from pathlib import Path
 import re
 
@@ -14,6 +14,9 @@ from vitessce import (
     ObsSegmentationsOmeTiffWrapper,
     ImageOmeTiffWrapper,
     Component as cm,
+    AnnDataWrapper,
+    JsonWrapper,
+    DataType as dt
 )
 
 from ..utils import get_matches, group_by_file_name, get_conf_cells, get_found_images, \
@@ -24,6 +27,7 @@ from ..constants import base_image_dirs
 BASE_IMAGE_VIEW_TYPE = 'image'
 SEG_IMAGE_VIEW_TYPE = 'seg'
 KAGGLE_IMAGE_VIEW_TYPE = 'kaggle-seg'
+GEOMX_IMAGE_VIEW_TYPE = 'geomx-seg'
 
 
 class AbstractImagingViewConfBuilder(ViewConfBuilder):
@@ -129,12 +133,49 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
 
         scale = get_image_scale(self.base_image_metadata, seg_meta_data)
         if dataset is not None:
-            dataset.add_object(
-                ObsSegmentationsOmeTiffWrapper(img_url=img_url, offsets_url=offsets_url,
-                                               obs_types_from_channel_names=True,
-                                               coordinate_transformations=[{"type": "scale", "scale": scale}]
-                                               )
-            )
+            if self.view_type == GEOMX_IMAGE_VIEW_TYPE:
+                dataset.add_object(
+                    ObsSegmentationsOmeTiffWrapper(img_url=img_url, offsets_url=offsets_url,
+                                                   coordination_values={"fileUid": "segmentations"},
+                                                   obs_types_from_channel_names=True,
+                                                   coordinate_transformations=[{"type": "scale", "scale": scale}]
+                                                   )
+                )
+            else:
+                dataset.add_object(
+                    ObsSegmentationsOmeTiffWrapper(img_url=img_url, offsets_url=offsets_url,
+                                                   obs_types_from_channel_names=True,
+                                                   coordinate_transformations=[{"type": "scale", "scale": scale}]
+                                                   )
+                )
+
+    def _add_aoi_rois(self, dataset):
+        segment_file_url = self._build_assets_url(self.segment_files_regex)
+        area_zarr = AnnDataWrapper(
+            adata_url=f'{segment_file_url}/aoi.zarr',
+            obs_set_paths=['obs/roi_id'],
+            obs_set_names=['ROI'],
+            coordination_values={
+                "obsType": "area"
+            },
+        )
+
+        region_zarr = AnnDataWrapper(
+            adata_url=f'{segment_file_url}/roi.zarr',
+            coordination_values={
+                "obsType": "region"
+            },
+        )
+        dataset.add_object(region_zarr)
+        dataset.add_object(area_zarr)
+        dataset.add_object(JsonWrapper(
+            json_url=f"{segment_file_url}/obsSegmentations.json",
+            data_type=dt.OBS_SEGMENTATIONS,
+            coordination_values={
+                "obsType": "region",
+                "fileUid": "region_json_segmentations"
+            }
+        ))
 
     def _setup_view_config(self, vc, dataset, view_type, disable_3d=[], use_full_resolution=[]):
         if view_type == BASE_IMAGE_VIEW_TYPE:
@@ -145,6 +186,9 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
             vc.add_view(cm.LAYER_CONTROLLER, dataset=dataset, x=0, y=0, w=3, h=8).set_props(
                 disable3d=disable_3d, disableChannelsIfRgbDetected=True
             )
+        if view_type == GEOMX_IMAGE_VIEW_TYPE:
+            self._add_views(vc, dataset)
+
         elif "seg" in view_type:
             spatial_view = vc.add_view("spatialBeta", dataset=dataset, x=4, y=0, w=8, h=12).set_props(
                 useFullResolutionImage=use_full_resolution
@@ -162,6 +206,64 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
 
         return vc
 
+    def _add_views(self, vc, dataset):
+        spatial_view = vc.add_view("spatialBeta", dataset=dataset, w=8, h=12)
+        lc_view = vc.add_view("layerControllerBeta", dataset=dataset, w=4, h=12, x=8, y=0)
+
+        vc.link_views_by_dict([spatial_view, lc_view], {
+            "spatialTargetZ": 0,
+            "spatialTargetT": 0,
+            "imageLayer": CL([
+                {
+                    "fileUid": 'image',
+                    "photometricInterpretation": 'BlackIsZero',
+                }
+            ])
+        }, meta=True, scope_prefix=get_initial_coordination_scope_prefix("A", "image"))
+        vc.link_views_by_dict([spatial_view, lc_view], {
+            "segmentationLayer": CL([
+                {
+                    "fileUid": "segmentations",
+                    "spatialLayerOpacity": 1.0,
+                    "spatialLayerVisible": True,
+                    "segmentationChannel": CL([
+                        {
+                            "spatialTargetC": 0,
+                            "obsType": "Full ROI",
+                            "spatialChannelColor": [155, 165, 31],
+                            "spatialChannelOpacity": 0.8,
+                            "obsHighlight": None,
+                            "spatialChannelVisible": True,
+                            "obsColorEncoding": 'spatialChannelColor',
+                            "spatialSegmentationFilled": True,
+                            "spatialSegmentationStrokeWidth": 0.01,
+                        },
+
+                    ])
+                },
+                {
+                    "fileUid": "region_json_segmentations",
+                    "spatialLayerOpacity": 1.0,
+                    "spatialLayerVisible": True,
+                    "segmentationChannel": CL([
+                        {
+                            "spatialTargetC": 0,
+                            "obsType": "region",
+                            "spatialChannelColor": [255, 255, 255],
+                            "spatialChannelOpacity": 0.8,
+                            "obsHighlight": None,
+                            "spatialChannelVisible": True,
+                            "obsColorEncoding": 'spatialChannelColor',
+                            "spatialSegmentationFilled": False,
+                            "spatialSegmentationStrokeWidth": 5,
+                        },
+                    ])
+                }
+            ]),
+
+        }, meta=True, scope_prefix=get_initial_coordination_scope_prefix("A", "obsSegmentations")
+        )
+
     def get_conf_cells_common(self, get_img_and_offset_url_func, **kwargs):
         file_paths_found = self._get_file_paths()
         found_images = get_found_images(self.image_pyramid_regex, file_paths_found)
@@ -177,16 +279,22 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
             img_url, offsets_url, metadata_url = get_img_and_offset_url_func(found_images[0], self.image_pyramid_regex)
             meta_data = get_image_metadata(self, metadata_url)
             self.base_image_metadata = meta_data
-            dataset = dataset.add_object(
-                ImageOmeTiffWrapper(img_url=img_url, offsets_url=offsets_url, name=Path(found_images[0]).name)
-            )
-            if self.view_type == KAGGLE_IMAGE_VIEW_TYPE:
+            if self.view_type == GEOMX_IMAGE_VIEW_TYPE:
+                dataset = dataset.add_object(
+                    ImageOmeTiffWrapper(img_url=img_url, offsets_url=offsets_url, name=Path(found_images[0]).name,
+                                        coordination_values={"fileUid": "image"})
+                )
+            else:
+                dataset = dataset.add_object(
+                    ImageOmeTiffWrapper(img_url=img_url, offsets_url=offsets_url, name=Path(found_images[0]).name,)
+                )
+            if self.view_type in [KAGGLE_IMAGE_VIEW_TYPE, GEOMX_IMAGE_VIEW_TYPE]:
                 self._add_segmentation_image(dataset)
 
         else:
             images = [
                 OmeTiffWrapper(
-                    img_url=img_url, offsets_url=offsets_url, name=Path(img_path).name
+                    img_url=img_url, offsets_url=offsets_url, name=Path(img_path).name,
                 )
                 for img_path in found_images
                 for img_url, offsets_url, _ in [get_img_and_offset_url_func(img_path, self.image_pyramid_regex)]
@@ -194,6 +302,9 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
             dataset.add_object(
                 MultiImageWrapper(images, use_physical_size_scaling=self.use_physical_size_scaling)
             )
+
+        if self.view_type == GEOMX_IMAGE_VIEW_TYPE:
+            self._add_aoi_rois(dataset)
         conf = self._setup_view_config(
             vc,
             dataset,
@@ -258,6 +369,32 @@ class KaggleSegImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
         image_dir = next(iter(matched_dirs), image_dir)
 
         self.image_pyramid_regex = f"{IMAGE_PYRAMID_DIR}/{image_dir}"
+
+    def get_conf_cells(self, **kwargs):
+        return self.get_conf_cells_common(self._get_img_and_offset_url_seg, **kwargs)
+
+
+class GeoMxImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
+    """Wrapper class for creating a view configuration for image pyramids for GeoMx datasets, that show,
+    segmentation mask layered over a base image-pyramid with AOIs and ROIs highlighted.
+    i.e for high resolution viz-lifted imaging datasets like
+    TODO: add example https://portal.dev.hubmapconsortium.org/browse/dataset/
+    """
+
+    def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
+        super().__init__(entity, groups_token, assets_endpoint, **kwargs)
+        self.seg_image_pyramid_regex = IMAGE_PYRAMID_DIR
+        self.view_type = GEOMX_IMAGE_VIEW_TYPE
+        self.segment_files_regex = GEOMX_DIR
+        # file_paths_found = self._get_file_paths()
+        # paths = get_found_images_all(file_paths_found)
+        # print("path", paths)
+        # matched_dirs = {dir for dir in base_image_dirs if any(dir in img for img in paths)}
+
+        # image_dir = next(iter(matched_dirs), image_dir)
+        # print("image", image_dir)
+
+        self.image_pyramid_regex = f"{IMAGE_PYRAMID_DIR}/{SEGMENTATION_SUPPORT_IMAGE_SUBDIR}"
 
     def get_conf_cells(self, **kwargs):
         return self.get_conf_cells_common(self._get_img_and_offset_url_seg, **kwargs)
