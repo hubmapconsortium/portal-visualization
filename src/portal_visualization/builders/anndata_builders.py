@@ -1,5 +1,5 @@
 from functools import cached_property
-
+import fsspec
 from vitessce import (
     VitessceConfig,
     AnnDataWrapper,
@@ -30,6 +30,13 @@ RNA_SEQ_ANNDATA_FACTOR_PATHS = [f"obs/{key}" for key in [
 
 RNA_SEQ_FACTOR_LABEL_NAMES = [f'Marker Gene {i}' for i in range(len(RNA_SEQ_ANNDATA_FACTOR_PATHS))]
 
+ZARR_PATH = 'hubmap_ui/anndata-zarr/secondary_analysis.zarr'
+ZIP_ZARR_PATH = f'{ZARR_PATH}.zip'
+
+
+def is_zip_zarr(file_path):
+    return '.zarr.zip' in file_path
+
 
 class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
     """Wrapper class for creating a AnnData-backed view configuration
@@ -42,6 +49,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         # Spatially resolved RNA-seq assays require some special handling,
         # and others do not.
         self._is_spatial = False
+        self.is_annotated = None  # added this as was getting error when there was none
         self._scatterplot_w = 6 if self.is_annotated else 9
         self._spatial_w = 0
         self._obs_set_paths = None
@@ -51,13 +59,27 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         self._marker = None
         self._gene_alias = None
         self._views = None
+        self._is_zip_zarr = False
 
     @cached_property
     def zarr_store(self):
-        zarr_path = 'hubmap_ui/anndata-zarr/secondary_analysis.zarr'
         request_init = self._get_request_init() or {}
-        adata_url = self._build_assets_url(zarr_path, use_token=False)
-        return zarr.open(adata_url, mode='r', storage_options={'client_kwargs': request_init})
+        zarr_path = ZIP_ZARR_PATH if self._is_zip_zarr else ZARR_PATH
+
+        if self._is_zip_zarr:
+            # Use fsspec to open a remote zip as a virtual file system
+            zarr_url = self._build_assets_url(zarr_path, use_token=True)
+            fs = fsspec.filesystem(
+                "zip",
+                fo=zarr_url,
+                remote_protocol="https",
+                remote_options={"client_kwargs": request_init}
+            )
+            store = fs.get_mapper("")  # Root of the .zarr in the zip
+            return zarr.open(store, mode="r")
+        else:
+            zarr_url = self._build_assets_url(zarr_path, use_token=False)
+            return zarr.open(zarr_url, mode='r', storage_options={'client_kwargs': request_init})
 
     @cached_property
     def is_annotated(self):
@@ -74,11 +96,12 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
             return True
 
     def get_conf_cells(self, marker=None):
-        zarr_path = 'hubmap_ui/anndata-zarr/secondary_analysis.zarr'
         file_paths_found = [file["rel_path"] for file in self._entity["files"]]
         # Use .zgroup file as proxy for whether or not the zarr store is present.
-        if f'{zarr_path}/.zgroup' not in file_paths_found:
-            message = f'RNA-seq assay with uuid {self._uuid} has no .zarr store at {zarr_path}'
+        if f'{ZARR_PATH}.zip' in file_paths_found:
+            self._is_zip_zarr = True
+        elif f'{ZARR_PATH}/.zgroup' not in file_paths_found:
+            message = f'RNA-seq assay with uuid {self._uuid} has no .zarr store at {ZARR_PATH}'
             raise FileNotFoundError(message)
         self._set_up_marker_gene(marker)
         self._set_up_obs_labels()
@@ -137,8 +160,9 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         self._gene_alias = gene_alias
 
     def _set_up_dataset(self, vc):
+        zarr_path = ZIP_ZARR_PATH if self._is_zip_zarr else ZARR_PATH
         adata_url = self._build_assets_url(
-            'hubmap_ui/anndata-zarr/secondary_analysis.zarr', use_token=False)
+            zarr_path, use_token=False)
         z = self.zarr_store
         dataset = vc.add_dataset(name=self._uuid).add_object(AnnDataWrapper(
             adata_url=adata_url,
@@ -327,7 +351,7 @@ class SpatialMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewCon
 
     def _set_up_dataset(self, vc):
         adata_url = self._build_assets_url(
-            'hubmap_ui/anndata-zarr/secondary_analysis.zarr', use_token=False)
+            ZARR_PATH, use_token=False)
         image_url = self._build_assets_url(
             'ometiff-pyramids/visium_histology_hires_pyramid.ome.tif', use_token=True)
         # Add dataset with Visium image and secondary analysis anndata
@@ -434,7 +458,7 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
 
     @cached_property
     def zarr_store(self):
-        zarr_path = 'hubmap_ui/mudata-zarr/secondary_analysis.zarr'
+        zarr_path = ZARR_PATH if not self.is_zip_zarr else f'{ZARR_PATH}.zarr'
         request_init = self._get_request_init() or {}
         adata_url = self._build_assets_url(zarr_path, use_token=False)
         return zarr.open(adata_url, mode='r', storage_options={'client_kwargs': request_init})
