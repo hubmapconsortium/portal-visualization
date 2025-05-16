@@ -1,0 +1,715 @@
+{
+  "anatomy_0": [
+    "body"
+  ],
+  "anatomy_1": [
+    "respiratory system"
+  ],
+  "anatomy_2": [
+    "right lung"
+  ],
+  "ancestor_counts": {
+    "entity_type": {
+      "Dataset": 1,
+      "Donor": 1,
+      "Sample": 3
+    }
+  },
+  "ancestor_ids": [
+    "68e6dfa4807ca615883f73a5067115cb",
+    "c1b4529ef342cc35aca0ddf247c9a6cc",
+    "bb2f22ab105c49476def20e47e9c1206",
+    "0e1c2d399477b244ac006eb58918ec0c",
+    "4397fcd072ac96299992b47da1dbae64"
+  ],
+  "ancestors": [
+    {
+      "entity_type": "Dataset",
+      "uuid": "68e6dfa4807ca615883f73a5067115cb"
+    },
+    {
+      "entity_type": "Sample",
+      "uuid": "c1b4529ef342cc35aca0ddf247c9a6cc"
+    },
+    {
+      "entity_type": "Sample",
+      "uuid": "bb2f22ab105c49476def20e47e9c1206"
+    },
+    {
+      "entity_type": "Sample",
+      "uuid": "0e1c2d399477b244ac006eb58918ec0c"
+    },
+    {
+      "entity_type": "Donor",
+      "uuid": "4397fcd072ac96299992b47da1dbae64"
+    }
+  ],
+  "assay_display_name": [
+    "snRNAseq [Salmon]"
+  ],
+  "assay_modality": "single",
+  "contains_human_genetic_sequences": false,
+  "created_by_user_displayname": "HuBMAP Process",
+  "created_by_user_email": "hubmap@hubmapconsortium.org",
+  "created_timestamp": 1747264869901,
+  "creation_action": "Central Process",
+  "data_access_level": "consortium",
+  "dataset_info": "salmon_rnaseq_10x_sn__68e6dfa4807ca615883f73a5067115cb__salmon-rnaseq",
+  "dataset_type": "RNAseq [Salmon]",
+  "descendant_counts": {
+
+  },
+  "descendant_ids": [],
+  "descendants": [],
+  "display_subtype": "RNAseq [Salmon]",
+  "donor": {
+    "created_by_user_displayname": "Gloria Pryhuber",
+    "created_by_user_email": "gloria_pryhuber@urmc.rochester.edu",
+    "created_timestamp": 1597681398391,
+    "data_access_level": "public",
+    "description": "37 yr old black male with intracranial hemorrhage and hypertension",
+    "entity_type": "Donor",
+    "group_name": "University of California San Diego TMC",
+    "group_uuid": "03b3d854-ed44-11e8-8bce-0e368f3075e8",
+    "hubmap_id": "HBM943.SCQQ.877",
+    "lab_donor_id": "D239",
+    "label": "D239",
+    "last_modified_timestamp": 1597688929120,
+    "mapped_data_access_level": "Public",
+    "mapped_last_modified_timestamp": "2020-08-17 18:28:49",
+    "mapped_metadata": {
+      "age_unit": [
+        "years"
+      ],
+      "age_value": [37],
+      "cause_of_death": [
+        "Cerebrovascular accident"
+      ],
+      "death_event": [
+        "Natural causes"
+      ],
+      "height_unit": [
+        "cm"
+      ],
+      "height_value": [182.88],
+      "mechanism_of_injury": [
+        "Intracranial hemorrhage"
+      ],
+      "medical_history": [
+        "Hypertension"
+      ],
+      "race": [
+        "Black or African American"
+      ],
+      "sex": [
+        "Male"
+      ],
+      "weight_unit": [
+        "kg"
+      ],
+      "weight_value": [150.9]
+    },
+    "metadata": {
+      "organ_donor_data": [
+        {
+          "code": "424144002",
+          "concept_id": "C0001779",
+          "data_type": "Numeric",
+          "data_value": "37",
+          "end_datetime": "",
+          "graph_version": "UMLS2022AA",
+          "grouping_code": "424144002",
+          "grouping_concept": "C0001779",
+          "grouping_concept_preferred_term": "Age",
+          "grouping_sab": "SNOMEDCT_US",
+          "numeric_operator": "EQ",
+          "preferred_term": "Age",
+          "sab": "SNOMEDCT_US",
+          "start_datetime": "",
+          "units": "years"
+        },
+        {
+          "code": "413464008",
+          "concept_id": "C0027567",
+          "data_type": "Nominal",
+          "data_value": "Race",
+          "end_datetime": "",
+          "graph_version": "UMLS2022AA",
+          "grouping_code": "415229000",
+          "grouping_concept": "C0034510",
+          "grouping_concept_preferred_term": "Race",
+          "grouping_sab": "SNOMEDCT_US",
+          "numeric_operator": "",
+          "preferred_term": "Black or African American",
+          "sab": "SNOMEDCT_US",
+          "start_datetime": "",
+          "units": ""
+        },
+        {
+          "code": "10052007",
+          "concept_id": "C0086582",
+          "data_type": "Nominal",
+          "data_value": "Sex",
+          "end_datetime": "",
+          "graph_version": "UMLS2022AA",
+          "grouping_code": "57312000",
+          "grouping_concept": "C1522384",
+          "grouping_concept_preferred_term": "Sex",
+          "grouping_sab": "SNOMEDCT_US",
+          "numeric_operator": "",
+          "preferred_term": "Male",
+          "sab": "SNOMEDCT_US",
+          "start_datetime": "",
+          "units": ""
+        },
+        {
+          "code": "27113001",
+          "concept_id": "C0005910",
+          "data_type": "Numeric",
+          "data_value": "150.9",
+          "end_datetime": "",
+          "graph_version": "UMLS2022AA",
+          "grouping_code": "27113001",
+          "grouping_concept": "C0005910",
+          "grouping_concept_preferred_term": "Weight",
+          "grouping_sab": "SNOMEDCT_US",
+          "numeric_operator": "EQ",
+          "preferred_term": "Weight",
+          "sab": "SNOMEDCT_US",
+          "start_datetime": "",
+          "units": "kg"
+        },
+        {
+          "code": "50373000",
+          "concept_id": "C0005890",
+          "data_type": "Numeric",
+          "data_value": "182.88",
+          "end_datetime": "",
+          "graph_version": "UMLS2022AA",
+          "grouping_code": "50373000",
+          "grouping_concept": "C0005890",
+          "grouping_concept_preferred_term": "Height",
+          "grouping_sab": "SNOMEDCT_US",
+          "numeric_operator": "EQ",
+          "preferred_term": "Height",
+          "sab": "SNOMEDCT_US",
+          "start_datetime": "",
+          "units": "cm"
+        },
+        {
+          "code": "230690007",
+          "concept_id": "C0038454",
+          "data_type": "Nominal",
+          "data_value": "Cerebrovascular accident",
+          "end_datetime": "",
+          "graph_version": "UMLS2022AA",
+          "grouping_code": "184305005",
+          "grouping_concept": "C0007465",
+          "grouping_concept_preferred_term": "Cause of Death",
+          "grouping_sab": "SNOMEDCT_US",
+          "numeric_operator": "",
+          "preferred_term": "Cerebrovascular accident",
+          "sab": "SNOMEDCT_US",
+          "start_datetime": "",
+          "units": ""
+        },
+        {
+          "code": "1386000",
+          "concept_id": "C0151699",
+          "data_type": "Nominal",
+          "data_value": "Intracranial hemorrhage",
+          "end_datetime": "",
+          "graph_version": "UMLS2022AA",
+          "grouping_code": "246078001",
+          "grouping_concept": "C0449413",
+          "grouping_concept_preferred_term": "Mechanism of Injury",
+          "grouping_sab": "SNOMEDCT_US",
+          "numeric_operator": "",
+          "preferred_term": "Intracranial hemorrhage",
+          "sab": "SNOMEDCT_US",
+          "start_datetime": "",
+          "units": ""
+        },
+        {
+          "code": "38605008",
+          "concept_id": "C0277610",
+          "data_type": "Nominal",
+          "data_value": "Natural causes",
+          "end_datetime": "",
+          "graph_version": "UMLS2022AA",
+          "grouping_code": "419620001",
+          "grouping_concept": "C0011065",
+          "grouping_concept_preferred_term": "Death Event",
+          "grouping_sab": "SNOMEDCT_US",
+          "numeric_operator": "",
+          "preferred_term": "Natural causes",
+          "sab": "SNOMEDCT_US",
+          "start_datetime": "",
+          "units": ""
+        },
+        {
+          "code": "38341003",
+          "concept_id": "C0020538",
+          "data_type": "Nominal",
+          "data_value": "Hypertension",
+          "end_datetime": "",
+          "graph_version": "UMLS2022AA",
+          "grouping_code": "392521001",
+          "grouping_concept": "C0262926",
+          "grouping_concept_preferred_term": "Medical History",
+          "grouping_sab": "SNOMEDCT_US",
+          "numeric_operator": "",
+          "preferred_term": "Hypertension",
+          "sab": "SNOMEDCT_US",
+          "start_datetime": "",
+          "units": ""
+        }
+      ]
+    },
+    "portal_metadata_upload_files": [
+      {
+        "description": "",
+        "filepath": "/hive/hubmap/data/uploads/03b3d854-ed44-11e8-8bce-0e368f3075e8/4397fcd072ac96299992b47da1dbae64/HuBMAPMetadata_D239_BRINDL2020-08-17_14-25-08.xlsx"
+      }
+    ],
+    "protocol_url": "dx.doi.org/10.17504/protocols.io.bjuxknxn",
+    "submission_id": "UCSD0015",
+    "uuid": "4397fcd072ac96299992b47da1dbae64"
+  },
+  "entity_type": "Dataset",
+  "files": [
+    {
+      "description": "Disperson plot of gene expression",
+      "edam_term": "EDAM_1.24.format_3508",
+      "is_data_product": false,
+      "is_qa_qc": false,
+      "mapped_description": "Disperson plot of gene expression (PDF file)",
+      "rel_path": "dispersion_plot.pdf",
+      "size": 947375,
+      "type": "pdf"
+    },
+    {
+      "description": "Raw gene expression, in HDF5 format, readable with the 'anndata' Python package, intronic counts as AnnData layer",
+      "edam_term": "EDAM_1.24.format_3590",
+      "is_data_product": true,
+      "is_qa_qc": false,
+      "mapped_description": "Raw gene expression, in HDF5 format, readable with the 'anndata' Python package, intronic counts as AnnData layer (H5AD file)",
+      "rel_path": "expr.h5ad",
+      "size": 279766856,
+      "type": "h5ad"
+    },
+    {
+      "description": "FastQC report of input FASTQ file",
+      "edam_term": "EDAM_1.24.format_2331",
+      "is_data_product": false,
+      "is_qa_qc": true,
+      "mapped_description": "FastQC report of input FASTQ file (HTML file)",
+      "rel_path": "fastqc_output/LAPMAP_20200317L_10X-R_L003_R1_001_fastqc.html",
+      "size": 657617,
+      "type": "unknown"
+    },
+    {
+      "description": "FastQC report of input FASTQ file",
+      "edam_term": "EDAM_1.24.format_2331",
+      "is_data_product": false,
+      "is_qa_qc": true,
+      "mapped_description": "FastQC report of input FASTQ file (HTML file)",
+      "rel_path": "fastqc_output/LAPMAP_20200317L_10X-R_L003_R2_001_fastqc.html",
+      "size": 627691,
+      "type": "unknown"
+    },
+    {
+      "description": "FastQC report of input FASTQ file",
+      "edam_term": "EDAM_1.24.format_2331",
+      "is_data_product": false,
+      "is_qa_qc": true,
+      "mapped_description": "FastQC report of input FASTQ file (HTML file)",
+      "rel_path": "fastqc_output/LAPMAP_20200317L_10X-R_L004_R1_001_fastqc.html",
+      "size": 658921,
+      "type": "unknown"
+    },
+    {
+      "description": "FastQC report of input FASTQ file",
+      "edam_term": "EDAM_1.24.format_2331",
+      "is_data_product": false,
+      "is_qa_qc": true,
+      "mapped_description": "FastQC report of input FASTQ file (HTML file)",
+      "rel_path": "fastqc_output/LAPMAP_20200317L_10X-R_L004_R2_001_fastqc.html",
+      "size": 630300,
+      "type": "unknown"
+    },
+    {
+      "description": "Genome build information in JSON format",
+      "edam_term": "EDAM_1.24.format_3464",
+      "is_data_product": false,
+      "is_qa_qc": false,
+      "mapped_description": "Genome build information in JSON format (JSON file)",
+      "rel_path": "genome_build.json",
+      "size": 106,
+      "type": "json"
+    },
+    {
+      "description": "Normalized gene expression with additional metadata, in HDF5 format, readable with the 'anndata' Python package",
+      "edam_term": "EDAM_1.24.format_3590",
+      "is_data_product": false,
+      "is_qa_qc": false,
+      "mapped_description": "Normalized gene expression with additional metadata, in HDF5 format, readable with the 'anndata' Python package (ZIP file)",
+      "rel_path": "hubmap_ui/anndata-zarr/secondary_analysis.zarr.zip",
+      "size": 773629095,
+      "type": "unknown"
+    },
+    {
+      "description": "Normalized gene expression with additional metadata, in HDF5 format, readable with the 'anndata' Python package",
+      "edam_term": "EDAM_1.24.format_3590",
+      "is_data_product": false,
+      "is_qa_qc": false,
+      "mapped_description": "Normalized gene expression with additional metadata, in HDF5 format, readable with the 'anndata' Python package (ARROW file)",
+      "rel_path": "hubmap_ui/output/secondary_analysis.arrow",
+      "size": 296274,
+      "type": "arrow"
+    },
+    {
+      "description": "Normalized gene expression with additional metadata, in HDF5 format, readable with the 'anndata' Python package",
+      "edam_term": "EDAM_1.24.format_3590",
+      "is_data_product": false,
+      "is_qa_qc": false,
+      "mapped_description": "Normalized gene expression with additional metadata, in HDF5 format, readable with the 'anndata' Python package (JSON file)",
+      "rel_path": "hubmap_ui/output/secondary_analysis.cell-sets.json",
+      "size": 208381,
+      "type": "json"
+    },
+    {
+      "description": "Normalized gene expression with additional metadata, in HDF5 format, readable with the 'anndata' Python package",
+      "edam_term": "EDAM_1.24.format_3590",
+      "is_data_product": false,
+      "is_qa_qc": false,
+      "mapped_description": "Normalized gene expression with additional metadata, in HDF5 format, readable with the 'anndata' Python package (JSON file)",
+      "rel_path": "hubmap_ui/output/secondary_analysis.cells.json",
+      "size": 972896,
+      "type": "json"
+    },
+    {
+      "description": "Normalized gene expression with additional metadata, in HDF5 format, readable with the 'anndata' Python package",
+      "edam_term": "EDAM_1.24.format_3590",
+      "is_data_product": false,
+      "is_qa_qc": false,
+      "mapped_description": "Normalized gene expression with additional metadata, in HDF5 format, readable with the 'anndata' Python package (CSV file)",
+      "rel_path": "hubmap_ui/output/secondary_analysis.csv",
+      "size": 448945,
+      "type": "csv"
+    },
+    {
+      "description": "Normalized gene expression with additional metadata, in HDF5 format, readable with the 'anndata' Python package",
+      "edam_term": "EDAM_1.24.format_3590",
+      "is_data_product": false,
+      "is_qa_qc": false,
+      "mapped_description": "Normalized gene expression with additional metadata, in HDF5 format, readable with the 'anndata' Python package (JSON file)",
+      "rel_path": "hubmap_ui/output/secondary_analysis.factors.json",
+      "size": 185387,
+      "type": "json"
+    },
+    {
+      "description": "Plot of marker genes by cluster calculated using logistic regression",
+      "edam_term": "EDAM_1.24.format_3508",
+      "is_data_product": false,
+      "is_qa_qc": false,
+      "mapped_description": "Plot of marker genes by cluster calculated using logistic regression (PDF file)",
+      "rel_path": "marker_genes_by_cluster_logreg.pdf",
+      "size": 36037,
+      "type": "pdf"
+    },
+    {
+      "description": "Plot of marker genes by cluster calculated using t test",
+      "edam_term": "EDAM_1.24.format_3508",
+      "is_data_product": false,
+      "is_qa_qc": false,
+      "mapped_description": "Plot of marker genes by cluster calculated using t test (PDF file)",
+      "rel_path": "marker_genes_by_cluster_t_test.pdf",
+      "size": 35704,
+      "type": "pdf"
+    },
+    {
+      "description": "Quality control results from Scanpy, per-cell and per-gene, in HDF5 format",
+      "edam_term": "EDAM_1.24.format_3590",
+      "is_data_product": false,
+      "is_qa_qc": true,
+      "mapped_description": "Quality control results from Scanpy, per-cell and per-gene, in HDF5 format (HDF5 file)",
+      "rel_path": "qc_results.hdf5",
+      "size": 3572548,
+      "type": "hdf5"
+    },
+    {
+      "description": "Quality control report in JSON format",
+      "edam_term": "EDAM_1.24.format_3464",
+      "is_data_product": false,
+      "is_qa_qc": true,
+      "mapped_description": "Quality control report in JSON format (JSON file)",
+      "rel_path": "qc_results.json",
+      "size": 453,
+      "type": "json"
+    },
+    {
+      "description": "Raw gene expression, in HDF5 format, readable with the 'anndata' Python package, intronic counts as AnnData layer",
+      "edam_term": "EDAM_1.24.format_3590",
+      "is_data_product": true,
+      "is_qa_qc": false,
+      "mapped_description": "Raw gene expression, in HDF5 format, readable with the 'anndata' Python package, intronic counts as AnnData layer (H5AD file)",
+      "rel_path": "raw_expr.h5ad",
+      "size": 137786224,
+      "type": "h5ad"
+    },
+    {
+      "description": "RNA velocity results, in HDF5 format, readable with the 'anndata' Python package",
+      "edam_term": "EDAM_1.24.format_3590",
+      "is_data_product": true,
+      "is_qa_qc": false,
+      "mapped_description": "RNA velocity results, in HDF5 format, readable with the 'anndata' Python package (H5AD file)",
+      "rel_path": "scvelo_annotated.h5ad",
+      "size": 643738561,
+      "type": "h5ad"
+    },
+    {
+      "description": "scVelo RNA velocity grid plot",
+      "edam_term": "EDAM_1.24.format_3508",
+      "is_data_product": false,
+      "is_qa_qc": false,
+      "mapped_description": "scVelo RNA velocity grid plot (PDF file)",
+      "rel_path": "scvelo_embedding_grid.pdf",
+      "size": 159674,
+      "type": "pdf"
+    },
+    {
+      "description": "Normalized gene expression with additional metadata, in HDF5 format, readable with the 'anndata' Python package",
+      "edam_term": "EDAM_1.24.format_3590",
+      "is_data_product": true,
+      "is_qa_qc": false,
+      "mapped_description": "Normalized gene expression with additional metadata, in HDF5 format, readable with the 'anndata' Python package (H5AD file)",
+      "rel_path": "secondary_analysis.h5ad",
+      "size": 1473168396,
+      "type": "h5ad"
+    },
+    {
+      "description": "UMAP plot of cells, colored by Leiden cluster ID",
+      "edam_term": "EDAM_1.24.format_3508",
+      "is_data_product": false,
+      "is_qa_qc": false,
+      "mapped_description": "UMAP plot of cells, colored by Leiden cluster ID (PDF file)",
+      "rel_path": "umap_by_leiden_cluster.pdf",
+      "size": 161274,
+      "type": "pdf"
+    },
+    {
+      "description": "UMAP plot of cells, colored by embedding density",
+      "edam_term": "EDAM_1.24.format_3508",
+      "is_data_product": false,
+      "is_qa_qc": false,
+      "mapped_description": "UMAP plot of cells, colored by embedding density (PDF file)",
+      "rel_path": "umap_embedding_density.pdf",
+      "size": 1374061,
+      "type": "pdf"
+    }
+  ],
+  "group_name": "University of California San Diego TMC",
+  "group_uuid": "03b3d854-ed44-11e8-8bce-0e368f3075e8",
+  "hubmap_id": "HBM834.MCPH.388",
+  "immediate_ancestor_ids": [
+    "68e6dfa4807ca615883f73a5067115cb"
+  ],
+  "immediate_ancestors": [
+    {
+      "entity_type": "Dataset",
+      "uuid": "68e6dfa4807ca615883f73a5067115cb"
+    }
+  ],
+  "immediate_descendant_ids": [],
+  "immediate_descendants": [],
+  "index_version": "3.6.3",
+  "ingest_metadata": {
+    "dag_provenance_list": [
+      {
+        "documentation_url": null,
+        "hash": "7f223760",
+        "input_parameters": [],
+        "origin": "https://github.com/hubmapconsortium/ingest-pipeline.git",
+        "version": ""
+      },
+      {
+        "documentation_url": null,
+        "hash": "7f223760",
+        "input_parameters": [],
+        "origin": "https://github.com/hubmapconsortium/ingest-pipeline.git",
+        "version": ""
+      },
+      {
+        "documentation_url": "",
+        "hash": "69da10a",
+        "input_parameters": [
+          {
+            "parameter_name": "--assay",
+            "value": "10x_v3_sn"
+          },
+          {
+            "parameter_name": "--threads",
+            "value": 6
+          },
+          {
+            "parameter_name": "--organism",
+            "value": "human"
+          },
+          {
+            "parameter_name": "--fastq_dir",
+            "value": [
+              "/hive/hubmap-dev/data/protected/University of California San Diego TMC/68e6dfa4807ca615883f73a5067115cb"
+            ]
+          }
+        ],
+        "name": "pipeline.cwl",
+        "origin": "https://github.com/hubmapconsortium/salmon-rnaseq",
+        "version": "v2.3.0"
+      },
+      {
+        "documentation_url": "",
+        "hash": "d1cc262",
+        "input_parameters": [
+          {
+            "parameter_name": "--reference",
+            "value": "RL"
+          },
+          {
+            "parameter_name": "--matrix",
+            "value": "/hive/hubmap-dev/scratch/manual__2025-05-14T20:37:22.638478+00:00/cwl_out/expr.h5ad"
+          },
+          {
+            "parameter_name": "--secondary-analysis-matrix",
+            "value": "/hive/hubmap-dev/scratch/manual__2025-05-14T20:37:22.638478+00:00/cwl_out/secondary_analysis.h5ad"
+          },
+          {
+            "parameter_name": "--assay",
+            "value": "10x_v3_sn"
+          }
+        ],
+        "name": "pipeline.cwl",
+        "origin": "https://github.com/hubmapconsortium/azimuth-annotate",
+        "version": ""
+      },
+      {
+        "documentation_url": "",
+        "hash": "f6547ce",
+        "input_parameters": [],
+        "name": "h5ad-to-arrow.cwl",
+        "origin": "https://github.com/hubmapconsortium/portal-containers",
+        "version": "v0.0.51"
+      },
+      {
+        "documentation_url": "",
+        "hash": "f6547ce",
+        "input_parameters": [
+          {
+            "parameter_name": "--input_dir",
+            "value": "/hive/hubmap-dev/scratch/manual__2025-05-14T20:37:22.638478+00:00/cwl_out"
+          }
+        ],
+        "name": "anndata-to-ui.cwl",
+        "origin": "https://github.com/hubmapconsortium/portal-containers",
+        "version": "v0.0.51"
+      }
+    ],
+    "workflow_description": "The pipeline for scRNA/snRNA data with whole transcriptome sequencing results uses Salmon alevin for alignment free quasimapping to the HG38 reference genome and converts the resulting capture bead by gene matrix to the h5ad format, which is used by ScanPy for downstream analysis including dimensionality reduction, unsupervised clustering, and differential expression analysis. Cell type annotations are provided by Azimuth when available for the type of tissue being analyzed.",
+    "workflow_version": "1.0.0"
+  },
+  "last_modified_timestamp": 1747264912682,
+  "mapped_consortium": "HuBMAP",
+  "mapped_data_access_level": "Consortium",
+  "mapped_data_types": [
+    "snRNAseq [Salmon]"
+  ],
+  "mapped_last_modified_timestamp": "2025-05-14 23:21:52",
+  "mapped_status": "QA",
+  "mapper_metadata": {
+    "datetime": "2025-05-15 02:09:40.216890",
+    "size": 20573,
+    "validation_errors": [],
+    "version": "dev-integrate:affdced with submodule (HEAD detached at e4c289d):e4c289d"
+  },
+  "origin_samples": [
+    {
+      "created_by_user_displayname": "GLORIA PRYHUBER",
+      "created_by_user_email": "gloria_pryhuber@urmc.rochester.edu",
+      "created_timestamp": 1597681492532,
+      "data_access_level": "public",
+      "entity_type": "Sample",
+      "group_name": "University of California San Diego TMC",
+      "group_uuid": "03b3d854-ed44-11e8-8bce-0e368f3075e8",
+      "hubmap_id": "HBM484.XDKM.759",
+      "lab_tissue_sample_id": "D239-RML",
+      "last_modified_timestamp": 1597681492532,
+      "mapped_data_access_level": "Public",
+      "mapped_last_modified_timestamp": "2020-08-17 16:24:52",
+      "mapped_organ": "Lung (Right)",
+      "mapped_sample_category": "Organ",
+      "organ": "RL",
+      "protocol_url": "dx.doi.org/10.17504/protocols.io.bjuxknxn",
+      "sample_category": "organ",
+      "submission_id": "UCSD0015-RL",
+      "uuid": "0e1c2d399477b244ac006eb58918ec0c"
+    }
+  ],
+  "origin_samples_unique_mapped_organs": [
+    "Lung (Right)"
+  ],
+  "pipeline": "Salmon",
+  "processing": "processed",
+  "processing_type": "hubmap",
+  "raw_dataset_type": "RNAseq",
+  "soft_assaytype": "salmon_sn_rnaseq_10x",
+  "source_samples": [
+    {
+      "created_by_user_displayname": "GLORIA PRYHUBER",
+      "created_by_user_email": "gloria_pryhuber@urmc.rochester.edu",
+      "created_timestamp": 1597753116804,
+      "data_access_level": "public",
+      "entity_type": "Sample",
+      "group_name": "University of California San Diego TMC",
+      "group_uuid": "03b3d854-ed44-11e8-8bce-0e368f3075e8",
+      "hubmap_id": "HBM457.NGNJ.877",
+      "last_modified_timestamp": 1597753763178,
+      "mapped_data_access_level": "Public",
+      "mapped_last_modified_timestamp": "2020-08-18 12:29:23",
+      "mapped_metadata": {
+
+      },
+      "mapped_sample_category": "Section",
+      "metadata": {
+        "cold_ischemia_time_unit": "minutes",
+        "cold_ischemia_time_value": "1140",
+        "health_status": "relatively healthy",
+        "organ_condition": "healthy",
+        "pathologist_report": "largely normal, no cancer, no necrosis",
+        "perfusion_solution": "UWS",
+        "procedure_date": "2019-07-01",
+        "specimen_preservation_temperature": "Freezer (-80 Celsius)",
+        "specimen_quality_criteria": "H&E",
+        "specimen_tumor_distance_unit": "",
+        "specimen_tumor_distance_value": "",
+        "vital_state": "deceased",
+        "warm_ischemia_time_unit": "minutes",
+        "warm_ischemia_time_value": "0"
+      },
+      "protocol_url": "dx.doi.org/10.17504/protocols.io.bjtnknme",
+      "sample_category": "section",
+      "submission_id": "UCSD0015-RL-5-1",
+      "uuid": "c1b4529ef342cc35aca0ddf247c9a6cc"
+    }
+  ],
+  "status": "QA",
+  "title": "RNAseq [Salmon] data from the lung (right) of a 37-year-old black or african american male",
+  "transformation_errors": [
+    "Analyte_class not found on dataset or dataset ancestors."
+  ],
+  "uuid": "97ff4b838879ba241605ba001836f7bc",
+  "visualization": true,
+  "vitessce-hints": [
+    "rna",
+    "is_sc"
+  ]
+}
