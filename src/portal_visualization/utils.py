@@ -306,7 +306,7 @@ def get_spots_scaling_factor(z_store):
     ...    'spatial/visium/scalefactors/spot_diameter_fullres': 143.1718061674009
     ... }}
     >>> get_spots_scaling_factor(store_missing_value)
-    Error occurred while computing the scale factor for spots: string indices must be integers, not 'tuple'
+    Error occurred while computing the scale factor for spots: string indices must be integers
     1
 
     """
