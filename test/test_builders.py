@@ -114,9 +114,7 @@ def test_has_visualization(has_vis_entity):
         if "epic" in entity.get("vitessce-hints", {})
         else None
     )
-    result = has_visualization(entity, get_entity, parent, epic_uuid)
-    print(f"UUID={entity.get('uuid')} expected={has_vis}, actual={result}")
-    assert has_vis == result
+    assert has_vis == has_visualization(entity, get_entity, parent, epic_uuid)
 
 
 def mock_zarr_store(entity_path, mocker):
