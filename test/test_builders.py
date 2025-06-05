@@ -82,14 +82,28 @@ def get_entity(input):
     return assay
 
 
+test_cases = [
+    (False, {"uuid": "2c2179ea741d3bbb47772172a316a2bf"}),
+    (False, {"uuid": "f9ae931b8b49252f150d7f8bf1d2d13f-bad"}),
+]
+
+excluded_uuids = {entity["uuid"] for _, entity in test_cases}
+
+for path in good_entity_paths:
+    entity = json.loads(path.read_text())
+    uuid = entity.get("uuid")
+    if uuid in excluded_uuids:
+        continue
+    test_cases.append((True, entity))
+
+
 @pytest.mark.parametrize(
     "has_vis_entity",
-    [
-        (False, {"uuid": "2c2179ea741d3bbb47772172a316a2bf"}),
-        (True, json.loads(Path.read_text(good_entity_paths[0]))),
-        # NOTE: If the first fixture returns a Null builder this breaks.
-    ],
-    ids=lambda has_vis_entity: f"has_visualization={has_vis_entity[0]}",
+    test_cases,
+    ids=lambda e: (
+        f"has_visualization={e[0]}_uuid={e[1].get('uuid', 'no-uuid')}"
+        if isinstance(e, tuple) else str(e)
+    )
 )
 def test_has_visualization(has_vis_entity):
     has_vis, entity = has_vis_entity
