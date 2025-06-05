@@ -166,6 +166,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         z = self.zarr_store
         dataset = vc.add_dataset(name=self._uuid).add_object(AnnDataWrapper(
             adata_url=adata_url,
+            is_zip = self._is_zip_zarr,
             obs_feature_matrix_path="X",
             initial_feature_filter_path="var/marker_genes_for_heatmap",
             obs_set_paths=self._obs_set_paths,
@@ -366,6 +367,7 @@ class SpatialMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewCon
         )
         visium_spots = AnnDataWrapper(
             adata_url=adata_url,
+            iz_zip = self._is_zip_zarr,
             obs_feature_matrix_path="X",
             obs_set_paths=self._obs_set_paths,
             obs_set_names=self._obs_set_names,
@@ -537,6 +539,7 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
             # We run add_object with adata_path=rna_zarr first to add the cell-by-gene
             # matrix and associated metadata.
             adata_url=rna_zarr,
+            is_zip = self._is_zip_zarr,
             obs_embedding_paths=["obsm/X_umap"],
             obs_embedding_names=["UMAP - RNA"],
             obs_set_paths=self._obs_set_paths,
