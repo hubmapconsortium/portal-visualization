@@ -64,7 +64,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
                 return read_zip_zarr(zarr_url, request_init)
             except Exception as e:
                 print(f"Error opening the zip zarr file. {e}")
-
+                return None
         else:
             zarr_url = self._build_assets_url(zarr_path, use_token=False)
             return zarr.open(zarr_url, mode='r', storage_options={'client_kwargs': request_init})
@@ -72,13 +72,15 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
     @cached_property
     def has_marker_genes(self):
         z = self.zarr_store
-        if 'obs/marker_gene_0' in z:
-            return True
+        if z is not None:
+            if 'obs/marker_gene_0' in z:
+                return True
 
     def is_annotated(self):
         z = self.zarr_store
-        if 'uns/annotation_metadata/is_annotated' in z:
-            return z['uns/annotation_metadata/is_annotated'][()]
+        if z is not None:
+            if 'uns/annotation_metadata/is_annotated' in z:
+                return z['uns/annotation_metadata/is_annotated'][()]
         else:
             return False
 
@@ -108,7 +110,9 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         # HUGO symbols are used as the default gene alias, but need to be converted to
         # Ensembl IDs for gene preselection
         z = self.zarr_store
-        gene_alias = 'var/hugo_symbol' if 'var' in z and 'hugo_symbol' in z['var'] else None
+        gene_alias = None
+        if z is not None:
+            gene_alias = 'var/hugo_symbol' if 'var' in z and 'hugo_symbol' in z['var'] else None
         if (gene_alias is not None and marker is not None):
             # If user has indicated a marker gene in parameters and we have a hugo_symbol mapping,
             # then we need to convert it to the proper underlying ensembl ID for the dataset
@@ -171,7 +175,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
             obs_embedding_dims=[[0, 1]],
             request_init=self._get_request_init(),
             coordination_values=None,
-            feature_labels_path='var/hugo_symbol' if 'var' in z else None,
+            feature_labels_path='var/hugo_symbol' if z and 'var' in z else None,
             gene_alias=self._gene_alias,
             obs_labels_paths=self._obs_labels_paths,
             obs_labels_names=self._obs_labels_names
@@ -206,8 +210,10 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         obs_label_names.extend(additional_obs_labels_names)
 
         z = self.zarr_store
-        obs = z['obs'] if modality_prefix is None else z[f'{modality_prefix}/obs']
-
+        if z is not None:
+            obs = z['obs'] if modality_prefix is None else z[f'{modality_prefix}/obs']
+        else:
+            obs = None
         if not skip_default_paths:
             if self._is_annotated:
                 if 'predicted.ASCT.celltype' in obs:

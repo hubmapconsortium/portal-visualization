@@ -172,7 +172,7 @@ class SPRMAnnDataViewConfBuilder(SPRMViewConfBuilder):
         zarr_path = f"anndata-zarr/{self._image_name}-anndata.zarr"
         zip_zarr_path = f'{zarr_path}.zip'
         request_init = self._get_request_init() or {}
-        if self._is_zarr_zip:
+        if self._is_zarr_zip:  # pragema no cover
             adata_url = self._build_assets_url(zip_zarr_path, use_token=True)
             try:
                 return read_zip_zarr(adata_url, request_init)

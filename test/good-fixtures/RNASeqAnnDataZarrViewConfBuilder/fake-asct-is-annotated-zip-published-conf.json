@@ -1,0 +1,103 @@
+{
+  "coordinationSpace": {
+    "dataset": {
+      "A": "A"
+    },
+    "embeddingType": {
+      "A": "UMAP"
+    }
+  },
+  "datasets": [
+    {
+      "files": [
+        {
+          "fileType": "anndata.zarr.zip",
+          "options": {
+            "obsEmbedding": [
+              {
+                "dims": [
+                  0,
+                  1
+                ],
+                "embeddingType": "UMAP",
+                "path": "obsm/X_umap"
+              }
+            ],
+            "obsFeatureMatrix": {
+              "initialFeatureFilterPath": "var/marker_genes_for_heatmap",
+              "path": "X"
+            },
+            "obsLabels": [],
+             
+            "obsSets": [
+              {
+                "name": "Leiden",
+                "path": "obs/leiden"
+              }
+            ]
+          },
+          "url": "https://example.com/e65175561b4b17da5352e3837aa0e497/hubmap_ui/anndata-zarr/secondary_analysis.zarr.zip"
+        }
+      ],
+      "name": "e65175561b4b17da5352e3837aa0e497",
+      "uid": "A"
+    }
+  ],
+  "description": "",
+  "initStrategy": "auto",
+  "layout": [
+    {
+      "component": "scatterplot",
+      "coordinationScopes": {
+        "dataset": "A",
+        "embeddingType": "A"
+      },
+      "h": 6,
+      "w": 9,
+      "x": 0,
+      "y": 0
+    },
+    {
+      "component": "obsSets",
+      "coordinationScopes": {
+        "dataset": "A"
+      },
+      "h": 3,
+      "w": 3,
+      "x": 9,
+      "y": 0
+    },
+    {
+      "component": "featureList",
+      "coordinationScopes": {
+        "dataset": "A"
+      },
+      "h": 3,
+      "w": 3,
+      "x": 9,
+      "y": 4
+    },
+    {
+      "component": "obsSetFeatureValueDistribution",
+      "coordinationScopes": {
+        "dataset": "A"
+      },
+      "h": 4,
+      "w": 5,
+      "x": 7,
+      "y": 6
+    },
+    {
+      "component": "heatmap",
+      "coordinationScopes": {
+        "dataset": "A"
+      },
+      "h": 4,
+      "w": 7,
+      "x": 0,
+      "y": 6
+    }
+  ],
+  "name": "e65175561b4b17da5352e3837aa0e497",
+  "version": "1.0.15"
+}
