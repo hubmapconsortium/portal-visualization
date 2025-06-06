@@ -1,5 +1,4 @@
 from functools import cached_property
-import fsspec
 from vitessce import (
     VitessceConfig,
     AnnDataWrapper,
@@ -17,8 +16,8 @@ import zarr
 
 
 from .base_builders import ViewConfBuilder
-from ..utils import get_conf_cells
-# , get_spots_scaling_factor - uncomment when scaling factor is sorted out
+from ..utils import get_conf_cells, read_zip_zarr
+from ..constants import ZARR_PATH, ZIP_ZARR_PATH
 
 RNA_SEQ_ANNDATA_FACTOR_PATHS = [f"obs/{key}" for key in [
     "marker_gene_0",
@@ -29,9 +28,6 @@ RNA_SEQ_ANNDATA_FACTOR_PATHS = [f"obs/{key}" for key in [
 ]]
 
 RNA_SEQ_FACTOR_LABEL_NAMES = [f'Marker Gene {i}' for i in range(len(RNA_SEQ_ANNDATA_FACTOR_PATHS))]
-
-ZARR_PATH = 'hubmap_ui/anndata-zarr/secondary_analysis.zarr'
-ZIP_ZARR_PATH = f'{ZARR_PATH}.zip'
 
 
 def is_zip_zarr(file_path):
@@ -49,8 +45,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         # Spatially resolved RNA-seq assays require some special handling,
         # and others do not.
         self._is_spatial = False
-        self.is_annotated = None  # added this as was getting error when there was none
-        self._scatterplot_w = 6 if self.is_annotated else 9
+        self._is_zip_zarr = False
         self._spatial_w = 0
         self._obs_set_paths = None
         self._obs_set_names = None
@@ -59,7 +54,8 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         self._marker = None
         self._gene_alias = None
         self._views = None
-        self._is_zip_zarr = False
+        # self.is_annotated = None  # added this as was getting error when there was none
+        self._scatterplot_w = 9
 
     @cached_property
     def zarr_store(self):
@@ -67,16 +63,12 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         zarr_path = ZIP_ZARR_PATH if self._is_zip_zarr else ZARR_PATH
 
         if self._is_zip_zarr:
-            # Use fsspec to open a remote zip as a virtual file system
             zarr_url = self._build_assets_url(zarr_path, use_token=True)
-            fs = fsspec.filesystem(
-                "zip",
-                fo=zarr_url,
-                remote_protocol="https",
-                remote_options={"client_kwargs": request_init}
-            )
-            store = fs.get_mapper("")  # Root of the .zarr in the zip
-            return zarr.open(store, mode="r")
+            try:
+                return read_zip_zarr(zarr_url, request_init)
+            except Exception as e:
+                print(f"Error opening the zip zarr file. {e}")
+
         else:
             zarr_url = self._build_assets_url(zarr_path, use_token=False)
             return zarr.open(zarr_url, mode='r', storage_options={'client_kwargs': request_init})
@@ -166,7 +158,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         z = self.zarr_store
         dataset = vc.add_dataset(name=self._uuid).add_object(AnnDataWrapper(
             adata_url=adata_url,
-            is_zip = self._is_zip_zarr,
+            is_zip=self._is_zip_zarr,
             obs_feature_matrix_path="X",
             initial_feature_filter_path="var/marker_genes_for_heatmap",
             obs_set_paths=self._obs_set_paths,
@@ -367,7 +359,7 @@ class SpatialMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewCon
         )
         visium_spots = AnnDataWrapper(
             adata_url=adata_url,
-            iz_zip = self._is_zip_zarr,
+            iz_zip=self._is_zip_zarr,
             obs_feature_matrix_path="X",
             obs_set_paths=self._obs_set_paths,
             obs_set_names=self._obs_set_names,
@@ -460,7 +452,7 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
 
     @cached_property
     def zarr_store(self):
-        zarr_path = ZARR_PATH if not self.is_zip_zarr else f'{ZARR_PATH}.zarr'
+        zarr_path = ZIP_ZARR_PATH if self._is_zip_zarr else ZARR_PATH
         request_init = self._get_request_init() or {}
         adata_url = self._build_assets_url(zarr_path, use_token=False)
         return zarr.open(adata_url, mode='r', storage_options={'client_kwargs': request_init})
@@ -539,7 +531,7 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
             # We run add_object with adata_path=rna_zarr first to add the cell-by-gene
             # matrix and associated metadata.
             adata_url=rna_zarr,
-            is_zip = self._is_zip_zarr,
+            is_zip=self._is_zip_zarr,
             obs_embedding_paths=["obsm/X_umap"],
             obs_embedding_names=["UMAP - RNA"],
             obs_set_paths=self._obs_set_paths,

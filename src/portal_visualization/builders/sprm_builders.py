@@ -13,7 +13,7 @@ from vitessce import (
 import zarr
 
 from .base_builders import ViewConfBuilder
-from ..utils import create_coordination_values, get_matches, get_conf_cells
+from ..utils import create_coordination_values, get_matches, get_conf_cells, read_zip_zarr
 from ..paths import (
     SPRM_JSON_DIR, STITCHED_REGEX, CODEX_TILE_DIR,
     TILE_REGEX, STITCHED_IMAGE_DIR, SPRM_PYRAMID_SUBDIR, IMAGE_PYRAMID_DIR
@@ -88,6 +88,7 @@ class SPRMJSONViewConfBuilder(SPRMViewConfBuilder):
         self._base_name = kwargs["base_name"]
         self._image_name = kwargs["base_name"]
         self._imaging_path_regex = kwargs["imaging_path"]
+        self.is_zip_zarr = False
         self._files = [
             {
                 "rel_path": f"{SPRM_JSON_DIR}/" + f"{self._base_name}.cells.json",
@@ -169,9 +170,17 @@ class SPRMAnnDataViewConfBuilder(SPRMViewConfBuilder):
 
     def zarr_store(self):
         zarr_path = f"anndata-zarr/{self._image_name}-anndata.zarr"
+        zip_zarr_path = f'{zarr_path}.zip'
         request_init = self._get_request_init() or {}
-        adata_url = self._build_assets_url(zarr_path, use_token=False)
-        return zarr.open(adata_url, mode='r', storage_options={'client_kwargs': request_init})
+        if self._is_zip_zarr:
+            adata_url = self._build_assets_url(zip_zarr_path, use_token=True)
+            try:
+                return read_zip_zarr(adata_url, request_init)
+            except Exception as e:
+                print(f"Error opening the zip zarr file. {e}")
+        else:
+            adata_url = self._build_assets_url(zarr_path, use_token=False)
+            return zarr.open(adata_url, mode='r', storage_options={'client_kwargs': request_init})
 
     def _get_bitmask_image_path(self):
         return f"{self._mask_path_regex}/{self._mask_name}" + r"\.ome\.tiff?"
@@ -193,7 +202,9 @@ class SPRMAnnDataViewConfBuilder(SPRMViewConfBuilder):
         file_paths_found = self._get_file_paths()
         zarr_path = f"anndata-zarr/{self._image_name}-anndata.zarr"
         # Use the group as a proxy for presence of the rest of the zarr store.
-        if f"{zarr_path}/.zgroup" not in file_paths_found:    # pragma: no cover
+        if f'{zarr_path}.zip' in file_paths_found:
+            self._is_zip_zarr = True
+        elif f'{zarr_path}/.zgroup' not in file_paths_found:  # pragma: no cover
             message = f"SPRM assay with uuid {self._uuid} has no .zarr store at {zarr_path}"
             raise FileNotFoundError(message)
         adata_url = self._build_assets_url(zarr_path, use_token=False)
@@ -205,6 +216,7 @@ class SPRMAnnDataViewConfBuilder(SPRMViewConfBuilder):
 
         anndata_wrapper = AnnDataWrapper(
             adata_url=adata_url,
+            is_zip=self._is_zip_zarr,
             obs_feature_matrix_path="X",
             obs_embedding_paths=["obsm/tsne"],
             obs_embedding_names=["t-SNE"],
