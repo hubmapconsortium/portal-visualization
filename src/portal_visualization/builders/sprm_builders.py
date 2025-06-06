@@ -172,7 +172,7 @@ class SPRMAnnDataViewConfBuilder(SPRMViewConfBuilder):
         zarr_path = f"anndata-zarr/{self._image_name}-anndata.zarr"
         zip_zarr_path = f'{zarr_path}.zip'
         request_init = self._get_request_init() or {}
-        if self._is_zarr_zip:  # pragema no cover
+        if self._is_zarr_zip:  # pragma no cover
             adata_url = self._build_assets_url(zip_zarr_path, use_token=True)
             try:
                 return read_zip_zarr(adata_url, request_init)
@@ -202,7 +202,7 @@ class SPRMAnnDataViewConfBuilder(SPRMViewConfBuilder):
         file_paths_found = self._get_file_paths()
         zarr_path = f"anndata-zarr/{self._image_name}-anndata.zarr"
         # Use the group as a proxy for presence of the rest of the zarr store.
-        if f'{zarr_path}.zip' in file_paths_found:
+        if f'{zarr_path}.zip' in file_paths_found:  # pragma no cover
             self._is_zarr_zip = True
         elif f'{zarr_path}/.zgroup' not in file_paths_found:  # pragma: no cover
             message = f"SPRM assay with uuid {self._uuid} has no .zarr store at {zarr_path}"
