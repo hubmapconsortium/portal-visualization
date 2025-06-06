@@ -74,7 +74,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         z = self.zarr_store
         if z is not None and 'obs/marker_gene_0' in z:
             return True
-    # @cached_property
+
     def is_annotated(self):
         z = self.zarr_store
         if z is not None and 'uns/annotation_metadata/is_annotated' in z:
