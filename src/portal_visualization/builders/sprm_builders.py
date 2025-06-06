@@ -88,7 +88,6 @@ class SPRMJSONViewConfBuilder(SPRMViewConfBuilder):
         self._base_name = kwargs["base_name"]
         self._image_name = kwargs["base_name"]
         self._imaging_path_regex = kwargs["imaging_path"]
-        self.is_zip_zarr = False
         self._files = [
             {
                 "rel_path": f"{SPRM_JSON_DIR}/" + f"{self._base_name}.cells.json",
@@ -167,12 +166,13 @@ class SPRMAnnDataViewConfBuilder(SPRMViewConfBuilder):
         self._image_name = kwargs["image_name"]
         self._imaging_path_regex = f"{self.image_pyramid_regex}/{kwargs['imaging_path']}"
         self._mask_path_regex = f"{self.image_pyramid_regex}/{kwargs['mask_path']}"
+        self._is_zarr_zip = False
 
     def zarr_store(self):
         zarr_path = f"anndata-zarr/{self._image_name}-anndata.zarr"
         zip_zarr_path = f'{zarr_path}.zip'
         request_init = self._get_request_init() or {}
-        if self._is_zip_zarr:
+        if self._is_zarr_zip:
             adata_url = self._build_assets_url(zip_zarr_path, use_token=True)
             try:
                 return read_zip_zarr(adata_url, request_init)
@@ -203,7 +203,7 @@ class SPRMAnnDataViewConfBuilder(SPRMViewConfBuilder):
         zarr_path = f"anndata-zarr/{self._image_name}-anndata.zarr"
         # Use the group as a proxy for presence of the rest of the zarr store.
         if f'{zarr_path}.zip' in file_paths_found:
-            self._is_zip_zarr = True
+            self._is_zarr_zip = True
         elif f'{zarr_path}/.zgroup' not in file_paths_found:  # pragma: no cover
             message = f"SPRM assay with uuid {self._uuid} has no .zarr store at {zarr_path}"
             raise FileNotFoundError(message)
@@ -216,7 +216,7 @@ class SPRMAnnDataViewConfBuilder(SPRMViewConfBuilder):
 
         anndata_wrapper = AnnDataWrapper(
             adata_url=adata_url,
-            is_zip=self._is_zip_zarr,
+            is_zip=self._is_zarr_zip,
             obs_feature_matrix_path="X",
             obs_embedding_paths=["obsm/tsne"],
             obs_embedding_names=["t-SNE"],
