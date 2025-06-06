@@ -51,7 +51,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         self._gene_alias = None
         self._views = None
         self._is_annotated = None
-        self._scatterplot_w = 9
+        self._scatterplot_w = None
 
     @cached_property
     def zarr_store(self):
@@ -94,7 +94,8 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
             message = f'RNA-seq assay with uuid {self._uuid} has no .zarr store at {ZARR_PATH}'
             raise FileNotFoundError(message)
         self._is_annotated = self.is_annotated()
-        self._scatterplot_w = self.compute_scatterplot_w()
+        if self._scatterplot_w is None:
+            self._scatterplot_w = self.compute_scatterplot_w()
         self._set_up_marker_gene(marker)
         self._set_up_obs_labels()
         vc = VitessceConfig(name=self._uuid, schema_version=self._schema_version)
@@ -208,7 +209,6 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         obs = z['obs'] if modality_prefix is None else z[f'{modality_prefix}/obs']
 
         if not skip_default_paths:
-            print("is_annotated", self._is_annotated)
             if self._is_annotated:
                 if 'predicted.ASCT.celltype' in obs:
                     obs_set_paths.append("obs/predicted.ASCT.celltype")
@@ -459,14 +459,6 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
         return zarr.open(adata_url, mode='r', storage_options={'client_kwargs': request_init})
 
     @cached_property
-    def is_annotated(self):
-        z = self.zarr_store
-        if 'mod/rna/uns/annotation_metadata/is_annotated' in z:
-            return z['mod/rna/uns/annotation_metadata/is_annotated'][()]
-        else:
-            return False
-
-    @cached_property
     def has_marker_genes(self):
         z = self.zarr_store
         return 'mod/rna/var/marker_genes_for_heatmap' in z
@@ -475,6 +467,13 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
     def has_cbb(self):
         z = self.zarr_store
         return 'mod/atac_cbb' in z
+
+    def is_annotated(self):
+        z = self.zarr_store
+        if 'mod/rna/uns/annotation_metadata/is_annotated' in z:
+            return z['mod/rna/uns/annotation_metadata/is_annotated'][()]
+        else:
+            return False
 
     def get_conf_cells(self, marker=None):
 
@@ -489,12 +488,13 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
 
         # Each clustering has its own genomic profile; since we can't currently toggle between
         # selected genomic profiles, each clustering needs its own view config.
+        self._is_annotated = self.is_annotated()
         confs = []
         cluster_columns = [
             ["leiden_wnn", "Leiden (Weighted Nearest Neighbor)", "wnn"],
             ["cluster_atac", "ArchR Clusters (ATAC)", "cbb"] if self.has_cbb else None,
             ["leiden_rna", "Leiden (RNA)", "rna"],
-            ["predicted_label", "Cell Ontology Annotation", "label"] if self.is_annotated else None,
+            ["predicted_label", "Cell Ontology Annotation", "label"] if self._is_annotated else None,
         ]
         # Filter out None values
         cluster_columns = [col for col in cluster_columns if col is not None]
