@@ -171,7 +171,6 @@ def test_read_zip_zarr_opens_store(mocker):
     mocker.patch("src.portal_visualization.utils.fsspec.filesystem", return_value=mock_fs)
     mocker.patch("src.portal_visualization.utils.zarr.open", return_value=mock_zarr_obj)
 
-    # Use any dummy URL since it's mocked
     dummy_url = "https://example.com/fake.zarr.zip"
     request_init = {"headers": {"Authorization": "Bearer token"}}
 
