@@ -75,6 +75,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         if z is not None and 'obs/marker_gene_0' in z:
             return True
 
+    @cached_property
     def is_annotated(self):
         z = self.zarr_store
         if z is not None and 'uns/annotation_metadata/is_annotated' in z:
@@ -93,7 +94,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         elif f'{ZARR_PATH}/.zgroup' not in file_paths_found:
             message = f'RNA-seq assay with uuid {self._uuid} has no .zarr store at {ZARR_PATH}'
             raise FileNotFoundError(message)
-        self._is_annotated = self.is_annotated()
+        self._is_annotated = self.is_annotated
         if self._scatterplot_w is None:
             self._scatterplot_w = self.compute_scatterplot_w()
         self._set_up_marker_gene(marker)
@@ -208,7 +209,6 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         z = self.zarr_store
         obs = None if z is None else z['obs'] if modality_prefix is None else z[f'{modality_prefix}/obs']
         if not skip_default_paths:
-            print(self._is_annotated)
             if self._is_annotated:
                 if 'predicted.ASCT.celltype' in obs:
                     obs_set_paths.append("obs/predicted.ASCT.celltype")
@@ -468,6 +468,7 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
         z = self.zarr_store
         return 'mod/atac_cbb' in z
 
+    @cached_property
     def is_annotated(self):
         z = self.zarr_store
         if 'mod/rna/uns/annotation_metadata/is_annotated' in z:
@@ -488,7 +489,7 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
 
         # Each clustering has its own genomic profile; since we can't currently toggle between
         # selected genomic profiles, each clustering needs its own view config.
-        self._is_annotated = self.is_annotated()
+        self._is_annotated = self.is_annotated
         confs = []
         cluster_columns = [
             ["leiden_wnn", "Leiden (Weighted Nearest Neighbor)", "wnn"],
