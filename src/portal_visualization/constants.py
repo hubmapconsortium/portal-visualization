@@ -11,3 +11,6 @@ image_units = {
 #  upon when they were processed. For older datasets, the image pyramids will be present
 #  either in 'processed_microscopy', or 'processedMicroscopy' while newer datasets will be listed under lab_processed.
 base_image_dirs = ['lab_processed', 'processed_microscopy', 'processedMicroscopy']
+
+ZARR_PATH = 'hubmap_ui/anndata-zarr/secondary_analysis.zarr'
+ZIP_ZARR_PATH = f'{ZARR_PATH}.zip'

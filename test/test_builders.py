@@ -10,7 +10,7 @@ from unittest.mock import patch
 import pytest
 import zarr
 
-from src.portal_visualization.utils import get_found_images
+from src.portal_visualization.utils import get_found_images, read_zip_zarr
 from src.portal_visualization.epic_factory import get_epic_builder
 from src.portal_visualization.builders.base_builders import ConfCells
 from src.portal_visualization.builders.imaging_builders import KaggleSegImagePyramidViewConfBuilder
@@ -160,6 +160,26 @@ def mock_zarr_store(entity_path, mocker):
     mocker.patch("zarr.open", return_value=z)
 
 
+def test_read_zip_zarr_opens_store(mocker):
+    # Mock the fsspec filesystem and zarr open
+    mock_fs = mocker.Mock()
+    mock_mapper = mocker.Mock()
+    mock_zarr_obj = mocker.Mock()
+
+    mock_fs.get_mapper.return_value = mock_mapper
+
+    mocker.patch("src.portal_visualization.utils.fsspec.filesystem", return_value=mock_fs)
+    mocker.patch("src.portal_visualization.utils.zarr.open", return_value=mock_zarr_obj)
+
+    dummy_url = "https://example.com/fake.zarr.zip"
+    request_init = {"headers": {"Authorization": "Bearer token"}}
+
+    result = read_zip_zarr(dummy_url, request_init)
+
+    assert result == mock_zarr_obj
+    mock_fs.get_mapper.assert_called_once_with("")
+
+
 @pytest.mark.parametrize(
     "entity_path", good_entity_paths, ids=lambda path: f"{path.parent.name}/{path.name}"
 )
@@ -174,6 +194,10 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
     entity = json.loads(entity_path.read_text())
     parent = entity.get("parent") or None  # Only used for image pyramids
     assay_type = get_entity(entity["uuid"])
+    if "zip" in str(entity_path):
+        mock_zarr = mocker.Mock()
+        mocker.patch("src.portal_visualization.utils.read_zip_zarr", return_value=mock_zarr)
+
     if "epic" in assay_type["vitessce-hints"]:
         epic_uuid = entity.get("uuid")
     Builder = get_view_config_builder(entity, get_entity, parent, epic_uuid)

@@ -1,5 +1,4 @@
 from functools import cached_property
-
 from vitessce import (
     VitessceConfig,
     AnnDataWrapper,
@@ -17,8 +16,8 @@ import zarr
 
 
 from .base_builders import ViewConfBuilder
-from ..utils import get_conf_cells
-# , get_spots_scaling_factor - uncomment when scaling factor is sorted out
+from ..utils import get_conf_cells, read_zip_zarr
+from ..constants import ZARR_PATH, ZIP_ZARR_PATH
 
 RNA_SEQ_ANNDATA_FACTOR_PATHS = [f"obs/{key}" for key in [
     "marker_gene_0",
@@ -42,7 +41,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         # Spatially resolved RNA-seq assays require some special handling,
         # and others do not.
         self._is_spatial = False
-        self._scatterplot_w = 6 if self.is_annotated else 9
+        self._is_zarr_zip = False
         self._spatial_w = 0
         self._obs_set_paths = None
         self._obs_set_names = None
@@ -51,35 +50,53 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         self._marker = None
         self._gene_alias = None
         self._views = None
+        self._is_annotated = None
+        self._scatterplot_w = None
 
     @cached_property
     def zarr_store(self):
-        zarr_path = 'hubmap_ui/anndata-zarr/secondary_analysis.zarr'
         request_init = self._get_request_init() or {}
-        adata_url = self._build_assets_url(zarr_path, use_token=False)
-        return zarr.open(adata_url, mode='r', storage_options={'client_kwargs': request_init})
+        zarr_path = ZIP_ZARR_PATH if self._is_zarr_zip else ZARR_PATH
 
-    @cached_property
-    def is_annotated(self):
-        z = self.zarr_store
-        if 'uns/annotation_metadata/is_annotated' in z:
-            return z['uns/annotation_metadata/is_annotated'][()]
+        if self._is_zarr_zip:
+            zarr_url = self._build_assets_url(zarr_path, use_token=True)
+            try:
+                return read_zip_zarr(zarr_url, request_init)
+            except Exception as e:
+                print(f"Error opening the zip zarr file. {e}")
+                return None
         else:
-            return False
+            zarr_url = self._build_assets_url(zarr_path, use_token=False)
+            return zarr.open(zarr_url, mode='r', storage_options={'client_kwargs': request_init})
 
     @cached_property
     def has_marker_genes(self):
         z = self.zarr_store
-        if 'obs/marker_gene_0' in z:
+        if z is not None and 'obs/marker_gene_0' in z:
             return True
 
+    @cached_property
+    def is_annotated(self):
+        z = self.zarr_store
+        if z is not None and 'uns/annotation_metadata/is_annotated' in z:
+            return z['uns/annotation_metadata/is_annotated'][()]
+        else:
+            return False
+
+    def compute_scatterplot_w(self):
+        return 6 if self._is_annotated else 9
+
     def get_conf_cells(self, marker=None):
-        zarr_path = 'hubmap_ui/anndata-zarr/secondary_analysis.zarr'
         file_paths_found = [file["rel_path"] for file in self._entity["files"]]
         # Use .zgroup file as proxy for whether or not the zarr store is present.
-        if f'{zarr_path}/.zgroup' not in file_paths_found:
-            message = f'RNA-seq assay with uuid {self._uuid} has no .zarr store at {zarr_path}'
+        if f'{ZARR_PATH}.zip' in file_paths_found:
+            self._is_zarr_zip = True
+        elif f'{ZARR_PATH}/.zgroup' not in file_paths_found:
+            message = f'RNA-seq assay with uuid {self._uuid} has no .zarr store at {ZARR_PATH}'
             raise FileNotFoundError(message)
+        self._is_annotated = self.is_annotated
+        if self._scatterplot_w is None:
+            self._scatterplot_w = self.compute_scatterplot_w()
         self._set_up_marker_gene(marker)
         self._set_up_obs_labels()
         vc = VitessceConfig(name=self._uuid, schema_version=self._schema_version)
@@ -92,7 +109,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         # HUGO symbols are used as the default gene alias, but need to be converted to
         # Ensembl IDs for gene preselection
         z = self.zarr_store
-        gene_alias = 'var/hugo_symbol' if 'var' in z and 'hugo_symbol' in z['var'] else None
+        gene_alias = 'var/hugo_symbol' if z is not None and 'var' in z and 'hugo_symbol' in z['var'] else None
         if (gene_alias is not None and marker is not None):
             # If user has indicated a marker gene in parameters and we have a hugo_symbol mapping,
             # then we need to convert it to the proper underlying ensembl ID for the dataset
@@ -137,11 +154,13 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         self._gene_alias = gene_alias
 
     def _set_up_dataset(self, vc):
+        zarr_path = ZIP_ZARR_PATH if self._is_zarr_zip else ZARR_PATH
         adata_url = self._build_assets_url(
-            'hubmap_ui/anndata-zarr/secondary_analysis.zarr', use_token=False)
+            zarr_path, use_token=False)
         z = self.zarr_store
         dataset = vc.add_dataset(name=self._uuid).add_object(AnnDataWrapper(
             adata_url=adata_url,
+            is_zip=self._is_zarr_zip,
             obs_feature_matrix_path="X",
             initial_feature_filter_path="var/marker_genes_for_heatmap",
             obs_set_paths=self._obs_set_paths,
@@ -153,7 +172,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
             obs_embedding_dims=[[0, 1]],
             request_init=self._get_request_init(),
             coordination_values=None,
-            feature_labels_path='var/hugo_symbol' if 'var' in z else None,
+            feature_labels_path='var/hugo_symbol' if z is not None and 'var' in z else None,
             gene_alias=self._gene_alias,
             obs_labels_paths=self._obs_labels_paths,
             obs_labels_names=self._obs_labels_names
@@ -188,10 +207,9 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         obs_label_names.extend(additional_obs_labels_names)
 
         z = self.zarr_store
-        obs = z['obs'] if modality_prefix is None else z[f'{modality_prefix}/obs']
-
+        obs = None if z is None else z['obs'] if modality_prefix is None else z[f'{modality_prefix}/obs']
         if not skip_default_paths:
-            if self.is_annotated:
+            if self._is_annotated:
                 if 'predicted.ASCT.celltype' in obs:
                     obs_set_paths.append("obs/predicted.ASCT.celltype")
                     obs_set_names.append("Predicted ASCT Cell Type")
@@ -327,7 +345,7 @@ class SpatialMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewCon
 
     def _set_up_dataset(self, vc):
         adata_url = self._build_assets_url(
-            'hubmap_ui/anndata-zarr/secondary_analysis.zarr', use_token=False)
+            ZARR_PATH, use_token=False)
         image_url = self._build_assets_url(
             'ometiff-pyramids/visium_histology_hires_pyramid.ome.tif', use_token=True)
         # Add dataset with Visium image and secondary analysis anndata
@@ -342,6 +360,7 @@ class SpatialMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewCon
         )
         visium_spots = AnnDataWrapper(
             adata_url=adata_url,
+            iz_zip=self._is_zarr_zip,
             obs_feature_matrix_path="X",
             obs_set_paths=self._obs_set_paths,
             obs_set_names=self._obs_set_names,
@@ -434,18 +453,10 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
 
     @cached_property
     def zarr_store(self):
-        zarr_path = 'hubmap_ui/mudata-zarr/secondary_analysis.zarr'
+        zarr_path = ZIP_ZARR_PATH if self._is_zarr_zip else ZARR_PATH
         request_init = self._get_request_init() or {}
         adata_url = self._build_assets_url(zarr_path, use_token=False)
         return zarr.open(adata_url, mode='r', storage_options={'client_kwargs': request_init})
-
-    @cached_property
-    def is_annotated(self):
-        z = self.zarr_store
-        if 'mod/rna/uns/annotation_metadata/is_annotated' in z:
-            return z['mod/rna/uns/annotation_metadata/is_annotated'][()]
-        else:
-            return False
 
     @cached_property
     def has_marker_genes(self):
@@ -456,6 +467,14 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
     def has_cbb(self):
         z = self.zarr_store
         return 'mod/atac_cbb' in z
+
+    @cached_property
+    def is_annotated(self):
+        z = self.zarr_store
+        if 'mod/rna/uns/annotation_metadata/is_annotated' in z:
+            return z['mod/rna/uns/annotation_metadata/is_annotated'][()]
+        else:
+            return False
 
     def get_conf_cells(self, marker=None):
 
@@ -470,12 +489,13 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
 
         # Each clustering has its own genomic profile; since we can't currently toggle between
         # selected genomic profiles, each clustering needs its own view config.
+        self._is_annotated = self.is_annotated
         confs = []
         cluster_columns = [
             ["leiden_wnn", "Leiden (Weighted Nearest Neighbor)", "wnn"],
             ["cluster_atac", "ArchR Clusters (ATAC)", "cbb"] if self.has_cbb else None,
             ["leiden_rna", "Leiden (RNA)", "rna"],
-            ["predicted_label", "Cell Ontology Annotation", "label"] if self.is_annotated else None,
+            ["predicted_label", "Cell Ontology Annotation", "label"] if self._is_annotated else None,
         ]
         # Filter out None values
         cluster_columns = [col for col in cluster_columns if col is not None]
@@ -513,6 +533,7 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
             # We run add_object with adata_path=rna_zarr first to add the cell-by-gene
             # matrix and associated metadata.
             adata_url=rna_zarr,
+            is_zip=self._is_zarr_zip,
             obs_embedding_paths=["obsm/X_umap"],
             obs_embedding_names=["UMAP - RNA"],
             obs_set_paths=self._obs_set_paths,
