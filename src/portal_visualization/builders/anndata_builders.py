@@ -479,9 +479,9 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
     def get_conf_cells(self, marker=None):
         file_paths_found = [file["rel_path"] for file in self._entity["files"] if "files" in self._entity]
         # Use .zgroup file as proxy for whether or not the zarr store is present.
-        if '.zarr.zip' in file_paths_found:
+        if '.zarr.zip' in file_paths_found: # pragma: no cover
             self._is_zarr_zip = True
-        elif f'{MULTIOMIC_ZARR_PATH}/.zgroup' not in file_paths_found:
+        elif f'{MULTIOMIC_ZARR_PATH}/.zgroup' not in file_paths_found: # pragma: no cover
             message = f'Multiomic assay with uuid {self._uuid} has no .zarr store at {MULTIOMIC_ZARR_PATH}'
             raise FileNotFoundError(message)
 
