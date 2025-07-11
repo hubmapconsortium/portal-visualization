@@ -17,7 +17,7 @@ import zarr
 
 from .base_builders import ViewConfBuilder
 from ..utils import get_conf_cells, read_zip_zarr
-from ..constants import ZARR_PATH, ZIP_ZARR_PATH
+from ..constants import ZARR_PATH, ZIP_ZARR_PATH, MULTIOMIC_ZARR_PATH
 
 RNA_SEQ_ANNDATA_FACTOR_PATHS = [f"obs/{key}" for key in [
     "marker_gene_0",
@@ -453,7 +453,7 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
 
     @cached_property
     def zarr_store(self):
-        zarr_path = ZIP_ZARR_PATH if self._is_zarr_zip else ZARR_PATH
+        zarr_path = f'{MULTIOMIC_ZARR_PATH}.zip' if self._is_zarr_zip else MULTIOMIC_ZARR_PATH
         request_init = self._get_request_init() or {}
         adata_url = self._build_assets_url(zarr_path, use_token=False)
         return zarr.open(adata_url, mode='r', storage_options={'client_kwargs': request_init})
@@ -477,15 +477,13 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
             return False
 
     def get_conf_cells(self, marker=None):
-
-        # TODO: The files array is empty for this entity, so we can't check for the zarr store
-
-        # zarr_path = 'hubmap_ui/mudata-zarr/secondary_analysis.zarr'
-        # file_paths_found = [file["rel_path"] for file in self._entity["files"]]
-        # # Use .zgroup file as proxy for whether or not the zarr store is present.
-        # if f'{zarr_path}/.zgroup' not in file_paths_found:
-        #     message = f'Multiomic assay with uuid {self._uuid} has no .zarr store at {zarr_path}'
-        #     raise FileNotFoundError(message)
+        file_paths_found = [file["rel_path"] for file in self._entity["files"] if "files" in self._entity]
+        # Use .zgroup file as proxy for whether or not the zarr store is present.
+        if '.zarr.zip' in file_paths_found:
+            self._is_zarr_zip = True
+        elif f'{MULTIOMIC_ZARR_PATH}/.zgroup' not in file_paths_found:
+            message = f'Multiomic assay with uuid {self._uuid} has no .zarr store at {MULTIOMIC_ZARR_PATH}'
+            raise FileNotFoundError(message)
 
         # Each clustering has its own genomic profile; since we can't currently toggle between
         # selected genomic profiles, each clustering needs its own view config.
@@ -526,6 +524,7 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
         atac_cbg_zarr = self._build_assets_url(f'{zarr_path}/mod/atac_cbg', use_token=False)
         multivec_zarr = self._build_assets_url(
             f'{zarr_base}/{multivec_label}.multivec.zarr', use_token=False)
+        # The above multivec.zarr file does not exist and the genomic profile is not showing
         dataset = vc.add_dataset(name=multivec_label).add_object(MultivecZarrWrapper(
             zarr_url=multivec_zarr,
             request_init=self._get_request_init(),
