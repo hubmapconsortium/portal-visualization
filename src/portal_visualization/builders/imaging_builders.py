@@ -111,7 +111,7 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
 
     def _add_segmentation_image(self, dataset):
         file_paths_found = self._get_file_paths()
-       
+
         if any('.zarr.zip' in path for path in file_paths_found):
             self._is_zarr_zip = True
         if self.seg_image_pyramid_regex is None:
@@ -154,8 +154,8 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
 
     def _add_aoi_rois(self, dataset):
         segment_file_url = self._build_assets_url(self.segment_files_regex)
-        area_zarr_url =  f'{segment_file_url}/aoi.zarr'
-        area_zarr_url =  f'{area_zarr_url}.zip' if self._is_zarr_zip else area_zarr_url
+        area_zarr_url = f'{segment_file_url}/aoi.zarr'
+        area_zarr_url = f'{area_zarr_url}.zip' if self._is_zarr_zip else area_zarr_url
         area_zarr = AnnDataWrapper(
             adata_url=area_zarr_url,
             is_zip=self._is_zarr_zip,
@@ -166,8 +166,8 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
             },
         )
 
-        region_zarr_url =  f'{segment_file_url}/roi.zarr'
-        region_zarr_url =  f'{region_zarr_url}.zip' if self._is_zarr_zip  else region_zarr_url
+        region_zarr_url = f'{segment_file_url}/roi.zarr'
+        region_zarr_url = f'{region_zarr_url}.zip' if self._is_zarr_zip else region_zarr_url
         region_zarr = AnnDataWrapper(
             adata_url=region_zarr_url,
             is_zip=self._is_zarr_zip,
