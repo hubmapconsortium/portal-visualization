@@ -1,0 +1,49 @@
+{
+    "data_types": [
+        "image_pyramid",
+        "PAS"
+    ],
+    "status": "QA",
+    "immediate_ancestors": [
+        {
+            "data_types": ["PAS"]
+        }
+    ],
+    "files": [
+        {
+            "rel_path": "extras/transformations/ometiff-pyramids/lab_processed/images/91706.ome.tif"
+        },
+        {
+            "rel_path": "extras/transformations/output_offsets/lab_processed/images/91706.offsets.json"
+        },
+        {
+            "rel_path": "extras/transformations/image_metadata/lab_processed/images/91706.metadata.json"
+        },
+        {
+            "rel_path": "extras/transformations/ometiff-pyramids/91706.segmentations.ome.tif"
+        },
+        {
+            "rel_path": "extras/transformations/output_offsets/91706.segmentations.offsets.json"
+        },
+        {
+            "rel_path": "extras/transformations/image_metadata/91706.segmentations.metadata.json"
+        },
+        {
+            "rel_path": "extras/transformations/hubmap_ui/seg-to-mudata-zarr/objects.zarr/arteries-arterioles.zarr.zip"
+        },
+        {
+            "rel_path": "extras/transformations/hubmap_ui/seg-to-mudata-zarr/objects.zarr/tubules.zarr.zip"
+        },
+        {
+            "rel_path": "extras/transformations/hubmap_ui/seg-to-mudata-zarr/objects.zarr/glomeruli.zarr.zip"
+        },
+        {
+            "rel_path": "extras/transformations/hubmap_ui/seg-to-mudata-zarr/objects.zarr/metadata.json"
+        }
+
+    ],
+    "uuid": "df7cac7cb67a822f7007b57c4d8f5e7d",
+    "metadata": {"dag_provenance_list": []},
+    "parent": { "uuid": "22901da5f080b219a514e38381acbb0e" },
+    "vitessce-hints": ["segmentation_mask", "is_image", "pyramid", "epic"]
+}

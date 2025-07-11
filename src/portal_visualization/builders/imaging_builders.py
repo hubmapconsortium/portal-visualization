@@ -111,6 +111,9 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
 
     def _add_segmentation_image(self, dataset):
         file_paths_found = self._get_file_paths()
+       
+        if any('.zarr.zip' in path for path in file_paths_found):
+            self._is_zarr_zip = True
         if self.seg_image_pyramid_regex is None:
             raise ValueError("seg_image_pyramid_regex is not set. Cannot find segmentation images.")
 
@@ -151,8 +154,11 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
 
     def _add_aoi_rois(self, dataset):
         segment_file_url = self._build_assets_url(self.segment_files_regex)
+        area_zarr_url =  f'{segment_file_url}/aoi.zarr'
+        area_zarr_url =  f'{area_zarr_url}.zip' if self._is_zarr_zip else area_zarr_url
         area_zarr = AnnDataWrapper(
-            adata_url=f'{segment_file_url}/aoi.zarr',
+            adata_url=area_zarr_url,
+            is_zip=self._is_zarr_zip,
             obs_set_paths=['obs/roi_id'],
             obs_set_names=['ROI'],
             coordination_values={
@@ -160,8 +166,11 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
             },
         )
 
+        region_zarr_url =  f'{segment_file_url}/roi.zarr'
+        region_zarr_url =  f'{region_zarr_url}.zip' if self._is_zarr_zip  else region_zarr_url
         region_zarr = AnnDataWrapper(
-            adata_url=f'{segment_file_url}/roi.zarr',
+            adata_url=region_zarr_url,
+            is_zip=self._is_zarr_zip,
             coordination_values={
                 "obsType": "region"
             },
@@ -386,6 +395,7 @@ class GeoMxImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
         self.seg_image_pyramid_regex = IMAGE_PYRAMID_DIR
         self.view_type = GEOMX_IMAGE_VIEW_TYPE
         self.segment_files_regex = GEOMX_DIR
+        self._is_zarr_zip = False
         # file_paths_found = self._get_file_paths()
         # paths = get_found_images_all(file_paths_found)
         # print("path", paths)
