@@ -479,7 +479,7 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
     def get_conf_cells(self, marker=None):
         file_paths_found = [file["rel_path"] for file in self._entity["files"] if "files" in self._entity]
         # Use .zgroup file as proxy for whether or not the zarr store is present.
-        if any('.zarr.zip' in path for path in file_paths_found):
+        if any('.zarr.zip' in path for path in file_paths_found):  # no pragma cover
             self._is_zarr_zip = True
         elif f'{MULTIOMIC_ZARR_PATH}/.zgroup' not in file_paths_found:  # pragma: no cover
             message = f'Multiomic assay with uuid {self._uuid} has no .zarr store at {MULTIOMIC_ZARR_PATH}'
@@ -524,7 +524,6 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
         atac_cbg_zarr = self._build_assets_url(f'{zarr_path}/mod/atac_cbg', use_token=False)
         multivec_zarr = self._build_assets_url(
             f'{zarr_base}/{multivec_label}.multivec.zarr', use_token=False)
-        # The above multivec.zarr file does not exist and the genomic profile is not showing
         dataset = vc.add_dataset(name=multivec_label).add_object(MultivecZarrWrapper(
             zarr_url=multivec_zarr,
             request_init=self._get_request_init(),
