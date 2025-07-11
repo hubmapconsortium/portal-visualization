@@ -36,6 +36,7 @@ class EPICConfBuilder(ViewConfBuilder):
             self._base_conf: VitessceConfig = VitessceConfig.from_dict(base_conf.conf)
 
         self._epic_uuid = epic_uuid
+        self._is_zarr_zip = False
         self.base_image_metadata = base_image_metadata
 
         pass
@@ -88,6 +89,8 @@ class SegmentationMaskBuilder(EPICConfBuilder):
         zarr_url = self.zarr_store_url()
         datasets = conf.get_datasets()
         file_paths_found = [file["rel_path"] for file in self._entity["files"]]
+        if any('.zarr.zip' in path for path in file_paths_found):
+            self._is_zarr_zip = True
         found_images = [
             path for path in get_matches(
                 file_paths_found, IMAGE_PYRAMID_DIR + r".*\.ome\.tiff?$",
@@ -118,7 +121,7 @@ class SegmentationMaskBuilder(EPICConfBuilder):
 
         mask_names = self.read_metadata_from_url()
         if (mask_names is not None):  # pragma: no cover
-            segmentation_objects, segmentations_CL = create_segmentation_objects(zarr_url, mask_names)
+            segmentation_objects, segmentations_CL = create_segmentation_objects(self, zarr_url, mask_names)
             for dataset in datasets:
                 dataset.add_object(segmentations)
                 for obj in segmentation_objects:
@@ -157,14 +160,17 @@ class SegmentationMaskBuilder(EPICConfBuilder):
         return mask_names
 
 
-def create_segmentation_objects(base_url, mask_names):  # pragma: no cover
+def create_segmentation_objects(self, base_url, mask_names):  # pragma: no cover
     segmentation_objects = []
     segmentations_CL = []
     for mask_name in mask_names:
         color_channel = generate_unique_color()
         mask_url = f'{base_url}/{mask_name}.zarr'
+        if self._is_zarr_zip:
+            mask_url = f'{mask_url}.zip'
         segmentations_zarr = AnnDataWrapper(
             adata_url=mask_url,
+            is_zip=self._is_zarr_zip,
             obs_locations_path="obsm/X_spatial",
             obs_labels_names=mask_name,
             coordination_values={
