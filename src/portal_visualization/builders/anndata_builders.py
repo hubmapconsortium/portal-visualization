@@ -477,13 +477,13 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
             return False
 
     def get_conf_cells(self, marker=None):
-        file_paths_found = [file["rel_path"] for file in self._entity["files"] if "files" in self._entity]
-        # Use .zgroup file as proxy for whether or not the zarr store is present.
-        if any('.zarr.zip' in path for path in file_paths_found):  # no pragma cover
-            self._is_zarr_zip = True  # no pragma cover
-        elif not self._is_zarr_zip and f'{MULTIOMIC_ZARR_PATH}/.zgroup' not in file_paths_found:  # pragma: no cover
-            message = f'Multiomic assay with uuid {self._uuid} has no .zarr store at {MULTIOMIC_ZARR_PATH}'
-            raise FileNotFoundError(message)
+        # file_paths_found = [file["rel_path"] for file in self._entity["files"] if "files" in self._entity]
+        # # Use .zgroup file as proxy for whether or not the zarr store is present.
+        # if any('.zarr.zip' in path for path in file_paths_found): # pragma: no cover
+        #     self._is_zarr_zip = True
+        # elif not self._is_zarr_zip and f'{MULTIOMIC_ZARR_PATH}/.zgroup' not in file_paths_found:  # pragma: no cover
+        #     message = f'Multiomic assay with uuid {self._uuid} has no .zarr store at {MULTIOMIC_ZARR_PATH}'
+        #     raise FileNotFoundError(message)
 
         # Each clustering has its own genomic profile; since we can't currently toggle between
         # selected genomic profiles, each clustering needs its own view config.
@@ -531,7 +531,7 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
             # We run add_object with adata_path=rna_zarr first to add the cell-by-gene
             # matrix and associated metadata.
             adata_url=rna_zarr,
-            is_zip=self._is_zarr_zip,
+            # is_zip=self._is_zarr_zip,
             obs_embedding_paths=["obsm/X_umap"],
             obs_embedding_names=["UMAP - RNA"],
             obs_set_paths=self._obs_set_paths,
@@ -563,7 +563,7 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
             }
         )).add_object(AnnDataWrapper(
             adata_url=h5mu_zarr,
-            is_zip=self._is_zarr_zip,
+            # is_zip=self._is_zarr_zip,
             obs_feature_matrix_path="X",
             obs_embedding_paths=["obsm/X_umap"],
             obs_embedding_names=["UMAP - WNN"],
