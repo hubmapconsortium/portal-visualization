@@ -1,0 +1,142 @@
+{
+    "version": "1.0.15",
+    "name": "HuBMAP Data Portal",
+    "description": "",
+    "datasets": [
+        {
+            "uid": "A",
+            "name": "Visualization Files",
+            "files": [
+                {   
+
+                    "fileType": "image.ome-tiff",
+                    "url": "https://example.com/df7cac7cb67a822f7007b57c4d8f5e7d/extras/transformations/ometiff-pyramids/lab_processed/images/91706.ome.tif?token=groups_token",
+                    "options": {
+                        "offsetsUrl": "https://example.com/df7cac7cb67a822f7007b57c4d8f5e7d/extras/transformations/output_offsets/lab_processed/images/91706.offsets.json?token=groups_token"
+                    }
+                },
+                {
+                    "fileType": "obsSegmentations.ome-tiff",
+                    "url": "https://example.com/df7cac7cb67a822f7007b57c4d8f5e7d/extras/transformations/ometiff-pyramids/91706.segmentations.ome.tif?token=groups_token",
+                    "options": {
+                        "coordinateTransformations": [
+                            {
+                                "type": "scale",
+                                "scale": [
+                                    1,
+                                    1,
+                                    1,
+                                    1,
+                                    1
+                                ]
+                            }
+                        ],
+                        "obsTypesFromChannelNames": true,
+                        "offsetsUrl": "https://example.com/df7cac7cb67a822f7007b57c4d8f5e7d/extras/transformations/output_offsets/91706.segmentations.offsets.json?token=groups_token"
+                    },
+                    "coordinationValues": {
+                        "fileUid": "segmentation-mask"
+                    }
+                }
+            ]
+        }
+    ],
+    "coordinationSpace": {
+        "dataset": {
+            "A": "A"
+        },
+        "imageLayer": {
+            "init_A_obsSegmentations_0": "__dummy__"
+        },
+        "photometricInterpretation": {
+            "init_A_obsSegmentations_0": "RGB"
+        },
+        "segmentationLayer": {
+            "init_A_obsSegmentations_0": "__dummy__"
+        },
+        "fileUid": {
+            "init_A_obsSegmentations_0": "segmentation-mask"
+        },
+        "spatialLayerVisible": {
+            "init_A_obsSegmentations_0": true
+        },
+        "spatialLayerOpacity": {
+            "init_A_obsSegmentations_0": 1
+        },
+        "metaCoordinationScopes": {
+            "init_A_obsSegmentations_0": {
+                "imageLayer": [
+                    "init_A_obsSegmentations_0"
+                ],
+                "segmentationLayer": [
+                    "init_A_obsSegmentations_0"
+                ]
+            }
+        },
+        "metaCoordinationScopesBy": {
+            "init_A_obsSegmentations_0": {
+                "imageLayer": {
+                    "photometricInterpretation": {
+                        "init_A_obsSegmentations_0": "init_A_obsSegmentations_0"
+                    }
+                },
+                "segmentationLayer": {
+                    "fileUid": {
+                        "init_A_obsSegmentations_0": "init_A_obsSegmentations_0"
+                    },
+                    "spatialLayerVisible": {
+                        "init_A_obsSegmentations_0": "init_A_obsSegmentations_0"
+                    },
+                    "spatialLayerOpacity": {
+                        "init_A_obsSegmentations_0": "init_A_obsSegmentations_0"
+                    },
+                    "segmentationChannel": {
+                        "init_A_obsSegmentations_0": []
+                    }
+                }
+            }
+        }
+    },
+    "layout": [
+        {
+            "component": "spatialBeta",
+            "coordinationScopes": {
+                "dataset": "A",
+                "metaCoordinationScopes": [
+                    "init_A_obsSegmentations_0"
+                ],
+                "metaCoordinationScopesBy": [
+                    "init_A_obsSegmentations_0"
+                ]
+            },
+            "x": 4,
+            "y": 0,
+            "w": 8,
+            "h": 12,
+            "props": {
+                "useFullResolutionImage": []
+            }
+        },
+        {
+            "component": "layerControllerBeta",
+            "coordinationScopes": {
+                "dataset": "A",
+                "metaCoordinationScopes": [
+                    "init_A_obsSegmentations_0"
+                ],
+                "metaCoordinationScopesBy": [
+                    "init_A_obsSegmentations_0"
+                ]
+            },
+            "x": 0,
+            "y": 0,
+            "w": 4,
+            "h": 8,
+            "props": {
+                "disable3d": [],
+                "disableChannelsIfRgbDetected": true
+            }
+        }
+    ],
+    "initStrategy": "auto"
+}

@@ -204,6 +204,7 @@ class SPRMAnnDataViewConfBuilder(SPRMViewConfBuilder):
         # Use the group as a proxy for presence of the rest of the zarr store.
         if f'{zarr_path}.zip' in file_paths_found:  # pragma no cover
             self._is_zarr_zip = True
+            zarr_path = f'{zarr_path}.zip'
         elif f'{zarr_path}/.zgroup' not in file_paths_found:  # pragma: no cover
             message = f"SPRM assay with uuid {self._uuid} has no .zarr store at {zarr_path}"
             raise FileNotFoundError(message)
