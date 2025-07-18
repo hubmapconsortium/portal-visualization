@@ -436,11 +436,21 @@ class SpatialMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewCon
             # Since the scale factor is the diameter, we divide by 2 to get the radius
             return z['uns'][visium_scalefactor_path][()].tolist() / 2
 
-    def _set_up_dataset(self, vc):
+
+    def _set_up_dataset(self, vc):        
+        file_paths_found = self._get_file_paths()
+        zarr_path = ZARR_PATH
+        if any('.zarr.zip' in path for path in file_paths_found):
+            self._is_zarr_zip = True
+            zarr_path = ZIP_ZARR_PATH
+        
+        elif f'{ZARR_PATH}/.zgroup' not in file_paths_found:
+            message = f'RNA-seq assay with uuid {self._uuid} has no .zarr store at {ZARR_PATH}'
+            raise FileNotFoundError(message)
         adata_url = self._build_assets_url(
-            ZARR_PATH, use_token=False)
+            zarr_path, use_token=False)
         image_url = self._build_assets_url(
-                      'ometiff-pyramids/visium_histology_hires_pyramid.ome.tif', use_token=True)
+                    'ometiff-pyramids/visium_histology_hires_pyramid.ome.tif', use_token=True)
         offsets_url = ""
         # Add dataset with Visium image and secondary analysis anndata
 
@@ -512,105 +522,6 @@ class XeniumlMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewCon
     def _setup_anndata_view_config(self, vc, dataset):
         return self._set_visium_xenium_config(vc,dataset)
         
-    #     visium_image = ImageOmeTiffWrapper(
-    #         img_url=image_url,
-    #         offsets_url=offsets_url,
-    #         uid=self._uuid,
-    #         coordination_values={"fileUid": "image"},
-    #         request_init=self._get_request_init(),
-    #     )
-    #     visium_spots = AnnDataWrapper(
-    #         adata_url=adata_url,
-    #         iz_zip=self._is_zarr_zip,
-    #         obs_feature_matrix_path="X",
-    #         obs_set_paths=self._obs_set_paths,
-    #         obs_set_names=self._obs_set_names,
-    #         obs_labels_names=self._obs_labels_names,
-    #         obs_labels_paths=self._obs_labels_paths,
-    #         obs_spots_path="obsm/X_spatial",
-    #         obs_embedding_paths=["obsm/X_umap", "obsm/X_pca"],
-    #         obs_embedding_names=["UMAP", "PCA"],
-    #         obs_embedding_dims=[[0, 1], [0, 1]],
-    #         feature_labels_path="var/hugo_symbol",
-    #         request_init=self._get_request_init(),
-    #         initial_feature_filter_path="var/top_highly_variable",
-    #         coordination_values={
-    #             "obsType": "spot",
-    #         }
-    #     )
-    #     dataset = vc.add_dataset(
-    #         name='Xenium',
-    #         uid=self._uuid
-    #     ).add_object(
-    #         visium_image
-    #     ).add_object(
-    #         visium_spots
-    #     )
-    #     return dataset
-
-    # def _setup_anndata_view_config(self, vc, dataset):
-    #     # Add / lay out views
-    #     umap = vc.add_view(
-    #         cm.SCATTERPLOT, dataset=dataset, mapping="UMAP",
-    #         w=3, h=6, x=0, y=0)
-    #     spatial = vc.add_view(
-    #         "spatialBeta", dataset=dataset,
-    #         w=3, h=6, x=3, y=0)
-    #     heatmap = vc.add_view(
-    #         cm.HEATMAP, dataset=dataset,
-    #         w=6, h=6, x=0, y=6
-    #     ).set_props(transpose=True)
-
-    #     lc = vc.add_view("layerControllerBeta", dataset=dataset,
-    #                      w=6, h=3, x=6, y=0)
-
-    #     cell_sets = vc.add_view(
-    #         cm.OBS_SETS, dataset=dataset,
-    #         w=3, h=4, x=6, y=2)
-
-    #     gene_list = vc.add_view(
-    #         cm.FEATURE_LIST, dataset=dataset,
-    #         w=3, h=4, x=9, y=2)
-
-    #     cell_sets_expr = vc.add_view(
-    #         cm.OBS_SET_FEATURE_VALUE_DISTRIBUTION, dataset=dataset,
-    #         w=3, h=5, x=6, y=7
-    #     )
-
-    #     cell_set_sizes = vc.add_view(cm.OBS_SET_SIZES, dataset=dataset,
-    #         w=3, h=5, x=9, y=7)
-
-    #     all_views = [spatial, lc, umap, cell_sets, cell_sets_expr, gene_list, cell_set_sizes, heatmap]
-
-    #     self._views = all_views
-       
-
-    #     spatial_views = [spatial, lc]
-    #     # self._views = spatial_views
-    #     # selected_gene_views = [umap, gene_list, heatmap, spatial]
-
-    #     # Indicate obs type for all views
-    #     # 
-    #     vc.link_views(all_views, ['obsType'], ['spot'])
-    #     vc.link_views_by_dict(spatial_views, {
-    #         "spatialTargetZ": 0,
-    #         "spatialTargetT": 0,
-    #         "imageLayer": CL([{
-    #             "fileUid": 'image',
-    #             "photometricInterpretation": 'RGB',
-    #         }]),
-    #     # }, meta=True, scope_prefix=get_initial_coordination_scope_prefix("A", "image"))
-    #     }, meta=True, scope_prefix=get_initial_coordination_scope_prefix(self._uuid, 'image'))
-
-    #     vc.link_views_by_dict(spatial_views, {
-    #         "spotLayer": CL([{
-    #             "spatialLayerOpacity": 1,
-    #             "spatialSpotRadius": 5,
-    #         }]),
-    #     }, scope_prefix=get_initial_coordination_scope_prefix(self._uuid, 'obsSpots'))
-
-    #     return vc
-
 
 
 class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
