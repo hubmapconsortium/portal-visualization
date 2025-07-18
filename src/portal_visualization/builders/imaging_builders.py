@@ -117,10 +117,7 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
         if self.seg_image_pyramid_regex is None:
             raise ValueError("seg_image_pyramid_regex is not set. Cannot find segmentation images.")
 
-        try:
-            found_images = get_found_images(self.seg_image_pyramid_regex, file_paths_found)
-        except Exception as e:
-            raise RuntimeError(f"Error while searching for segmentation images: {e}")
+        found_images = get_found_images(self.seg_image_pyramid_regex, file_paths_found)
 
         filtered_images = [
             img for img in found_images

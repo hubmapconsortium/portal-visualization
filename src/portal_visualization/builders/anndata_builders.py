@@ -13,11 +13,12 @@ from vitessce import (
 
 import numpy as np
 import zarr
-
+import re
 
 from .base_builders import ViewConfBuilder
-from ..utils import get_conf_cells, read_zip_zarr
+from ..utils import get_conf_cells, read_zip_zarr, get_found_images
 from ..constants import ZARR_PATH, ZIP_ZARR_PATH, MULTIOMIC_ZARR_PATH
+from ..paths import (IMAGE_PYRAMID_DIR, OFFSETS_DIR)
 
 RNA_SEQ_ANNDATA_FACTOR_PATHS = [f"obs/{key}" for key in [
     "marker_gene_0",
@@ -324,39 +325,12 @@ class SpatialRNASeqAnnDataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
         spatial.use_coordination(cells_layer)
         return spatial
 
-
-class SpatialMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewConfBuilder):
-    """
-    Wrapper class for creating a AnnData-backed view configuration for multiomic spatial data
-    such as Visium.
-    """
-
-    def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
-        super().__init__(entity, groups_token, assets_endpoint, **kwargs)
-        self._scatterplot_w = 3
-        self._spatial_w = 3
-
-    def _get_spot_radius(self):
-        z = self.zarr_store
-        visium_scalefactor_path = 'spatial/visium/scalefactors/spot_diameter_micrometers'
-        if visium_scalefactor_path in z['uns']:
-            # Since the scale factor is the diameter, we divide by 2 to get the radius
-            return z['uns'][visium_scalefactor_path][()].tolist() / 2
-
-    def _set_up_dataset(self, vc):
-        adata_url = self._build_assets_url(
-            ZARR_PATH, use_token=False)
-        image_url = self._build_assets_url(
-            'ometiff-pyramids/visium_histology_hires_pyramid.ome.tif', use_token=True)
-        # Add dataset with Visium image and secondary analysis anndata
-        dataset_uid = self._uuid
-        # TODO: The scaling for visium datasets is pending further investigation
-        # scale_factor = get_spots_scaling_factor(self.zarr_store)
+    def _set_visium_xenium_datasets(self, vc, image_url, offsets_url, adata_url):
         visium_image = ImageOmeTiffWrapper(
             img_url=image_url,
-            uid=dataset_uid,
+            uid=self._uuid,
+            offsets_url=offsets_url,
             request_init=self._get_request_init(),
-            # coordinate_transformations=[{"type": "scale", "scale": [scale_factor, scale_factor, 1, 1, 1]}]
         )
         visium_spots = AnnDataWrapper(
             adata_url=adata_url,
@@ -379,7 +353,7 @@ class SpatialMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewCon
         )
         dataset = vc.add_dataset(
             name='Visium',
-            uid=dataset_uid
+            uid=self._uuid
         ).add_object(
             visium_image
         ).add_object(
@@ -387,7 +361,7 @@ class SpatialMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewCon
         )
         return dataset
 
-    def _setup_anndata_view_config(self, vc, dataset):
+    def _set_visium_xenium_config(self, vc, dataset):
         # Add / lay out views
         umap = vc.add_view(
             cm.SCATTERPLOT, dataset=dataset, mapping="UMAP",
@@ -403,7 +377,6 @@ class SpatialMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewCon
         lc = vc.add_view("layerControllerBeta", dataset=dataset,
                          w=6, h=3, x=6, y=0)
 
-        # Add scatterplot, cellsets, gene list, cellsets expression, and heatmap
         cell_sets = vc.add_view(
             cm.OBS_SETS, dataset=dataset,
             w=3, h=4, x=6, y=2)
@@ -414,13 +387,15 @@ class SpatialMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewCon
 
         cell_sets_expr = vc.add_view(
             cm.OBS_SET_FEATURE_VALUE_DISTRIBUTION, dataset=dataset,
-            w=6, h=5, x=6, y=7
+            w=3, h=5, x=6, y=7
         )
 
-        all_views = [spatial, lc, umap, cell_sets, cell_sets_expr, gene_list, heatmap]
+        cell_set_sizes = vc.add_view(cm.OBS_SET_SIZES, dataset=dataset,
+                                     w=3, h=5, x=9, y=7)
+
+        all_views = [spatial, lc, umap, cell_sets, cell_sets_expr, gene_list, cell_set_sizes, heatmap]
 
         self._views = all_views
-
         spatial_views = [spatial, lc]
 
         # selected_gene_views = [umap, gene_list, heatmap, spatial]
@@ -429,7 +404,7 @@ class SpatialMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewCon
         vc.link_views(all_views, ['obsType'], ['spot'])
         vc.link_views_by_dict(spatial_views, {
             "imageLayer": CL([{
-                "photometricInterpretation": 'RGB',
+                "photometricInterpretation": self._photometricInterpretation,
             }]),
         }, scope_prefix=get_initial_coordination_scope_prefix(self._uuid, 'image'))
         vc.link_views_by_dict(spatial_views, {
@@ -439,6 +414,105 @@ class SpatialMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewCon
             }]),
         }, scope_prefix=get_initial_coordination_scope_prefix(self._uuid, 'obsSpots'))
         return vc
+
+
+class SpatialMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewConfBuilder):
+    """
+    Wrapper class for creating a AnnData-backed view configuration for multiomic spatial data
+    such as Visium.
+    """
+
+    def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
+        super().__init__(entity, groups_token, assets_endpoint, **kwargs)
+        self._scatterplot_w = 3
+        self._spatial_w = 3
+        self._photometricInterpretation = 'RGB'
+
+    def _get_spot_radius(self):
+        z = self.zarr_store
+        visium_scalefactor_path = 'spatial/visium/scalefactors/spot_diameter_micrometers'
+        if visium_scalefactor_path in z['uns']:
+            # Since the scale factor is the diameter, we divide by 2 to get the radius
+            return z['uns'][visium_scalefactor_path][()].tolist() / 2
+
+    def _set_up_dataset(self, vc):
+        file_paths_found = self._get_file_paths()
+        zarr_path = ZARR_PATH
+        if any('.zarr.zip' in path for path in file_paths_found):  # pragma: no cover
+            self._is_zarr_zip = True
+            zarr_path = ZIP_ZARR_PATH
+
+        elif f'{ZARR_PATH}/.zgroup' not in file_paths_found:  # pragma: no cover
+            message = f'RNA-seq assay with uuid {self._uuid} has no .zarr store at {ZARR_PATH}'
+            raise FileNotFoundError(message)
+        adata_url = self._build_assets_url(
+            zarr_path, use_token=False)
+        image_url = self._build_assets_url(
+            'ometiff-pyramids/visium_histology_hires_pyramid.ome.tif', use_token=True)
+        offsets_url = self._build_assets_url(
+            'output_offsets/visium_histology_hires_pyramid.offsets.json', use_token=True)
+
+        # Add dataset with Visium image and secondary analysis anndata
+
+        dataset = self._set_visium_xenium_datasets(vc, image_url, offsets_url, adata_url)
+        return dataset
+
+    def _setup_anndata_view_config(self, vc, dataset):
+        return self._set_visium_xenium_config(vc, dataset)
+
+
+class XeniumMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewConfBuilder):
+    """
+    Wrapper class for creating a AnnData-backed view configuration for multiomic spatial data
+    such as Visium.
+    """
+
+    def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
+        super().__init__(entity, groups_token, assets_endpoint, **kwargs)
+        self._scatterplot_w = 3
+        self._spatial_w = 3
+        self._photometricInterpretation = 'BlackIsZero'
+
+    def _get_spot_radius(self):
+        #    TODO: Need to check if we have any dimensions for Xenium
+        return 5
+
+    def _get_img_offset_url(self, img_path, img_dir):
+        img_url = self._build_assets_url(img_path)
+        return (
+            img_url,
+            str(
+                re.sub(
+                    r"ome\.tiff?",
+                    "offsets.json",
+                    re.sub(img_dir, OFFSETS_DIR, img_url),
+                )
+            ),
+        )
+
+    def _set_up_dataset(self, vc):
+        file_paths_found = self._get_file_paths()
+        found_images = get_found_images(IMAGE_PYRAMID_DIR, file_paths_found)
+
+        # Use .zgroup file as proxy for whether or not the zarr store is present.
+        zarr_path = ZARR_PATH
+        if any('.zarr.zip' in path for path in file_paths_found):
+            self._is_zarr_zip = True
+            zarr_path = ZIP_ZARR_PATH
+
+        elif f'{ZARR_PATH}/.zgroup' not in file_paths_found:  # pragma: no cover
+            message = f'RNA-seq assay with uuid {self._uuid} has no .zarr store at {ZARR_PATH}'
+            raise FileNotFoundError(message)
+        adata_url = self._build_assets_url(
+            zarr_path, use_token=False)
+        image_url, offsets_url = self._get_img_offset_url(
+            found_images[0], img_dir=IMAGE_PYRAMID_DIR)
+
+        dataset = self._set_visium_xenium_datasets(vc, image_url, offsets_url, adata_url)
+        return dataset
+
+    def _setup_anndata_view_config(self, vc, dataset):
+        return self._set_visium_xenium_config(vc, dataset)
 
 
 class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):

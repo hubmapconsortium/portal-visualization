@@ -5,7 +5,6 @@ import json
 from pathlib import Path
 from os import environ
 from dataclasses import dataclass
-from unittest.mock import patch
 
 import pytest
 import zarr
@@ -311,22 +310,6 @@ def test_filtered_images_no_regex(mock_seg_image_pyramid_builder):
         assert str(e) == "seg_image_pyramid_regex is not set. Cannot find segmentation images."
 
 
-def mock_get_found_images(regex, file_paths):
-    raise ValueError("Simulated failure in get_found_images")
-
-
-def test_runtime_error_in_add_segmentation_image(mock_seg_image_pyramid_builder):
-    with patch('src.portal_visualization.builders.imaging_builders.get_found_images',
-               side_effect=mock_get_found_images):
-        mock_seg_image_pyramid_builder.seg_image_pyramid_regex = "image_pyramid"
-
-        with pytest.raises(RuntimeError) as err:
-            mock_seg_image_pyramid_builder._add_segmentation_image(None)
-
-        assert "Error while searching for segmentation images" in str(err.value)
-        assert "Simulated failure in get_found_images" in str(err.value)
-
-
 def test_find_segmentation_images_runtime_error():
     with pytest.raises(RuntimeError) as e:
         try:
@@ -347,6 +330,22 @@ def test_get_found_images():
     result = get_found_images(regex, file_paths)
     assert len(result) == 1
     assert result[0] == "image_pyramid/sample.ome.tiff"
+
+
+def test_get_found_images_error_handling():
+    file_paths = [
+        "image_pyramid/sample.ome.tiff",
+        "image_pyramid/sample_separate/sample.ome.tiff",
+    ]
+    regex = "["  # invalid regex, forces re.error
+
+    with pytest.raises(RuntimeError) as excinfo:
+        try:
+            get_found_images(regex, file_paths)
+        except Exception as e:
+            raise RuntimeError(f"Error while searching for pyramid images: {e}")
+
+    assert "Error while searching for pyramid images" in str(excinfo.value)
 
 
 if __name__ == "__main__":  # pragma: no cover
