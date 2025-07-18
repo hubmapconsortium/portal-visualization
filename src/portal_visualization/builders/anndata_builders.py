@@ -396,7 +396,6 @@ class SpatialRNASeqAnnDataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
         all_views = [spatial, lc, umap, cell_sets, cell_sets_expr, gene_list, cell_set_sizes, heatmap]
 
         self._views = all_views
-        print("views", self._views)
         spatial_views = [spatial, lc]
 
         # selected_gene_views = [umap, gene_list, heatmap, spatial]
@@ -452,7 +451,6 @@ class SpatialMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewCon
         offsets_url =  self._build_assets_url(
             'output_offsets/visium_histology_hires_pyramid.offsets.json', use_token=True)
         
-        offsets_url = ""
         # Add dataset with Visium image and secondary analysis anndata
 
         dataset = self._set_visium_xenium_datasets(vc, image_url, offsets_url, adata_url)
