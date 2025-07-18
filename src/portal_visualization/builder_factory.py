@@ -12,12 +12,14 @@ from .builders.imaging_builders import (
     KaggleSegImagePyramidViewConfBuilder,
     GeoMxImagePyramidViewConfBuilder,
     NanoDESIViewConfBuilder,
+    XeniumImagePyramidViewConfBuilder,
 )
 from .builders.anndata_builders import (
     MultiomicAnndataZarrViewConfBuilder,
     SpatialRNASeqAnnDataZarrViewConfBuilder,
     RNASeqAnnDataZarrViewConfBuilder,
     SpatialMultiomicAnnDataZarrViewConfBuilder,
+    XeniumlMultiomicAnnDataZarrViewConfBuilder
 )
 from .builders.scatterplot_builders import RNASeqViewConfBuilder, ATACSeqViewConfBuilder
 from .assays import SEQFISH, MALDI_IMS, NANODESI, SALMON_RNASSEQ_SLIDE
@@ -38,6 +40,7 @@ def process_hints(hints):
     is_support = "is_support" in hints
     is_seg_mask = "segmentation_mask" in hints
     is_geomx = "geomx" in hints
+    is_xenium = 'xenium' in hints
 
     return (
         is_image,
@@ -50,7 +53,8 @@ def process_hints(hints):
         is_spatial,
         is_support,
         is_seg_mask,
-        is_geomx
+        is_geomx,
+        is_xenium
     )
 
 
@@ -75,6 +79,7 @@ def get_view_config_builder(entity, get_entity, parent=None, epic_uuid=None):
         is_support,
         is_seg_mask,
         is_geomx,
+        is_xenium,
     ) = process_hints(hints)
 
     # vis-lifted image pyramids
@@ -84,9 +89,17 @@ def get_view_config_builder(entity, get_entity, parent=None, epic_uuid=None):
             return EpicSegImagePyramidViewConfBuilder
         elif is_seg_mask:
             return KaggleSegImagePyramidViewConfBuilder
+        
+        elif is_xenium:
+            # return XeniumImagePyramidViewConfBuilder
+            return XeniumlMultiomicAnnDataZarrViewConfBuilder
 
         elif is_support and is_image:
-            ancestor_assaytype = get_entity(parent).get("soft_assaytype")
+            if entity is not None:
+                ancestor_assaytype = entity.get("soft_assaytype")
+            else:
+                ancestor_assaytype = None
+            # ancestor_assaytype = get_entity(parent).get("soft_assaytype")
             if SEQFISH == ancestor_assaytype:
                 # e.g. parent  = c6a254b2dc2ed46b002500ade163a7cc
                 # e.g. support = 9db61adfc017670a196ea9b3ca1852a0
