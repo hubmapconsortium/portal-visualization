@@ -464,11 +464,8 @@ class XeniumlMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewCon
         self.image_pyramid_regex = IMAGE_PYRAMID_DIR
 
     def _get_spot_radius(self):
-        z = self.zarr_store
-        if visium_scalefactor_path in z['uns']:
-            print("if")
-            # Since the scale factor is the diameter, we divide by 2 to get the radius
-            return z['uns'][visium_scalefactor_path][()].tolist() / 2
+    #    TODO: Need to check if we have any dimensions for Xenium
+       return 5 
         
 
     def _get_img_offset_url(self, img_path, img_dir):
@@ -508,6 +505,12 @@ class XeniumlMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewCon
             zarr_path, use_token=False)
         image_url, offsets_url = self._get_img_offset_url(
            found_images[0], img_dir=IMAGE_PYRAMID_DIR)
+        
+        dataset = self._set_visium_xenium_datasets(vc, image_url, offsets_url, adata_url)
+        return dataset
+
+    def _setup_anndata_view_config(self, vc, dataset):
+        return self._set_visium_xenium_config(vc,dataset)
         
     #     visium_image = ImageOmeTiffWrapper(
     #         img_url=image_url,
