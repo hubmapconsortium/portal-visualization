@@ -1,4 +1,5 @@
 from functools import cached_property
+
 from vitessce import (
     VitessceConfig,
     AnnDataWrapper,
@@ -19,6 +20,8 @@ from .base_builders import ViewConfBuilder
 from ..utils import get_conf_cells, read_zip_zarr, get_found_images
 from ..constants import ZARR_PATH, ZIP_ZARR_PATH
 from ..paths import (IMAGE_PYRAMID_DIR, OFFSETS_DIR)
+from ..utils import get_conf_cells, read_zip_zarr
+from ..constants import ZARR_PATH, ZIP_ZARR_PATH, MULTIOMIC_ZARR_PATH
 
 RNA_SEQ_ANNDATA_FACTOR_PATHS = [f"obs/{key}" for key in [
     "marker_gene_0",
@@ -42,7 +45,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         # Spatially resolved RNA-seq assays require some special handling,
         # and others do not.
         self._is_spatial = False
-        self._is_zarr_zip = False
+        self._scatterplot_w = 6 if self.is_annotated else 9
         self._spatial_w = 0
         self._obs_set_paths = None
         self._obs_set_names = None
@@ -51,11 +54,10 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         self._marker = None
         self._gene_alias = None
         self._views = None
-        self._is_annotated = None
-        self._scatterplot_w = None
 
     @cached_property
     def zarr_store(self):
+        zarr_path = 'hubmap_ui/anndata-zarr/secondary_analysis.zarr'
         request_init = self._get_request_init() or {}
         zarr_path = ZIP_ZARR_PATH if self._is_zarr_zip else ZARR_PATH
 
@@ -535,7 +537,7 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
 
     @cached_property
     def zarr_store(self):
-        zarr_path = ZIP_ZARR_PATH if self._is_zarr_zip else ZARR_PATH
+        zarr_path = f'{MULTIOMIC_ZARR_PATH}.zip' if self._is_zarr_zip else MULTIOMIC_ZARR_PATH
         request_init = self._get_request_init() or {}
         adata_url = self._build_assets_url(zarr_path, use_token=False)
         return zarr.open(adata_url, mode='r', storage_options={'client_kwargs': request_init})
@@ -559,14 +561,12 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
             return False
 
     def get_conf_cells(self, marker=None):
-
-        # TODO: The files array is empty for this entity, so we can't check for the zarr store
-
-        # zarr_path = 'hubmap_ui/mudata-zarr/secondary_analysis.zarr'
-        # file_paths_found = [file["rel_path"] for file in self._entity["files"]]
+        # file_paths_found = [file["rel_path"] for file in self._entity["files"] if "files" in self._entity]
         # # Use .zgroup file as proxy for whether or not the zarr store is present.
-        # if f'{zarr_path}/.zgroup' not in file_paths_found:
-        #     message = f'Multiomic assay with uuid {self._uuid} has no .zarr store at {zarr_path}'
+        # if any('.zarr.zip' in path for path in file_paths_found): # pragma: no cover
+        #     self._is_zarr_zip = True
+        # elif not self._is_zarr_zip and f'{MULTIOMIC_ZARR_PATH}/.zgroup' not in file_paths_found:  # pragma: no cover
+        #     message = f'Multiomic assay with uuid {self._uuid} has no .zarr store at {MULTIOMIC_ZARR_PATH}'
         #     raise FileNotFoundError(message)
 
         # Each clustering has its own genomic profile; since we can't currently toggle between
@@ -615,7 +615,7 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
             # We run add_object with adata_path=rna_zarr first to add the cell-by-gene
             # matrix and associated metadata.
             adata_url=rna_zarr,
-            is_zip=self._is_zarr_zip,
+            # is_zip=self._is_zarr_zip,
             obs_embedding_paths=["obsm/X_umap"],
             obs_embedding_names=["UMAP - RNA"],
             obs_set_paths=self._obs_set_paths,
@@ -647,6 +647,7 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
             }
         )).add_object(AnnDataWrapper(
             adata_url=h5mu_zarr,
+            # is_zip=self._is_zarr_zip,
             obs_feature_matrix_path="X",
             obs_embedding_paths=["obsm/X_umap"],
             obs_embedding_names=["UMAP - WNN"],

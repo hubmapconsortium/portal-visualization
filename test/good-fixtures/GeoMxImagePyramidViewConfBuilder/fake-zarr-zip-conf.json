@@ -1,0 +1,280 @@
+{
+    "version": "1.0.15",
+    "name": "HuBMAP Data Portal",
+    "description": "",
+    "datasets": [
+      {
+        "uid": "A",
+        "name": "Visualization Files",
+        "files": [
+          {
+            "fileType": "image.ome-tiff",
+            "url": "https://example.com/bc7239d27b79e087c788600261f073e5/ometiff-pyramids/lab_processed/images/GeoMx4_Niedernhofer_Project_060.ome.tif?token=groups_token",
+            "options": {
+              "offsetsUrl": "https://example.com/bc7239d27b79e087c788600261f073e5/output_offsets/lab_processed/images/GeoMx4_Niedernhofer_Project_060.offsets.json?token=groups_token"
+            },
+            "coordinationValues": {
+              "fileUid": "image"
+            }
+          },
+          {
+            "fileType": "obsSegmentations.ome-tiff",
+            "url": "https://example.com/bc7239d27b79e087c788600261f073e5/ometiff-pyramids/GeoMx4_Niedernhofer_Project_060.segmentations.ome.tif?token=groups_token",
+            "options": {
+                "coordinateTransformations": [
+                  {
+                    "scale": [
+                                1,
+                                1,
+                                1,
+                                1,
+                                1
+
+                    ],
+                    "type": "scale"
+                  }
+              ],
+              "obsTypesFromChannelNames": true,
+              "offsetsUrl": "https://example.com/bc7239d27b79e087c788600261f073e5/output_offsets/GeoMx4_Niedernhofer_Project_060.segmentations.offsets.json?token=groups_token"
+            },
+            "coordinationValues": {
+              "fileUid": "segmentations"
+            }
+          },
+          {
+            "fileType": "anndata.zarr.zip",
+            "url": "https://example.com/bc7239d27b79e087c788600261f073e5/output_ome_segments?token=groups_token/aoi.zarr.zip",
+            "options": {
+              "obsSets": [
+                {
+                  "name": "ROI",
+                  "path": "obs/roi_id"
+                }
+              ]
+            },
+            "coordinationValues": {
+              "obsType": "area"
+            }
+          },
+          {
+            "fileType": "obsSegmentations.json",
+            "url": "https://example.com/bc7239d27b79e087c788600261f073e5/output_ome_segments?token=groups_token/obsSegmentations.json",
+            "coordinationValues": {
+              "obsType": "region",
+              "fileUid": "region_json_segmentations"
+            }
+          }
+        ]
+      }
+    ],
+    "coordinationSpace": {
+      "dataset": {
+        "A": "A"
+      },
+      "spatialTargetZ": {
+        "init_A_image_0": 0
+      },
+      "spatialTargetT": {
+        "init_A_image_0": 0
+      },
+      "imageLayer": {
+        "init_A_image_0": "__dummy__"
+      },
+      "fileUid": {
+        "init_A_image_0": "image",
+        "init_A_obsSegmentations_0": "segmentations",
+        "init_A_obsSegmentations_1": "region_json_segmentations"
+      },
+      "photometricInterpretation": {
+        "init_A_image_0": "BlackIsZero"
+      },
+      "metaCoordinationScopes": {
+        "init_A_image_0": {
+          "spatialTargetZ": "init_A_image_0",
+          "spatialTargetT": "init_A_image_0",
+          "imageLayer": [
+            "init_A_image_0"
+          ]
+        },
+        "init_A_obsSegmentations_0": {
+          "segmentationLayer": [
+            "init_A_obsSegmentations_0",
+            "init_A_obsSegmentations_1"
+          ]
+        }
+      },
+      "metaCoordinationScopesBy": {
+        "init_A_image_0": {
+          "imageLayer": {
+            "fileUid": {
+              "init_A_image_0": "init_A_image_0"
+            },
+            "photometricInterpretation": {
+              "init_A_image_0": "init_A_image_0"
+            }
+          }
+        },
+        "init_A_obsSegmentations_0": {
+          "segmentationLayer": {
+            "fileUid": {
+              "init_A_obsSegmentations_0": "init_A_obsSegmentations_0",
+              "init_A_obsSegmentations_1": "init_A_obsSegmentations_1"
+            },
+            "spatialLayerOpacity": {
+              "init_A_obsSegmentations_0": "init_A_obsSegmentations_0",
+              "init_A_obsSegmentations_1": "init_A_obsSegmentations_1"
+            },
+            "spatialLayerVisible": {
+              "init_A_obsSegmentations_0": "init_A_obsSegmentations_0",
+              "init_A_obsSegmentations_1": "init_A_obsSegmentations_1"
+            },
+            "segmentationChannel": {
+              "init_A_obsSegmentations_0": [
+                "init_A_obsSegmentations_0"
+              ],
+              "init_A_obsSegmentations_1": [
+                "init_A_obsSegmentations_1"
+              ]
+            }
+          },
+          "segmentationChannel": {
+            "spatialTargetC": {
+              "init_A_obsSegmentations_0": "init_A_obsSegmentations_0",
+              "init_A_obsSegmentations_1": "init_A_obsSegmentations_1"
+            },
+            "obsType": {
+              "init_A_obsSegmentations_0": "init_A_obsSegmentations_0",
+              "init_A_obsSegmentations_1": "init_A_obsSegmentations_1"
+            },
+            "spatialChannelColor": {
+              "init_A_obsSegmentations_0": "init_A_obsSegmentations_0",
+              "init_A_obsSegmentations_1": "init_A_obsSegmentations_1"
+            },
+            "spatialChannelOpacity": {
+              "init_A_obsSegmentations_0": "init_A_obsSegmentations_0",
+              "init_A_obsSegmentations_1": "init_A_obsSegmentations_1"
+            },
+            "obsHighlight": {
+              "init_A_obsSegmentations_0": "init_A_obsSegmentations_0",
+              "init_A_obsSegmentations_1": "init_A_obsSegmentations_1"
+            },
+            "spatialChannelVisible": {
+              "init_A_obsSegmentations_0": "init_A_obsSegmentations_0",
+              "init_A_obsSegmentations_1": "init_A_obsSegmentations_1"
+            },
+            "obsColorEncoding": {
+              "init_A_obsSegmentations_0": "init_A_obsSegmentations_0",
+              "init_A_obsSegmentations_1": "init_A_obsSegmentations_1"
+            },
+            "spatialSegmentationFilled": {
+              "init_A_obsSegmentations_0": "init_A_obsSegmentations_0",
+              "init_A_obsSegmentations_1": "init_A_obsSegmentations_1"
+            },
+            "spatialSegmentationStrokeWidth": {
+              "init_A_obsSegmentations_0": "init_A_obsSegmentations_0",
+              "init_A_obsSegmentations_1": "init_A_obsSegmentations_1"
+            }
+          }
+        }
+      },
+      "segmentationLayer": {
+        "init_A_obsSegmentations_0": "__dummy__",
+        "init_A_obsSegmentations_1": "__dummy__"
+      },
+      "spatialLayerOpacity": {
+        "init_A_obsSegmentations_0": 1.0,
+        "init_A_obsSegmentations_1": 1.0
+      },
+      "spatialLayerVisible": {
+        "init_A_obsSegmentations_0": true,
+        "init_A_obsSegmentations_1": true
+      },
+      "segmentationChannel": {
+        "init_A_obsSegmentations_0": "__dummy__",
+        "init_A_obsSegmentations_1": "__dummy__"
+      },
+      "spatialTargetC": {
+        "init_A_obsSegmentations_0": 0,
+        "init_A_obsSegmentations_1": 0
+      },
+      "obsType": {
+        "init_A_obsSegmentations_0": "Full ROI",
+        "init_A_obsSegmentations_1": "region"
+      },
+      "spatialChannelColor": {
+        "init_A_obsSegmentations_0": [
+          155,
+          165,
+          31
+        ],
+        "init_A_obsSegmentations_1": [
+          255,
+          255,
+          255
+        ]
+      },
+      "spatialChannelOpacity": {
+        "init_A_obsSegmentations_0": 0.8,
+        "init_A_obsSegmentations_1": 0.8
+      },
+      "obsHighlight": {
+        "init_A_obsSegmentations_0": null,
+        "init_A_obsSegmentations_1": null
+      },
+      "spatialChannelVisible": {
+        "init_A_obsSegmentations_0": true,
+        "init_A_obsSegmentations_1": true
+      },
+      "obsColorEncoding": {
+        "init_A_obsSegmentations_0": "spatialChannelColor",
+        "init_A_obsSegmentations_1": "spatialChannelColor"
+      },
+      "spatialSegmentationFilled": {
+        "init_A_obsSegmentations_0": true,
+        "init_A_obsSegmentations_1": false
+      },
+      "spatialSegmentationStrokeWidth": {
+        "init_A_obsSegmentations_0": 0.01,
+        "init_A_obsSegmentations_1": 5
+      }
+    },
+    "layout": [
+      {
+        "component": "spatialBeta",
+        "coordinationScopes": {
+          "dataset": "A",
+          "metaCoordinationScopes": [
+            "init_A_image_0",
+            "init_A_obsSegmentations_0"
+          ],
+          "metaCoordinationScopesBy": [
+            "init_A_image_0",
+            "init_A_obsSegmentations_0"
+          ]
+        },
+        "x": 0,
+        "y": 0,
+        "w": 8,
+        "h": 12
+      },
+      {
+        "component": "layerControllerBeta",
+        "coordinationScopes": {
+          "dataset": "A",
+          "metaCoordinationScopes": [
+            "init_A_image_0",
+            "init_A_obsSegmentations_0"
+          ],
+          "metaCoordinationScopesBy": [
+            "init_A_image_0",
+            "init_A_obsSegmentations_0"
+          ]
+        },
+        "x": 8,
+        "y": 0,
+        "w": 4,
+        "h": 12
+      }
+    ],
+    "initStrategy": "auto"
+  }
