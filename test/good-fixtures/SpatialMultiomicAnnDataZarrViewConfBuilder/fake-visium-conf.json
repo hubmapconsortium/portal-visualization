@@ -68,7 +68,10 @@
       "files": [
         {
           "fileType": "image.ome-tiff",
-          "url": "https://example.com/72ec02cf1390428c1e9dc2c88928f5f5/ometiff-pyramids/visium_histology_hires_pyramid.ome.tif?token=groups_token"
+          "url": "https://example.com/72ec02cf1390428c1e9dc2c88928f5f5/ometiff-pyramids/visium_histology_hires_pyramid.ome.tif?token=groups_token",
+          "options": {
+            "offsetsUrl":"https://example.com/72ec02cf1390428c1e9dc2c88928f5f5/output_offsets/visium_histology_hires_pyramid.offsets.json?token=groups_token"
+          }
         },
         {
           "coordinationValues": {
