@@ -17,7 +17,7 @@ import re
 
 from .base_builders import ViewConfBuilder
 from ..utils import get_conf_cells, read_zip_zarr, get_found_images
-from ..constants import ZARR_PATH, ZIP_ZARR_PATH, MULTIOMIC_ZARR_PATH
+from ..constants import ZARR_PATH, ZIP_ZARR_PATH
 from ..paths import (IMAGE_PYRAMID_DIR, OFFSETS_DIR)
 
 RNA_SEQ_ANNDATA_FACTOR_PATHS = [f"obs/{key}" for key in [
@@ -521,7 +521,8 @@ class XeniumlMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewCon
 
     def _setup_anndata_view_config(self, vc, dataset):
         return self._set_visium_xenium_config(vc, dataset)
-    
+
+
 class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
     """Wrapper class for creating a AnnData-backed view configuration
     for multiomic data from mudata-to-ui.cwl like 10X Multiome
@@ -534,7 +535,7 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
 
     @cached_property
     def zarr_store(self):
-        zarr_path = f'{MULTIOMIC_ZARR_PATH}.zip' if self._is_zarr_zip else MULTIOMIC_ZARR_PATH
+        zarr_path = ZIP_ZARR_PATH if self._is_zarr_zip else ZARR_PATH
         request_init = self._get_request_init() or {}
         adata_url = self._build_assets_url(zarr_path, use_token=False)
         return zarr.open(adata_url, mode='r', storage_options={'client_kwargs': request_init})
@@ -558,12 +559,14 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
             return False
 
     def get_conf_cells(self, marker=None):
-        # file_paths_found = [file["rel_path"] for file in self._entity["files"] if "files" in self._entity]
+
+        # TODO: The files array is empty for this entity, so we can't check for the zarr store
+
+        # zarr_path = 'hubmap_ui/mudata-zarr/secondary_analysis.zarr'
+        # file_paths_found = [file["rel_path"] for file in self._entity["files"]]
         # # Use .zgroup file as proxy for whether or not the zarr store is present.
-        # if any('.zarr.zip' in path for path in file_paths_found): # pragma: no cover
-        #     self._is_zarr_zip = True
-        # elif not self._is_zarr_zip and f'{MULTIOMIC_ZARR_PATH}/.zgroup' not in file_paths_found:  # pragma: no cover
-        #     message = f'Multiomic assay with uuid {self._uuid} has no .zarr store at {MULTIOMIC_ZARR_PATH}'
+        # if f'{zarr_path}/.zgroup' not in file_paths_found:
+        #     message = f'Multiomic assay with uuid {self._uuid} has no .zarr store at {zarr_path}'
         #     raise FileNotFoundError(message)
 
         # Each clustering has its own genomic profile; since we can't currently toggle between
@@ -612,7 +615,7 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
             # We run add_object with adata_path=rna_zarr first to add the cell-by-gene
             # matrix and associated metadata.
             adata_url=rna_zarr,
-            # is_zip=self._is_zarr_zip,
+            is_zip=self._is_zarr_zip,
             obs_embedding_paths=["obsm/X_umap"],
             obs_embedding_names=["UMAP - RNA"],
             obs_set_paths=self._obs_set_paths,
@@ -644,7 +647,6 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
             }
         )).add_object(AnnDataWrapper(
             adata_url=h5mu_zarr,
-            # is_zip=self._is_zarr_zip,
             obs_feature_matrix_path="X",
             obs_embedding_paths=["obsm/X_umap"],
             obs_embedding_names=["UMAP - WNN"],
