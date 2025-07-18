@@ -93,7 +93,6 @@ def get_view_config_builder(entity, get_entity, parent=None, epic_uuid=None):
 
         elif is_support and is_image:
             ancestor_assaytype = get_entity(parent).get("soft_assaytype")
-            # ancestor_assaytype = get_entity(parent).get("soft_assaytype")
             if SEQFISH == ancestor_assaytype:
                 # e.g. parent  = c6a254b2dc2ed46b002500ade163a7cc
                 # e.g. support = 9db61adfc017670a196ea9b3ca1852a0
