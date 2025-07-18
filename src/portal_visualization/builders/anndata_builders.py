@@ -460,7 +460,7 @@ class SpatialMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewCon
         return self._set_visium_xenium_config(vc, dataset)
 
 
-class XeniumlMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewConfBuilder):
+class XeniumMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewConfBuilder):
     """
     Wrapper class for creating a AnnData-backed view configuration for multiomic spatial data
     such as Visium.

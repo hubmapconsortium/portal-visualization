@@ -18,7 +18,7 @@ from .builders.anndata_builders import (
     SpatialRNASeqAnnDataZarrViewConfBuilder,
     RNASeqAnnDataZarrViewConfBuilder,
     SpatialMultiomicAnnDataZarrViewConfBuilder,
-    XeniumlMultiomicAnnDataZarrViewConfBuilder
+    XeniumMultiomicAnnDataZarrViewConfBuilder
 )
 from .builders.scatterplot_builders import RNASeqViewConfBuilder, ATACSeqViewConfBuilder
 from .assays import SEQFISH, MALDI_IMS, NANODESI, SALMON_RNASSEQ_SLIDE
@@ -89,7 +89,7 @@ def get_view_config_builder(entity, get_entity, parent=None, epic_uuid=None):
         elif is_seg_mask:
             return KaggleSegImagePyramidViewConfBuilder
         elif is_xenium:
-            return XeniumlMultiomicAnnDataZarrViewConfBuilder
+            return XeniumMultiomicAnnDataZarrViewConfBuilder
 
         elif is_support and is_image:
             ancestor_assaytype = get_entity(parent).get("soft_assaytype")
