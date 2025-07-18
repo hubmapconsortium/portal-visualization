@@ -1,5 +1,5 @@
 {
     "vitessce-hints": [
-      "xenium"
+      "xenium", "is_image"
     ]
   }

@@ -88,8 +88,6 @@ def get_view_config_builder(entity, get_entity, parent=None, epic_uuid=None):
             return EpicSegImagePyramidViewConfBuilder
         elif is_seg_mask:
             return KaggleSegImagePyramidViewConfBuilder
-        elif is_xenium:
-            return XeniumMultiomicAnnDataZarrViewConfBuilder
 
         elif is_support and is_image:
             ancestor_assaytype = get_entity(parent).get("soft_assaytype")
@@ -130,6 +128,8 @@ def get_view_config_builder(entity, get_entity, parent=None, epic_uuid=None):
             return StitchedCytokitSPRMViewConfBuilder
         if is_geomx:
             return GeoMxImagePyramidViewConfBuilder
+        if is_xenium:
+            return XeniumMultiomicAnnDataZarrViewConfBuilder
 
     if is_rna:
         # multiomic mudata, e.g. 10x Multiome, SNARE-Seq, etc.
