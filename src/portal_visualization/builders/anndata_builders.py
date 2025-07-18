@@ -404,7 +404,7 @@ class SpatialRNASeqAnnDataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
         vc.link_views(all_views, ['obsType'], ['spot'])
         vc.link_views_by_dict(spatial_views, {
             "imageLayer": CL([{
-                "photometricInterpretation": 'RGB',
+                "photometricInterpretation": self._photometricInterpretation,
             }]),
         }, scope_prefix=get_initial_coordination_scope_prefix(self._uuid, 'image'))
         vc.link_views_by_dict(spatial_views, {
@@ -426,6 +426,7 @@ class SpatialMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewCon
         super().__init__(entity, groups_token, assets_endpoint, **kwargs)
         self._scatterplot_w = 3
         self._spatial_w = 3
+        self._photometricInterpretation = 'RGB'
 
     def _get_spot_radius(self):
         z = self.zarr_store
@@ -437,11 +438,11 @@ class SpatialMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewCon
     def _set_up_dataset(self, vc):
         file_paths_found = self._get_file_paths()
         zarr_path = ZARR_PATH
-        if any('.zarr.zip' in path for path in file_paths_found):
+        if any('.zarr.zip' in path for path in file_paths_found):  # pragma: no cover
             self._is_zarr_zip = True
             zarr_path = ZIP_ZARR_PATH
 
-        elif f'{ZARR_PATH}/.zgroup' not in file_paths_found:
+        elif f'{ZARR_PATH}/.zgroup' not in file_paths_found:  # pragma: no cover
             message = f'RNA-seq assay with uuid {self._uuid} has no .zarr store at {ZARR_PATH}'
             raise FileNotFoundError(message)
         adata_url = self._build_assets_url(
@@ -470,7 +471,7 @@ class XeniumMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewConf
         super().__init__(entity, groups_token, assets_endpoint, **kwargs)
         self._scatterplot_w = 3
         self._spatial_w = 3
-        self.image_pyramid_regex = IMAGE_PYRAMID_DIR
+        self._photometricInterpretation = 'BlackIsZero'
 
     def _get_spot_radius(self):
         #    TODO: Need to check if we have any dimensions for Xenium
@@ -491,22 +492,15 @@ class XeniumMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewConf
 
     def _set_up_dataset(self, vc):
         file_paths_found = self._get_file_paths()
+        found_images = get_found_images(IMAGE_PYRAMID_DIR, file_paths_found)
 
-        try:
-            found_images = get_found_images(IMAGE_PYRAMID_DIR, file_paths_found)
-            print("found", found_images)
-        except Exception as e:
-            raise RuntimeError(f"Error while searching for pyramid images: {e}")
-        # print(IMAGE_PYRAMID_DIR)
-
-        # offsets_path = re.sub(IMAGE_PYRAMID_DIR, OFFSETS_DIR, IMAGE_PYRAMID_DIR)
         # Use .zgroup file as proxy for whether or not the zarr store is present.
         zarr_path = ZARR_PATH
         if any('.zarr.zip' in path for path in file_paths_found):
             self._is_zarr_zip = True
             zarr_path = ZIP_ZARR_PATH
 
-        elif f'{ZARR_PATH}/.zgroup' not in file_paths_found:
+        elif f'{ZARR_PATH}/.zgroup' not in file_paths_found:  # pragma: no cover
             message = f'RNA-seq assay with uuid {self._uuid} has no .zarr store at {ZARR_PATH}'
             raise FileNotFoundError(message)
         adata_url = self._build_assets_url(

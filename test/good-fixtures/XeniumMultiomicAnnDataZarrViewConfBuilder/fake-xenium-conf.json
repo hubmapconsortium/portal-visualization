@@ -75,7 +75,7 @@
         "init_b5a761d74cc61972e80d1b0fdca1b7e4_image_0": "__dummy__"
       },
       "photometricInterpretation": {
-        "init_b5a761d74cc61972e80d1b0fdca1b7e4_image_0": "RGB"
+        "init_b5a761d74cc61972e80d1b0fdca1b7e4_image_0": "BlackIsZero"
       },
       "metaCoordinationScopes": {
         "init_b5a761d74cc61972e80d1b0fdca1b7e4_image_0": {
