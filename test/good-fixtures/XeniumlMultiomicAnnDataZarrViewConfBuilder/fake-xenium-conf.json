@@ -54,11 +54,6 @@
               },
               "obsLabels": []
             },
-            "requestInit": {
-              "headers": {
-                "Authorization": "Bearer groups_token"
-              }
-            },
             "coordinationValues": {
               "obsType": "spot"
             }

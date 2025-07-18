@@ -448,9 +448,9 @@ class SpatialMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewCon
             zarr_path, use_token=False)
         image_url = self._build_assets_url(
             'ometiff-pyramids/visium_histology_hires_pyramid.ome.tif', use_token=True)
-        offsets_url =  self._build_assets_url(
+        offsets_url = self._build_assets_url(
             'output_offsets/visium_histology_hires_pyramid.offsets.json', use_token=True)
-        
+
         # Add dataset with Visium image and secondary analysis anndata
 
         dataset = self._set_visium_xenium_datasets(vc, image_url, offsets_url, adata_url)
@@ -519,7 +519,8 @@ class XeniumlMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewCon
 
     def _setup_anndata_view_config(self, vc, dataset):
         return self._set_visium_xenium_config(vc, dataset)
-    
+
+
 class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
     """Wrapper class for creating a AnnData-backed view configuration
     for multiomic data from mudata-to-ui.cwl like 10X Multiome
