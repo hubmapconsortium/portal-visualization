@@ -9,6 +9,26 @@
       "rel_path": "hubmap_ui/anndata-zarr/secondary_analysis.zarr/.zgroup",
       "size": 24,
       "type": "unknown"
+    },
+    {
+      "description": "OME-TIFF pyramid file",
+      "edam_term": "EDAM_1.24.format_3727",
+      "is_data_product": false,
+      "is_qa_qc": false,
+      "mapped_description": "OME-TIFF pyramid file (TIF file)",
+      "rel_path": "ometiff-pyramids/visium_histology_hires_pyramid.ome.tif",
+      "size": 701168932,
+      "type": "unknown"
+    },
+    {
+      "description": "A list of byte-offsets of a TIFF file for quick access in visualization.",
+      "edam_term": "EDAM_1.24.format_3464",
+      "is_data_product": false,
+      "is_qa_qc": false,
+      "mapped_description": "A list of byte-offsets of a TIFF file for quick access in visualization. (JSON file)",
+      "rel_path": "output_offsets/visium_histology_hires_pyramid.offsets.json",
+      "size": 33,
+      "type": "json"
     }
   ],
   "metadata": {

@@ -1,0 +1,49 @@
+{
+    "uuid": "b5a761d74cc61972e80d1b0fdca1b7e4",
+    "entity_type": "Dataset",
+    "status": "Published",
+    "immediate_ancestors": [
+        {
+            "data_types": ["PAS"]
+        }
+    ],
+    "files": [
+      {
+        "description": "Zipped AnnData Zarr store for storing and visualizing single cell sequencing outputs of UMAP/clustering analysis.",
+        "edam_term": "EDAM_1.24.format_3987",
+        "is_data_product": false,
+        "is_qa_qc": false,
+        "mapped_description": "Zipped AnnData Zarr store for storing and visualizing single cell sequencing outputs of UMAP/clustering analysis. (ZIP file)",
+        "rel_path": "hubmap_ui/anndata-zarr/secondary_analysis.zarr.zip",
+        "size": 263023307,
+        "type": "unknown"
+      },
+      {
+        "description": "OME-TIFF pyramid file",
+        "edam_term": "EDAM_1.24.format_3727",
+        "is_data_product": false,
+        "is_qa_qc": false,
+        "mapped_description": "OME-TIFF pyramid file (TIF file)",
+        "rel_path": "ometiff-pyramids/morphology.ome.tif",
+        "size": 28952305977,
+        "type": "unknown"
+      },
+      {
+        "description": "A list of byte-offsets of a TIFF file for quick access in visualization.",
+        "edam_term": "EDAM_1.24.format_3464",
+        "is_data_product": false,
+        "is_qa_qc": false,
+        "mapped_description": "A list of byte-offsets of a TIFF file for quick access in visualization. (JSON file)",
+        "rel_path": "output_offsets/morphology.offsets.json",
+        "size": 169,
+        "type": "json"
+      }
+    ],
+    "ingest_metadata": {
+      "dag_provenance_list": []
+    },
+    
+    "vitessce-hints": [
+      "xenium","is_image"
+    ]
+  }

@@ -18,6 +18,7 @@ from .builders.anndata_builders import (
     SpatialRNASeqAnnDataZarrViewConfBuilder,
     RNASeqAnnDataZarrViewConfBuilder,
     SpatialMultiomicAnnDataZarrViewConfBuilder,
+    XeniumMultiomicAnnDataZarrViewConfBuilder
 )
 from .builders.scatterplot_builders import RNASeqViewConfBuilder, ATACSeqViewConfBuilder
 from .assays import SEQFISH, MALDI_IMS, NANODESI, SALMON_RNASSEQ_SLIDE
@@ -38,6 +39,7 @@ def process_hints(hints):
     is_support = "is_support" in hints
     is_seg_mask = "segmentation_mask" in hints
     is_geomx = "geomx" in hints
+    is_xenium = 'xenium' in hints
 
     return (
         is_image,
@@ -50,7 +52,8 @@ def process_hints(hints):
         is_spatial,
         is_support,
         is_seg_mask,
-        is_geomx
+        is_geomx,
+        is_xenium
     )
 
 
@@ -75,6 +78,7 @@ def get_view_config_builder(entity, get_entity, parent=None, epic_uuid=None):
         is_support,
         is_seg_mask,
         is_geomx,
+        is_xenium,
     ) = process_hints(hints)
 
     # vis-lifted image pyramids
@@ -124,6 +128,8 @@ def get_view_config_builder(entity, get_entity, parent=None, epic_uuid=None):
             return StitchedCytokitSPRMViewConfBuilder
         if is_geomx:
             return GeoMxImagePyramidViewConfBuilder
+        if is_xenium:
+            return XeniumMultiomicAnnDataZarrViewConfBuilder
 
     if is_rna:
         # multiomic mudata, e.g. 10x Multiome, SNARE-Seq, etc.

@@ -78,13 +78,16 @@ def _get_cells_from_obj(vc_obj):
 
 
 def get_found_images(image_pyramid_regex, file_paths_found):
-    found_images = [
-        path for path in get_matches(
-            file_paths_found, image_pyramid_regex + r".*\.ome\.tiff?$",
-        )
-        if 'separate/' not in path
-    ]
-    return found_images
+    try:
+        found_images = [
+            path for path in get_matches(
+                file_paths_found, image_pyramid_regex + r".*\.ome\.tiff?$",
+            )
+            if 'separate/' not in path
+        ]
+        return found_images
+    except Exception as e:
+        raise RuntimeError(f"Error while searching for pyramid images: {e}")
 
 
 def get_found_images_all(file_paths_found):
