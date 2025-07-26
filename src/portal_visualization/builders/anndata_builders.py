@@ -79,6 +79,8 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
     @cached_property
     def is_annotated(self):
         z = self.zarr_store
+        if z is not None and 'uns/pan_human_azimuth_crosswalk' in z:
+            return True
         if z is not None and 'uns/annotation_metadata/is_annotated' in z:
             return z['uns/annotation_metadata/is_annotated'][()]
         else:
@@ -217,15 +219,24 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
                 if 'predicted_label' in obs:
                     obs_set_paths.append("obs/predicted_label")
                     obs_set_names.append("Cell Ontology Annotation")
-                if 'predicted_CLID' in obs:
-                    obs_label_paths.append("obs/predicted_CLID")
-                    obs_label_names.append("Predicted CL ID")
+                if 'azimuth_broad' in obs:
+                    obs_set_paths.append("obs/azimuth_broad")
+                    obs_set_names.append("Azimuth Broad")
+                if 'CL_Label' in obs:
+                    obs_set_paths.append("obs/CL_Label")
+                    obs_set_names.append("CL Label")
+                if 'final_level_labels' in obs:
+                    obs_set_paths.append("obs/final_level_labels")
+                    obs_set_names.append("Final Level Labels")
+                if 'full_hierarchical_labels' in obs:
+                    obs_set_paths.append("obs/full_hierarchical_labels")
+                    obs_set_names.append("Full Hierarchical Labels")
+              
             obs_set_paths.append("obs/leiden")
             obs_set_names.append("Leiden")
         if self.has_marker_genes:
             obs_label_paths.extend(RNA_SEQ_ANNDATA_FACTOR_PATHS)
             obs_label_names.extend(RNA_SEQ_FACTOR_LABEL_NAMES)
-
         self._obs_set_paths = obs_set_paths
         self._obs_set_names = obs_set_names
         self._obs_labels_paths = obs_label_paths
