@@ -231,7 +231,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
                 if 'full_hierarchical_labels' in obs:
                     obs_set_paths.append("obs/full_hierarchical_labels")
                     obs_set_names.append("Full Hierarchical Labels")
-              
+
             obs_set_paths.append("obs/leiden")
             obs_set_names.append("Leiden")
         if self.has_marker_genes:
