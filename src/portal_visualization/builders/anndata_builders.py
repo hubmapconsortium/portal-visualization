@@ -79,8 +79,6 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
     @cached_property
     def is_annotated(self):
         z = self.zarr_store
-        if z is not None and 'uns/pan_human_azimuth_crosswalk' in z:
-            return True
         if z is not None and 'uns/annotation_metadata/is_annotated' in z:
             return z['uns/annotation_metadata/is_annotated'][()]
         else:
@@ -237,6 +235,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         if self.has_marker_genes:
             obs_label_paths.extend(RNA_SEQ_ANNDATA_FACTOR_PATHS)
             obs_label_names.extend(RNA_SEQ_FACTOR_LABEL_NAMES)
+
         self._obs_set_paths = obs_set_paths
         self._obs_set_names = obs_set_names
         self._obs_labels_paths = obs_label_paths
