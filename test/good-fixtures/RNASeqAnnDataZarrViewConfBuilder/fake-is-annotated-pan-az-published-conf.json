@@ -1,0 +1,181 @@
+{
+  "version": "1.0.15",
+  "name": "e65175561b4b17da5352e3837aa0e497",
+  "description": "",
+  "datasets": [
+    {
+      "uid": "A",
+      "name": "e65175561b4b17da5352e3837aa0e497",
+      "files": [
+        {
+          "fileType": "anndata.zarr",
+          "url": "https://example.com/e65175561b4b17da5352e3837aa0e497/hubmap_ui/anndata-zarr/secondary_analysis.zarr",
+          "options": {
+            "obsEmbedding": [
+              {
+                "path": "obsm/X_umap",
+                "dims": [
+                  0,
+                  1
+                ],
+                "embeddingType": "UMAP"
+              }
+            ],
+            "obsSets": [
+              {
+                "name": "Azimuth Broad",
+                "path": "obs/azimuth_broad"
+              },
+              {
+                "name": "CL Label",
+                "path": "obs/CL_Label"
+              },
+              {
+                "name": "Final Level Labels",
+                "path": "obs/final_level_labels"
+              },
+              {
+                "name": "Full Hierarchical Labels",
+                "path": "obs/full_hierarchical_labels"
+              },
+              {
+                "name": "Leiden",
+                "path": "obs/leiden"
+              }
+            ],
+            "obsFeatureMatrix": {
+              "path": "X",
+              "initialFeatureFilterPath": "var/marker_genes_for_heatmap"
+            },
+            "obsLabels": [
+              {
+                "path": "obs/marker_gene_0",
+                "obsLabelsType": "Marker Gene 0"
+              },
+              {
+                "path": "obs/marker_gene_1",
+                "obsLabelsType": "Marker Gene 1"
+              },
+              {
+                "path": "obs/marker_gene_2",
+                "obsLabelsType": "Marker Gene 2"
+              },
+              {
+                "path": "obs/marker_gene_3",
+                "obsLabelsType": "Marker Gene 3"
+              },
+              {
+                "path": "obs/marker_gene_4",
+                "obsLabelsType": "Marker Gene 4"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "coordinationSpace": {
+    "dataset": {
+      "A": "A"
+    },
+    "embeddingType": {
+      "A": "UMAP"
+    },
+    "obsLabelsType": {
+      "A": "Marker Gene 0",
+      "B": "Marker Gene 1",
+      "C": "Marker Gene 2",
+      "D": "Marker Gene 3",
+      "E": "Marker Gene 4"
+    }
+  },
+  "layout": [
+    {
+      "component": "scatterplot",
+      "coordinationScopes": {
+        "dataset": "A",
+        "embeddingType": "A",
+        "obsLabelsType": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ]
+      },
+      "x": 0,
+      "y": 0,
+      "w": 6,
+      "h": 6
+    },
+    {
+      "component": "obsSets",
+      "coordinationScopes": {
+        "dataset": "A",
+        "obsLabelsType": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ]
+      },
+      "x": 6,
+      "y": 0,
+      "w": 6,
+      "h": 3
+    },
+    {
+      "component": "featureList",
+      "coordinationScopes": {
+        "dataset": "A",
+        "obsLabelsType": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ]
+      },
+      "x": 6,
+      "y": 4,
+      "w": 6,
+      "h": 3
+    },
+    {
+      "component": "obsSetFeatureValueDistribution",
+      "coordinationScopes": {
+        "dataset": "A",
+        "obsLabelsType": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ]
+      },
+      "x": 7,
+      "y": 6,
+      "w": 5,
+      "h": 4
+    },
+    {
+      "component": "heatmap",
+      "coordinationScopes": {
+        "dataset": "A",
+        "obsLabelsType": [
+          "A",
+          "B",
+          "C",
+          "D",
+          "E"
+        ]
+      },
+      "x": 0,
+      "y": 6,
+      "w": 7,
+      "h": 4
+    }
+  ],
+  "initStrategy": "auto"
+}

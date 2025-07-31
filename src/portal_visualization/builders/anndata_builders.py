@@ -220,6 +220,19 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
                 if 'predicted_CLID' in obs:
                     obs_label_paths.append("obs/predicted_CLID")
                     obs_label_names.append("Predicted CL ID")
+                if 'azimuth_broad' in obs:
+                    obs_set_paths.append("obs/azimuth_broad")
+                    obs_set_names.append("Azimuth Broad")
+                if 'CL_Label' in obs:
+                    obs_set_paths.append("obs/CL_Label")
+                    obs_set_names.append("CL Label")
+                if 'final_level_labels' in obs:
+                    obs_set_paths.append("obs/final_level_labels")
+                    obs_set_names.append("Final Level Labels")
+                if 'full_hierarchical_labels' in obs:
+                    obs_set_paths.append("obs/full_hierarchical_labels")
+                    obs_set_names.append("Full Hierarchical Labels")
+
             obs_set_paths.append("obs/leiden")
             obs_set_names.append("Leiden")
         if self.has_marker_genes:
