@@ -217,6 +217,9 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
                 if 'predicted_label' in obs:
                     obs_set_paths.append("obs/predicted_label")
                     obs_set_names.append("Cell Ontology Annotation")
+                if 'predicted_CLID' in obs:
+                    obs_label_paths.append("obs/predicted_CLID")
+                    obs_label_names.append("Predicted CL ID")
                 if 'azimuth_broad' in obs:
                     obs_set_paths.append("obs/azimuth_broad")
                     obs_set_names.append("Azimuth Broad")
