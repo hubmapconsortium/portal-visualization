@@ -488,13 +488,14 @@ class XeniumMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewConf
         return dataset
 
     def _setup_anndata_view_config(self, vc, dataset):
+        # return self._set_visium_xenium_config(vc, dataset)
         return self._set_xenium_config(vc, dataset)
-    
+
     def _add_zarr_files(self, zarr_path, file_paths_found):
         # print(file_paths_found)
- 
+
         if any(f'{zarr_path}.zip' in path for path in file_paths_found):  # pragma: no cover
-            if 'xenium' in zarr_path:
+            if 'xenium' in zarr_path.lower():
                 self._is_spatial_zarr_zip = True
             else:
                 self._is_zarr_zip = True
@@ -504,11 +505,11 @@ class XeniumMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewConf
             message = f'RNA-seq assay with uuid {self._uuid} has no .zarr store at {zarr_path}'
             raise FileNotFoundError(message)
         return self._build_assets_url(
-                zarr_path, use_token=False)
-    
-    def _set_xenium_datasets(self,vc, adata_url, spatial_data_url):
-        spatial_data=SpatialDataWrapper(
-            sdata_url =spatial_data_url,
+            zarr_path, use_token=False)
+
+    def _set_xenium_datasets(self, vc, adata_url, spatial_data_url):
+        spatial_data = SpatialDataWrapper(
+            sdata_url=spatial_data_url,
             is_zip=self._is_spatial_zarr_zip,
             table_path="tables/table",
             image_path="images/morphology_focus",
@@ -516,13 +517,13 @@ class XeniumMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewConf
             obs_feature_matrix_path="tables/table/X",
             request_init=self._get_request_init(),
             coordination_values={
-            "obsType": "cell"   
+                "obsType": "spot"
             }
         )
-       
+
         anndata = AnnDataWrapper(
             adata_url=adata_url,
-            is_zip = self._is_zarr_zip,
+            is_zip=self._is_zarr_zip,
             obs_embedding_paths=["obsm/X_umap"],
             obs_embedding_names=["UMAP"],
             obs_set_paths=[
@@ -531,7 +532,7 @@ class XeniumMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewConf
             obs_set_names=[
                 "Leiden Clusters"
             ],
-            coordination_values = {
+            coordination_values={
                 "obsType": "spot"
             }
         )
@@ -545,9 +546,9 @@ class XeniumMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewConf
             obs_labels_names=self._obs_labels_names,
             obs_labels_paths=self._obs_labels_paths,
             obs_spots_path="obsm/X_spatial",
-            obs_embedding_paths=["obsm/X_umap", "obsm/X_pca"],
-            obs_embedding_names=["UMAP", "PCA"],
-            obs_embedding_dims=[[0, 1], [0, 1]],
+            obs_embedding_paths=["obsm/X_umap"],
+            obs_embedding_names=["UMAP"],
+            # obs_embedding_dims=[[0, 1], [0, 1]],
             # feature_labels_path="var/hugo_symbol",
             request_init=self._get_request_init(),
             initial_feature_filter_path="var/top_highly_variable",
@@ -563,33 +564,29 @@ class XeniumMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewConf
         ).add_object(
             visium_spots
         )
-        print("obs", self._obs_labels_names, self._obs_labels_paths)
+        print("obs", self._obs_set_paths, self._obs_set_names , self._obs_labels_names, self._obs_labels_paths)
         return dataset
 
-
     def _set_xenium_config(self, vc, dataset):
-        print("bi", self._uuid)
         # spatial_plot = vc.add_view("spatialBeta", dataset=dataset)
         # layer_controller = vc.add_view("layerControllerBeta", dataset=dataset)
         # umap_plot = vc.add_view(cm.SCATTERPLOT, dataset=dataset, mapping="UMAP")
         # cell_set_manager = vc.add_view(cm.OBS_SETS, dataset=dataset)
         # cell_set_sizes = vc.add_view(cm.OBS_SET_SIZES, dataset=dataset)
 
-        
         # self._views = [spatial_plot,  layer_controller, umap_plot, cell_set_manager, cell_set_sizes]
-        umap = vc.add_view(
-            cm.SCATTERPLOT, dataset=dataset, mapping="UMAP",
-            w=3, h=6, x=0, y=0)
         spatial = vc.add_view(
             "spatialBeta", dataset=dataset,
-            w=3, h=6, x=3, y=0)
+         w=6, h=6, x=0, y=0)
+        umap = vc.add_view(
+            cm.SCATTERPLOT, dataset=dataset, mapping="UMAP",
+            w=6, h=6, x=0, y=6)
+        lc = vc.add_view("layerControllerBeta", dataset=dataset,
+                         w=3, h=3, x=6, y=0)
         heatmap = vc.add_view(
             cm.HEATMAP, dataset=dataset,
-            w=6, h=6, x=0, y=6
+            w=6, h=3, x=6, y=3
         ).set_props(transpose=True)
-
-        lc = vc.add_view("layerControllerBeta", dataset=dataset,
-                         w=6, h=3, x=6, y=0)
 
         cell_sets = vc.add_view(
             cm.OBS_SETS, dataset=dataset,
@@ -616,18 +613,18 @@ class XeniumMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewConf
             "spatialTargetZ": 0,
             "spatialTargetT": 0,
             "imageLayer": CL([
-            {
-                "photometricInterpretation": 'BlackIsZero',
-            }
+                {
+                    "photometricInterpretation": 'BlackIsZero',
+                }
             ])
         }, meta=True, scope_prefix=get_initial_coordination_scope_prefix(self._uuid, "image"))
 
         vc.link_views_by_dict([spatial, lc], {
-        "segmentationLayer": CL([
-            {
-                "obsColorEncoding": "cellSetSelection"
-            }
-        ])   
+            "segmentationLayer": CL([
+                {
+                    "obsColorEncoding": "cellSetSelection"
+                }
+            ])
         }, meta=True, scope_prefix=get_initial_coordination_scope_prefix(self._uuid, "obsSegmentations"))
 
         return vc
