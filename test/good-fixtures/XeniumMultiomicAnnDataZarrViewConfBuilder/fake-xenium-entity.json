@@ -19,24 +19,24 @@
         "type": "unknown"
       },
       {
-        "description": "OME-TIFF pyramid file",
-        "edam_term": "EDAM_1.24.format_3727",
+        "description": "",
+        "edam_term": "",
         "is_data_product": false,
         "is_qa_qc": false,
-        "mapped_description": "OME-TIFF pyramid file (TIF file)",
-        "rel_path": "ometiff-pyramids/morphology.ome.tif",
-        "size": 28952305977,
+        "mapped_description": " (ZGROUP file)",
+        "rel_path": "Xenium.zarr/.zgroup",
+        "size": 24,
         "type": "unknown"
       },
       {
-        "description": "A list of byte-offsets of a TIFF file for quick access in visualization.",
-        "edam_term": "EDAM_1.24.format_3464",
+        "description": "",
+        "edam_term": "",
         "is_data_product": false,
         "is_qa_qc": false,
-        "mapped_description": "A list of byte-offsets of a TIFF file for quick access in visualization. (JSON file)",
-        "rel_path": "output_offsets/morphology.offsets.json",
-        "size": 169,
-        "type": "json"
+        "mapped_description": " (ZGROUP file)",
+        "rel_path": "Xenium.zarr/images/morphology_focus/.zgroup",
+        "size": 24,
+        "type": "unknown"
       }
     ],
     "ingest_metadata": {
