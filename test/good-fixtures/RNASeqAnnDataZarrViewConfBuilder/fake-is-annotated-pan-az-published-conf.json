@@ -23,12 +23,12 @@
             ],
             "obsSets": [
               {
-                "name": "Azimuth Broad",
-                "path": "obs/azimuth_broad"
-              },
-              {
                 "name": "CL Label",
                 "path": "obs/CL_Label"
+              },
+              {
+                "name": "Azimuth Categories",
+                "path": ["obs/azimuth_broad"]
               },
               {
                 "name": "Final Level Labels",

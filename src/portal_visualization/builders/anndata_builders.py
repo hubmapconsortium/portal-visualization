@@ -211,6 +211,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         obs = None if z is None else z['obs'] if modality_prefix is None else z[f'{modality_prefix}/obs']
         if not skip_default_paths:
             if self._is_annotated:
+                azimuth_categories = []
                 if 'predicted.ASCT.celltype' in obs:
                     obs_set_paths.append("obs/predicted.ASCT.celltype")
                     obs_set_names.append("Predicted ASCT Cell Type")
@@ -220,12 +221,18 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
                 if 'predicted_CLID' in obs:
                     obs_label_paths.append("obs/predicted_CLID")
                     obs_label_names.append("Predicted CL ID")
-                if 'azimuth_broad' in obs:
-                    obs_set_paths.append("obs/azimuth_broad")
-                    obs_set_names.append("Azimuth Broad")
                 if 'CL_Label' in obs:
                     obs_set_paths.append("obs/CL_Label")
                     obs_set_names.append("CL Label")
+                if 'azimuth_broad' in obs:
+                    azimuth_categories.append("obs/azimuth_broad")
+                if 'azimuth_medium' in obs:
+                    azimuth_categories.append("obs/azimuth_medium")
+                if 'azimuth_fine' in obs:
+                    azimuth_categories.append("obs/azimuth_fine")
+                if len(azimuth_categories) > 0:
+                    obs_set_paths.append(azimuth_categories)
+                    obs_set_names.append("Azimuth Categories")
                 if 'final_level_labels' in obs:
                     obs_set_paths.append("obs/final_level_labels")
                     obs_set_names.append("Final Level Labels")
