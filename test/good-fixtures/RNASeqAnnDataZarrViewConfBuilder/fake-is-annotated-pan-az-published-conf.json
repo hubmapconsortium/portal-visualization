@@ -28,7 +28,11 @@
               },
               {
                 "name": "Azimuth Categories",
-                "path": ["obs/azimuth_broad"]
+                "path": [
+                  "obs/azimuth_broad",
+                  "obs/azimuth_medium",
+                  "obs/azimuth_fine"
+                ]
               },
               {
                 "name": "Final Level Labels",

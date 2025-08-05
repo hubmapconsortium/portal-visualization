@@ -148,6 +148,8 @@ def mock_zarr_store(entity_path, mocker):
             z["obs/predicted_CLID"] = True
         elif "pan-az" in entity_path.name:
             z["obs/azimuth_broad"] = True  # only checked for membership in zarr group
+            z["obs/azimuth_medium"] = True 
+            z["obs/azimuth_fine"] = True 
             z["obs/CL_Label"] = True
             z["obs/final_level_labels"] = True
             z["obs/full_hierarchical_labels"] = True
