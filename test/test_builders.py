@@ -146,6 +146,13 @@ def mock_zarr_store(entity_path, mocker):
         elif "predicted-label" in entity_path.name:
             z["obs/predicted_label"] = True  # only checked for membership in zarr group
             z["obs/predicted_CLID"] = True
+        elif "pan-az" in entity_path.name:
+            z["obs/azimuth_broad"] = True  # only checked for membership in zarr group
+            z["obs/azimuth_medium"] = True
+            z["obs/azimuth_fine"] = True
+            z["obs/CL_Label"] = True
+            z["obs/final_level_labels"] = True
+            z["obs/full_hierarchical_labels"] = True
     if "marker" in entity_path.name:
         obs.attrs["encoding-version"] = "0.1.0"
         var = z.create_group("var")
