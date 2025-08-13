@@ -14,12 +14,9 @@ from vitessce import (
 
 import numpy as np
 import zarr
-import re
-
 from .base_builders import ViewConfBuilder
-from ..utils import get_conf_cells, read_zip_zarr, get_found_images
+from ..utils import get_conf_cells, read_zip_zarr
 from ..constants import ZARR_PATH, ZIP_ZARR_PATH, MULTIOMIC_ZARR_PATH, XENIUM_ZARR_PATH
-from ..paths import (IMAGE_PYRAMID_DIR, OFFSETS_DIR)
 
 RNA_SEQ_ANNDATA_FACTOR_PATHS = [f"obs/{key}" for key in [
     "marker_gene_0",
@@ -501,7 +498,9 @@ class XeniumMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewConf
                 self._is_zarr_zip = True
             zarr_path = f'{zarr_path}.zip'
 
-        elif (self._is_zarr_zip is False or self._is_spatial_zarr_zip is False) and f'{zarr_path}/.zgroup' not in file_paths_found:  # pragma: no cover
+        elif (self._is_zarr_zip is False
+              or self._is_spatial_zarr_zip is False) and
+              f'{zarr_path}/.zgroup' not in file_paths_found:  # pragma: no cover
             message = f'RNA-seq assay with uuid {self._uuid} has no .zarr store at {zarr_path}'
             raise FileNotFoundError(message)
         return self._build_assets_url(
@@ -566,7 +565,7 @@ class XeniumMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewConf
         cell_sets = vc.add_view(
             cm.OBS_SETS, dataset=dataset,
             w=3, h=4, x=6, y=2)
-        
+
         cell_sets.use_coordination(obs_color_encoding_scope)
 
         gene_list = vc.add_view(
@@ -602,7 +601,7 @@ class XeniumMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewConf
                     "segmentationChannel": CL([{
                         "obsColorEncoding": obs_color_encoding_scope
                     }])
-                    
+
                 }
             ])
         }, meta=True, scope_prefix=get_initial_coordination_scope_prefix(self._uuid, "obsSegmentations"))
