@@ -514,29 +514,13 @@ class XeniumMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewConf
             table_path="tables/table",
             image_path="images/morphology_focus",
             labels_path="labels/cell_labels",
-            obs_feature_matrix_path="tables/table/X",
+            # obs_feature_matrix_path="tables/table/X",
+            obs_segmentations_path="labels/cell_labels",
             request_init=self._get_request_init(),
             coordination_values={
                 "obsType": "spot"
             }
         )
-
-        anndata = AnnDataWrapper(
-            adata_url=adata_url,
-            is_zip=self._is_zarr_zip,
-            obs_embedding_paths=["obsm/X_umap"],
-            obs_embedding_names=["UMAP"],
-            obs_set_paths=[
-                "obs/leiden"
-            ],
-            obs_set_names=[
-                "Leiden Clusters"
-            ],
-            coordination_values={
-                "obsType": "spot"
-            }
-        )
-
         visium_spots = AnnDataWrapper(
             adata_url=adata_url,
             iz_zip=self._is_zarr_zip,
@@ -545,13 +529,9 @@ class XeniumMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewConf
             obs_set_names=self._obs_set_names,
             obs_labels_names=self._obs_labels_names,
             obs_labels_paths=self._obs_labels_paths,
-            obs_spots_path="obsm/X_spatial",
             obs_embedding_paths=["obsm/X_umap"],
             obs_embedding_names=["UMAP"],
-            # obs_embedding_dims=[[0, 1], [0, 1]],
-            # feature_labels_path="var/hugo_symbol",
             request_init=self._get_request_init(),
-            initial_feature_filter_path="var/top_highly_variable",
             coordination_values={
                 "obsType": "spot",
             }
@@ -564,33 +544,30 @@ class XeniumMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewConf
         ).add_object(
             visium_spots
         )
-        print("obs", self._obs_set_paths, self._obs_set_names , self._obs_labels_names, self._obs_labels_paths)
         return dataset
 
     def _set_xenium_config(self, vc, dataset):
-        # spatial_plot = vc.add_view("spatialBeta", dataset=dataset)
-        # layer_controller = vc.add_view("layerControllerBeta", dataset=dataset)
-        # umap_plot = vc.add_view(cm.SCATTERPLOT, dataset=dataset, mapping="UMAP")
-        # cell_set_manager = vc.add_view(cm.OBS_SETS, dataset=dataset)
-        # cell_set_sizes = vc.add_view(cm.OBS_SET_SIZES, dataset=dataset)
-
-        # self._views = [spatial_plot,  layer_controller, umap_plot, cell_set_manager, cell_set_sizes]
-        spatial = vc.add_view(
-            "spatialBeta", dataset=dataset,
-         w=6, h=6, x=0, y=0)
+        [obs_color_encoding_scope] = vc.add_coordination("obsColorEncoding")
+        obs_color_encoding_scope.set_value("cellSetSelection")
         umap = vc.add_view(
             cm.SCATTERPLOT, dataset=dataset, mapping="UMAP",
-            w=6, h=6, x=0, y=6)
-        lc = vc.add_view("layerControllerBeta", dataset=dataset,
-                         w=3, h=3, x=6, y=0)
+            w=3, h=6, x=0, y=0)
+        spatial = vc.add_view(
+            "spatialBeta", dataset=dataset,
+            w=3, h=6, x=3, y=0)
         heatmap = vc.add_view(
             cm.HEATMAP, dataset=dataset,
-            w=6, h=3, x=6, y=3
+            w=6, h=6, x=0, y=6
         ).set_props(transpose=True)
+
+        lc = vc.add_view("layerControllerBeta", dataset=dataset,
+                         w=6, h=3, x=6, y=0)
 
         cell_sets = vc.add_view(
             cm.OBS_SETS, dataset=dataset,
             w=3, h=4, x=6, y=2)
+        
+        cell_sets.use_coordination(obs_color_encoding_scope)
 
         gene_list = vc.add_view(
             cm.FEATURE_LIST, dataset=dataset,
@@ -622,7 +599,10 @@ class XeniumMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewConf
         vc.link_views_by_dict([spatial, lc], {
             "segmentationLayer": CL([
                 {
-                    "obsColorEncoding": "cellSetSelection"
+                    "segmentationChannel": CL([{
+                        "obsColorEncoding": obs_color_encoding_scope
+                    }])
+                    
                 }
             ])
         }, meta=True, scope_prefix=get_initial_coordination_scope_prefix(self._uuid, "obsSegmentations"))
