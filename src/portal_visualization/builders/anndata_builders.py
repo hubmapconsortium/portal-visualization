@@ -492,10 +492,6 @@ class XeniumMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewConf
         self._photometricInterpretation = 'BlackIsZero'
         self._is_spatial_zarr_zip = False
 
-    def _get_spot_radius(self):
-        #    TODO: Need to check if we have any dimensions for Xenium
-        return 5
-
     def _set_up_dataset(self, vc):
         file_paths_found = self._get_file_paths()
         adata_url = self._add_zarr_files(ZARR_PATH, file_paths_found)
@@ -531,7 +527,6 @@ class XeniumMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewConf
             table_path="tables/table",
             image_path="images/morphology_focus",
             labels_path="labels/cell_labels",
-            # obs_feature_matrix_path="tables/table/X",
             obs_segmentations_path="labels/cell_labels",
             request_init=self._get_request_init(),
             coordination_values={
