@@ -19,11 +19,6 @@
               "tablePath": "tables/table"
             }
           },
-          "requestInit": {
-            "headers": {
-              "Authorization": "Bearer groups_token"
-            }
-          },
           "coordinationValues": {
             "obsType": "spot"
           }
@@ -51,33 +46,7 @@
             "obsFeatureMatrix": {
               "path": "X"
             },
-            "obsLabels": [
-              {
-                "path": "obs/marker_gene_0",
-                "obsLabelsType": "Marker Gene 0"
-              },
-              {
-                "path": "obs/marker_gene_1",
-                "obsLabelsType": "Marker Gene 1"
-              },
-              {
-                "path": "obs/marker_gene_2",
-                "obsLabelsType": "Marker Gene 2"
-              },
-              {
-                "path": "obs/marker_gene_3",
-                "obsLabelsType": "Marker Gene 3"
-              },
-              {
-                "path": "obs/marker_gene_4",
-                "obsLabelsType": "Marker Gene 4"
-              }
-            ]
-          },
-          "requestInit": {
-            "headers": {
-              "Authorization": "Bearer groups_token"
-            }
+            "obsLabels": []
           },
           "coordinationValues": {
             "obsType": "spot"
@@ -153,13 +122,6 @@
     },
     "segmentationChannel": {
       "init_b5a761d74cc61972e80d1b0fdca1b7e4_obsSegmentations_0": "__dummy__"
-    },
-    "obsLabelsType": {
-      "A": "Marker Gene 0",
-      "B": "Marker Gene 1",
-      "C": "Marker Gene 2",
-      "D": "Marker Gene 3",
-      "E": "Marker Gene 4"
     }
   },
   "layout": [
