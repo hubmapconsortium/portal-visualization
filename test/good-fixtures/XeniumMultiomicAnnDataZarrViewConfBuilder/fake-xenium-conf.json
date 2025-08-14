@@ -1,232 +1,277 @@
 {
-    "version": "1.0.15",
-    "name": "b5a761d74cc61972e80d1b0fdca1b7e4",
-    "description": "",
-    "datasets": [
-      {
-        "uid": "b5a761d74cc61972e80d1b0fdca1b7e4",
-        "name": "Visium",
-        "files": [
-          {
-            "fileType": "image.ome-tiff",
-            "url": "https://example.com/b5a761d74cc61972e80d1b0fdca1b7e4/ometiff-pyramids/morphology.ome.tif?token=groups_token",
-            "options": {
-              "offsetsUrl": "https://example.com/b5a761d74cc61972e80d1b0fdca1b7e4/output_offsets/morphology.offsets.json?token=groups_token"
+  "version": "1.0.15",
+  "name": "b5a761d74cc61972e80d1b0fdca1b7e4",
+  "description": "",
+  "datasets": [
+    {
+      "uid": "b5a761d74cc61972e80d1b0fdca1b7e4",
+      "name": "Xenium",
+      "files": [
+        {
+          "fileType": "spatialdata.zarr",
+          "url": "https://example.com/b5a761d74cc61972e80d1b0fdca1b7e4/Xenium.zarr",
+          "options": {
+            "image": {
+              "path": "images/morphology_focus"
+            },
+            "obsSegmentations": {
+              "path": "labels/cell_labels",
+              "tablePath": "tables/table"
             }
           },
-          {
-            "fileType": "anndata.zarr.zip",
-            "url": "https://example.com/b5a761d74cc61972e80d1b0fdca1b7e4/hubmap_ui/anndata-zarr/secondary_analysis.zarr.zip",
-            "options": {
-              "obsSpots": {
-                "path": "obsm/X_spatial"
-              },
-              "obsEmbedding": [
-                {
-                  "path": "obsm/X_umap",
-                  "dims": [
-                    0,
-                    1
-                  ],
-                  "embeddingType": "UMAP"
-                },
-                {
-                  "path": "obsm/X_pca",
-                  "dims": [
-                    0,
-                    1
-                  ],
-                  "embeddingType": "PCA"
-                }
-              ],
-              "obsSets": [
-                {
-                  "name": "Leiden",
-                  "path": "obs/leiden"
-                }
-              ],
-              "obsFeatureMatrix": {
-                "path": "X",
-                "initialFeatureFilterPath": "var/top_highly_variable"
-              },
-              "featureLabels": {
-                "path": "var/hugo_symbol"
-              },
-              "obsLabels": []
-            },
-            "coordinationValues": {
-              "obsType": "spot"
+          "requestInit": {
+            "headers": {
+              "Authorization": "Bearer groups_token"
             }
+          },
+          "coordinationValues": {
+            "obsType": "spot"
           }
+        },
+        {
+          "fileType": "anndata.zarr.zip",
+          "url": "https://example.com/b5a761d74cc61972e80d1b0fdca1b7e4/hubmap_ui/anndata-zarr/secondary_analysis.zarr.zip",
+          "options": {
+            "obsEmbedding": [
+              {
+                "path": "obsm/X_umap",
+                "dims": [
+                  0,
+                  1
+                ],
+                "embeddingType": "UMAP"
+              }
+            ],
+            "obsSets": [
+              {
+                "name": "Leiden",
+                "path": "obs/leiden"
+              }
+            ],
+            "obsFeatureMatrix": {
+              "path": "X"
+            },
+            "obsLabels": [
+              {
+                "path": "obs/marker_gene_0",
+                "obsLabelsType": "Marker Gene 0"
+              },
+              {
+                "path": "obs/marker_gene_1",
+                "obsLabelsType": "Marker Gene 1"
+              },
+              {
+                "path": "obs/marker_gene_2",
+                "obsLabelsType": "Marker Gene 2"
+              },
+              {
+                "path": "obs/marker_gene_3",
+                "obsLabelsType": "Marker Gene 3"
+              },
+              {
+                "path": "obs/marker_gene_4",
+                "obsLabelsType": "Marker Gene 4"
+              }
+            ]
+          },
+          "requestInit": {
+            "headers": {
+              "Authorization": "Bearer groups_token"
+            }
+          },
+          "coordinationValues": {
+            "obsType": "spot"
+          }
+        }
+      ]
+    }
+  ],
+  "coordinationSpace": {
+    "dataset": {
+      "A": "b5a761d74cc61972e80d1b0fdca1b7e4"
+    },
+    "obsColorEncoding": {
+      "A": "cellSetSelection"
+    },
+    "embeddingType": {
+      "A": "UMAP"
+    },
+    "obsType": {
+      "A": "spot"
+    },
+    "spatialTargetZ": {
+      "init_b5a761d74cc61972e80d1b0fdca1b7e4_image_0": 0
+    },
+    "spatialTargetT": {
+      "init_b5a761d74cc61972e80d1b0fdca1b7e4_image_0": 0
+    },
+    "imageLayer": {
+      "init_b5a761d74cc61972e80d1b0fdca1b7e4_image_0": "__dummy__"
+    },
+    "photometricInterpretation": {
+      "init_b5a761d74cc61972e80d1b0fdca1b7e4_image_0": "BlackIsZero"
+    },
+    "metaCoordinationScopes": {
+      "init_b5a761d74cc61972e80d1b0fdca1b7e4_image_0": {
+        "spatialTargetZ": "init_b5a761d74cc61972e80d1b0fdca1b7e4_image_0",
+        "spatialTargetT": "init_b5a761d74cc61972e80d1b0fdca1b7e4_image_0",
+        "imageLayer": [
+          "init_b5a761d74cc61972e80d1b0fdca1b7e4_image_0"
+        ]
+      },
+      "init_b5a761d74cc61972e80d1b0fdca1b7e4_obsSegmentations_0": {
+        "segmentationLayer": [
+          "init_b5a761d74cc61972e80d1b0fdca1b7e4_obsSegmentations_0"
         ]
       }
-    ],
-    "coordinationSpace": {
-      "dataset": {
-        "A": "b5a761d74cc61972e80d1b0fdca1b7e4"
-      },
-      "embeddingType": {
-        "A": "UMAP"
-      },
-      "obsType": {
-        "A": "spot"
-      },
-      "imageLayer": {
-        "init_b5a761d74cc61972e80d1b0fdca1b7e4_image_0": "__dummy__"
-      },
-      "photometricInterpretation": {
-        "init_b5a761d74cc61972e80d1b0fdca1b7e4_image_0": "BlackIsZero"
-      },
-      "metaCoordinationScopes": {
-        "init_b5a761d74cc61972e80d1b0fdca1b7e4_image_0": {
-          "imageLayer": [
-            "init_b5a761d74cc61972e80d1b0fdca1b7e4_image_0"
-          ]
-        },
-        "init_b5a761d74cc61972e80d1b0fdca1b7e4_obsSpots_0": {
-          "spotLayer": [
-            "init_b5a761d74cc61972e80d1b0fdca1b7e4_obsSpots_0"
-          ]
-        }
-      },
-      "metaCoordinationScopesBy": {
-        "init_b5a761d74cc61972e80d1b0fdca1b7e4_image_0": {
-          "imageLayer": {
-            "photometricInterpretation": {
-              "init_b5a761d74cc61972e80d1b0fdca1b7e4_image_0": "init_b5a761d74cc61972e80d1b0fdca1b7e4_image_0"
-            }
-          }
-        },
-        "init_b5a761d74cc61972e80d1b0fdca1b7e4_obsSpots_0": {
-          "spotLayer": {
-            "spatialLayerOpacity": {
-              "init_b5a761d74cc61972e80d1b0fdca1b7e4_obsSpots_0": "init_b5a761d74cc61972e80d1b0fdca1b7e4_obsSpots_0"
-            },
-            "spatialSpotRadius": {
-              "init_b5a761d74cc61972e80d1b0fdca1b7e4_obsSpots_0": "init_b5a761d74cc61972e80d1b0fdca1b7e4_obsSpots_0"
-            }
+    },
+    "metaCoordinationScopesBy": {
+      "init_b5a761d74cc61972e80d1b0fdca1b7e4_image_0": {
+        "imageLayer": {
+          "photometricInterpretation": {
+            "init_b5a761d74cc61972e80d1b0fdca1b7e4_image_0": "init_b5a761d74cc61972e80d1b0fdca1b7e4_image_0"
           }
         }
       },
-      "spotLayer": {
-        "init_b5a761d74cc61972e80d1b0fdca1b7e4_obsSpots_0": "__dummy__"
-      },
-      "spatialLayerOpacity": {
-        "init_b5a761d74cc61972e80d1b0fdca1b7e4_obsSpots_0": 1
-      },
-      "spatialSpotRadius": {
-        "init_b5a761d74cc61972e80d1b0fdca1b7e4_obsSpots_0": 5
+      "init_b5a761d74cc61972e80d1b0fdca1b7e4_obsSegmentations_0": {
+        "segmentationLayer": {
+          "segmentationChannel": {
+            "init_b5a761d74cc61972e80d1b0fdca1b7e4_obsSegmentations_0": [
+              "init_b5a761d74cc61972e80d1b0fdca1b7e4_obsSegmentations_0"
+            ]
+          }
+        },
+        "segmentationChannel": {
+          "obsColorEncoding": {
+            "init_b5a761d74cc61972e80d1b0fdca1b7e4_obsSegmentations_0": "A"
+          }
+        }
       }
     },
-    "layout": [
-      {
-        "component": "scatterplot",
-        "coordinationScopes": {
-          "dataset": "A",
-          "embeddingType": "A",
-          "obsType": "A"
-        },
-        "x": 0,
-        "y": 0,
-        "w": 3,
-        "h": 6
+    "segmentationLayer": {
+      "init_b5a761d74cc61972e80d1b0fdca1b7e4_obsSegmentations_0": "__dummy__"
+    },
+    "segmentationChannel": {
+      "init_b5a761d74cc61972e80d1b0fdca1b7e4_obsSegmentations_0": "__dummy__"
+    },
+    "obsLabelsType": {
+      "A": "Marker Gene 0",
+      "B": "Marker Gene 1",
+      "C": "Marker Gene 2",
+      "D": "Marker Gene 3",
+      "E": "Marker Gene 4"
+    }
+  },
+  "layout": [
+    {
+      "component": "scatterplot",
+      "coordinationScopes": {
+        "dataset": "A",
+        "embeddingType": "A",
+        "obsType": "A"
       },
-      {
-        "component": "spatialBeta",
-        "coordinationScopes": {
-          "dataset": "A",
-          "obsType": "A",
-          "metaCoordinationScopes": [
-            "init_b5a761d74cc61972e80d1b0fdca1b7e4_image_0",
-            "init_b5a761d74cc61972e80d1b0fdca1b7e4_obsSpots_0"
-          ],
-          "metaCoordinationScopesBy": [
-            "init_b5a761d74cc61972e80d1b0fdca1b7e4_image_0",
-            "init_b5a761d74cc61972e80d1b0fdca1b7e4_obsSpots_0"
-          ]
-        },
-        "x": 3,
-        "y": 0,
-        "w": 3,
-        "h": 6
+      "x": 0,
+      "y": 0,
+      "w": 3,
+      "h": 6
+    },
+    {
+      "component": "spatialBeta",
+      "coordinationScopes": {
+        "dataset": "A",
+        "obsType": "A",
+        "metaCoordinationScopes": [
+          "init_b5a761d74cc61972e80d1b0fdca1b7e4_image_0",
+          "init_b5a761d74cc61972e80d1b0fdca1b7e4_obsSegmentations_0"
+        ],
+        "metaCoordinationScopesBy": [
+          "init_b5a761d74cc61972e80d1b0fdca1b7e4_image_0",
+          "init_b5a761d74cc61972e80d1b0fdca1b7e4_obsSegmentations_0"
+        ]
       },
-      {
-        "component": "heatmap",
-        "coordinationScopes": {
-          "dataset": "A",
-          "obsType": "A"
-        },
-        "x": 0,
-        "y": 6,
-        "w": 6,
-        "h": 6,
-        "props": {
-          "transpose": true
-        }
+      "x": 3,
+      "y": 0,
+      "w": 3,
+      "h": 6
+    },
+    {
+      "component": "heatmap",
+      "coordinationScopes": {
+        "dataset": "A",
+        "obsType": "A"
       },
-      {
-        "component": "layerControllerBeta",
-        "coordinationScopes": {
-          "dataset": "A",
-          "obsType": "A",
-          "metaCoordinationScopes": [
-            "init_b5a761d74cc61972e80d1b0fdca1b7e4_image_0",
-            "init_b5a761d74cc61972e80d1b0fdca1b7e4_obsSpots_0"
-          ],
-          "metaCoordinationScopesBy": [
-            "init_b5a761d74cc61972e80d1b0fdca1b7e4_image_0",
-            "init_b5a761d74cc61972e80d1b0fdca1b7e4_obsSpots_0"
-          ]
-        },
-        "x": 6,
-        "y": 0,
-        "w": 6,
-        "h": 3
-      },
-      {
-        "component": "obsSets",
-        "coordinationScopes": {
-          "dataset": "A",
-          "obsType": "A"
-        },
-        "x": 6,
-        "y": 2,
-        "w": 3,
-        "h": 4
-      },
-      {
-        "component": "featureList",
-        "coordinationScopes": {
-          "dataset": "A",
-          "obsType": "A"
-        },
-        "x": 9,
-        "y": 2,
-        "w": 3,
-        "h": 4
-      },
-      {
-        "component": "obsSetFeatureValueDistribution",
-        "coordinationScopes": {
-          "dataset": "A",
-          "obsType": "A"
-        },
-        "x": 6,
-        "y": 7,
-        "w": 3,
-        "h": 5
-      },
-      {
-        "component": "obsSetSizes",
-        "coordinationScopes": {
-          "dataset": "A",
-          "obsType": "A"
-        },
-        "x": 9,
-        "y": 7,
-        "w": 3,
-        "h": 5
+      "x": 0,
+      "y": 6,
+      "w": 6,
+      "h": 6,
+      "props": {
+        "transpose": true
       }
-    ],
-    "initStrategy": "auto"
-  }
+    },
+    {
+      "component": "layerControllerBeta",
+      "coordinationScopes": {
+        "dataset": "A",
+        "obsType": "A",
+        "metaCoordinationScopes": [
+          "init_b5a761d74cc61972e80d1b0fdca1b7e4_image_0",
+          "init_b5a761d74cc61972e80d1b0fdca1b7e4_obsSegmentations_0"
+        ],
+        "metaCoordinationScopesBy": [
+          "init_b5a761d74cc61972e80d1b0fdca1b7e4_image_0",
+          "init_b5a761d74cc61972e80d1b0fdca1b7e4_obsSegmentations_0"
+        ]
+      },
+      "x": 6,
+      "y": 0,
+      "w": 6,
+      "h": 3
+    },
+    {
+      "component": "obsSets",
+      "coordinationScopes": {
+        "dataset": "A",
+        "obsColorEncoding": "A",
+        "obsType": "A"
+      },
+      "x": 6,
+      "y": 2,
+      "w": 3,
+      "h": 4
+    },
+    {
+      "component": "featureList",
+      "coordinationScopes": {
+        "dataset": "A",
+        "obsType": "A"
+      },
+      "x": 9,
+      "y": 2,
+      "w": 3,
+      "h": 4
+    },
+    {
+      "component": "obsSetFeatureValueDistribution",
+      "coordinationScopes": {
+        "dataset": "A",
+        "obsType": "A"
+      },
+      "x": 6,
+      "y": 7,
+      "w": 3,
+      "h": 5
+    },
+    {
+      "component": "obsSetSizes",
+      "coordinationScopes": {
+        "dataset": "A",
+        "obsType": "A"
+      },
+      "x": 9,
+      "y": 7,
+      "w": 3,
+      "h": 5
+    }
+  ],
+  "initStrategy": "auto"
+}

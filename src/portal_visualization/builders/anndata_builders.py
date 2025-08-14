@@ -323,7 +323,7 @@ class SpatialRNASeqAnnDataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
         spatial.use_coordination(cells_layer)
         return spatial
 
-    def _set_visium_xenium_datasets(self, vc, image_url, offsets_url, adata_url):
+    def _set_visium_datasets(self, vc, image_url, offsets_url, adata_url):
         visium_image = ImageOmeTiffWrapper(
             img_url=image_url,
             uid=self._uuid,
@@ -359,7 +359,7 @@ class SpatialRNASeqAnnDataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
         )
         return dataset
 
-    def _set_visium_xenium_config(self, vc, dataset):
+    def _set_visium_config(self, vc, dataset):
         # Add / lay out views
         umap = vc.add_view(
             cm.SCATTERPLOT, dataset=dataset, mapping="UMAP",
@@ -452,11 +452,11 @@ class SpatialMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewCon
 
         # Add dataset with Visium image and secondary analysis anndata
 
-        dataset = self._set_visium_xenium_datasets(vc, image_url, offsets_url, adata_url)
+        dataset = self._set_visium_datasets(vc, image_url, offsets_url, adata_url)
         return dataset
 
     def _setup_anndata_view_config(self, vc, dataset):
-        return self._set_visium_xenium_config(vc, dataset)
+        return self._set_visium_config(vc, dataset)
 
 
 class XeniumMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewConfBuilder):
@@ -485,11 +485,9 @@ class XeniumMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewConf
         return dataset
 
     def _setup_anndata_view_config(self, vc, dataset):
-        # return self._set_visium_xenium_config(vc, dataset)
         return self._set_xenium_config(vc, dataset)
 
     def _add_zarr_files(self, zarr_path, file_paths_found):
-        # print(file_paths_found)
 
         if any(f'{zarr_path}.zip' in path for path in file_paths_found):  # pragma: no cover
             if 'xenium' in zarr_path.lower():
@@ -498,9 +496,9 @@ class XeniumMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewConf
                 self._is_zarr_zip = True
             zarr_path = f'{zarr_path}.zip'
 
-        elif (self._is_zarr_zip is False
-              or self._is_spatial_zarr_zip is False) and
-              f'{zarr_path}/.zgroup' not in file_paths_found:  # pragma: no cover
+        elif ((self._is_zarr_zip is False
+              or self._is_spatial_zarr_zip is False)
+              and f'{zarr_path}/.zgroup' not in file_paths_found):  # pragma: no cover
             message = f'RNA-seq assay with uuid {self._uuid} has no .zarr store at {zarr_path}'
             raise FileNotFoundError(message)
         return self._build_assets_url(
