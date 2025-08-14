@@ -15,3 +15,4 @@ base_image_dirs = ['lab_processed', 'processed_microscopy', 'processedMicroscopy
 ZARR_PATH = 'hubmap_ui/anndata-zarr/secondary_analysis.zarr'
 ZIP_ZARR_PATH = f'{ZARR_PATH}.zip'
 MULTIOMIC_ZARR_PATH = 'hubmap_ui/mudata-zarr/secondary_analysis.zarr'
+XENIUM_ZARR_PATH = 'Xenium.zarr'
