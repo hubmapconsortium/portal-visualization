@@ -301,7 +301,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
                 [[self._marker], 'geneSelection'],
             )
         return vc
-    
+
     def _get_azimuth_categories(self, obs):
         azimuth_categories = []
         if 'azimuth_broad' in obs:
@@ -664,7 +664,7 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
     def get_conf_cells(self, marker=None):
         modality_prefix = 'mod/rna/obs'
         z = self.zarr_store
-        obs = None if z is None else z[modality_prefix] 
+        obs = None if z is None else z[modality_prefix]
         # file_paths_found = [file["rel_path"] for file in self._entity["files"] if "files" in self._entity]
         # # Use .zgroup file as proxy for whether or not the zarr store is present.
         # if any('.zarr.zip' in path for path in file_paths_found): # pragma: no cover
@@ -694,12 +694,12 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
 
         column_names, column_labels = [f'obs/{col[0]}' for col in cluster_columns], [
             col[1] for col in cluster_columns]
-        
+
         azimuth_categories = self._get_azimuth_categories(obs)
 
         if len(azimuth_categories) > 0:
-                    column_names.append(azimuth_categories)
-                    column_labels.append("Azimuth Categories")
+            column_names.append(azimuth_categories)
+            column_labels.append("Azimuth Categories")
 
         self._set_up_marker_gene(marker)
         self._set_up_obs_labels(additional_obs_set_names=column_labels,
