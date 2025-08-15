@@ -88,8 +88,15 @@ def get_found_images(image_pyramid_regex, file_paths_found):
         return found_images
     except Exception as e:
         raise RuntimeError(f"Error while searching for pyramid images: {e}")
-
-
+    
+def obs_has_column(zroot, col_name: str, obs_path: str = "obs") -> bool:
+    """Return True if the raw column exists in obs """
+    try:
+        grp = zroot[obs_path] 
+    except KeyError:
+        return False
+    return (col_name in grp)
+    
 def get_found_images_all(file_paths_found):
     found_images = [
         path for path in get_matches(
