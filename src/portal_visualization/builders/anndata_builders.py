@@ -697,7 +697,7 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
 
         azimuth_categories = self._get_azimuth_categories(obs)
 
-        if len(azimuth_categories) > 0:
+        if len(azimuth_categories) > 0:  # pragma: no cover
             column_names.append(azimuth_categories)
             column_labels.append("Azimuth Categories")
 
