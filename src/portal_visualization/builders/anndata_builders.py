@@ -684,7 +684,7 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
             ["predicted_label", "Cell Ontology Annotation", "label"] if self._is_annotated else None,
             ["full_hierarchical_labels", "Full Hierarchical Labels", "label"] if self._is_annotated else None,
             ["final_level_labels", "Final Level Labels", "label"] if self._is_annotated else None,
-            # ["final_level_labels", "Final Level Labels", "label"] if self._is_annotated else None,
+            ["CL_Label", "CL Label", "label"] if self._is_annotated else None,
         ]
 
         cluster_columns = [

@@ -1,0 +1,497 @@
+{
+  "version": "1.0.15",
+  "name": "Leiden (Weighted Nearest Neighbor)",
+  "description": "",
+  "datasets": [
+    {
+      "uid": "A",
+      "name": "wnn",
+      "files": [
+        {
+          "fileType": "genomic-profiles.zarr",
+          "url": "https://example.com/272789a950b2b5d4b9387a1cf66ad487/hubmap_ui/mudata-zarr/wnn.multivec.zarr",
+          "requestInit": {
+            "headers": {
+              "Authorization": "Bearer groups_token"
+            }
+          }
+        },
+        {
+          "fileType": "anndata.zarr",
+          "url": "https://example.com/272789a950b2b5d4b9387a1cf66ad487/hubmap_ui/mudata-zarr/secondary_analysis.zarr/mod/rna",
+          "options": {
+            "obsEmbedding": [
+              {
+                "path": "obsm/X_umap",
+                "dims": [
+                  0,
+                  1
+                ],
+                "embeddingType": "UMAP - RNA"
+              }
+            ],
+            "obsSets": [
+              {
+                "name": "Leiden (Weighted Nearest Neighbor)",
+                "path": "obs/leiden_wnn"
+              },
+              {
+                "name": "ArchR Clusters (ATAC)",
+                "path": "obs/cluster_atac"
+              },
+              {
+                "name": "Leiden (RNA)",
+                "path": "obs/leiden_rna"
+              },
+              {
+                "name": "Full Hierarchical Labels",
+                "path": "obs/full_hierarchical_labels"
+              },
+              {
+                "name": "Final Level Labels",
+                "path": "obs/final_level_labels"
+              },
+              {
+                "name": "CL Label",
+                "path": "obs/CL_Label"
+              },
+              {
+                "name": "Azimuth Categories",
+                "path": [
+                  "obs/azimuth_broad",
+                  "obs/azimuth_medium",
+                  "obs/azimuth_fine"
+                ]
+              }
+            ],
+            "obsFeatureMatrix": {
+              "path": "X",
+              "initialFeatureFilterPath": "var/highly_variable"
+            },
+            "featureLabels": {
+              "path": "var/hugo_symbol"
+            }
+          },
+          "requestInit": {
+            "headers": {
+              "Authorization": "Bearer groups_token"
+            }
+          },
+          "coordinationValues": {
+            "featureType": "gene",
+            "featureValueType": "expression",
+            "featureLabelsType": "gene"
+          }
+        },
+        {
+          "fileType": "anndata.zarr",
+          "url": "https://example.com/272789a950b2b5d4b9387a1cf66ad487/hubmap_ui/mudata-zarr/secondary_analysis.zarr/mod/atac_cbg",
+          "options": {
+            "obsEmbedding": [
+              {
+                "path": "obsm/X_umap",
+                "dims": [
+                  0,
+                  1
+                ],
+                "embeddingType": "UMAP - ATAC"
+              }
+            ],
+            "obsFeatureMatrix": {
+              "path": "X",
+              "initialFeatureFilterPath": "var/highly_variable"
+            },
+            "featureLabels": {
+              "path": "var/hugo_symbol"
+            }
+          },
+          "requestInit": {
+            "headers": {
+              "Authorization": "Bearer groups_token"
+            }
+          },
+          "coordinationValues": {
+            "featureType": "peak",
+            "featureValueType": "count"
+          }
+        },
+        {
+          "fileType": "anndata.zarr",
+          "url": "https://example.com/272789a950b2b5d4b9387a1cf66ad487/hubmap_ui/mudata-zarr/secondary_analysis.zarr",
+          "options": {
+            "obsEmbedding": [
+              {
+                "path": "obsm/X_umap",
+                "dims": [
+                  0,
+                  1
+                ],
+                "embeddingType": "UMAP - WNN"
+              }
+            ],
+            "obsFeatureMatrix": {
+              "path": "X"
+            }
+          },
+          "requestInit": {
+            "headers": {
+              "Authorization": "Bearer groups_token"
+            }
+          },
+          "coordinationValues": {
+            "featureType": "other"
+          }
+        }
+      ]
+    }
+  ],
+  "coordinationSpace": {
+    "dataset": {
+      "A": "A"
+    },
+    "embeddingType": {
+      "A": "UMAP - RNA",
+      "B": "UMAP - ATAC",
+      "C": "UMAP - WNN"
+    },
+    "featureType": {
+      "A": "gene",
+      "B": "peak"
+    },
+    "featureValueType": {
+      "A": "expression",
+      "B": "count"
+    },
+    "featureSelection": {
+      "A": null
+    },
+    "obsColorEncoding": {
+      "A": "cellSetSelection",
+      "B": "cellSetSelection"
+    },
+    "featureValueColormapRange": {
+      "A": [
+        0,
+        1
+      ]
+    },
+    "obsSetSelection": {
+      "A": [
+        [
+          "Leiden (Weighted Nearest Neighbor)",
+          "0"
+        ],
+        [
+          "Leiden (Weighted Nearest Neighbor)",
+          "1"
+        ],
+        [
+          "Leiden (Weighted Nearest Neighbor)",
+          "2"
+        ],
+        [
+          "Leiden (Weighted Nearest Neighbor)",
+          "3"
+        ],
+        [
+          "Leiden (Weighted Nearest Neighbor)",
+          "4"
+        ],
+        [
+          "Leiden (Weighted Nearest Neighbor)",
+          "5"
+        ],
+        [
+          "Leiden (Weighted Nearest Neighbor)",
+          "6"
+        ],
+        [
+          "Leiden (Weighted Nearest Neighbor)",
+          "7"
+        ],
+        [
+          "Leiden (Weighted Nearest Neighbor)",
+          "8"
+        ],
+        [
+          "Leiden (Weighted Nearest Neighbor)",
+          "9"
+        ],
+        [
+          "Leiden (Weighted Nearest Neighbor)",
+          "10"
+        ],
+        [
+          "Leiden (Weighted Nearest Neighbor)",
+          "11"
+        ],
+        [
+          "Leiden (Weighted Nearest Neighbor)",
+          "12"
+        ],
+        [
+          "Leiden (Weighted Nearest Neighbor)",
+          "13"
+        ],
+        [
+          "Leiden (Weighted Nearest Neighbor)",
+          "14"
+        ],
+        [
+          "Leiden (Weighted Nearest Neighbor)",
+          "15"
+        ],
+        [
+          "Leiden (Weighted Nearest Neighbor)",
+          "16"
+        ],
+        [
+          "Leiden (Weighted Nearest Neighbor)",
+          "17"
+        ],
+        [
+          "Leiden (Weighted Nearest Neighbor)",
+          "18"
+        ],
+        [
+          "Leiden (Weighted Nearest Neighbor)",
+          "19"
+        ],
+        [
+          "Leiden (Weighted Nearest Neighbor)",
+          "20"
+        ],
+        [
+          "Leiden (Weighted Nearest Neighbor)",
+          "21"
+        ],
+        [
+          "Leiden (Weighted Nearest Neighbor)",
+          "22"
+        ]
+      ],
+      "B": [
+        [
+          "Leiden (Weighted Nearest Neighbor)",
+          "0"
+        ],
+        [
+          "Leiden (Weighted Nearest Neighbor)",
+          "1"
+        ],
+        [
+          "Leiden (Weighted Nearest Neighbor)",
+          "2"
+        ],
+        [
+          "Leiden (Weighted Nearest Neighbor)",
+          "3"
+        ],
+        [
+          "Leiden (Weighted Nearest Neighbor)",
+          "4"
+        ],
+        [
+          "Leiden (Weighted Nearest Neighbor)",
+          "5"
+        ],
+        [
+          "Leiden (Weighted Nearest Neighbor)",
+          "6"
+        ],
+        [
+          "Leiden (Weighted Nearest Neighbor)",
+          "7"
+        ],
+        [
+          "Leiden (Weighted Nearest Neighbor)",
+          "8"
+        ],
+        [
+          "Leiden (Weighted Nearest Neighbor)",
+          "9"
+        ],
+        [
+          "Leiden (Weighted Nearest Neighbor)",
+          "10"
+        ],
+        [
+          "Leiden (Weighted Nearest Neighbor)",
+          "11"
+        ],
+        [
+          "Leiden (Weighted Nearest Neighbor)",
+          "12"
+        ],
+        [
+          "Leiden (Weighted Nearest Neighbor)",
+          "13"
+        ],
+        [
+          "Leiden (Weighted Nearest Neighbor)",
+          "14"
+        ],
+        [
+          "Leiden (Weighted Nearest Neighbor)",
+          "15"
+        ],
+        [
+          "Leiden (Weighted Nearest Neighbor)",
+          "16"
+        ],
+        [
+          "Leiden (Weighted Nearest Neighbor)",
+          "17"
+        ],
+        [
+          "Leiden (Weighted Nearest Neighbor)",
+          "18"
+        ],
+        [
+          "Leiden (Weighted Nearest Neighbor)",
+          "19"
+        ],
+        [
+          "Leiden (Weighted Nearest Neighbor)",
+          "20"
+        ],
+        [
+          "Leiden (Weighted Nearest Neighbor)",
+          "21"
+        ],
+        [
+          "Leiden (Weighted Nearest Neighbor)",
+          "22"
+        ]
+      ]
+    },
+    "embeddingObsSetLabelsVisible": {
+      "A": false
+    }
+  },
+  "layout": [
+    {
+      "component": "scatterplot",
+      "coordinationScopes": {
+        "dataset": "A",
+        "embeddingType": "A",
+        "featureType": "A",
+        "featureValueType": "A",
+        "featureSelection": "A",
+        "obsColorEncoding": "A",
+        "featureValueColormapRange": "A",
+        "obsSetSelection": "A",
+        "embeddingObsSetLabelsVisible": "A"
+      },
+      "x": 0,
+      "y": 0,
+      "w": 3,
+      "h": 6,
+      "props": {
+        "embeddingCellSetLabelsVisible": false
+      }
+    },
+    {
+      "component": "scatterplot",
+      "coordinationScopes": {
+        "dataset": "A",
+        "embeddingType": "B",
+        "featureType": "B",
+        "featureValueType": "B",
+        "featureSelection": "A",
+        "obsColorEncoding": "A",
+        "featureValueColormapRange": "A",
+        "obsSetSelection": "A",
+        "embeddingObsSetLabelsVisible": "A"
+      },
+      "x": 3,
+      "y": 0,
+      "w": 3,
+      "h": 6,
+      "props": {
+        "embeddingCellSetLabelsVisible": false
+      }
+    },
+    {
+      "component": "scatterplot",
+      "coordinationScopes": {
+        "dataset": "A",
+        "embeddingType": "C",
+        "featureSelection": "A",
+        "obsColorEncoding": "A",
+        "featureValueColormapRange": "A",
+        "obsSetSelection": "A",
+        "embeddingObsSetLabelsVisible": "A"
+      },
+      "x": 6,
+      "y": 0,
+      "w": 3,
+      "h": 6,
+      "props": {
+        "embeddingCellSetLabelsVisible": false
+      }
+    },
+    {
+      "component": "featureList",
+      "coordinationScopes": {
+        "dataset": "A",
+        "featureType": "A",
+        "featureValueType": "A",
+        "featureSelection": "A",
+        "obsColorEncoding": "A",
+        "featureValueColormapRange": "A",
+        "obsSetSelection": "A"
+      },
+      "x": 9,
+      "y": 6,
+      "w": 3,
+      "h": 6
+    },
+    {
+      "component": "featureList",
+      "coordinationScopes": {
+        "dataset": "A",
+        "featureType": "B",
+        "featureValueType": "B",
+        "featureSelection": "A",
+        "obsColorEncoding": "A",
+        "featureValueColormapRange": "A",
+        "obsSetSelection": "A"
+      },
+      "x": 6,
+      "y": 6,
+      "w": 3,
+      "h": 6
+    },
+    {
+      "component": "genomicProfiles",
+      "coordinationScopes": {
+        "dataset": "A",
+        "obsSetSelection": "B",
+        "obsColorEncoding": "B"
+      },
+      "x": 0,
+      "y": 6,
+      "w": 6,
+      "h": 6,
+      "props": {
+        "title": "Leiden (Weighted Nearest Neighbor) Genomic Profiles"
+      }
+    },
+    {
+      "component": "obsSets",
+      "coordinationScopes": {
+        "dataset": "A",
+        "featureSelection": "A",
+        "obsColorEncoding": "A",
+        "featureValueColormapRange": "A",
+        "obsSetSelection": "A"
+      },
+      "x": 9,
+      "y": 0,
+      "w": 3,
+      "h": 6
+    }
+  ],
+  "initStrategy": "auto"
+}

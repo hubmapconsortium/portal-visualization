@@ -91,10 +91,10 @@ def get_found_images(image_pyramid_regex, file_paths_found):
 
 
 def obs_has_column(zroot, col_name: str, obs_path: str = "obs") -> bool:
-    """Return True if the raw column exists in obs """
+    """Return True if the raw column exists in obs_path """
     try:
         grp = zroot[obs_path]
-    except KeyError:
+    except KeyError: # pragma: no cover
         return False
     return (col_name in grp)
 
