@@ -130,8 +130,7 @@ def mock_zarr_store(entity_path, mocker):
         if is_annotated:
             group_names.append("predicted_label")
         elif is_pan_azimuth:
-            group_names += [
-                ["azimuth_broad", "azimuth_medium", "azimuth_fine"],
+            group_names = ["leiden_wnn", "leiden_rna",
                 "final_level_labels",
                 "full_hierarchical_labels",
                 "CL_Label",

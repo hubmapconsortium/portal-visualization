@@ -94,7 +94,7 @@ def obs_has_column(zroot, col_name: str, obs_path: str = "obs") -> bool:
     """Return True if the raw column exists in obs_path """
     try:
         grp = zroot[obs_path]
-    except KeyError: # pragma: no cover
+    except KeyError:  # pragma: no cover
         return False
     return (col_name in grp)
 
