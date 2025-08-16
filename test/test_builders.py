@@ -129,11 +129,12 @@ def mock_zarr_store(entity_path, mocker):
         group_names = ["leiden_wnn", "leiden_rna", "cluster_cbg", "cluster_cbb"]
         if is_annotated:
             group_names.append("predicted_label")
-        elif is_pan_azimuth:
+        if is_pan_azimuth:
             group_names = ["leiden_wnn", "leiden_rna",
                            "final_level_labels",
                            "full_hierarchical_labels",
                            "CL_Label",
+                           "azimuth_broad", "azimuth_medium", "azimuth_fine"
                            ]
         groups = obs.create_groups(*group_names)
         for group in groups:

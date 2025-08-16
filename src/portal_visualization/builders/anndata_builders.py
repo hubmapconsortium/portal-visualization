@@ -697,7 +697,7 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
 
         azimuth_categories = self._get_azimuth_categories(obs)
 
-        if len(azimuth_categories) > 0:  # pragma: no cover
+        if len(azimuth_categories) > 0:
             column_names.append(azimuth_categories)
             column_labels.append("Azimuth Categories")
 
@@ -775,7 +775,6 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
         return dataset
 
     def _setup_anndata_view_config(self, vc, dataset, column_name, column_label):
-        print(column_name, column_label)
         umap_scatterplot_by_rna = vc.add_view(
             vt.SCATTERPLOT, dataset=dataset, mapping="UMAP - RNA"
         ).set_props(embeddingCellSetLabelsVisible=False)
