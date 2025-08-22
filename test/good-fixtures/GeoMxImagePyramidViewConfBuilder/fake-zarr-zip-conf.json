@@ -43,7 +43,7 @@
           },
           {
             "fileType": "anndata.zarr.zip",
-            "url": "https://example.com/bc7239d27b79e087c788600261f073e5/output_ome_segments?token=groups_token/aoi.zarr.zip",
+            "url": "https://example.com/bc7239d27b79e087c788600261f073e5/output_ome_segments/aoi.zarr.zip?token=groups_token",
             "options": {
               "obsSets": [
                 {
@@ -58,7 +58,7 @@
           },
           {
             "fileType": "obsSegmentations.json",
-            "url": "https://example.com/bc7239d27b79e087c788600261f073e5/output_ome_segments?token=groups_token/obsSegmentations.json",
+            "url": "https://example.com/bc7239d27b79e087c788600261f073e5/output_ome_segments/obsSegmentations.json?token=groups_token",
             "coordinationValues": {
               "obsType": "region",
               "fileUid": "region_json_segmentations"
