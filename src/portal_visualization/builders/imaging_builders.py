@@ -154,7 +154,6 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
         file_path_zip = f'{file_path}.zip' if self._is_zarr_zip and zip_check else file_path
         return self._build_assets_url(file_path_zip)
 
-
     def _add_aoi_rois(self, dataset):
         area_zarr_url = self._get_url_for_path(self.segment_files_regex, 'aoi.zarr', zip_check=True)
         area_zarr = AnnDataWrapper(
@@ -176,11 +175,12 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
             },
         )
 
-        obs_segmentation_url =  self._get_url_for_path(self.segment_files_regex, 'obsSegmentations.json', zip_check=False)
+        obs_segmentation_url = self._get_url_for_path(
+            self.segment_files_regex, 'obsSegmentations.json', zip_check=False)
         dataset.add_object(region_zarr)
         dataset.add_object(area_zarr)
         dataset.add_object(JsonWrapper(
-            json_url= obs_segmentation_url,
+            json_url=obs_segmentation_url,
             data_type=dt.OBS_SEGMENTATIONS,
             coordination_values={
                 "obsType": "region",
