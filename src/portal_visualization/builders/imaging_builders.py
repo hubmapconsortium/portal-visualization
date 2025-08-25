@@ -167,7 +167,7 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
             if found_file.endswith("/.zgroup"):
                 found_file = found_file[: -len("/.zgroup")]
             return self._build_assets_url(found_file)
-        else:
+        else:  # pragma: no cover
             print(f"{file_name_to_check} file was not found.")
             return None
 
