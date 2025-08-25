@@ -149,10 +149,27 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
                                                    )
                 )
 
-    def _get_url_for_path(self, base, filename, zip_check=False):
-        file_path = f'{base}/{filename}'
-        file_path_zip = f'{file_path}.zip' if self._is_zarr_zip and zip_check else file_path
-        return self._build_assets_url(file_path_zip)
+    def _get_url_for_path(self, base, file_name, zip_check=False):
+        file_paths_found = self._get_file_paths()
+        file_name_end = f'{file_name}.zip' if self._is_zarr_zip and zip_check else file_name
+        file_name_to_check = (
+            f"{file_name_end}/.zgroup"
+            if (".zarr" in file_name_end and not self._is_zarr_zip)
+            else file_name_end
+        )
+
+        found_file = next(
+            (p for p in file_paths_found
+             if p.startswith(f"{base.rstrip('/')}/") and p.endswith(file_name_to_check)),
+            None
+        )
+        if found_file:
+            if found_file.endswith("/.zgroup"):
+                found_file = found_file[: -len("/.zgroup")]
+            return self._build_assets_url(found_file)
+        else:
+            print(f"{file_name_to_check} file was not found.")
+            return None
 
     def _add_aoi_rois(self, dataset):
         area_zarr_url = self._get_url_for_path(self.segment_files_regex, 'aoi.zarr', zip_check=True)
