@@ -79,20 +79,19 @@ def get_entity(input):
     return assay
 
 
+# Construct test cases for has_visualization.
+# Initial values are edge cases (null view conf builder)
 has_visualization_test_cases = [
     (False, {"uuid": "2c2179ea741d3bbb47772172a316a2bf"}),
     (False, {"uuid": "f9ae931b8b49252f150d7f8bf1d2d13f-bad"}),
 ]
-
 excluded_uuids = {entity["uuid"] for _, entity in has_visualization_test_cases}
 
+# All other values are good entities which should have a visualization
 for path in good_entity_paths:
-    # Exclude NullViewConfBuilder entities since they should not have visualizations
-    if path.parent.name == "NullViewConfBuilder":
-        continue
     entity = json.loads(path.read_text())
     uuid = entity.get("uuid")
-    if uuid in excluded_uuids:
+    if uuid in excluded_uuids or path.parent.name == "NullViewConfBuilder":
         continue
     has_visualization_test_cases.append((True, entity))
 
@@ -108,10 +107,10 @@ for path in good_entity_paths:
 def test_has_visualization(has_vis_entity):
     has_vis, entity = has_vis_entity
     parent = entity.get("parent") or None  # Only used for image pyramids
-    # TODO: Once other epic hints exist, this may need to be adjusted
-    epic_uuid = (
+    hints = entity.get("vitessce-hints", [])
+    epic_uuid = (  # For segmentation masks
         entity.get("uuid")
-        if "epic" in entity.get("vitessce-hints", {})
+        if "epic" in hints and len(hints) > 1
         else None
     )
     assert has_vis == has_visualization(entity, get_entity, parent, epic_uuid)
