@@ -79,8 +79,6 @@ class ObjectByAnalyteConfBuilder(ViewConfBuilder):
     @cached_property
     def zarr_store(self):
         request_init = self._get_request_init() or {}
-        print(request_init)
-        print(self._zarr_path)
         return read_zip_zarr(self._zarr_path, request_init)
 
     @cached_property
@@ -198,7 +196,6 @@ class ObjectByAnalyteConfBuilder(ViewConfBuilder):
         """
         wrappers = []
         for modality in self._get_modalities:
-            print(f"self._get_obs_embedding_paths(modality): {self._get_obs_embedding_paths(modality)}")
             wrapper = AnnDataWrapper(
                 adata_url=self._zarr_path,
                 is_zip=True,
