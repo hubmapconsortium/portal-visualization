@@ -1,7 +1,7 @@
 
 from functools import cached_property
 from typing import List
-from vitessce import VitessceConfig, AnnDataWrapper, CoordinationLevel as CL, Component as cm
+from vitessce import VitessceConfig, AnnDataWrapper, Component as cm
 from .base_builders import ViewConfBuilder
 from ..utils import get_conf_cells, read_zip_zarr
 
@@ -45,7 +45,7 @@ metadata_example = {
 """
 
 
-class ObjectByAnalyteEPICConfBuilder(ViewConfBuilder):
+class ObjectByAnalyteConfBuilder(ViewConfBuilder):
     def __init__(self, entity: dict, groups_token: str, assets_endpoint: str, **kwargs):
         super().__init__(entity, groups_token, assets_endpoint, **kwargs)
         self._scatterplot_mappings: List[str] = []
@@ -101,7 +101,7 @@ class ObjectByAnalyteEPICConfBuilder(ViewConfBuilder):
         """
         Get the paths to the observation sets for a given modality.
         """
-        return [f"mod/{modality.get("name")}/obsm/annotation/{annotation}"
+        return [f"mod/{modality.get('name')}/obsm/annotation/{annotation}"
                 for annotation in self._get_obs_set_keys(modality)]
 
     def _get_obs_set_names(self, modality):
@@ -122,7 +122,7 @@ class ObjectByAnalyteEPICConfBuilder(ViewConfBuilder):
         """
         non_embedding_keys = ["annotation"]
         non_embedding_keys.extend(self._get_obs_set_keys(modality))
-        return [f"mod/{modality.get("name")}/obsm/{key}"
+        return [f"mod/{modality.get('name')}/obsm/{key}"
                 for key in self._get_obs_embeddings(modality)]
 
     def _get_obs_embedding_names(self, modality):
@@ -147,7 +147,7 @@ class ObjectByAnalyteEPICConfBuilder(ViewConfBuilder):
         if it exists
         """
         var_keys = modality.get("var_keys", [])
-        path_base = f"mod/{modality.get("name")}/var"
+        path_base = f"mod/{modality.get('name')}/var"
         if ("hugo_symbol" in var_keys):
             return f"{path_base}/hugo_symbol"
         if ("uniprot_id" in var_keys):
@@ -158,7 +158,7 @@ class ObjectByAnalyteEPICConfBuilder(ViewConfBuilder):
         """
         Provides the path indicating the highly variable features to include in the heatmap
         """
-        return f"mod/{modality.get("name")}/var/highly_variable"
+        return f"mod/{modality.get('name')}/var/highly_variable"
 
     def _get_feature_matrix_path(self, modality):
         """
@@ -166,7 +166,7 @@ class ObjectByAnalyteEPICConfBuilder(ViewConfBuilder):
         and has non-zero dimensions
         """
         if (modality.get("n_obs") > 0 and modality.get("n_vars") > 0):
-            return f"mod/{modality.get("name")}/X"
+            return f"mod/{modality.get('name')}/X"
         return None
 
     def _get_obs_labels_path(self, modality):
@@ -174,7 +174,7 @@ class ObjectByAnalyteEPICConfBuilder(ViewConfBuilder):
         Gets the non-annotation obs columns
         """
         annotation_keys = self._get_obs_set_keys(modality).append("annotation")
-        return [f"mod/{modality.get("name")}/obs/{key}"
+        return [f"mod/{modality.get('name')}/obs/{key}"
                 for key in modality.get("obs_keys", [])
                 if key not in annotation_keys]
 
@@ -189,7 +189,7 @@ class ObjectByAnalyteEPICConfBuilder(ViewConfBuilder):
         Returns the path to the spatial coordinates for the modality if present
         """
         if (self._is_spatial(modality)):
-            return f"mod/{modality.get("name")}/obsm/X_spatial"
+            return f"mod/{modality.get('name')}/obsm/X_spatial"
         return None
 
     def _get_anndata_wrappers(self):

@@ -1,4 +1,4 @@
-from portal_visualization.builders.object_by_analyte_builders import ObjectByAnalyteEPICConfBuilder
+from portal_visualization.builders.object_by_analyte_builders import ObjectByAnalyteConfBuilder
 from .builders.base_builders import NullViewConfBuilder
 from .builders.sprm_builders import (
     StitchedCytokitSPRMViewConfBuilder,
@@ -155,7 +155,7 @@ def get_view_config_builder(entity, get_entity, parent=None, epic_uuid=None):
 
     # 'epic" is the only hint for object x analyte EPICs
     if is_epic:
-        return ObjectByAnalyteEPICConfBuilder
+        return ObjectByAnalyteConfBuilder
 
     # any entity with no hints, e.g. 2c2179ea741d3bbb47772172a316a2bf
     return NullViewConfBuilder
