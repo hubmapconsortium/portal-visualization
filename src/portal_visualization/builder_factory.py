@@ -1,4 +1,4 @@
-from portal_visualization.builders.object_by_analyte_builders import ObjectByAnalyteConfBuilder
+from .builders.object_by_analyte_builders import ObjectByAnalyteConfBuilder
 from .builders.base_builders import NullViewConfBuilder
 from .builders.sprm_builders import (
     StitchedCytokitSPRMViewConfBuilder,
