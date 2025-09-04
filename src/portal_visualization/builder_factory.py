@@ -1,3 +1,4 @@
+from portal_visualization.builders.object_by_analyte_builders import ObjectByAnalyteEPICConfBuilder
 from .builders.base_builders import NullViewConfBuilder
 from .builders.sprm_builders import (
     StitchedCytokitSPRMViewConfBuilder,
@@ -40,6 +41,7 @@ def process_hints(hints):
     is_seg_mask = "segmentation_mask" in hints
     is_geomx = "geomx" in hints
     is_xenium = 'xenium' in hints
+    is_epic = 'epic' in hints
 
     return (
         is_image,
@@ -53,7 +55,8 @@ def process_hints(hints):
         is_support,
         is_seg_mask,
         is_geomx,
-        is_xenium
+        is_xenium,
+        is_epic
     )
 
 
@@ -79,6 +82,7 @@ def get_view_config_builder(entity, get_entity, parent=None, epic_uuid=None):
         is_seg_mask,
         is_geomx,
         is_xenium,
+        is_epic
     ) = process_hints(hints)
 
     # vis-lifted image pyramids
@@ -130,7 +134,6 @@ def get_view_config_builder(entity, get_entity, parent=None, epic_uuid=None):
             return GeoMxImagePyramidViewConfBuilder
         if is_xenium:
             return XeniumMultiomicAnnDataZarrViewConfBuilder
-
     if is_rna:
         # multiomic mudata, e.g. 10x Multiome, SNARE-Seq, etc.
         # e.g. 272789a950b2b5d4b9387a1cf66ad487 on dev
@@ -149,6 +152,11 @@ def get_view_config_builder(entity, get_entity, parent=None, epic_uuid=None):
     if is_atac:
         # e.g. d4493657cde29702c5ed73932da5317c
         return ATACSeqViewConfBuilder
+
+    # 'epic" is the only hint for object x analyte EPICs
+    if is_epic:
+        return ObjectByAnalyteEPICConfBuilder
+
     # any entity with no hints, e.g. 2c2179ea741d3bbb47772172a316a2bf
     return NullViewConfBuilder
 
