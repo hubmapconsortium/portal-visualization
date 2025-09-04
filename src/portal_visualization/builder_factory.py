@@ -85,6 +85,10 @@ def get_view_config_builder(entity, get_entity, parent=None, epic_uuid=None):
         is_epic
     ) = process_hints(hints)
 
+    # 'epic" is the only hint for object x analyte EPICs
+    if is_epic and len(hints) == 1:
+        return ObjectByAnalyteConfBuilder
+
     # vis-lifted image pyramids
     if parent is not None:
         # TODO: For now epic (base image's) support datasets doesn't have any hints
@@ -152,10 +156,6 @@ def get_view_config_builder(entity, get_entity, parent=None, epic_uuid=None):
     if is_atac:
         # e.g. d4493657cde29702c5ed73932da5317c
         return ATACSeqViewConfBuilder
-
-    # 'epic" is the only hint for object x analyte EPICs
-    if is_epic:
-        return ObjectByAnalyteConfBuilder
 
     # any entity with no hints, e.g. 2c2179ea741d3bbb47772172a316a2bf
     return NullViewConfBuilder
