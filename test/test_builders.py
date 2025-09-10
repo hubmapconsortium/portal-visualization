@@ -227,7 +227,7 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
     if "epic" not in assay_type["vitessce-hints"] or is_object_by_analyte:
         assert Builder.__name__ == entity_path.parent.name
         compare_confs(entity_path, conf, cells)
-    if "epic" in assay_type["vitessce-hints"]:
+    else if "epic" in assay_type["vitessce-hints"]:
         epic_builder = get_epic_builder(epic_uuid)
         assert epic_builder is not None
         assert epic_builder.__name__ == entity_path.parent.name
