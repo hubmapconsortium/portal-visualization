@@ -176,7 +176,7 @@ class ObjectByAnalyteConfBuilder(ViewConfBuilder):
         """
         Gets the non-annotation obs columns
         """
-        annotation_keys = self._get_obs_set_keys(modality).append("annotation")
+        annotation_keys = self._get_obs_set_keys(modality) + ["annotation"]
         return [f"mod/{modality.get('name')}/obs/{key}"
                 for key in modality.get("obs_keys", [])
                 if key not in annotation_keys]
