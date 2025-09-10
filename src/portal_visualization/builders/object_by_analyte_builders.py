@@ -79,10 +79,10 @@ class ObjectByAnalyteConfBuilder(ViewConfBuilder):
                 # If the result is null, still raise an error
                 if (result):
                     return result
-        raise ValueError("No zarr file found")
+        raise ValueError(f"No zarr file found for entity {self._uuid}")
 
     @cached_property
-    def zarr_store(self):
+    def zarr_store(self):  # pragma: no cover
         request_init = self._get_request_init() or {}
         return read_zip_zarr(self._zarr_path, request_init)
 
@@ -94,7 +94,7 @@ class ObjectByAnalyteConfBuilder(ViewConfBuilder):
         return self._secondary_analysis_metadata.get("modalities", [])
 
     @cached_property
-    def _get_epic_type(self):
+    def _get_epic_type(self):  # pragma: no cover
         return self._secondary_analysis_metadata.get("epic_type", [])
 
     def _get_obs_set_keys(self, modality):
@@ -172,7 +172,7 @@ class ObjectByAnalyteConfBuilder(ViewConfBuilder):
             return f"mod/{modality.get('name')}/X"
         return None
 
-    def _get_obs_labels_path(self, modality):
+    def _get_obs_labels_path(self, modality):  # pragma: no cover
         """
         Gets the non-annotation obs columns
         """
@@ -185,7 +185,7 @@ class ObjectByAnalyteConfBuilder(ViewConfBuilder):
         """
         Returns whether the `obsm/X_spatial` key exists in the given modality
         """
-        return "obsm/X_spatial" in modality.get("obsm_keys", [])
+        return "X_spatial" in modality.get("obsm_keys", [])
 
     def _get_spatial(self, modality):
         """
@@ -311,6 +311,10 @@ class ObjectByAnalyteConfBuilder(ViewConfBuilder):
         return vc
 
     def get_conf_cells(self, **kwargs):
+
+        # Ensure the zarr store is present
+        self._zarr_path
+
         vc = VitessceConfig(name=self._uuid, schema_version=self._schema_version)
 
         ds = vc.add_dataset(name=self._uuid)

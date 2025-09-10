@@ -11,6 +11,9 @@
           "fileType": "anndata.zarr.zip",
           "url": "https://example.com/a1583467d20b420f20e7d97528305021/extras/transformations/hubmap_ui/mudata-zarr/secondary_analysis.zarr.zip?token=groups_token",
           "options": {
+            "obsLocations": {
+              "path": "mod/spatial_data/obsm/X_spatial"
+            },
             "obsEmbedding": [
               {
                 "path": "mod/spatial_data/obsm/X_pca",
@@ -104,13 +107,33 @@
       "h": 2
     },
     {
-      "component": "obsSets",
+      "component": "spatialBeta",
       "coordinationScopes": {
         "dataset": "A"
       },
       "x": 4,
       "y": 0,
-      "w": 8,
+      "w": 4,
+      "h": 3
+    },
+    {
+      "component": "layerControllerBeta",
+      "coordinationScopes": {
+        "dataset": "A"
+      },
+      "x": 4,
+      "y": 3,
+      "w": 4,
+      "h": 3
+    },
+    {
+      "component": "obsSets",
+      "coordinationScopes": {
+        "dataset": "A"
+      },
+      "x": 8,
+      "y": 0,
+      "w": 4,
       "h": 3
     },
     {
@@ -118,9 +141,9 @@
       "coordinationScopes": {
         "dataset": "A"
       },
-      "x": 4,
+      "x": 8,
       "y": 3,
-      "w": 8,
+      "w": 4,
       "h": 3
     },
     {
