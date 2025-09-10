@@ -1,0 +1,148 @@
+{
+  "version": "1.0.15",
+  "name": "a1583467d20b420f20e7d97528305021",
+  "description": "",
+  "datasets": [
+    {
+      "uid": "A",
+      "name": "a1583467d20b420f20e7d97528305021",
+      "files": [
+        {
+          "fileType": "anndata.zarr.zip",
+          "url": "https://example.com/a1583467d20b420f20e7d97528305021/extras/transformations/hubmap_ui/mudata-zarr/secondary_analysis.zarr.zip?token=groups_token",
+          "options": {
+            "obsEmbedding": [
+              {
+                "path": "mod/spatial_data/obsm/X_pca",
+                "dims": [
+                  0,
+                  1
+                ],
+                "embeddingType": "PCA"
+              },
+              {
+                "path": "mod/spatial_data/obsm/X_umap",
+                "dims": [
+                  0,
+                  1
+                ],
+                "embeddingType": "UMAP"
+              },
+              {
+                "path": "mod/spatial_data/obsm/X_spatial",
+                "dims": [
+                  0,
+                  1
+                ],
+                "embeddingType": "SPATIAL"
+              }
+            ],
+            "obsSets": [
+              {
+                "name": "Cell Type",
+                "path": "mod/spatial_data/obsm/annotation/cell_type"
+              },
+              {
+                "name": "Region",
+                "path": "mod/spatial_data/obsm/annotation/region"
+              }
+            ],
+            "obsFeatureMatrix": {
+              "path": "mod/spatial_data/X",
+              "initialFeatureFilterPath": "mod/spatial_data/var/highly_variable"
+            },
+            "featureLabels": {
+              "path": "mod/spatial_data/var/hugo_symbol"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "coordinationSpace": {
+    "dataset": {
+      "A": "A"
+    },
+    "embeddingType": {
+      "A": "PCA",
+      "B": "UMAP",
+      "C": "SPATIAL"
+    }
+  },
+  "layout": [
+    {
+      "component": "scatterplot",
+      "coordinationScopes": {
+        "dataset": "A",
+        "embeddingType": "A"
+      },
+      "x": 0,
+      "y": 0,
+      "w": 4,
+      "h": 2
+    },
+    {
+      "component": "scatterplot",
+      "coordinationScopes": {
+        "dataset": "A",
+        "embeddingType": "B"
+      },
+      "x": 0,
+      "y": 2,
+      "w": 4,
+      "h": 2
+    },
+    {
+      "component": "scatterplot",
+      "coordinationScopes": {
+        "dataset": "A",
+        "embeddingType": "C"
+      },
+      "x": 0,
+      "y": 4,
+      "w": 4,
+      "h": 2
+    },
+    {
+      "component": "obsSets",
+      "coordinationScopes": {
+        "dataset": "A"
+      },
+      "x": 4,
+      "y": 0,
+      "w": 8,
+      "h": 3
+    },
+    {
+      "component": "featureList",
+      "coordinationScopes": {
+        "dataset": "A"
+      },
+      "x": 4,
+      "y": 3,
+      "w": 8,
+      "h": 3
+    },
+    {
+      "component": "obsSetFeatureValueDistribution",
+      "coordinationScopes": {
+        "dataset": "A"
+      },
+      "x": 7,
+      "y": 6,
+      "w": 5,
+      "h": 4
+    },
+    {
+      "component": "heatmap",
+      "coordinationScopes": {
+        "dataset": "A"
+      },
+      "x": 0,
+      "y": 6,
+      "w": 7,
+      "h": 4
+    }
+  ],
+  "initStrategy": "auto"
+}

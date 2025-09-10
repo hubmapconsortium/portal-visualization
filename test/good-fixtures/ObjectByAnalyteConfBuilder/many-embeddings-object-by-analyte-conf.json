@@ -1,0 +1,180 @@
+{
+  "version": "1.0.15",
+  "name": "a1583467d20b420f20e7d97528305021",
+  "description": "",
+  "datasets": [
+    {
+      "uid": "A",
+      "name": "a1583467d20b420f20e7d97528305021",
+      "files": [
+        {
+          "fileType": "anndata.zarr.zip",
+          "url": "https://example.com/a1583467d20b420f20e7d97528305021/extras/transformations/hubmap_ui/mudata-zarr/secondary_analysis.zarr.zip?token=groups_token",
+          "options": {
+            "obsEmbedding": [
+              {
+                "path": "mod/many_embeddings/obsm/X_pca",
+                "dims": [
+                  0,
+                  1
+                ],
+                "embeddingType": "PCA"
+              },
+              {
+                "path": "mod/many_embeddings/obsm/X_umap",
+                "dims": [
+                  0,
+                  1
+                ],
+                "embeddingType": "UMAP"
+              },
+              {
+                "path": "mod/many_embeddings/obsm/X_tsne",
+                "dims": [
+                  0,
+                  1
+                ],
+                "embeddingType": "TSNE"
+              },
+              {
+                "path": "mod/many_embeddings/obsm/X_diffmap",
+                "dims": [
+                  0,
+                  1
+                ],
+                "embeddingType": "DIFFMAP"
+              },
+              {
+                "path": "mod/many_embeddings/obsm/X_draw_graph_fa",
+                "dims": [
+                  0,
+                  1
+                ],
+                "embeddingType": "FA"
+              }
+            ],
+            "obsSets": [
+              {
+                "name": "Cell Type",
+                "path": "mod/many_embeddings/obsm/annotation/cell_type"
+              },
+              {
+                "name": "Cluster",
+                "path": "mod/many_embeddings/obsm/annotation/cluster"
+              },
+              {
+                "name": "Subtype",
+                "path": "mod/many_embeddings/obsm/annotation/subtype"
+              }
+            ],
+            "obsFeatureMatrix": {
+              "path": "mod/many_embeddings/X",
+              "initialFeatureFilterPath": "mod/many_embeddings/var/highly_variable"
+            },
+            "featureLabels": {
+              "path": "mod/many_embeddings/var/hugo_symbol"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "coordinationSpace": {
+    "dataset": {
+      "A": "A"
+    },
+    "embeddingType": {
+      "A": "PCA",
+      "B": "UMAP",
+      "C": "TSNE",
+      "D": "DIFFMAP"
+    }
+  },
+  "layout": [
+    {
+      "component": "scatterplot",
+      "coordinationScopes": {
+        "dataset": "A",
+        "embeddingType": "A"
+      },
+      "x": 0,
+      "y": 0,
+      "w": 2,
+      "h": 3
+    },
+    {
+      "component": "scatterplot",
+      "coordinationScopes": {
+        "dataset": "A",
+        "embeddingType": "B"
+      },
+      "x": 2,
+      "y": 0,
+      "w": 2,
+      "h": 3
+    },
+    {
+      "component": "scatterplot",
+      "coordinationScopes": {
+        "dataset": "A",
+        "embeddingType": "C"
+      },
+      "x": 0,
+      "y": 3,
+      "w": 2,
+      "h": 3
+    },
+    {
+      "component": "scatterplot",
+      "coordinationScopes": {
+        "dataset": "A",
+        "embeddingType": "D"
+      },
+      "x": 2,
+      "y": 3,
+      "w": 2,
+      "h": 3
+    },
+    {
+      "component": "obsSets",
+      "coordinationScopes": {
+        "dataset": "A"
+      },
+      "x": 4,
+      "y": 0,
+      "w": 8,
+      "h": 3
+    },
+    {
+      "component": "featureList",
+      "coordinationScopes": {
+        "dataset": "A"
+      },
+      "x": 4,
+      "y": 3,
+      "w": 8,
+      "h": 3
+    },
+    {
+      "component": "obsSetFeatureValueDistribution",
+      "coordinationScopes": {
+        "dataset": "A"
+      },
+      "x": 7,
+      "y": 6,
+      "w": 5,
+      "h": 4
+    },
+    {
+      "component": "heatmap",
+      "coordinationScopes": {
+        "dataset": "A"
+      },
+      "x": 0,
+      "y": 6,
+      "w": 7,
+      "h": 4
+    }
+  ],
+  "initStrategy": "auto"
+}

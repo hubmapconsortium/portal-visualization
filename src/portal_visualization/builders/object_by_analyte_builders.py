@@ -62,8 +62,10 @@ class ObjectByAnalyteConfBuilder(ViewConfBuilder):
                 import requests
                 resp = requests.get(url)
                 resp.raise_for_status()
-                return resp.json()
-        raise ValueError("No secondary analysis metadata json file found")
+                json = resp.json()
+                if (json):
+                    return json
+        raise ValueError(f"No secondary analysis metadata json file found for entity {self._uuid}")
 
     @cached_property
     def _zarr_path(self):
@@ -73,7 +75,10 @@ class ObjectByAnalyteConfBuilder(ViewConfBuilder):
         files = self._get_file_paths()
         for file in files:
             if file.endswith(".zarr.zip"):
-                return super()._build_assets_url(file, use_token=True)
+                result = super()._build_assets_url(file, use_token=True)
+                # If the result is null, still raise an error
+                if (result):
+                    return result
         raise ValueError("No zarr file found")
 
     @cached_property
