@@ -226,7 +226,7 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
     conf, cells = builder.get_conf_cells(marker=marker)
 
     # Uncomment to generate a fixture
-    print(json.dumps(conf, indent=2))
+    # print(json.dumps(conf, indent=2))
 
     if "epic" not in assay_type["vitessce-hints"] or is_object_by_analyte:
         assert Builder.__name__ == entity_path.parent.name
