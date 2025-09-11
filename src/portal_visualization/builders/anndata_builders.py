@@ -15,7 +15,7 @@ from vitessce import (
 import numpy as np
 import zarr
 from .base_builders import ViewConfBuilder
-from ..utils import get_conf_cells, read_zip_zarr
+from ..utils import get_conf_cells, read_zip_zarr, obs_has_column
 from ..constants import ZARR_PATH, ZIP_ZARR_PATH, MULTIOMIC_ZARR_PATH, XENIUM_ZARR_PATH
 
 RNA_SEQ_ANNDATA_FACTOR_PATHS = [f"obs/{key}" for key in [
@@ -209,7 +209,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         obs = None if z is None else z['obs'] if modality_prefix is None else z[f'{modality_prefix}/obs']
         if not skip_default_paths:
             if self._is_annotated:
-                azimuth_categories = []
+                azimuth_categories = self._get_azimuth_categories(obs)
                 if 'predicted.ASCT.celltype' in obs:
                     obs_set_paths.append("obs/predicted.ASCT.celltype")
                     obs_set_names.append("Predicted ASCT Cell Type")
@@ -222,12 +222,6 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
                 if 'CL_Label' in obs:
                     obs_set_paths.append("obs/CL_Label")
                     obs_set_names.append("CL Label")
-                if 'azimuth_broad' in obs:
-                    azimuth_categories.append("obs/azimuth_broad")
-                if 'azimuth_medium' in obs:
-                    azimuth_categories.append("obs/azimuth_medium")
-                if 'azimuth_fine' in obs:
-                    azimuth_categories.append("obs/azimuth_fine")
                 if len(azimuth_categories) > 0:
                     obs_set_paths.append(azimuth_categories)
                     obs_set_names.append("Azimuth Categories")
@@ -307,6 +301,16 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
                 [[self._marker], 'geneSelection'],
             )
         return vc
+
+    def _get_azimuth_categories(self, obs):
+        azimuth_categories = []
+        if 'azimuth_broad' in obs:
+            azimuth_categories.append("obs/azimuth_broad")
+        if 'azimuth_medium' in obs:
+            azimuth_categories.append("obs/azimuth_medium")
+        if 'azimuth_fine' in obs:
+            azimuth_categories.append("obs/azimuth_fine")
+        return azimuth_categories
 
 
 class SpatialRNASeqAnnDataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
@@ -438,6 +442,7 @@ class SpatialMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewCon
     """
     Wrapper class for creating a AnnData-backed view configuration for multiomic spatial data
     such as Visium.
+    Example: https://portal.hubmapconsortium.org/browse/dataset/a9335618873a33cd060803c82bdefe89
     """
 
     def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
@@ -659,6 +664,9 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
             return False
 
     def get_conf_cells(self, marker=None):
+        modality_prefix = 'mod/rna/obs'
+        z = self.zarr_store
+        obs = None if z is None else z[modality_prefix]
         # file_paths_found = [file["rel_path"] for file in self._entity["files"] if "files" in self._entity]
         # # Use .zgroup file as proxy for whether or not the zarr store is present.
         # if any('.zarr.zip' in path for path in file_paths_found): # pragma: no cover
@@ -676,12 +684,24 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
             ["cluster_atac", "ArchR Clusters (ATAC)", "cbb"] if self.has_cbb else None,
             ["leiden_rna", "Leiden (RNA)", "rna"],
             ["predicted_label", "Cell Ontology Annotation", "label"] if self._is_annotated else None,
+            ["full_hierarchical_labels", "Full Hierarchical Labels", "label"] if self._is_annotated else None,
+            ["final_level_labels", "Final Level Labels", "label"] if self._is_annotated else None,
+            ["CL_Label", "CL Label", "label"] if self._is_annotated else None,
         ]
-        # Filter out None values
-        cluster_columns = [col for col in cluster_columns if col is not None]
+
+        cluster_columns = [
+            col for col in cluster_columns
+            if col is not None and obs_has_column(z, col[0], modality_prefix)
+        ]
 
         column_names, column_labels = [f'obs/{col[0]}' for col in cluster_columns], [
             col[1] for col in cluster_columns]
+
+        azimuth_categories = self._get_azimuth_categories(obs)
+
+        if len(azimuth_categories) > 0:
+            column_names.append(azimuth_categories)
+            column_labels.append("Azimuth Categories")
 
         self._set_up_marker_gene(marker)
         self._set_up_obs_labels(additional_obs_set_names=column_labels,

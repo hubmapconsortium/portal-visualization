@@ -122,12 +122,20 @@ def mock_zarr_store(entity_path, mocker):
     gene_array = zarr.array(["ENSG00000139618", "ENSG00000139619", "ENSG00000139620"])
     is_annotated = "is-annotated" in entity_path.name
     is_multiome = "multiome" in entity_path.name
+    is_pan_azimuth = "pan-az" in entity_path.name
     if is_multiome:
         obs = z.create_group("mod/rna/obs")
         var = z.create_group("mod/rna/var")
         group_names = ["leiden_wnn", "leiden_rna", "cluster_cbg", "cluster_cbb"]
         if is_annotated:
             group_names.append("predicted_label")
+        if is_pan_azimuth:
+            group_names = ["leiden_wnn", "leiden_rna",
+                           "final_level_labels",
+                           "full_hierarchical_labels",
+                           "CL_Label",
+                           "azimuth_broad", "azimuth_medium", "azimuth_fine"
+                           ]
         groups = obs.create_groups(*group_names)
         for group in groups:
             group["categories"] = zarr.array(["0", "1", "2"])
