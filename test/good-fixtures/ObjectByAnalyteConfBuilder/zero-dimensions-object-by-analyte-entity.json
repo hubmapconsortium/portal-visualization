@@ -1,0 +1,92 @@
+{
+  "uuid": "a1583467d20b420f20e7d97528305021",
+  "visualization": false,
+  "status": "Published",
+  "soft_assaytype": "object-x-analyte",
+  "files": [
+    {
+      "description": "Information about the object types and annotation tools used in the analysis of the EPIC, for use in the search index.",
+      "edam_term": "EDAM_1.24.format_3464",
+      "is_data_product": false,
+      "is_qa_qc": false,
+      "mapped_description": "Information about the object types and annotation tools used in the analysis of the EPIC, for use in the search index. (JSON file)",
+      "rel_path": "extras/transformations/hubmap_ui/mudata-zarr/calculated_metadata.json",
+      "size": 117,
+      "type": "json"
+    },
+    {
+      "description": "MuData Zarr store for storing and visualizing object by analyte data.",
+      "edam_term": "EDAM_1.24.format_3987",
+      "is_data_product": false,
+      "is_qa_qc": false,
+      "mapped_description": "MuData Zarr store for storing and visualizing object by analyte data. (ZIP file)",
+      "rel_path": "extras/transformations/hubmap_ui/mudata-zarr/secondary_analysis.zarr.zip",
+      "size": 378495980,
+      "type": "unknown"
+    },
+    {
+      "description": "Basic information about the modalities and dimensions of the secondary analysis zarr file, generated for convenience and verification.",
+      "edam_term": "EDAM_1.24.format_3464",
+      "is_data_product": false,
+      "is_qa_qc": false,
+      "mapped_description": "Basic information about the modalities and dimensions of the secondary analysis zarr file, generated for convenience and verification. (JSON file)",
+      "rel_path": "extras/transformations/hubmap_ui/mudata-zarr/secondary_analysis_metadata.json",
+      "size": 1360,
+      "type": "json"
+    }
+  ],
+  "vitessce-hints": [
+    "epic"
+  ],
+  "secondary_analysis_metadata": {
+    "epic_type": [
+      "analyses",
+      "annotations"
+    ],
+    "modalities": [
+      {
+        "annotations": [
+          "cluster"
+        ],
+        "n_obs": 0,
+        "n_vars": 0,
+        "name": "empty_data",
+        "obs_keys": [
+          "sample_id",
+          "cluster"
+        ],
+        "obsm_keys": [
+          "X_pca",
+          "X_umap",
+          "annotation",
+          "cluster"
+        ],
+        "var_keys": [
+          "hugo_symbol",
+          "mean",
+          "n_cells",
+          "std"
+        ]
+      }
+    ],
+    "n_obs": 0,
+    "n_vars": 0,
+    "obs_keys": [
+      "empty_data:sample_id",
+      "empty_data:cluster"
+    ],
+    "obsm_keys": [
+      "empty_data"
+    ],
+    "shape": [
+      0,
+      0
+    ],
+    "var_keys": [
+      "hugo_symbol",
+      "mean",
+      "n_cells",
+      "std"
+    ]
+  }
+}
