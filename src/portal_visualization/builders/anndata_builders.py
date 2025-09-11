@@ -630,7 +630,8 @@ class XeniumMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewConf
 class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
     """Wrapper class for creating a AnnData-backed view configuration
     for multiomic data from mudata-to-ui.cwl like 10X Multiome
-    TODO: https://portal.hubmapconsortium.org/browse/dataset/b8def263bab78c2935642b16b958355b
+    Example dataset:
+    https://portal.hubmapconsortium.org/browse/dataset/024d671f28994ff76eebf1e24ee640a7
     """
 
     def __init__(self, entity, groups_token, assets_endpoint, **kwargs):

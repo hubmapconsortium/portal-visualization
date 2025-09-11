@@ -69,36 +69,36 @@ default_assaytype = {
 
 
 def get_entity(input):
-    # uuid = entity.get("uuid")
     if not isinstance(input, str):
         uuid = input.get("uuid")
     else:
         uuid = input
-    # print(uuid, assaytypes_path.joinpath(f"{uuid}.json"))
     if uuid is None:  # pragma: no cover
         return default_assaytype
     assay = json.loads(assaytypes_path.joinpath(f"{uuid}.json").read_text())
     return assay
 
 
-test_cases = [
+# Construct test cases for has_visualization.
+# Initial values are edge cases (null view conf builder)
+has_visualization_test_cases = [
     (False, {"uuid": "2c2179ea741d3bbb47772172a316a2bf"}),
     (False, {"uuid": "f9ae931b8b49252f150d7f8bf1d2d13f-bad"}),
 ]
+excluded_uuids = {entity["uuid"] for _, entity in has_visualization_test_cases}
 
-excluded_uuids = {entity["uuid"] for _, entity in test_cases}
-
+# All other values are good entities which should have a visualization
 for path in good_entity_paths:
     entity = json.loads(path.read_text())
     uuid = entity.get("uuid")
-    if uuid in excluded_uuids:
+    if uuid in excluded_uuids or path.parent.name == "NullViewConfBuilder":
         continue
-    test_cases.append((True, entity))
+    has_visualization_test_cases.append((True, entity))
 
 
 @pytest.mark.parametrize(
     "has_vis_entity",
-    test_cases,
+    has_visualization_test_cases,
     ids=lambda e: (
         f"has_visualization={e[0]}_uuid={e[1].get('uuid', 'no-uuid')}"
         if isinstance(e, tuple) else str(e)
@@ -107,10 +107,10 @@ for path in good_entity_paths:
 def test_has_visualization(has_vis_entity):
     has_vis, entity = has_vis_entity
     parent = entity.get("parent") or None  # Only used for image pyramids
-    # TODO: Once other epic hints exist, this may need to be adjusted
-    epic_uuid = (
+    hints = entity.get("vitessce-hints", [])
+    epic_uuid = (  # For segmentation masks
         entity.get("uuid")
-        if "epic" in entity.get("vitessce-hints", {})
+        if "epic" in hints and len(hints) > 1
         else None
     )
     assert has_vis == has_visualization(entity, get_entity, parent, epic_uuid)
@@ -171,6 +171,13 @@ def mock_zarr_store(entity_path, mocker):
         var["hugo_categories"] = zarr.array(["gene123", "gene456", "gene789"])
     if "visium" in entity_path.name:
         z["uns/spatial/visium/scalefactors/spot_diameter_micrometers"] = 200.0
+    if "object-by-analyte" in entity_path.name:
+        entity = json.loads(entity_path.read_text())
+        # Mock the HTTP request that would fetch the metadata
+        mock_response = mocker.Mock()
+        mock_response.json.return_value = entity.get("secondary_analysis_metadata")
+        mock_response.raise_for_status.return_value = None
+        mocker.patch("requests.get", return_value=mock_response)
     mocker.patch("zarr.open", return_value=z)
 
 
@@ -212,18 +219,27 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
         mock_zarr = mocker.Mock()
         mocker.patch("src.portal_visualization.utils.read_zip_zarr", return_value=mock_zarr)
 
-    if "epic" in assay_type["vitessce-hints"]:
+    is_object_by_analyte = "epic" in assay_type["vitessce-hints"] and len(
+        assay_type["vitessce-hints"]) == 1
+
+    # If "epic" is the only hint, it's object by analyte and doesn't need a parent UUID
+    if "epic" in assay_type["vitessce-hints"] and not is_object_by_analyte:
         epic_uuid = entity.get("uuid")
+
     Builder = get_view_config_builder(entity, get_entity, parent, epic_uuid)
     # Envvars should not be set during normal test runs,
     # but to test the end-to-end integration, they are useful.
     # epic_uuid = environ.get("EPIC_UUID", "epic_uuid")
     builder = Builder(entity, groups_token, assets_url)
     conf, cells = builder.get_conf_cells(marker=marker)
-    if "epic" not in assay_type["vitessce-hints"]:
+
+    # Uncomment to generate a fixture
+    # print(json.dumps(conf, indent=2))
+
+    if "epic" not in assay_type["vitessce-hints"] or is_object_by_analyte:
         assert Builder.__name__ == entity_path.parent.name
         compare_confs(entity_path, conf, cells)
-    if "epic" in assay_type["vitessce-hints"]:
+    elif "epic" in assay_type["vitessce-hints"]:
         epic_builder = get_epic_builder(epic_uuid)
         assert epic_builder is not None
         assert epic_builder.__name__ == entity_path.parent.name

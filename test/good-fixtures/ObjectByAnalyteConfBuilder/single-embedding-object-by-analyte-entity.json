@@ -1,0 +1,91 @@
+{
+  "uuid": "a1583467d20b420f20e7d97528305021",
+  "visualization": false,
+  "status": "Published",
+  "soft_assaytype": "object-x-analyte",
+  "files": [
+    {
+      "description": "Information about the object types and annotation tools used in the analysis of the EPIC, for use in the search index.",
+      "edam_term": "EDAM_1.24.format_3464",
+      "is_data_product": false,
+      "is_qa_qc": false,
+      "mapped_description": "Information about the object types and annotation tools used in the analysis of the EPIC, for use in the search index. (JSON file)",
+      "rel_path": "extras/transformations/hubmap_ui/mudata-zarr/calculated_metadata.json",
+      "size": 117,
+      "type": "json"
+    },
+    {
+      "description": "MuData Zarr store for storing and visualizing object by analyte data.",
+      "edam_term": "EDAM_1.24.format_3987",
+      "is_data_product": false,
+      "is_qa_qc": false,
+      "mapped_description": "MuData Zarr store for storing and visualizing object by analyte data. (ZIP file)",
+      "rel_path": "extras/transformations/hubmap_ui/mudata-zarr/secondary_analysis.zarr.zip",
+      "size": 378495980,
+      "type": "unknown"
+    },
+    {
+      "description": "Basic information about the modalities and dimensions of the secondary analysis zarr file, generated for convenience and verification.",
+      "edam_term": "EDAM_1.24.format_3464",
+      "is_data_product": false,
+      "is_qa_qc": false,
+      "mapped_description": "Basic information about the modalities and dimensions of the secondary analysis zarr file, generated for convenience and verification. (JSON file)",
+      "rel_path": "extras/transformations/hubmap_ui/mudata-zarr/secondary_analysis_metadata.json",
+      "size": 1360,
+      "type": "json"
+    }
+  ],
+  "vitessce-hints": [
+    "epic"
+  ],
+  "secondary_analysis_metadata": {
+    "epic_type": [
+      "analyses",
+      "annotations"
+    ],
+    "modalities": [
+      {
+        "annotations": [
+          "cell_type"
+        ],
+        "n_obs": 12000,
+        "n_vars": 18000,
+        "name": "single_embedding",
+        "obs_keys": [
+          "sample_id",
+          "cell_type"
+        ],
+        "obsm_keys": [
+          "X_umap",
+          "annotation",
+          "cell_type"
+        ],
+        "var_keys": [
+          "hugo_symbol",
+          "mean",
+          "n_cells",
+          "std"
+        ]
+      }
+    ],
+    "n_obs": 12000,
+    "n_vars": 18000,
+    "obs_keys": [
+      "single_embedding:sample_id",
+      "single_embedding:cell_type"
+    ],
+    "obsm_keys": [
+      "single_embedding"
+    ],
+    "shape": [
+      12000,
+      18000
+    ],
+    "var_keys": [
+      "hugo_symbol",
+      "mean",
+      "n_cells",
+      "std"
+    ]
+  }
+}

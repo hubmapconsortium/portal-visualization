@@ -1,9 +1,8 @@
 from abc import abstractmethod
 from vitessce import VitessceConfig, ObsSegmentationsOmeTiffWrapper, AnnDataWrapper, \
     get_initial_coordination_scope_prefix, CoordinationLevel as CL
-from .base_builders import ConfCells
+from .base_builders import ConfCells, ViewConfBuilder
 from ..utils import get_conf_cells, get_matches, get_image_metadata, get_image_scale
-from .base_builders import ViewConfBuilder
 from requests import get
 import re
 import random

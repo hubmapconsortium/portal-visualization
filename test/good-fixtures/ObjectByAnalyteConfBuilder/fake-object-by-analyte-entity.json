@@ -1,0 +1,136 @@
+{
+  "uuid": "a1583467d20b420f20e7d97528305021",
+  "visualization": false,
+  "status": "Published",
+  "soft_assaytype": "object-x-analyte",
+  "files": [
+    {
+      "description": "Information about the object types and annotation tools used in the analysis of the EPIC, for use in the search index.",
+      "edam_term": "EDAM_1.24.format_3464",
+      "is_data_product": false,
+      "is_qa_qc": false,
+      "mapped_description": "Information about the object types and annotation tools used in the analysis of the EPIC, for use in the search index. (JSON file)",
+      "rel_path": "extras/transformations/hubmap_ui/mudata-zarr/calculated_metadata.json",
+      "size": 117,
+      "type": "json"
+    },
+    {
+      "description": "MuData Zarr store for storing and visualizing object by analyte data.",
+      "edam_term": "EDAM_1.24.format_3987",
+      "is_data_product": false,
+      "is_qa_qc": false,
+      "mapped_description": "MuData Zarr store for storing and visualizing object by analyte data. (ZIP file)",
+      "rel_path": "extras/transformations/hubmap_ui/mudata-zarr/secondary_analysis.zarr.zip",
+      "size": 378495980,
+      "type": "unknown"
+    },
+    {
+      "description": "Basic information about the modalities and dimensions of the secondary analysis zarr file, generated for convenience and verification.",
+      "edam_term": "EDAM_1.24.format_3464",
+      "is_data_product": false,
+      "is_qa_qc": false,
+      "mapped_description": "Basic information about the modalities and dimensions of the secondary analysis zarr file, generated for convenience and verification. (JSON file)",
+      "rel_path": "extras/transformations/hubmap_ui/mudata-zarr/secondary_analysis_metadata.json",
+      "size": 1360,
+      "type": "json"
+    }
+  ],
+  "vitessce-hints": [
+    "epic"
+  ],
+  "secondary_analysis_metadata": {
+    "epic_type": [
+      "analyses",
+      "annotations"
+    ],
+    "modalities": [
+      {
+        "annotations": [
+          "azimuth_label",
+          "leiden"
+        ],
+        "n_obs": 22094,
+        "n_vars": 29078,
+        "name": "HT_processed",
+        "obs_keys": [
+          "age",
+          "azimuth_id",
+          "azimuth_label",
+          "bmi",
+          "cause_of_death",
+          "cl_match_type",
+          "dataset",
+          "gs_sketch",
+          "height",
+          "hubmap_id",
+          "leiden",
+          "n_counts",
+          "n_genes",
+          "object_type",
+          "original_obs_id",
+          "pca_density",
+          "predicted_CLID",
+          "predicted_label",
+          "prediction_score",
+          "race",
+          "sex",
+          "uuid",
+          "weight"
+        ],
+        "obsm_keys": [
+          "X_pca",
+          "X_umap",
+          "annotation",
+          "azimuth_label",
+          "leiden"
+        ],
+        "var_keys": [
+          "hugo_symbol",
+          "mean",
+          "n_cells",
+          "std"
+        ]
+      }
+    ],
+    "n_obs": 22094,
+    "n_vars": 29078,
+    "obs_keys": [
+      "HT_processed:age",
+      "HT_processed:azimuth_id",
+      "HT_processed:azimuth_label",
+      "HT_processed:bmi",
+      "HT_processed:cause_of_death",
+      "HT_processed:cl_match_type",
+      "HT_processed:dataset",
+      "HT_processed:gs_sketch",
+      "HT_processed:height",
+      "HT_processed:hubmap_id",
+      "HT_processed:leiden",
+      "HT_processed:n_counts",
+      "HT_processed:n_genes",
+      "HT_processed:object_type",
+      "HT_processed:original_obs_id",
+      "HT_processed:pca_density",
+      "HT_processed:predicted_CLID",
+      "HT_processed:predicted_label",
+      "HT_processed:prediction_score",
+      "HT_processed:race",
+      "HT_processed:sex",
+      "HT_processed:uuid",
+      "HT_processed:weight"
+    ],
+    "obsm_keys": [
+      "HT_processed"
+    ],
+    "shape": [
+      22094,
+      29078
+    ],
+    "var_keys": [
+      "hugo_symbol",
+      "mean",
+      "n_cells",
+      "std"
+    ]
+  }
+}
