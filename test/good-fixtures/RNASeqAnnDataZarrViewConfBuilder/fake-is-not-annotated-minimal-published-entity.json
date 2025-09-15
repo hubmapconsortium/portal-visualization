@@ -1,0 +1,29 @@
+{
+  "data_types": [
+    "salmon_sn_rnaseq_10x"
+  ],
+  "files": [
+    {
+      "rel_path": "hubmap_ui/anndata-zarr/secondary_analysis.zarr/.zgroup"
+    }
+  ],
+  "metadata": {
+    "dag_provenance_list": [
+      {
+        "name": "pipeline.cwl",
+        "origin": "https://github.com/hubmapconsortium/azimuth-annotate"
+      },
+      {
+        "name": "anndata-to-ui.cwl",
+        "origin": "https://github.com/hubmapconsortium/portal-containers"
+      }
+    ]
+  },
+  "status": "Published",
+  "uuid": "e65175561b4b17da5352e3837aa0e497",
+  "soft_assaytype": "salmon_sn_rnaseq_10x",
+  "vitessce-hints": [
+    "is_sc",
+    "rna"
+  ]
+}

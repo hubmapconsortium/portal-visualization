@@ -200,7 +200,7 @@ class ApiClient:
         return files_from_response(response_json)
 
     def get_vitessce_conf_cells_and_lifted_uuid(
-        self, entity, marker=None, wrap_error=True, parent=None, epic_uuid=None,
+        self, entity, marker=None, wrap_error=True, parent=None, epic_uuid=None, minimal=False
     ):
         """
         Returns a dataclass with vitessce_conf and is_lifted.
@@ -251,7 +251,7 @@ class ApiClient:
                         return self.get_entity(uuid=entity)
                     return self.get_entity(uuid=entity.get('uuid'))
                 Builder = get_view_config_builder(entity, get_entity, parent, epic_uuid)
-                builder = Builder(entity, self.groups_token, self.assets_endpoint)
+                builder = Builder(entity, self.groups_token, self.assets_endpoint, minimal=minimal)
                 vitessce_conf = builder.get_conf_cells(marker=marker)
             except Exception as e:
                 if not wrap_error:
