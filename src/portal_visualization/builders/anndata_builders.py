@@ -84,7 +84,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
             return False
 
     def compute_scatterplot_w(self):
-        return 6 if self._is_annotated else 9
+        return 6
 
     def compute_scatterplot_h(self):
         return 12 if self._minimal else 6
@@ -95,15 +95,13 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
             return {"h": 4, "x": self._scatterplot_w + self._spatial_w, "y": 0,
                     "w": 12 - self._scatterplot_w - self._spatial_w}
         else:
-            return {"h": 3, "x": self._scatterplot_w + self._spatial_w, "y": 0,
-                    "w": 12 - self._scatterplot_w - self._spatial_w}
+            # Subtract another 3 from width to account for gene list view
+            return {"h": 4, "x": self._scatterplot_w + self._spatial_w, "y": 0,
+                    "w": 12 - self._scatterplot_w - self._spatial_w - 3}
 
     def _get_cell_sets_expr_layout(self):
         """Get layout parameters for cell sets expression view based on minimal flag."""
-        if self._minimal:
-            return {"x": 6, "w": 6, "y": 3, "h": 8}
-        else:
-            return {"x": 7, "w": 5, "y": 6, "h": 4}
+        return {"x": 6, "w": 6, "y": 4, "h": 8}
 
     def _should_include_optional_views(self):
         """Determine if optional views should be included based on minimal flag."""
@@ -282,25 +280,24 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         )
 
         gene_list = None
+        heatmap = None
         if self._should_include_optional_views():
             gene_list = vc.add_view(
                 cm.FEATURE_LIST,
                 dataset=dataset,
-                x=self._scatterplot_w + self._spatial_w, y=4,
-                w=12 - self._scatterplot_w - self._spatial_w, h=3
-            )
+                x=self._scatterplot_w + self._spatial_w + 3, y=0,
+                w=3, h=4)
+            heatmap = vc.add_view(
+                cm.HEATMAP,
+                dataset=dataset,
+                x=0, y=6,
+                w=6, h=6)
 
         cell_sets_expr = vc.add_view(
             cm.OBS_SET_FEATURE_VALUE_DISTRIBUTION,
             dataset=dataset,
             **self._get_cell_sets_expr_layout())
 
-        heatmap = None
-        if self._should_include_optional_views():
-            heatmap = vc.add_view(
-                cm.HEATMAP,
-                dataset=dataset,
-                x=0, y=6, w=7, h=4)
         # Adding heatmap to coordination doesn't do anything,
         # but it also doesn't hurt anything.
         # Vitessce feature request to add it:
