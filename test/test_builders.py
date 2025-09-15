@@ -230,7 +230,9 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
     # Envvars should not be set during normal test runs,
     # but to test the end-to-end integration, they are useful.
     # epic_uuid = environ.get("EPIC_UUID", "epic_uuid")
-    builder = Builder(entity, groups_token, assets_url)
+    # Check if this is a minimal test case
+    minimal = "minimal" in entity_path.name
+    builder = Builder(entity, groups_token, assets_url, minimal=minimal)
     conf, cells = builder.get_conf_cells(marker=marker)
 
     # Uncomment to generate a fixture

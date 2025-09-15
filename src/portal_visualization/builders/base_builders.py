@@ -18,7 +18,11 @@ class ViewConfBuilder(ABC):
     def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
         """Object for building the vitessce configuration.
         :param dict entity: Entity response from search index (from the entity API)
-        :param str groups_token: Groups token for use in authenticating API
+        :param str  groups_token: Groups token for use in authenticating API
+        :param str  assets_endpoint: The base URL for the assets API
+        :param dict kwargs: Additional keyword arguments
+        :param str  kwargs.schema_version: The vitessce schema version to use, default "1.0.15"
+        :param bool kwargs.minimal: Whether or not to build a minimal configuration, default False
         """
 
         self._uuid = entity["uuid"]
@@ -27,6 +31,7 @@ class ViewConfBuilder(ABC):
         self._entity = entity
         self._files = []
         self._schema_version = kwargs.get("schema_version", "1.0.15")
+        self._minimal = kwargs.get("minimal", False)
 
     @abstractmethod
     def get_conf_cells(self, **kwargs):  # pragma: no cover

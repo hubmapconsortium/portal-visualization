@@ -51,6 +51,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         self._views = None
         self._is_annotated = None
         self._scatterplot_w = None
+        self._scatterplot_h = None
 
     @cached_property
     def zarr_store(self):
@@ -85,6 +86,9 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
     def compute_scatterplot_w(self):
         return 6 if self._is_annotated else 9
 
+    def compute_scatterplot_h(self):
+        return 12 if self._minimal else 6
+
     def get_conf_cells(self, marker=None):
         file_paths_found = [file["rel_path"] for file in self._entity["files"]]
         # Use .zgroup file as proxy for whether or not the zarr store is present.
@@ -96,6 +100,8 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         self._is_annotated = self.is_annotated
         if self._scatterplot_w is None:
             self._scatterplot_w = self.compute_scatterplot_w()
+        if self._scatterplot_h is None:
+            self._scatterplot_h = self.compute_scatterplot_h()
         self._set_up_marker_gene(marker)
         self._set_up_obs_labels()
         vc = VitessceConfig(name=self._uuid, schema_version=self._schema_version)
@@ -245,27 +251,33 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
 
     def _setup_anndata_view_config(self, vc, dataset):
         scatterplot = vc.add_view(
-            cm.SCATTERPLOT, dataset=dataset, mapping="UMAP", x=0, y=0, w=self._scatterplot_w, h=6)
+            cm.SCATTERPLOT, dataset=dataset, mapping="UMAP",
+            x=0, y=0,
+            w=self._scatterplot_w, h=self._scatterplot_h)
         cell_sets = vc.add_view(
             cm.OBS_SETS,
             dataset=dataset,
-            x=self._scatterplot_w + self._spatial_w,
-            y=0,
+            x=self._scatterplot_w + self._spatial_w, y=0,
             w=12 - self._scatterplot_w - self._spatial_w,
-            h=3
+            h=4 if self._minimal else 3
         )
-        gene_list = vc.add_view(
+        gene_list = None if self._minimal else vc.add_view(
             cm.FEATURE_LIST,
             dataset=dataset,
-            x=self._scatterplot_w + self._spatial_w,
-            y=4,
-            w=12 - self._scatterplot_w - self._spatial_w,
-            h=3
+            x=self._scatterplot_w + self._spatial_w, y=4,
+            w=12 - self._scatterplot_w - self._spatial_w, h=3
         )
         cell_sets_expr = vc.add_view(
-            cm.OBS_SET_FEATURE_VALUE_DISTRIBUTION, dataset=dataset, x=7, y=6, w=5, h=4)
-        heatmap = vc.add_view(
-            cm.HEATMAP, dataset=dataset, x=0, y=6, w=7, h=4)
+            cm.OBS_SET_FEATURE_VALUE_DISTRIBUTION,
+            dataset=dataset,
+            x=6 if self._minimal else 7,
+            w=6 if self._minimal else 5,
+            y=3 if self._minimal else 6,
+            h=8 if self._minimal else 4)
+        heatmap = None if self._minimal else vc.add_view(
+            cm.HEATMAP,
+            dataset=dataset,
+            x=0, y=6, w=7, h=4)
         # Adding heatmap to coordination doesn't do anything,
         # but it also doesn't hurt anything.
         # Vitessce feature request to add it:
@@ -326,6 +338,7 @@ class SpatialRNASeqAnnDataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
         self._is_spatial = True
         self._scatterplot_w = 4
         self._spatial_w = 5
+        self._scatterplot_h = self.compute_scatterplot_h()
 
     def _add_spatial_view(self, dataset, vc):
         spatial = vc.add_view(
@@ -334,7 +347,7 @@ class SpatialRNASeqAnnDataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
             x=self._scatterplot_w,
             y=0,
             w=self._spatial_w,
-            h=6)
+            h=self._scatterplot_h)
         [cells_layer] = vc.add_coordination('spatialSegmentationLayer')
         cells_layer.set_value(
             {
