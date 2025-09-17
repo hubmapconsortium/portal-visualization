@@ -308,6 +308,9 @@ def compare_confs(entity_path, conf, cells):
     if expected_cells_path.is_file():
         expected_cells = yaml.safe_load(expected_cells_path.read_text())
 
+        # Uncomment to generate a fixture
+        # print(yaml.dump(clean_cells(cells)))
+
         # Compare as YAML to match fixture.
         assert yaml.dump(clean_cells(cells)) == yaml.dump(expected_cells)
 
