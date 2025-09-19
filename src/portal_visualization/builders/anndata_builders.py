@@ -788,7 +788,6 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
             initial_feature_filter_path="var/highly_variable",
             obs_embedding_paths=["obsm/X_umap"],
             obs_embedding_names=["UMAP - ATAC"],
-            feature_labels_path="var/hugo_symbol",
             request_init=self._get_request_init(),
             # To be explicit that the features represent genes and gene expression, we
             # specify that here.
