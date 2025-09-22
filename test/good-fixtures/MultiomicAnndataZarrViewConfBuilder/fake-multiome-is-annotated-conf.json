@@ -120,9 +120,6 @@
             },
             "fileType": "anndata.zarr",
             "options": {
-              "featureLabels": {
-                "path": "var/hugo_symbol"
-              },
               "obsEmbedding": [
                 {
                   "dims": [
@@ -417,9 +414,6 @@
             },
             "fileType": "anndata.zarr",
             "options": {
-              "featureLabels": {
-                "path": "var/hugo_symbol"
-              },
               "obsEmbedding": [
                 {
                   "dims": [
@@ -714,9 +708,6 @@
             },
             "fileType": "anndata.zarr",
             "options": {
-              "featureLabels": {
-                "path": "var/hugo_symbol"
-              },
               "obsEmbedding": [
                 {
                   "dims": [
