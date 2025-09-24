@@ -55,14 +55,6 @@
             "coordinationValues": {
               "obsType": "area"
             }
-          },
-          {
-            "fileType": "obsSegmentations.json",
-            "url": "https://example.com/bc7239d27b79e087c788600261f073e5/output_ome_segments/GeoMx4_Niedernhofer_Project_060.obsSegmentations.json?token=groups_token",
-            "coordinationValues": {
-              "obsType": "region",
-              "fileUid": "region_json_segmentations"
-            }
           }
         ]
       }
@@ -82,8 +74,7 @@
       },
       "fileUid": {
         "init_A_image_0": "image",
-        "init_A_obsSegmentations_0": "segmentations",
-        "init_A_obsSegmentations_1": "region_json_segmentations"
+        "init_A_obsSegmentations_0": "segmentations"
       },
       "photometricInterpretation": {
         "init_A_image_0": "BlackIsZero"
@@ -98,8 +89,7 @@
         },
         "init_A_obsSegmentations_0": {
           "segmentationLayer": [
-            "init_A_obsSegmentations_0",
-            "init_A_obsSegmentations_1"
+            "init_A_obsSegmentations_0"
           ]
         }
       },
@@ -117,125 +107,93 @@
         "init_A_obsSegmentations_0": {
           "segmentationLayer": {
             "fileUid": {
-              "init_A_obsSegmentations_0": "init_A_obsSegmentations_0",
-              "init_A_obsSegmentations_1": "init_A_obsSegmentations_1"
+              "init_A_obsSegmentations_0": "init_A_obsSegmentations_0"
             },
             "spatialLayerOpacity": {
-              "init_A_obsSegmentations_0": "init_A_obsSegmentations_0",
-              "init_A_obsSegmentations_1": "init_A_obsSegmentations_1"
+              "init_A_obsSegmentations_0": "init_A_obsSegmentations_0"
             },
             "spatialLayerVisible": {
-              "init_A_obsSegmentations_0": "init_A_obsSegmentations_0",
-              "init_A_obsSegmentations_1": "init_A_obsSegmentations_1"
+              "init_A_obsSegmentations_0": "init_A_obsSegmentations_0"
             },
             "segmentationChannel": {
               "init_A_obsSegmentations_0": [
                 "init_A_obsSegmentations_0"
-              ],
-              "init_A_obsSegmentations_1": [
-                "init_A_obsSegmentations_1"
               ]
             }
           },
           "segmentationChannel": {
             "spatialTargetC": {
-              "init_A_obsSegmentations_0": "init_A_obsSegmentations_0",
-              "init_A_obsSegmentations_1": "init_A_obsSegmentations_1"
+              "init_A_obsSegmentations_0": "init_A_obsSegmentations_0"
             },
             "obsType": {
-              "init_A_obsSegmentations_0": "init_A_obsSegmentations_0",
-              "init_A_obsSegmentations_1": "init_A_obsSegmentations_1"
+              "init_A_obsSegmentations_0": "init_A_obsSegmentations_0"
             },
             "spatialChannelColor": {
-              "init_A_obsSegmentations_0": "init_A_obsSegmentations_0",
-              "init_A_obsSegmentations_1": "init_A_obsSegmentations_1"
+              "init_A_obsSegmentations_0": "init_A_obsSegmentations_0"
             },
             "spatialChannelOpacity": {
-              "init_A_obsSegmentations_0": "init_A_obsSegmentations_0",
-              "init_A_obsSegmentations_1": "init_A_obsSegmentations_1"
+              "init_A_obsSegmentations_0": "init_A_obsSegmentations_0"
             },
             "obsHighlight": {
-              "init_A_obsSegmentations_0": "init_A_obsSegmentations_0",
-              "init_A_obsSegmentations_1": "init_A_obsSegmentations_1"
+              "init_A_obsSegmentations_0": "init_A_obsSegmentations_0"
             },
             "spatialChannelVisible": {
-              "init_A_obsSegmentations_0": "init_A_obsSegmentations_0",
-              "init_A_obsSegmentations_1": "init_A_obsSegmentations_1"
+              "init_A_obsSegmentations_0": "init_A_obsSegmentations_0"
             },
             "obsColorEncoding": {
-              "init_A_obsSegmentations_0": "init_A_obsSegmentations_0",
-              "init_A_obsSegmentations_1": "init_A_obsSegmentations_1"
+              "init_A_obsSegmentations_0": "init_A_obsSegmentations_0"
             },
             "spatialSegmentationFilled": {
-              "init_A_obsSegmentations_0": "init_A_obsSegmentations_0",
-              "init_A_obsSegmentations_1": "init_A_obsSegmentations_1"
+              "init_A_obsSegmentations_0": "init_A_obsSegmentations_0"
             },
             "spatialSegmentationStrokeWidth": {
-              "init_A_obsSegmentations_0": "init_A_obsSegmentations_0",
-              "init_A_obsSegmentations_1": "init_A_obsSegmentations_1"
+              "init_A_obsSegmentations_0": "init_A_obsSegmentations_0"
             }
           }
         }
       },
       "segmentationLayer": {
-        "init_A_obsSegmentations_0": "__dummy__",
-        "init_A_obsSegmentations_1": "__dummy__"
+        "init_A_obsSegmentations_0": "__dummy__"
       },
       "spatialLayerOpacity": {
-        "init_A_obsSegmentations_0": 1.0,
-        "init_A_obsSegmentations_1": 1.0
+        "init_A_obsSegmentations_0": 1.0
       },
       "spatialLayerVisible": {
-        "init_A_obsSegmentations_0": true,
-        "init_A_obsSegmentations_1": true
+        "init_A_obsSegmentations_0": true
       },
       "segmentationChannel": {
-        "init_A_obsSegmentations_0": "__dummy__",
-        "init_A_obsSegmentations_1": "__dummy__"
+        "init_A_obsSegmentations_0": "__dummy__"
       },
       "spatialTargetC": {
-        "init_A_obsSegmentations_0": 0,
-        "init_A_obsSegmentations_1": 0
+        "init_A_obsSegmentations_0": 0
       },
       "obsType": {
-        "init_A_obsSegmentations_0": "Full ROI",
-        "init_A_obsSegmentations_1": "region"
+        "init_A_obsSegmentations_0": "Full ROI"
       },
       "spatialChannelColor": {
         "init_A_obsSegmentations_0": [
           155,
           165,
           31
-        ],
-        "init_A_obsSegmentations_1": [
-          255,
-          255,
-          255
         ]
       },
       "spatialChannelOpacity": {
-        "init_A_obsSegmentations_0": 0.8,
-        "init_A_obsSegmentations_1": 0.8
+        "init_A_obsSegmentations_0": 0.8
       },
       "obsHighlight": {
-        "init_A_obsSegmentations_0": null,
-        "init_A_obsSegmentations_1": null
+        "init_A_obsSegmentations_0": null
       },
       "spatialChannelVisible": {
-        "init_A_obsSegmentations_0": true,
-        "init_A_obsSegmentations_1": true
+        "init_A_obsSegmentations_0": true
       },
       "obsColorEncoding": {
-        "init_A_obsSegmentations_0": "spatialChannelColor",
-        "init_A_obsSegmentations_1": "spatialChannelColor"
+        "init_A_obsSegmentations_0": "spatialChannelColor"
       },
       "spatialSegmentationFilled": {
-        "init_A_obsSegmentations_0": true,
-        "init_A_obsSegmentations_1": false
+        "init_A_obsSegmentations_0": true
       },
       "spatialSegmentationStrokeWidth": {
-        "init_A_obsSegmentations_0": 0.01,
-        "init_A_obsSegmentations_1": 5
+        "init_A_obsSegmentations_0": 0.01
       }
     },
     "layout": [
@@ -277,4 +235,4 @@
       }
     ],
     "initStrategy": "auto"
-  }
+    }
