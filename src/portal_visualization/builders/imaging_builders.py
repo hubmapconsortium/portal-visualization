@@ -15,8 +15,6 @@ from vitessce import (
     ImageOmeTiffWrapper,
     Component as cm,
     AnnDataWrapper,
-    JsonWrapper,
-    DataType as dt
 )
 
 from ..utils import get_matches, group_by_file_name, get_conf_cells, get_found_images, \
