@@ -15,8 +15,6 @@ from vitessce import (
     ImageOmeTiffWrapper,
     Component as cm,
     AnnDataWrapper,
-    JsonWrapper,
-    DataType as dt
 )
 
 from ..utils import get_matches, group_by_file_name, get_conf_cells, get_found_images, \
@@ -191,19 +189,8 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
                 "obsType": "region"
             },
         )
-
-        obs_segmentation_url = self._get_url_for_path(
-            self.segment_files_regex, 'obsSegmentations.json', zip_check=False)
         dataset.add_object(region_zarr)
         dataset.add_object(area_zarr)
-        dataset.add_object(JsonWrapper(
-            json_url=obs_segmentation_url,
-            data_type=dt.OBS_SEGMENTATIONS,
-            coordination_values={
-                "obsType": "region",
-                "fileUid": "region_json_segmentations"
-            }
-        ))
 
     def _setup_view_config(self, vc, dataset, view_type, disable_3d=[], use_full_resolution=[]):
         if view_type == BASE_IMAGE_VIEW_TYPE:
@@ -265,25 +252,6 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
                             "obsColorEncoding": 'spatialChannelColor',
                             "spatialSegmentationFilled": True,
                             "spatialSegmentationStrokeWidth": 0.01,
-                        },
-
-                    ])
-                },
-                {
-                    "fileUid": "region_json_segmentations",
-                    "spatialLayerOpacity": 1.0,
-                    "spatialLayerVisible": True,
-                    "segmentationChannel": CL([
-                        {
-                            "spatialTargetC": 0,
-                            "obsType": "region",
-                            "spatialChannelColor": [255, 255, 255],
-                            "spatialChannelOpacity": 0.8,
-                            "obsHighlight": None,
-                            "spatialChannelVisible": True,
-                            "obsColorEncoding": 'spatialChannelColor',
-                            "spatialSegmentationFilled": False,
-                            "spatialSegmentationStrokeWidth": 5,
                         },
                     ])
                 }
