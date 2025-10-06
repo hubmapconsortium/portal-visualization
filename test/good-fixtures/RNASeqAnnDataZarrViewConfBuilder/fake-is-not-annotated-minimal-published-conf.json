@@ -95,14 +95,7 @@
     {
       "component": "obsSets",
       "coordinationScopes": {
-        "dataset": "A",
-        "obsLabelsType": [
-          "A",
-          "B",
-          "C",
-          "D",
-          "E"
-        ]
+        "dataset": "A"
       },
       "x": 6,
       "y": 0,
