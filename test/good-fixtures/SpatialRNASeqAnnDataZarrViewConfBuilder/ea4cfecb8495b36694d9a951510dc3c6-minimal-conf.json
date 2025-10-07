@@ -100,24 +100,17 @@
       },
       "x": 0,
       "y": 0,
-      "w": 4,
-      "h": 12
+      "w": 6,
+      "h": 6
     },
     {
       "component": "obsSets",
       "coordinationScopes": {
-        "dataset": "A",
-        "obsLabelsType": [
-          "A",
-          "B",
-          "C",
-          "D",
-          "E"
-        ]
+        "dataset": "A"
       },
-      "x": 9,
+      "x": 6,
       "y": 0,
-      "w": 3,
+      "w": 6,
       "h": 4
     },
     {
@@ -150,10 +143,10 @@
           "E"
         ]
       },
-      "x": 4,
-      "y": 0,
-      "w": 5,
-      "h": 12
+      "x": 0,
+      "y": 6,
+      "w": 6,
+      "h": 6
     }
   ],
   "initStrategy": "auto"

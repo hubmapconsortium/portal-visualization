@@ -1,6 +1,7 @@
 from functools import cached_property
 from vitessce import (
     VitessceConfig,
+    VitessceConfigDatasetFile,
     AnnDataWrapper,
     MultivecZarrWrapper,
     Component as cm,
@@ -88,20 +89,6 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
 
     def compute_scatterplot_h(self):
         return 12 if self._minimal else 6
-
-    def _get_cell_sets_layout(self):
-        """Get layout parameters for cell sets view based on minimal flag."""
-        if self._minimal:
-            return {"h": 4, "x": self._scatterplot_w + self._spatial_w, "y": 0,
-                    "w": 12 - self._scatterplot_w - self._spatial_w}
-        else:
-            # Subtract another 3 from width to account for gene list view
-            return {"h": 4, "x": self._scatterplot_w + self._spatial_w, "y": 0,
-                    "w": 12 - self._scatterplot_w - self._spatial_w - 3}
-
-    def _get_cell_sets_expr_layout(self):
-        """Get layout parameters for cell sets expression view based on minimal flag."""
-        return {"x": 6, "w": 6, "y": 4, "h": 8}
 
     def _should_include_optional_views(self):
         """Determine if optional views should be included based on minimal flag."""
@@ -267,50 +254,51 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         self._obs_labels_paths = obs_label_paths
         self._obs_labels_names = obs_label_names
 
-    def _setup_anndata_view_config(self, vc, dataset):
-        scatterplot = vc.add_view(
-            cm.SCATTERPLOT, dataset=dataset, mapping="UMAP",
-            x=0, y=0,
-            w=self._scatterplot_w, h=self._scatterplot_h)
+    def _setup_anndata_view_config(self, vc: VitessceConfig, dataset: VitessceConfigDatasetFile):
+        scatterplot = vc.add_view(cm.SCATTERPLOT, dataset=dataset, mapping="UMAP")
 
-        cell_sets = vc.add_view(
-            cm.OBS_SETS,
-            dataset=dataset,
-            **self._get_cell_sets_layout()
-        )
+        cell_sets = vc.add_view(cm.OBS_SETS, dataset=dataset)
 
         gene_list = None
         heatmap = None
         if self._should_include_optional_views():
-            gene_list = vc.add_view(
-                cm.FEATURE_LIST,
-                dataset=dataset,
-                x=self._scatterplot_w + self._spatial_w + 3, y=0,
-                w=3, h=4)
-            heatmap = vc.add_view(
-                cm.HEATMAP,
-                dataset=dataset,
-                x=0, y=6,
-                w=6, h=6)
+            gene_list = vc.add_view(cm.FEATURE_LIST, dataset=dataset)
+            heatmap = vc.add_view(cm.HEATMAP, dataset=dataset)
 
-        cell_sets_expr = vc.add_view(
-            cm.OBS_SET_FEATURE_VALUE_DISTRIBUTION,
-            dataset=dataset,
-            **self._get_cell_sets_expr_layout())
-
-        # Adding heatmap to coordination doesn't do anything,
-        # but it also doesn't hurt anything.
-        # Vitessce feature request to add it:
-        # https://github.com/vitessce/vitessce/issues/1298
+        cell_sets_expr = vc.add_view(cm.OBS_SET_FEATURE_VALUE_DISTRIBUTION, dataset=dataset)
 
         # Spatial view is added if present, otherwise gets filtered out before views are linked
         # This ensures that the view config is valid for datasets with and without a spatial view
         spatial = self._add_spatial_view(dataset, vc)
-
         views = list(filter(lambda v: v is not None, [    # pragma: no cover
                      cell_sets, gene_list, scatterplot, cell_sets_expr, heatmap, spatial]))
 
-        self._views = views
+        # Handle layout for variants in one unified place
+        if (self._minimal):
+            if (self._is_spatial):
+                scatterplot.set_xywh(x=0, y=0, w=6, h=6)
+                spatial.set_xywh(x=0, y=6, w=6, h=6)
+                cell_sets.set_xywh(x=6, y=0, w=6, h=4)
+                cell_sets_expr.set_xywh(x=6, y=4, w=6, h=8)
+                self._views = [scatterplot, spatial, cell_sets_expr]
+            else:
+                scatterplot.set_xywh(x=0, y=0, w=6, h=12)
+                cell_sets.set_xywh(x=6, y=0, w=6, h=4)
+                cell_sets_expr.set_xywh(x=6, y=4, w=6, h=8)
+
+                self._views = [scatterplot, cell_sets_expr]
+        else:
+            if (self._is_spatial):
+                vc.layout(((scatterplot | spatial) / heatmap)
+                          | ((cell_sets | gene_list) / cell_sets_expr))
+            else:
+                vc.layout((scatterplot / heatmap) | ((cell_sets | gene_list) / cell_sets_expr))
+            # Adjust the cell sets and gene list to not be as tall,
+            # give cell sets expression more height
+            cell_sets.set_xywh(x=6, y=0, w=3, h=4)
+            gene_list.set_xywh(x=9, y=0, w=3, h=4)
+            cell_sets_expr.set_xywh(x=6, y=4, w=6, h=8)
+            self._views = views
 
         return vc
 
