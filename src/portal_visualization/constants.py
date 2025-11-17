@@ -1,11 +1,5 @@
 # Units used in the image metadata for physical sizes
-image_units = {
-    "nm": 1e9,
-    "μm": 1e6,
-    "mm": 1e3,
-    "cm": 1e2,
-    "dm": 10
-}
+image_units = {'nm': 1e9, 'μm': 1e6, 'mm': 1e3, 'cm': 1e2, 'dm': 10}
 
 # The base image pyramids for kaggle-1 and kaggle-2 may have various directory structures depending
 #  upon when they were processed. For older datasets, the image pyramids will be present

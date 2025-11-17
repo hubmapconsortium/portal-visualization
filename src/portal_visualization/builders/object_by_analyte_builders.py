@@ -1,10 +1,10 @@
-
 from functools import cached_property
-from typing import List
-from vitessce import VitessceConfig, AnnDataWrapper, Component as cm
-from .base_builders import ViewConfBuilder
-from ..utils import get_conf_cells, read_zip_zarr
 
+from vitessce import AnnDataWrapper, VitessceConfig
+from vitessce import Component as cm
+
+from ..utils import get_conf_cells, read_zip_zarr
+from .base_builders import ViewConfBuilder
 
 """
 # Object by Analyte EPIC builders contain fully self-contained data
@@ -48,7 +48,7 @@ metadata_example = {
 class ObjectByAnalyteConfBuilder(ViewConfBuilder):
     def __init__(self, entity: dict, groups_token: str, assets_endpoint: str, **kwargs):
         super().__init__(entity, groups_token, assets_endpoint, **kwargs)
-        self._scatterplot_mappings: List[str] = []
+        self._scatterplot_mappings: list[str] = []
 
     @cached_property
     def _secondary_analysis_metadata(self):
@@ -57,15 +57,16 @@ class ObjectByAnalyteConfBuilder(ViewConfBuilder):
         """
         files = self._get_file_paths()
         for file in files:
-            if file.endswith("secondary_analysis_metadata.json"):
+            if file.endswith('secondary_analysis_metadata.json'):
                 url = super()._build_assets_url(file)
                 import requests
+
                 resp = requests.get(url)
                 resp.raise_for_status()
                 json = resp.json()
-                if (json):
+                if json:
                     return json
-        raise ValueError(f"No secondary analysis metadata json file found for entity {self._uuid}")
+        raise ValueError(f'No secondary analysis metadata json file found for entity {self._uuid}')
 
     @cached_property
     def _zarr_path(self):
@@ -74,12 +75,12 @@ class ObjectByAnalyteConfBuilder(ViewConfBuilder):
         """
         files = self._get_file_paths()
         for file in files:
-            if file.endswith(".zarr.zip"):
+            if file.endswith('.zarr.zip'):
                 result = super()._build_assets_url(file, use_token=True)
                 # If the result is null, still raise an error
-                if (result):
+                if result:
                     return result
-        raise ValueError(f"No zarr file found for entity {self._uuid}")
+        raise ValueError(f'No zarr file found for entity {self._uuid}')
 
     @cached_property
     def zarr_store(self):  # pragma: no cover
@@ -91,42 +92,42 @@ class ObjectByAnalyteConfBuilder(ViewConfBuilder):
         """
         Retrieves the modalities from the secondary analysis metadata.
         """
-        return self._secondary_analysis_metadata.get("modalities", [])
+        return self._secondary_analysis_metadata.get('modalities', [])
 
     @cached_property
     def _get_epic_type(self):  # pragma: no cover
-        return self._secondary_analysis_metadata.get("epic_type", [])
+        return self._secondary_analysis_metadata.get('epic_type', [])
 
     def _get_obs_set_keys(self, modality):
-        return modality.get("annotations", [])
+        return modality.get('annotations', [])
 
     def _get_obs_set_paths(self, modality):
         """
         Get the paths to the observation sets for a given modality.
         """
-        return [f"mod/{modality.get('name')}/obsm/annotation/{annotation}"
-                for annotation in self._get_obs_set_keys(modality)]
+        return [
+            f'mod/{modality.get("name")}/obsm/annotation/{annotation}'
+            for annotation in self._get_obs_set_keys(modality)
+        ]
 
     def _get_obs_set_names(self, modality):
         """
         Get the normalized human-readable names of the annotated cell sets for a given modality.
         """
-        return [annotation.replace("_", " ").title()
-                for annotation in self._get_obs_set_keys(modality)]
+        return [annotation.replace('_', ' ').title() for annotation in self._get_obs_set_keys(modality)]
 
     def _get_obs_embeddings(self, modality):
-        non_embedding_keys = ["annotation"]
+        non_embedding_keys = ['annotation']
         non_embedding_keys.extend(self._get_obs_set_keys(modality))
-        return [key for key in modality.get("obsm_keys", []) if key not in non_embedding_keys]
+        return [key for key in modality.get('obsm_keys', []) if key not in non_embedding_keys]
 
     def _get_obs_embedding_paths(self, modality):
         """
         Gets the keys in `obsm` except for `annotation` and the obs set paths
         """
-        non_embedding_keys = ["annotation"]
+        non_embedding_keys = ['annotation']
         non_embedding_keys.extend(self._get_obs_set_keys(modality))
-        return [f"mod/{modality.get('name')}/obsm/{key}"
-                for key in self._get_obs_embeddings(modality)]
+        return [f'mod/{modality.get("name")}/obsm/{key}' for key in self._get_obs_embeddings(modality)]
 
     def _get_obs_embedding_names(self, modality):
         """
@@ -136,7 +137,7 @@ class ObjectByAnalyteConfBuilder(ViewConfBuilder):
         """
         embeddings = self._get_obs_embeddings(modality)
 
-        formatted_embeddings = [embedding.split("_")[-1].upper() for embedding in embeddings]
+        formatted_embeddings = [embedding.split('_')[-1].upper() for embedding in embeddings]
 
         for embedding in formatted_embeddings:
             if embedding not in self._scatterplot_mappings:
@@ -149,50 +150,52 @@ class ObjectByAnalyteConfBuilder(ViewConfBuilder):
         Gets the path to the feature names (mod/{modality_name}/var/{uniprot_id | hugo_symbol})
         if it exists
         """
-        var_keys = modality.get("var_keys", [])
-        path_base = f"mod/{modality.get('name')}/var"
-        if ("hugo_symbol" in var_keys):
-            return f"{path_base}/hugo_symbol"
-        if ("uniprot_id" in var_keys):
-            return f"{path_base}/uniprot_id"
+        var_keys = modality.get('var_keys', [])
+        path_base = f'mod/{modality.get("name")}/var'
+        if 'hugo_symbol' in var_keys:
+            return f'{path_base}/hugo_symbol'
+        if 'uniprot_id' in var_keys:
+            return f'{path_base}/uniprot_id'
         return None
 
     def _get_feature_filters_path(self, modality):
         """
         Provides the path indicating the highly variable features to include in the heatmap
         """
-        return f"mod/{modality.get('name')}/var/highly_variable"
+        return f'mod/{modality.get("name")}/var/highly_variable'
 
     def _get_feature_matrix_path(self, modality):
         """
         Gets the path to the "X" feature matrix for the modality if it exists
         and has non-zero dimensions
         """
-        if (modality.get("n_obs") > 0 and modality.get("n_vars") > 0):
-            return f"mod/{modality.get('name')}/X"
+        if modality.get('n_obs') > 0 and modality.get('n_vars') > 0:
+            return f'mod/{modality.get("name")}/X'
         return None
 
     def _get_obs_labels_path(self, modality):  # pragma: no cover
         """
         Gets the non-annotation obs columns
         """
-        annotation_keys = self._get_obs_set_keys(modality) + ["annotation"]
-        return [f"mod/{modality.get('name')}/obs/{key}"
-                for key in modality.get("obs_keys", [])
-                if key not in annotation_keys]
+        annotation_keys = self._get_obs_set_keys(modality) + ['annotation']
+        return [
+            f'mod/{modality.get("name")}/obs/{key}'
+            for key in modality.get('obs_keys', [])
+            if key not in annotation_keys
+        ]
 
     def _is_spatial(self, modality):
         """
         Returns whether the `obsm/X_spatial` key exists in the given modality
         """
-        return "X_spatial" in modality.get("obsm_keys", [])
+        return 'X_spatial' in modality.get('obsm_keys', [])
 
     def _get_spatial(self, modality):
         """
         Returns the path to the spatial coordinates for the modality if present
         """
-        if (self._is_spatial(modality)):
-            return f"mod/{modality.get('name')}/obsm/X_spatial"
+        if self._is_spatial(modality):
+            return f'mod/{modality.get("name")}/obsm/X_spatial'
         return None
 
     def _get_anndata_wrappers(self):
@@ -219,7 +222,6 @@ class ObjectByAnalyteConfBuilder(ViewConfBuilder):
         return wrappers
 
     def _setup_anndata_view_config(self, vc, dataset):
-
         scatterplot_mappings = self._scatterplot_mappings
 
         scatterplots = []
@@ -233,27 +235,21 @@ class ObjectByAnalyteConfBuilder(ViewConfBuilder):
             return vc.add_view(cm.SCATTERPLOT, dataset=dataset, mapping=mapping, x=x, y=y, w=w, h=h)
 
         if num_mappings == 1:
-            scatterplot = add_scatterplot(
-                mapping=scatterplot_mappings[0],
-                x=0, y=0, w=4, h=6
-            )
+            scatterplot = add_scatterplot(mapping=scatterplot_mappings[0], x=0, y=0, w=4, h=6)
             scatterplots.append(scatterplot)
         elif num_mappings == 2:
             for i, mapping in enumerate(scatterplot_mappings):
-                scatterplots.append(add_scatterplot(
-                    mapping=mapping, x=0, y=i * 3, w=4, h=3))
+                scatterplots.append(add_scatterplot(mapping=mapping, x=0, y=i * 3, w=4, h=3))
         elif num_mappings == 3:
             for i, mapping in enumerate(scatterplot_mappings):
-                scatterplots.append(add_scatterplot(
-                    mapping=mapping, x=0, y=i * 2, w=4, h=2))
+                scatterplots.append(add_scatterplot(mapping=mapping, x=0, y=i * 2, w=4, h=2))
         elif num_mappings >= 4:
             # Currently supporting up to four scatterplots.
             available_mappings_for_visualization = scatterplot_mappings[:4]
             for i, mapping in enumerate(available_mappings_for_visualization):
                 row = i // 2
                 col = i % 2
-                scatterplots.append(add_scatterplot(
-                    mapping=mapping, x=col * 2, y=row * 3, w=2, h=3))
+                scatterplots.append(add_scatterplot(mapping=mapping, x=col * 2, y=row * 3, w=2, h=3))
         # Check if any modality has spatial data
         has_spatial = any(self._is_spatial(modality) for modality in self._get_modalities)
 
@@ -265,55 +261,33 @@ class ObjectByAnalyteConfBuilder(ViewConfBuilder):
 
         if has_spatial:
             # Add spatial views if spatial data is available
-            spatial_view = vc.add_view(
-                'spatialBeta',
-                dataset=dataset,
-                x=4, y=0,
-                w=4, h=3
-            )
-            spatial_controller = vc.add_view(
-                'layerControllerBeta',
-                dataset=dataset,
-                x=4, y=3,
-                w=4, h=3
-            )
+            spatial_view = vc.add_view('spatialBeta', dataset=dataset, x=4, y=0, w=4, h=3)
+            spatial_controller = vc.add_view('layerControllerBeta', dataset=dataset, x=4, y=3, w=4, h=3)
 
         cell_sets = vc.add_view(
-            cm.OBS_SETS,
-            dataset=dataset,
-            x=cell_sets_and_gene_list_x, y=0,
-            w=cell_sets_and_gene_list_w, h=3
+            cm.OBS_SETS, dataset=dataset, x=cell_sets_and_gene_list_x, y=0, w=cell_sets_and_gene_list_w, h=3
         )
         gene_list = vc.add_view(
-            cm.FEATURE_LIST,
-            dataset=dataset,
-            x=cell_sets_and_gene_list_x, y=3,
-            w=cell_sets_and_gene_list_w, h=3
+            cm.FEATURE_LIST, dataset=dataset, x=cell_sets_and_gene_list_x, y=3, w=cell_sets_and_gene_list_w, h=3
         )
 
-        cell_sets_expr = vc.add_view(
-            cm.OBS_SET_FEATURE_VALUE_DISTRIBUTION,
-            dataset=dataset,
-            x=7, y=6,
-            w=5, h=4)
-        heatmap = vc.add_view(
-            cm.HEATMAP,
-            dataset=dataset,
-            x=0, y=6,
-            w=7, h=4)
+        cell_sets_expr = vc.add_view(cm.OBS_SET_FEATURE_VALUE_DISTRIBUTION, dataset=dataset, x=7, y=6, w=5, h=4)
+        heatmap = vc.add_view(cm.HEATMAP, dataset=dataset, x=0, y=6, w=7, h=4)
 
-        views = list(filter(lambda v: v is not None,
-                            [cell_sets, gene_list, *scatterplots,
-                             spatial_view, spatial_controller, cell_sets_expr, heatmap]))
+        views = list(
+            filter(
+                lambda v: v is not None,
+                [cell_sets, gene_list, *scatterplots, spatial_view, spatial_controller, cell_sets_expr, heatmap],
+            )
+        )
 
         self._views = views
 
         return vc
 
     def get_conf_cells(self, **kwargs):
-
         # Ensure the zarr store is present
-        self._zarr_path
+        self._zarr_path  # noqa: B018
 
         vc = VitessceConfig(name=self._uuid, schema_version=self._schema_version)
 

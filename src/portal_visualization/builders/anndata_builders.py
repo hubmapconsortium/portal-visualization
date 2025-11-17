@@ -1,31 +1,28 @@
 from functools import cached_property
-from vitessce import (
-    VitessceConfig,
-    VitessceConfigDatasetFile,
-    AnnDataWrapper,
-    MultivecZarrWrapper,
-    Component as cm,
-    CoordinationType as ct,
-    ImageOmeTiffWrapper,
-    CoordinationLevel as CL,
-    ViewType as vt,
-    SpatialDataWrapper,
-    get_initial_coordination_scope_prefix
-)
 
 import numpy as np
 import zarr
-from .base_builders import ViewConfBuilder
-from ..utils import get_conf_cells, read_zip_zarr, obs_has_column
-from ..constants import ZARR_PATH, ZIP_ZARR_PATH, MULTIOMIC_ZARR_PATH, XENIUM_ZARR_PATH
+from vitessce import (
+    AnnDataWrapper,
+    ImageOmeTiffWrapper,
+    MultivecZarrWrapper,
+    SpatialDataWrapper,
+    VitessceConfig,
+    VitessceConfigDatasetFile,
+    get_initial_coordination_scope_prefix,
+)
+from vitessce import Component as cm
+from vitessce import CoordinationLevel as CL
+from vitessce import CoordinationType as ct
+from vitessce import ViewType as vt
 
-RNA_SEQ_ANNDATA_FACTOR_PATHS = [f"obs/{key}" for key in [
-    "marker_gene_0",
-    "marker_gene_1",
-    "marker_gene_2",
-    "marker_gene_3",
-    "marker_gene_4"
-]]
+from ..constants import MULTIOMIC_ZARR_PATH, XENIUM_ZARR_PATH, ZARR_PATH, ZIP_ZARR_PATH
+from ..utils import get_conf_cells, obs_has_column, read_zip_zarr
+from .base_builders import ViewConfBuilder
+
+RNA_SEQ_ANNDATA_FACTOR_PATHS = [
+    f'obs/{key}' for key in ['marker_gene_0', 'marker_gene_1', 'marker_gene_2', 'marker_gene_3', 'marker_gene_4']
+]
 
 RNA_SEQ_FACTOR_LABEL_NAMES = [f'Marker Gene {i}' for i in range(len(RNA_SEQ_ANNDATA_FACTOR_PATHS))]
 
@@ -64,7 +61,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
             try:
                 return read_zip_zarr(zarr_url, request_init)
             except Exception as e:
-                print(f"Error opening the zip zarr file. {e}")
+                print(f'Error opening the zip zarr file. {e}')
                 return None
         else:
             zarr_url = self._build_assets_url(zarr_path, use_token=False)
@@ -95,7 +92,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         return not self._minimal
 
     def get_conf_cells(self, marker=None):
-        file_paths_found = [file["rel_path"] for file in self._entity["files"]]
+        file_paths_found = [file['rel_path'] for file in self._entity['files']]
         # Use .zgroup file as proxy for whether or not the zarr store is present.
         if f'{ZARR_PATH}.zip' in file_paths_found:
             self._is_zarr_zip = True
@@ -120,17 +117,17 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         # Ensembl IDs for gene preselection
         z = self.zarr_store
         gene_alias = 'var/hugo_symbol' if z is not None and 'var' in z and 'hugo_symbol' in z['var'] else None
-        if (gene_alias is not None and marker is not None):
+        if gene_alias is not None and marker is not None:
             # If user has indicated a marker gene in parameters and we have a hugo_symbol mapping,
             # then we need to convert it to the proper underlying ensembl ID for the dataset
             # in order for the views to reflect the correct gene.
 
-            obs_attrs = z["obs"].attrs.asdict()
-            encoding_version = obs_attrs["encoding-version"]
+            obs_attrs = z['obs'].attrs.asdict()
+            encoding_version = obs_attrs['encoding-version']
 
             # Encoding Version 0.1.0
             # https://anndata.readthedocs.io/en/0.7.8/fileformat-prose.html#categorical-arrays
-            if (encoding_version == "0.1.0"):
+            if encoding_version == '0.1.0':
                 # Get the list of ensembl IDs from the zarr store
                 ensembl_ids_key = z['var'].attrs['_index']
                 ensembl_ids = z['var'][ensembl_ids_key]
@@ -146,14 +143,14 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
                 # Find the index of the user-provided marker gene in the list of hugo symbols
                 marker_index_in_categories = np.where(hugo_categories == marker)[0][0]
                 # If the user-provided gene's index is found, continue
-                if (marker_index_in_categories >= 0):
+                if marker_index_in_categories >= 0:
                     # Find index of HUGO pointer corresponding to marker gene
                     marker_index = np.where(hugo_index_list == marker_index_in_categories)[0][0]
                     # If valid index is found, set the marker name to the corresponding Ensembl ID
-                    if (marker_index >= 0):
+                    if marker_index >= 0:
                         marker = ensembl_ids[marker_index]
                     else:
-                        pass   # pragma: no cover
+                        pass  # pragma: no cover
             # Encoding Version 0.2.0
             # https://anndata.readthedocs.io/en/latest/fileformat-prose.html#categorical-arrays
             # Our pipeline currently does not use this encoding version
@@ -165,39 +162,42 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
 
     def _set_up_dataset(self, vc):
         zarr_path = ZIP_ZARR_PATH if self._is_zarr_zip else ZARR_PATH
-        adata_url = self._build_assets_url(
-            zarr_path, use_token=False)
+        adata_url = self._build_assets_url(zarr_path, use_token=False)
         z = self.zarr_store
-        dataset = vc.add_dataset(name=self._uuid).add_object(AnnDataWrapper(
-            adata_url=adata_url,
-            is_zip=self._is_zarr_zip,
-            obs_feature_matrix_path="X",
-            initial_feature_filter_path="var/marker_genes_for_heatmap",
-            obs_set_paths=self._obs_set_paths,
-            obs_set_names=self._obs_set_names,
-            obs_locations_path="obsm/X_spatial" if self._is_spatial else None,
-            obs_segmentations_path=None,
-            obs_embedding_paths=["obsm/X_umap"],
-            obs_embedding_names=["UMAP"],
-            obs_embedding_dims=[[0, 1]],
-            request_init=self._get_request_init(),
-            coordination_values=None,
-            feature_labels_path='var/hugo_symbol' if z is not None and 'var' in z else None,
-            gene_alias=self._gene_alias,
-            obs_labels_paths=self._obs_labels_paths,
-            obs_labels_names=self._obs_labels_names
-        ))
+        dataset = vc.add_dataset(name=self._uuid).add_object(
+            AnnDataWrapper(
+                adata_url=adata_url,
+                is_zip=self._is_zarr_zip,
+                obs_feature_matrix_path='X',
+                initial_feature_filter_path='var/marker_genes_for_heatmap',
+                obs_set_paths=self._obs_set_paths,
+                obs_set_names=self._obs_set_names,
+                obs_locations_path='obsm/X_spatial' if self._is_spatial else None,
+                obs_segmentations_path=None,
+                obs_embedding_paths=['obsm/X_umap'],
+                obs_embedding_names=['UMAP'],
+                obs_embedding_dims=[[0, 1]],
+                request_init=self._get_request_init(),
+                coordination_values=None,
+                feature_labels_path='var/hugo_symbol' if z is not None and 'var' in z else None,
+                gene_alias=self._gene_alias,
+                obs_labels_paths=self._obs_labels_paths,
+                obs_labels_names=self._obs_labels_names,
+            )
+        )
         return dataset
 
-    def _set_up_obs_labels(self,
-                           additional_obs_labels_paths=[],
-                           additional_obs_labels_names=[],
-                           additional_obs_set_paths=[],
-                           additional_obs_set_names=[],
-                           # Optionally skip default obs paths and labels
-                           skip_default_paths=False,
-                           # Support multiomic datasets
-                           modality_prefix=None):
+    def _set_up_obs_labels(
+        self,
+        additional_obs_labels_paths=[],
+        additional_obs_labels_names=[],
+        additional_obs_set_paths=[],
+        additional_obs_set_names=[],
+        # Optionally skip default obs paths and labels
+        skip_default_paths=False,
+        # Support multiomic datasets
+        modality_prefix=None,
+    ):
         # Some of the keys (like marker_genes_for_heatmap) here are from our pipeline
         # https://github.com/hubmapconsortium/portal-containers/blob/master/containers/anndata-to-ui
         # while others come from Matt's standard scanpy pipeline
@@ -222,29 +222,29 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
             if self._is_annotated:
                 azimuth_categories = self._get_azimuth_categories(obs)
                 if 'predicted.ASCT.celltype' in obs:
-                    obs_set_paths.append("obs/predicted.ASCT.celltype")
-                    obs_set_names.append("Predicted ASCT Cell Type")
+                    obs_set_paths.append('obs/predicted.ASCT.celltype')
+                    obs_set_names.append('Predicted ASCT Cell Type')
                 if 'predicted_label' in obs:
-                    obs_set_paths.append("obs/predicted_label")
-                    obs_set_names.append("Cell Ontology Annotation")
+                    obs_set_paths.append('obs/predicted_label')
+                    obs_set_names.append('Cell Ontology Annotation')
                 if 'predicted_CLID' in obs:
-                    obs_label_paths.append("obs/predicted_CLID")
-                    obs_label_names.append("Predicted CL ID")
+                    obs_label_paths.append('obs/predicted_CLID')
+                    obs_label_names.append('Predicted CL ID')
                 if 'CL_Label' in obs:
-                    obs_set_paths.append("obs/CL_Label")
-                    obs_set_names.append("CL Label")
+                    obs_set_paths.append('obs/CL_Label')
+                    obs_set_names.append('CL Label')
                 if len(azimuth_categories) > 0:
                     obs_set_paths.append(azimuth_categories)
-                    obs_set_names.append("Azimuth Categories")
+                    obs_set_names.append('Azimuth Categories')
                 if 'final_level_labels' in obs:
-                    obs_set_paths.append("obs/final_level_labels")
-                    obs_set_names.append("Final Level Labels")
+                    obs_set_paths.append('obs/final_level_labels')
+                    obs_set_names.append('Final Level Labels')
                 if 'full_hierarchical_labels' in obs:
-                    obs_set_paths.append("obs/full_hierarchical_labels")
-                    obs_set_names.append("Full Hierarchical Labels")
+                    obs_set_paths.append('obs/full_hierarchical_labels')
+                    obs_set_names.append('Full Hierarchical Labels')
 
-            obs_set_paths.append("obs/leiden")
-            obs_set_names.append("Leiden")
+            obs_set_paths.append('obs/leiden')
+            obs_set_names.append('Leiden')
         if self.has_marker_genes:
             obs_label_paths.extend(RNA_SEQ_ANNDATA_FACTOR_PATHS)
             obs_label_names.extend(RNA_SEQ_FACTOR_LABEL_NAMES)
@@ -255,7 +255,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         self._obs_labels_names = obs_label_names
 
     def _setup_anndata_view_config(self, vc: VitessceConfig, dataset: VitessceConfigDatasetFile):
-        scatterplot = vc.add_view(cm.SCATTERPLOT, dataset=dataset, mapping="UMAP")
+        scatterplot = vc.add_view(cm.SCATTERPLOT, dataset=dataset, mapping='UMAP')
 
         cell_sets = vc.add_view(cm.OBS_SETS, dataset=dataset)
 
@@ -270,12 +270,23 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         # Spatial view is added if present, otherwise gets filtered out before views are linked
         # This ensures that the view config is valid for datasets with and without a spatial view
         spatial = self._add_spatial_view(dataset, vc)
-        views = list(filter(lambda v: v is not None, [    # pragma: no cover
-                     cell_sets, gene_list, scatterplot, cell_sets_expr, heatmap, spatial]))
+        views = list(
+            filter(
+                lambda v: v is not None,
+                [  # pragma: no cover
+                    cell_sets,
+                    gene_list,
+                    scatterplot,
+                    cell_sets_expr,
+                    heatmap,
+                    spatial,
+                ],
+            )
+        )
 
         # Handle layout for variants in one unified place
-        if (self._minimal):
-            if (self._is_spatial):
+        if self._minimal:
+            if self._is_spatial:
                 scatterplot.set_xywh(x=0, y=0, w=6, h=6)
                 spatial.set_xywh(x=0, y=6, w=6, h=6)
                 cell_sets.set_xywh(x=6, y=0, w=6, h=4)
@@ -288,9 +299,8 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
 
                 self._views = [scatterplot, cell_sets_expr]
         else:
-            if (self._is_spatial):
-                vc.layout(((scatterplot | spatial) / heatmap)
-                          | ((cell_sets | gene_list) / cell_sets_expr))
+            if self._is_spatial:
+                vc.layout(((scatterplot | spatial) / heatmap) | ((cell_sets | gene_list) / cell_sets_expr))
             else:
                 vc.layout((scatterplot / heatmap) | ((cell_sets | gene_list) / cell_sets_expr))
             # Adjust the cell sets and gene list to not be as tall,
@@ -309,10 +319,12 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
 
     def _link_marker_gene(self, vc):
         # Link top 5 marker genes
-        vc.link_views(self._views,
-                      [ct.OBS_LABELS_TYPE for _ in self._obs_labels_names],
-                      self._obs_labels_names,
-                      allow_multiple_scopes_per_type=True)
+        vc.link_views(
+            self._views,
+            [ct.OBS_LABELS_TYPE for _ in self._obs_labels_names],
+            self._obs_labels_names,
+            allow_multiple_scopes_per_type=True,
+        )
         # Link user-provided marker gene
         if self._marker:
             vc.link_views(
@@ -325,11 +337,11 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
     def _get_azimuth_categories(self, obs):
         azimuth_categories = []
         if 'azimuth_broad' in obs:
-            azimuth_categories.append("obs/azimuth_broad")
+            azimuth_categories.append('obs/azimuth_broad')
         if 'azimuth_medium' in obs:
-            azimuth_categories.append("obs/azimuth_medium")
+            azimuth_categories.append('obs/azimuth_medium')
         if 'azimuth_fine' in obs:
-            azimuth_categories.append("obs/azimuth_fine")
+            azimuth_categories.append('obs/azimuth_fine')
         return azimuth_categories
 
 
@@ -350,19 +362,15 @@ class SpatialRNASeqAnnDataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
 
     def _add_spatial_view(self, dataset, vc):
         spatial = vc.add_view(
-            cm.SPATIAL,
-            dataset=dataset,
-            x=self._scatterplot_w,
-            y=0,
-            w=self._spatial_w,
-            h=self._scatterplot_h)
+            cm.SPATIAL, dataset=dataset, x=self._scatterplot_w, y=0, w=self._spatial_w, h=self._scatterplot_h
+        )
         [cells_layer] = vc.add_coordination('spatialSegmentationLayer')
         cells_layer.set_value(
             {
-                "visible": True,
-                "stroked": False,
-                "radius": 20,
-                "opacity": 1,
+                'visible': True,
+                'stroked': False,
+                'radius': 20,
+                'opacity': 1,
             }
         )
         spatial.use_coordination(cells_layer)
@@ -378,63 +386,40 @@ class SpatialRNASeqAnnDataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
         visium_spots = AnnDataWrapper(
             adata_url=adata_url,
             iz_zip=self._is_zarr_zip,
-            obs_feature_matrix_path="X",
+            obs_feature_matrix_path='X',
             obs_set_paths=self._obs_set_paths,
             obs_set_names=self._obs_set_names,
             obs_labels_names=self._obs_labels_names,
             obs_labels_paths=self._obs_labels_paths,
-            obs_spots_path="obsm/X_spatial",
-            obs_embedding_paths=["obsm/X_umap", "obsm/X_pca"],
-            obs_embedding_names=["UMAP", "PCA"],
+            obs_spots_path='obsm/X_spatial',
+            obs_embedding_paths=['obsm/X_umap', 'obsm/X_pca'],
+            obs_embedding_names=['UMAP', 'PCA'],
             obs_embedding_dims=[[0, 1], [0, 1]],
-            feature_labels_path="var/hugo_symbol",
+            feature_labels_path='var/hugo_symbol',
             request_init=self._get_request_init(),
-            initial_feature_filter_path="var/top_highly_variable",
+            initial_feature_filter_path='var/top_highly_variable',
             coordination_values={
-                "obsType": "spot",
-            }
+                'obsType': 'spot',
+            },
         )
-        dataset = vc.add_dataset(
-            name='Visium',
-            uid=self._uuid
-        ).add_object(
-            visium_image
-        ).add_object(
-            visium_spots
-        )
+        dataset = vc.add_dataset(name='Visium', uid=self._uuid).add_object(visium_image).add_object(visium_spots)
         return dataset
 
     def _set_visium_config(self, vc, dataset):
         # Add / lay out views
-        umap = vc.add_view(
-            cm.SCATTERPLOT, dataset=dataset, mapping="UMAP",
-            w=3, h=6, x=0, y=0)
-        spatial = vc.add_view(
-            "spatialBeta", dataset=dataset,
-            w=3, h=6, x=3, y=0)
-        heatmap = vc.add_view(
-            cm.HEATMAP, dataset=dataset,
-            w=6, h=6, x=0, y=6
-        ).set_props(transpose=True)
+        umap = vc.add_view(cm.SCATTERPLOT, dataset=dataset, mapping='UMAP', w=3, h=6, x=0, y=0)
+        spatial = vc.add_view('spatialBeta', dataset=dataset, w=3, h=6, x=3, y=0)
+        heatmap = vc.add_view(cm.HEATMAP, dataset=dataset, w=6, h=6, x=0, y=6).set_props(transpose=True)
 
-        lc = vc.add_view("layerControllerBeta", dataset=dataset,
-                         w=6, h=3, x=6, y=0)
+        lc = vc.add_view('layerControllerBeta', dataset=dataset, w=6, h=3, x=6, y=0)
 
-        cell_sets = vc.add_view(
-            cm.OBS_SETS, dataset=dataset,
-            w=3, h=4, x=6, y=2)
+        cell_sets = vc.add_view(cm.OBS_SETS, dataset=dataset, w=3, h=4, x=6, y=2)
 
-        gene_list = vc.add_view(
-            cm.FEATURE_LIST, dataset=dataset,
-            w=3, h=4, x=9, y=2)
+        gene_list = vc.add_view(cm.FEATURE_LIST, dataset=dataset, w=3, h=4, x=9, y=2)
 
-        cell_sets_expr = vc.add_view(
-            cm.OBS_SET_FEATURE_VALUE_DISTRIBUTION, dataset=dataset,
-            w=3, h=5, x=6, y=7
-        )
+        cell_sets_expr = vc.add_view(cm.OBS_SET_FEATURE_VALUE_DISTRIBUTION, dataset=dataset, w=3, h=5, x=6, y=7)
 
-        cell_set_sizes = vc.add_view(cm.OBS_SET_SIZES, dataset=dataset,
-                                     w=3, h=5, x=9, y=7)
+        cell_set_sizes = vc.add_view(cm.OBS_SET_SIZES, dataset=dataset, w=3, h=5, x=9, y=7)
 
         all_views = [spatial, lc, umap, cell_sets, cell_sets_expr, gene_list, cell_set_sizes, heatmap]
 
@@ -445,17 +430,33 @@ class SpatialRNASeqAnnDataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
 
         # Indicate obs type for all views
         vc.link_views(all_views, ['obsType'], ['spot'])
-        vc.link_views_by_dict(spatial_views, {
-            "imageLayer": CL([{
-                "photometricInterpretation": self._photometricInterpretation,
-            }]),
-        }, scope_prefix=get_initial_coordination_scope_prefix(self._uuid, 'image'))
-        vc.link_views_by_dict(spatial_views, {
-            "spotLayer": CL([{
-                "spatialLayerOpacity": 1,
-                "spatialSpotRadius": self._get_spot_radius(),
-            }]),
-        }, scope_prefix=get_initial_coordination_scope_prefix(self._uuid, 'obsSpots'))
+        vc.link_views_by_dict(
+            spatial_views,
+            {
+                'imageLayer': CL(
+                    [
+                        {
+                            'photometricInterpretation': self._photometricInterpretation,
+                        }
+                    ]
+                ),
+            },
+            scope_prefix=get_initial_coordination_scope_prefix(self._uuid, 'image'),
+        )
+        vc.link_views_by_dict(
+            spatial_views,
+            {
+                'spotLayer': CL(
+                    [
+                        {
+                            'spatialLayerOpacity': 1,
+                            'spatialSpotRadius': self._get_spot_radius(),
+                        }
+                    ]
+                ),
+            },
+            scope_prefix=get_initial_coordination_scope_prefix(self._uuid, 'obsSpots'),
+        )
         return vc
 
 
@@ -489,12 +490,11 @@ class SpatialMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewCon
         elif f'{ZARR_PATH}/.zgroup' not in file_paths_found:  # pragma: no cover
             message = f'RNA-seq assay with uuid {self._uuid} has no .zarr store at {ZARR_PATH}'
             raise FileNotFoundError(message)
-        adata_url = self._build_assets_url(
-            zarr_path, use_token=False)
-        image_url = self._build_assets_url(
-            'ometiff-pyramids/visium_histology_hires_pyramid.ome.tif', use_token=True)
+        adata_url = self._build_assets_url(zarr_path, use_token=False)
+        image_url = self._build_assets_url('ometiff-pyramids/visium_histology_hires_pyramid.ome.tif', use_token=True)
         offsets_url = self._build_assets_url(
-            'output_offsets/visium_histology_hires_pyramid.offsets.json', use_token=True)
+            'output_offsets/visium_histology_hires_pyramid.offsets.json', use_token=True
+        )
 
         # Add dataset with Visium image and secondary analysis anndata
 
@@ -530,7 +530,6 @@ class XeniumMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewConf
         return self._set_xenium_config(vc, dataset)
 
     def _add_zarr_files(self, zarr_path, file_paths_found):
-
         if any(f'{zarr_path}.zip' in path for path in file_paths_found):  # pragma: no cover
             if 'xenium' in zarr_path.lower():
                 self._is_spatial_zarr_zip = True
@@ -538,112 +537,89 @@ class XeniumMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewConf
                 self._is_zarr_zip = True
             zarr_path = f'{zarr_path}.zip'
 
-        elif ((self._is_zarr_zip is False
-              or self._is_spatial_zarr_zip is False)
-              and f'{zarr_path}/.zgroup' not in file_paths_found):  # pragma: no cover
+        elif (
+            self._is_zarr_zip is False or self._is_spatial_zarr_zip is False
+        ) and f'{zarr_path}/.zgroup' not in file_paths_found:  # pragma: no cover
             message = f'RNA-seq assay with uuid {self._uuid} has no .zarr store at {zarr_path}'
             raise FileNotFoundError(message)
-        return self._build_assets_url(
-            zarr_path, use_token=False)
+        return self._build_assets_url(zarr_path, use_token=False)
 
     def _set_xenium_datasets(self, vc, adata_url, spatial_data_url):
         spatial_data = SpatialDataWrapper(
             sdata_url=spatial_data_url,
             is_zip=self._is_spatial_zarr_zip,
-            table_path="tables/table",
-            image_path="images/morphology_focus",
-            labels_path="labels/cell_labels",
-            obs_segmentations_path="labels/cell_labels",
+            table_path='tables/table',
+            image_path='images/morphology_focus',
+            labels_path='labels/cell_labels',
+            obs_segmentations_path='labels/cell_labels',
             request_init=self._get_request_init(),
-            coordination_values={
-                "obsType": "spot"
-            }
+            coordination_values={'obsType': 'spot'},
         )
         visium_spots = AnnDataWrapper(
             adata_url=adata_url,
             iz_zip=self._is_zarr_zip,
-            obs_feature_matrix_path="X",
+            obs_feature_matrix_path='X',
             obs_set_paths=self._obs_set_paths,
             obs_set_names=self._obs_set_names,
             obs_labels_names=self._obs_labels_names,
             obs_labels_paths=self._obs_labels_paths,
-            obs_embedding_paths=["obsm/X_umap"],
-            obs_embedding_names=["UMAP"],
+            obs_embedding_paths=['obsm/X_umap'],
+            obs_embedding_names=['UMAP'],
             request_init=self._get_request_init(),
             coordination_values={
-                "obsType": "spot",
-            }
+                'obsType': 'spot',
+            },
         )
-        dataset = vc.add_dataset(
-            name='Xenium',
-            uid=self._uuid
-        ).add_object(
-            spatial_data
-        ).add_object(
-            visium_spots
-        )
+        dataset = vc.add_dataset(name='Xenium', uid=self._uuid).add_object(spatial_data).add_object(visium_spots)
         return dataset
 
     def _set_xenium_config(self, vc, dataset):
-        [obs_color_encoding_scope] = vc.add_coordination("obsColorEncoding")
-        obs_color_encoding_scope.set_value("cellSetSelection")
-        umap = vc.add_view(
-            cm.SCATTERPLOT, dataset=dataset, mapping="UMAP",
-            w=3, h=6, x=0, y=0)
-        spatial = vc.add_view(
-            "spatialBeta", dataset=dataset,
-            w=3, h=6, x=3, y=0)
-        heatmap = vc.add_view(
-            cm.HEATMAP, dataset=dataset,
-            w=6, h=6, x=0, y=6
-        ).set_props(transpose=True)
+        [obs_color_encoding_scope] = vc.add_coordination('obsColorEncoding')
+        obs_color_encoding_scope.set_value('cellSetSelection')
+        umap = vc.add_view(cm.SCATTERPLOT, dataset=dataset, mapping='UMAP', w=3, h=6, x=0, y=0)
+        spatial = vc.add_view('spatialBeta', dataset=dataset, w=3, h=6, x=3, y=0)
+        heatmap = vc.add_view(cm.HEATMAP, dataset=dataset, w=6, h=6, x=0, y=6).set_props(transpose=True)
 
-        lc = vc.add_view("layerControllerBeta", dataset=dataset,
-                         w=6, h=3, x=6, y=0)
+        lc = vc.add_view('layerControllerBeta', dataset=dataset, w=6, h=3, x=6, y=0)
 
-        cell_sets = vc.add_view(
-            cm.OBS_SETS, dataset=dataset,
-            w=3, h=4, x=6, y=2)
+        cell_sets = vc.add_view(cm.OBS_SETS, dataset=dataset, w=3, h=4, x=6, y=2)
 
         cell_sets.use_coordination(obs_color_encoding_scope)
 
-        gene_list = vc.add_view(
-            cm.FEATURE_LIST, dataset=dataset,
-            w=3, h=4, x=9, y=2)
+        gene_list = vc.add_view(cm.FEATURE_LIST, dataset=dataset, w=3, h=4, x=9, y=2)
 
-        cell_sets_expr = vc.add_view(
-            cm.OBS_SET_FEATURE_VALUE_DISTRIBUTION, dataset=dataset,
-            w=3, h=5, x=6, y=7
-        )
+        cell_sets_expr = vc.add_view(cm.OBS_SET_FEATURE_VALUE_DISTRIBUTION, dataset=dataset, w=3, h=5, x=6, y=7)
 
-        cell_set_sizes = vc.add_view(cm.OBS_SET_SIZES, dataset=dataset,
-                                     w=3, h=5, x=9, y=7)
+        cell_set_sizes = vc.add_view(cm.OBS_SET_SIZES, dataset=dataset, w=3, h=5, x=9, y=7)
 
         all_views = [spatial, lc, umap, cell_sets, cell_sets_expr, gene_list, cell_set_sizes, heatmap]
 
         self._views = all_views
         vc.link_views(all_views, ['obsType'], ['spot'])
 
-        vc.link_views_by_dict([spatial, lc], {
-            "spatialTargetZ": 0,
-            "spatialTargetT": 0,
-            "imageLayer": CL([
-                {
-                    "photometricInterpretation": 'BlackIsZero',
-                }
-            ])
-        }, meta=True, scope_prefix=get_initial_coordination_scope_prefix(self._uuid, "image"))
+        vc.link_views_by_dict(
+            [spatial, lc],
+            {
+                'spatialTargetZ': 0,
+                'spatialTargetT': 0,
+                'imageLayer': CL(
+                    [
+                        {
+                            'photometricInterpretation': 'BlackIsZero',
+                        }
+                    ]
+                ),
+            },
+            meta=True,
+            scope_prefix=get_initial_coordination_scope_prefix(self._uuid, 'image'),
+        )
 
-        vc.link_views_by_dict([spatial, lc], {
-            "segmentationLayer": CL([
-                {
-                    "segmentationChannel": CL([{
-                        "obsColorEncoding": obs_color_encoding_scope
-                    }])
-
-                }
-            ])
-        }, meta=True, scope_prefix=get_initial_coordination_scope_prefix(self._uuid, "obsSegmentations"))
+        vc.link_views_by_dict(
+            [spatial, lc],
+            {'segmentationLayer': CL([{'segmentationChannel': CL([{'obsColorEncoding': obs_color_encoding_scope}])}])},
+            meta=True,
+            scope_prefix=get_initial_coordination_scope_prefix(self._uuid, 'obsSegmentations'),
+        )
 
         return vc
 
@@ -701,38 +677,37 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
         self._is_annotated = self.is_annotated
         confs = []
         cluster_columns = [
-            ["leiden_wnn", "Leiden (Weighted Nearest Neighbor)", "wnn"],
-            ["cluster_atac", "ArchR Clusters (ATAC)", "cbb"] if self.has_cbb else None,
-            ["leiden_rna", "Leiden (RNA)", "rna"],
-            ["predicted_label", "Cell Ontology Annotation", "label"] if self._is_annotated else None,
-            ["full_hierarchical_labels", "Full Hierarchical Labels", "label"] if self._is_annotated else None,
-            ["final_level_labels", "Final Level Labels", "label"] if self._is_annotated else None,
-            ["CL_Label", "CL Label", "label"] if self._is_annotated else None,
+            ['leiden_wnn', 'Leiden (Weighted Nearest Neighbor)', 'wnn'],
+            ['cluster_atac', 'ArchR Clusters (ATAC)', 'cbb'] if self.has_cbb else None,
+            ['leiden_rna', 'Leiden (RNA)', 'rna'],
+            ['predicted_label', 'Cell Ontology Annotation', 'label'] if self._is_annotated else None,
+            ['full_hierarchical_labels', 'Full Hierarchical Labels', 'label'] if self._is_annotated else None,
+            ['final_level_labels', 'Final Level Labels', 'label'] if self._is_annotated else None,
+            ['CL_Label', 'CL Label', 'label'] if self._is_annotated else None,
         ]
 
         cluster_columns = [
-            col for col in cluster_columns
-            if col is not None and obs_has_column(z, col[0], modality_prefix)
+            col for col in cluster_columns if col is not None and obs_has_column(z, col[0], modality_prefix)
         ]
 
-        column_names, column_labels = [f'obs/{col[0]}' for col in cluster_columns], [
-            col[1] for col in cluster_columns]
+        column_names, column_labels = [f'obs/{col[0]}' for col in cluster_columns], [col[1] for col in cluster_columns]
 
         azimuth_categories = self._get_azimuth_categories(obs)
 
         if len(azimuth_categories) > 0:
             column_names.append(azimuth_categories)
-            column_labels.append("Azimuth Categories")
+            column_labels.append('Azimuth Categories')
 
         self._set_up_marker_gene(marker)
-        self._set_up_obs_labels(additional_obs_set_names=column_labels,
-                                additional_obs_set_paths=column_names,
-                                skip_default_paths=True,
-                                modality_prefix='mod/rna')
+        self._set_up_obs_labels(
+            additional_obs_set_names=column_labels,
+            additional_obs_set_paths=column_names,
+            skip_default_paths=True,
+            modality_prefix='mod/rna',
+        )
 
         for column_name, column_label, multivec_label in cluster_columns:
-            vc = VitessceConfig(name=f'{column_label}',
-                                schema_version=self._schema_version)
+            vc = VitessceConfig(name=f'{column_label}', schema_version=self._schema_version)
             dataset = self._set_up_dataset(vc, multivec_label)
             vc = self._setup_anndata_view_config(vc, dataset, column_name, column_label)
             vc = self._link_marker_gene(vc)
@@ -745,67 +720,78 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
         h5mu_zarr = self._build_assets_url(zarr_path, use_token=False)
         rna_zarr = self._build_assets_url(f'{zarr_path}/mod/rna', use_token=False)
         atac_cbg_zarr = self._build_assets_url(f'{zarr_path}/mod/atac_cbg', use_token=False)
-        multivec_zarr = self._build_assets_url(
-            f'{zarr_base}/{multivec_label}.multivec.zarr', use_token=False)
-        dataset = vc.add_dataset(name=multivec_label).add_object(MultivecZarrWrapper(
-            zarr_url=multivec_zarr,
-            request_init=self._get_request_init(),
-        )).add_object(AnnDataWrapper(
-            # We run add_object with adata_path=rna_zarr first to add the cell-by-gene
-            # matrix and associated metadata.
-            adata_url=rna_zarr,
-            # is_zip=self._is_zarr_zip,
-            obs_embedding_paths=["obsm/X_umap"],
-            obs_embedding_names=["UMAP - RNA"],
-            obs_set_paths=self._obs_set_paths,
-            obs_set_names=self._obs_set_names,
-            obs_feature_matrix_path="X",
-            initial_feature_filter_path="var/highly_variable",
-            feature_labels_path="var/hugo_symbol",
-            request_init=self._get_request_init(),
-            # To be explicit that the features represent genes and gene expression, we
-            # specify that here.
-            coordination_values={
-                "featureType": "gene",
-                "featureValueType": "expression",
-                "featureLabelsType": "gene",
-            }
-        )).add_object(AnnDataWrapper(
-            adata_url=atac_cbg_zarr,
-            obs_feature_matrix_path="X",
-            initial_feature_filter_path="var/highly_variable",
-            obs_embedding_paths=["obsm/X_umap"],
-            obs_embedding_names=["UMAP - ATAC"],
-            request_init=self._get_request_init(),
-            # To be explicit that the features represent genes and gene expression, we
-            # specify that here.
-            coordination_values={
-                "featureType": "peak",
-                "featureValueType": "count",
-            }
-        )).add_object(AnnDataWrapper(
-            adata_url=h5mu_zarr,
-            # is_zip=self._is_zarr_zip,
-            obs_feature_matrix_path="X",
-            obs_embedding_paths=["obsm/X_umap"],
-            obs_embedding_names=["UMAP - WNN"],
-            request_init=self._get_request_init(),
-            coordination_values={
-                "featureType": "other"
-            }
-        ))
+        multivec_zarr = self._build_assets_url(f'{zarr_base}/{multivec_label}.multivec.zarr', use_token=False)
+        dataset = (
+            vc.add_dataset(name=multivec_label)
+            .add_object(
+                MultivecZarrWrapper(
+                    zarr_url=multivec_zarr,
+                    request_init=self._get_request_init(),
+                )
+            )
+            .add_object(
+                AnnDataWrapper(
+                    # We run add_object with adata_path=rna_zarr first to add the cell-by-gene
+                    # matrix and associated metadata.
+                    adata_url=rna_zarr,
+                    # is_zip=self._is_zarr_zip,
+                    obs_embedding_paths=['obsm/X_umap'],
+                    obs_embedding_names=['UMAP - RNA'],
+                    obs_set_paths=self._obs_set_paths,
+                    obs_set_names=self._obs_set_names,
+                    obs_feature_matrix_path='X',
+                    initial_feature_filter_path='var/highly_variable',
+                    feature_labels_path='var/hugo_symbol',
+                    request_init=self._get_request_init(),
+                    # To be explicit that the features represent genes and gene expression, we
+                    # specify that here.
+                    coordination_values={
+                        'featureType': 'gene',
+                        'featureValueType': 'expression',
+                        'featureLabelsType': 'gene',
+                    },
+                )
+            )
+            .add_object(
+                AnnDataWrapper(
+                    adata_url=atac_cbg_zarr,
+                    obs_feature_matrix_path='X',
+                    initial_feature_filter_path='var/highly_variable',
+                    obs_embedding_paths=['obsm/X_umap'],
+                    obs_embedding_names=['UMAP - ATAC'],
+                    request_init=self._get_request_init(),
+                    # To be explicit that the features represent genes and gene expression, we
+                    # specify that here.
+                    coordination_values={
+                        'featureType': 'peak',
+                        'featureValueType': 'count',
+                    },
+                )
+            )
+            .add_object(
+                AnnDataWrapper(
+                    adata_url=h5mu_zarr,
+                    # is_zip=self._is_zarr_zip,
+                    obs_feature_matrix_path='X',
+                    obs_embedding_paths=['obsm/X_umap'],
+                    obs_embedding_names=['UMAP - WNN'],
+                    request_init=self._get_request_init(),
+                    coordination_values={'featureType': 'other'},
+                )
+            )
+        )
         return dataset
 
     def _setup_anndata_view_config(self, vc, dataset, column_name, column_label):
-        umap_scatterplot_by_rna = vc.add_view(
-            vt.SCATTERPLOT, dataset=dataset, mapping="UMAP - RNA"
-        ).set_props(embeddingCellSetLabelsVisible=False)
-        umap_scatterplot_by_atac = vc.add_view(
-            vt.SCATTERPLOT, dataset=dataset, mapping="UMAP - ATAC"
-        ).set_props(embeddingCellSetLabelsVisible=False)
-        umap_scatterplot_by_wnn = vc.add_view(
-            vt.SCATTERPLOT, dataset=dataset, mapping="UMAP - WNN"
-        ).set_props(embeddingCellSetLabelsVisible=False)
+        umap_scatterplot_by_rna = vc.add_view(vt.SCATTERPLOT, dataset=dataset, mapping='UMAP - RNA').set_props(
+            embeddingCellSetLabelsVisible=False
+        )
+        umap_scatterplot_by_atac = vc.add_view(vt.SCATTERPLOT, dataset=dataset, mapping='UMAP - ATAC').set_props(
+            embeddingCellSetLabelsVisible=False
+        )
+        umap_scatterplot_by_wnn = vc.add_view(vt.SCATTERPLOT, dataset=dataset, mapping='UMAP - WNN').set_props(
+            embeddingCellSetLabelsVisible=False
+        )
 
         gene_list = vc.add_view(vt.FEATURE_LIST, dataset=dataset)
         peak_list = vc.add_view(vt.FEATURE_LIST, dataset=dataset)
@@ -822,42 +808,60 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
         # the corresponding view,
         # and we want to make sure the color mappings are independent for each modality.
         coordination_types = [ct.FEATURE_TYPE, ct.FEATURE_VALUE_TYPE]
-        vc.link_views([umap_scatterplot_by_rna, gene_list],
-                      coordination_types, ["gene", "expression"])
-        vc.link_views([umap_scatterplot_by_atac, peak_list],
-                      coordination_types, ["peak", "count"])
+        vc.link_views([umap_scatterplot_by_rna, gene_list], coordination_types, ['gene', 'expression'])
+        vc.link_views([umap_scatterplot_by_atac, peak_list], coordination_types, ['peak', 'count'])
 
         # Coordinate the selection of cell sets between the scatterplots and lists
         # of features/observations.
-        coordination_types = [ct.FEATURE_SELECTION,
-                              ct.OBS_COLOR_ENCODING,
-                              ct.FEATURE_VALUE_COLORMAP_RANGE,
-                              ct.OBS_SET_SELECTION]
+        coordination_types = [
+            ct.FEATURE_SELECTION,
+            ct.OBS_COLOR_ENCODING,
+            ct.FEATURE_VALUE_COLORMAP_RANGE,
+            ct.OBS_SET_SELECTION,
+        ]
 
         label_names = self._get_obs_set_members(column_name)
         obs_set_coordinations = [[column_label, str(i)] for i in label_names]
-        vc.link_views([umap_scatterplot_by_rna,
-                       umap_scatterplot_by_atac,
-                       umap_scatterplot_by_wnn,
-                       gene_list, peak_list, cell_sets],
-                      coordination_types, [None, 'cellSetSelection', [0.0, 1.0], obs_set_coordinations])
+        vc.link_views(
+            [
+                umap_scatterplot_by_rna,
+                umap_scatterplot_by_atac,
+                umap_scatterplot_by_wnn,
+                gene_list,
+                peak_list,
+                cell_sets,
+            ],
+            coordination_types,
+            [None, 'cellSetSelection', [0.0, 1.0], obs_set_coordinations],
+        )
 
         # Indicate genomic profiles' clusters; based on the display name for the ATAC CBB clusters.
-        obs_set_coordination, obs_color_coordination = vc.add_coordination(
-            ct.OBS_SET_SELECTION, ct.OBS_COLOR_ENCODING)
+        obs_set_coordination, obs_color_coordination = vc.add_coordination(ct.OBS_SET_SELECTION, ct.OBS_COLOR_ENCODING)
         genomic_profiles.use_coordination(obs_set_coordination, obs_color_coordination)
         obs_set_coordination.set_value(obs_set_coordinations)
         obs_color_coordination.set_value('cellSetSelection')
 
         # Hide numeric cluster labels
-        vc.link_views([umap_scatterplot_by_rna, umap_scatterplot_by_atac, umap_scatterplot_by_wnn], [
-            ct.EMBEDDING_OBS_SET_LABELS_VISIBLE], [False])
+        vc.link_views(
+            [umap_scatterplot_by_rna, umap_scatterplot_by_atac, umap_scatterplot_by_wnn],
+            [ct.EMBEDDING_OBS_SET_LABELS_VISIBLE],
+            [False],
+        )
 
-        vc.layout(((umap_scatterplot_by_rna | umap_scatterplot_by_atac) | (
-            umap_scatterplot_by_wnn | cell_sets)) / (genomic_profiles | (peak_list | gene_list)))
+        vc.layout(
+            ((umap_scatterplot_by_rna | umap_scatterplot_by_atac) | (umap_scatterplot_by_wnn | cell_sets))
+            / (genomic_profiles | (peak_list | gene_list))
+        )
 
-        self._views = [umap_scatterplot_by_rna, umap_scatterplot_by_atac, umap_scatterplot_by_wnn,
-                       gene_list, peak_list, genomic_profiles, cell_sets]
+        self._views = [
+            umap_scatterplot_by_rna,
+            umap_scatterplot_by_atac,
+            umap_scatterplot_by_wnn,
+            gene_list,
+            peak_list,
+            genomic_profiles,
+            cell_sets,
+        ]
         return vc
 
     def _get_obs_set_members(self, column_name):

@@ -1,45 +1,45 @@
-from .builders.object_by_analyte_builders import ObjectByAnalyteConfBuilder
-from .builders.base_builders import NullViewConfBuilder
-from .builders.sprm_builders import (
-    StitchedCytokitSPRMViewConfBuilder,
-    TiledSPRMViewConfBuilder,
-    MultiImageSPRMAnndataViewConfBuilder,
-)
-from .builders.imaging_builders import (
-    SeqFISHViewConfBuilder,
-    IMSViewConfBuilder,
-    ImagePyramidViewConfBuilder,
-    EpicSegImagePyramidViewConfBuilder,
-    KaggleSegImagePyramidViewConfBuilder,
-    GeoMxImagePyramidViewConfBuilder,
-    NanoDESIViewConfBuilder,
-)
+from .assays import MALDI_IMS, NANODESI, SALMON_RNASSEQ_SLIDE, SEQFISH
 from .builders.anndata_builders import (
     MultiomicAnndataZarrViewConfBuilder,
-    SpatialRNASeqAnnDataZarrViewConfBuilder,
     RNASeqAnnDataZarrViewConfBuilder,
     SpatialMultiomicAnnDataZarrViewConfBuilder,
-    XeniumMultiomicAnnDataZarrViewConfBuilder
+    SpatialRNASeqAnnDataZarrViewConfBuilder,
+    XeniumMultiomicAnnDataZarrViewConfBuilder,
 )
-from .builders.scatterplot_builders import RNASeqViewConfBuilder, ATACSeqViewConfBuilder
-from .assays import SEQFISH, MALDI_IMS, NANODESI, SALMON_RNASSEQ_SLIDE
+from .builders.base_builders import NullViewConfBuilder
+from .builders.imaging_builders import (
+    EpicSegImagePyramidViewConfBuilder,
+    GeoMxImagePyramidViewConfBuilder,
+    ImagePyramidViewConfBuilder,
+    IMSViewConfBuilder,
+    KaggleSegImagePyramidViewConfBuilder,
+    NanoDESIViewConfBuilder,
+    SeqFISHViewConfBuilder,
+)
+from .builders.object_by_analyte_builders import ObjectByAnalyteConfBuilder
+from .builders.scatterplot_builders import ATACSeqViewConfBuilder, RNASeqViewConfBuilder
+from .builders.sprm_builders import (
+    MultiImageSPRMAnndataViewConfBuilder,
+    StitchedCytokitSPRMViewConfBuilder,
+    TiledSPRMViewConfBuilder,
+)
 
 
 # This function processes the hints and returns a tuple of booleans
 # indicating which builder to use for the given entity.
 def process_hints(hints):
     hints = set(hints)
-    is_image = "is_image" in hints
-    is_rna = "rna" in hints
-    is_atac = "atac" in hints
-    is_sprm = "sprm" in hints
-    is_codex = "codex" in hints
-    is_anndata = "anndata" in hints
-    is_json = "json_based" in hints
-    is_spatial = "spatial" in hints
-    is_support = "is_support" in hints
-    is_seg_mask = "segmentation_mask" in hints
-    is_geomx = "geomx" in hints
+    is_image = 'is_image' in hints
+    is_rna = 'rna' in hints
+    is_atac = 'atac' in hints
+    is_sprm = 'sprm' in hints
+    is_codex = 'codex' in hints
+    is_anndata = 'anndata' in hints
+    is_json = 'json_based' in hints
+    is_spatial = 'spatial' in hints
+    is_support = 'is_support' in hints
+    is_seg_mask = 'segmentation_mask' in hints
+    is_geomx = 'geomx' in hints
     is_xenium = 'xenium' in hints
     is_epic = 'epic' in hints
 
@@ -56,7 +56,7 @@ def process_hints(hints):
         is_seg_mask,
         is_geomx,
         is_xenium,
-        is_epic
+        is_epic,
     )
 
 
@@ -65,10 +65,10 @@ def process_hints(hints):
 #
 # The entity is a dict that contains the entity UUID and metadata.
 def get_view_config_builder(entity, get_entity, parent=None, epic_uuid=None):
-    if entity.get("uuid") is None:
-        raise ValueError("Provided entity does not have a uuid")
-    assay_name = entity.get("soft_assaytype")
-    hints = entity.get("vitessce-hints", [])
+    if entity.get('uuid') is None:
+        raise ValueError('Provided entity does not have a uuid')
+    assay_name = entity.get('soft_assaytype')
+    hints = entity.get('vitessce-hints', [])
     (
         is_image,
         is_rna,
@@ -82,7 +82,7 @@ def get_view_config_builder(entity, get_entity, parent=None, epic_uuid=None):
         is_seg_mask,
         is_geomx,
         is_xenium,
-        is_epic
+        is_epic,
     ) = process_hints(hints)
 
     # 'epic" is the only hint for object x analyte EPICs
@@ -98,16 +98,16 @@ def get_view_config_builder(entity, get_entity, parent=None, epic_uuid=None):
             return KaggleSegImagePyramidViewConfBuilder
 
         elif is_support and is_image:
-            ancestor_assaytype = get_entity(parent).get("soft_assaytype")
-            if SEQFISH == ancestor_assaytype:
+            ancestor_assaytype = get_entity(parent).get('soft_assaytype')
+            if ancestor_assaytype == SEQFISH:
                 # e.g. parent  = c6a254b2dc2ed46b002500ade163a7cc
                 # e.g. support = 9db61adfc017670a196ea9b3ca1852a0
                 return SeqFISHViewConfBuilder
-            elif MALDI_IMS == ancestor_assaytype:
+            elif ancestor_assaytype == MALDI_IMS:
                 # e.g. parent  = 3bc3ad124014a632d558255626bf38c9
                 # e.g. support = a6116772446f6d1c1f6b3d2e9735cfe0
                 return IMSViewConfBuilder
-            elif NANODESI == ancestor_assaytype:
+            elif ancestor_assaytype == NANODESI:
                 # e.g. parent  = 6b93107731199733f266bbd0f3bc9747
                 # e.g. support = e1c4370da5523ab5c9be581d1d76ca20
                 return NanoDESIViewConfBuilder

@@ -14,9 +14,13 @@ start docs
 diff README.md <(src/vis-preview.py --help) | grep '^>' && die "Update vis-preview.py docs in README.md"
 end docs
 
-start flake8
-flake8 || die "Try: autopep8 --in-place --aggressive -r ."
-end flake8
+start ruff-check
+ruff check src/ test/ || die "Run: ruff check --fix src/ test/"
+end ruff-check
+
+start ruff-format
+ruff format --check src/ test/ || die "Run: ruff format src/ test/"
+end ruff-format
 
 start pytest
 PYTHONPATH=. coverage run --module pytest . -vv --doctest-modules
