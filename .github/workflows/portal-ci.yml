@@ -3,31 +3,123 @@ name: Portal CI
 on: [push, pull_request]
 
 jobs:
-  build:
-    # Available versions:
-    # https://docs.github.com/en/free-pro-team@latest/actions/reference/workflow-syntax-for-github-actions#jobsjob_idruns-on
+  test-thin-install:
+    name: Test Thin Install (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
 
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: "recursive"
 
-      - name: Set up Python 3.12
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: ${{ matrix.python-version }}
 
       - name: Install uv
         uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
 
-      - name: Install dependencies
+      - name: Install thin dependencies (no [full] extras)
+        run: uv sync --extra dev
+
+      - name: Verify thin install works
+        run: |
+          uv run python -c "from portal_visualization import has_visualization, process_hints; print('✓ Thin install imports work')"
+          uv run python -c "
+          from portal_visualization.builder_factory import _get_builder_name
+          entity = {'uuid': 'test', 'vitessce-hints': ['is_image', 'rna']}
+          name = _get_builder_name(entity, lambda x: {})
+          print(f'✓ Builder name resolution works: {name}')
+          assert name == 'SpatialMultiomicAnnDataZarrViewConfBuilder'
+          "
+
+      - name: Run linting checks
+        run: |
+          uv run ruff check src/ test/
+          uv run ruff format --check src/ test/
+
+      - name: Run thin install tests only
+        run: uv run pytest -m "not requires_full" -vv --doctest-modules
+        env:
+          GH_ACTIONS_BRANCH: ${{ github.ref }}
+          GH_ACTIONS: true
+
+  test-full-install:
+    name: Test Full Install (Python ${{ matrix.python-version }})
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: "recursive"
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Install full dependencies ([full] extras)
         run: uv sync --all-extras
 
-      - name: Run test script
+      - name: Verify full install works
+        run: |
+          uv run python -c "import vitessce; print('✓ Full dependencies available')"
+          uv run python -c "
+          from portal_visualization.builder_factory import get_view_config_builder
+          entity = {'uuid': 'test', 'vitessce-hints': ['is_image', 'rna']}
+          builder = get_view_config_builder(entity, lambda x: {})
+          print(f'✓ Builder class import works: {builder.__name__}')
+          assert builder.__name__ == 'SpatialMultiomicAnnDataZarrViewConfBuilder'
+          "
+
+      - name: Run full test suite
         run: ./test.sh
         env:
           GH_ACTIONS_BRANCH: ${{ github.ref }}
           GH_ACTIONS: true
+
+  build-package:
+    name: Build Distribution Packages
+    runs-on: ubuntu-latest
+    needs: [test-thin-install, test-full-install]
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: "recursive"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Build package
+        run: uv build
+
+      - name: Check distribution
+        run: |
+          uv pip install --system twine
+          twine check dist/*
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-packages
+          path: dist/
