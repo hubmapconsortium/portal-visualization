@@ -1539,19 +1539,26 @@ wheels = [
 [[package]]
 name = "portal-visualization"
 source = { editable = "." }
-dependencies = [
+
+[package.optional-dependencies]
+all = [
     { name = "aiohttp" },
+    { name = "coverage" },
+    { name = "flask" },
     { name = "fsspec" },
     { name = "hubmap-commons" },
     { name = "nbformat" },
+    { name = "pytest" },
+    { name = "pytest-mock" },
     { name = "python-datauri" },
+    { name = "pyyaml" },
     { name = "requests" },
+    { name = "ruff" },
     { name = "vitessce" },
+    { name = "werkzeug" },
     { name = "zarr", version = "2.18.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
     { name = "zarr", version = "2.18.7", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
 ]
-
-[package.optional-dependencies]
 dev = [
     { name = "coverage" },
     { name = "pytest" },
@@ -1559,24 +1566,40 @@ dev = [
     { name = "pyyaml" },
     { name = "ruff" },
 ]
+full = [
+    { name = "aiohttp" },
+    { name = "flask" },
+    { name = "fsspec" },
+    { name = "hubmap-commons" },
+    { name = "nbformat" },
+    { name = "python-datauri" },
+    { name = "requests" },
+    { name = "vitessce" },
+    { name = "werkzeug" },
+    { name = "zarr", version = "2.18.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "zarr", version = "2.18.7", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+]
 
 [package.metadata]
 requires-dist = [
-    { name = "aiohttp", specifier = ">=3.8.1" },
+    { name = "aiohttp", marker = "extra == 'full'", specifier = ">=3.8.1" },
     { name = "coverage", marker = "extra == 'dev'", specifier = ">=7.6.4" },
-    { name = "fsspec", specifier = ">=2022.1.0" },
-    { name = "hubmap-commons", specifier = ">=2.0.15" },
-    { name = "nbformat", specifier = ">=5.1.3" },
+    { name = "flask", marker = "extra == 'full'", specifier = ">=2.0.0" },
+    { name = "fsspec", marker = "extra == 'full'", specifier = ">=2022.1.0" },
+    { name = "hubmap-commons", marker = "extra == 'full'", specifier = ">=2.0.15" },
+    { name = "nbformat", marker = "extra == 'full'", specifier = ">=5.1.3" },
+    { name = "portal-visualization", extras = ["dev", "full"], marker = "extra == 'all'" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=7.0.0" },
     { name = "pytest-mock", marker = "extra == 'dev'", specifier = ">=3.7.0" },
-    { name = "python-datauri", specifier = ">=2.2.0" },
+    { name = "python-datauri", marker = "extra == 'full'", specifier = ">=2.2.0" },
     { name = "pyyaml", marker = "extra == 'dev'", specifier = ">=6.0.2" },
-    { name = "requests", specifier = ">=2.27.1" },
+    { name = "requests", marker = "extra == 'full'", specifier = ">=2.27.1" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.8.0" },
-    { name = "vitessce", specifier = "==3.7.4" },
-    { name = "zarr", specifier = ">=2.17.2" },
+    { name = "vitessce", marker = "extra == 'full'", specifier = "==3.7.4" },
+    { name = "werkzeug", marker = "extra == 'full'", specifier = ">=2.0.0" },
+    { name = "zarr", marker = "extra == 'full'", specifier = ">=2.17.2" },
 ]
-provides-extras = ["dev"]
+provides-extras = ["full", "dev", "all"]
 
 [[package]]
 name = "propcache"
