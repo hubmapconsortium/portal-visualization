@@ -2,6 +2,9 @@ import pytest
 
 from src.portal_visualization.epic_factory import get_epic_builder
 
+# Mark all tests in this file as requiring [full] dependencies
+pytestmark = pytest.mark.requires_full
+
 
 @pytest.mark.parametrize(
     ('epic_uuid', 'expected'),

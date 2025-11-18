@@ -6,18 +6,28 @@ from os import environ
 from pathlib import Path
 
 import pytest
-import yaml
-import zarr
 
 from src.portal_visualization.builder_factory import (
     get_view_config_builder,
     has_visualization,
 )
-from src.portal_visualization.builders.base_builders import ConfCells
-from src.portal_visualization.builders.imaging_builders import KaggleSegImagePyramidViewConfBuilder
-from src.portal_visualization.epic_factory import get_epic_builder
-from src.portal_visualization.paths import IMAGE_PYRAMID_DIR
-from src.portal_visualization.utils import get_found_images, read_zip_zarr
+
+# Tests that instantiate builders and generate configs require [full] dependencies
+pytest_requires_full = pytest.mark.requires_full
+
+try:
+    import yaml
+    import zarr
+
+    from src.portal_visualization.builders.base_builders import ConfCells
+    from src.portal_visualization.builders.imaging_builders import KaggleSegImagePyramidViewConfBuilder
+    from src.portal_visualization.epic_factory import get_epic_builder
+    from src.portal_visualization.paths import IMAGE_PYRAMID_DIR
+    from src.portal_visualization.utils import get_found_images, read_zip_zarr
+
+    FULL_DEPS_AVAILABLE = True
+except ImportError:
+    FULL_DEPS_AVAILABLE = False
 
 groups_token = environ.get('GROUPS_TOKEN', 'groups_token')
 assets_url = environ.get('ASSETS_URL', 'https://example.com')
@@ -104,7 +114,7 @@ def test_has_visualization(has_vis_entity):
 
 def mock_zarr_store(entity_path, mocker):
     # Need to mock zarr.open to yield correct values for different scenarios
-    z = zarr.open()
+    z = zarr.open_group()
     gene_array = zarr.array(['ENSG00000139618', 'ENSG00000139619', 'ENSG00000139620'])
     is_annotated = 'is-annotated' in entity_path.name
     is_multiome = 'multiome' in entity_path.name
@@ -167,6 +177,7 @@ def mock_zarr_store(entity_path, mocker):
     mocker.patch('zarr.open', return_value=z)
 
 
+@pytest.mark.requires_full
 def test_read_zip_zarr_opens_store(mocker):
     # Mock the fsspec filesystem and zarr open
     mock_fs = mocker.Mock()
@@ -188,6 +199,7 @@ def test_read_zip_zarr_opens_store(mocker):
 
 
 @pytest.mark.parametrize('entity_path', good_entity_paths, ids=lambda path: f'{path.parent.name}/{path.name}')
+@pytest.mark.requires_full
 def test_entity_to_vitessce_conf(entity_path, mocker):
     mock_zarr_store(entity_path, mocker)
 
@@ -229,12 +241,22 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
         if conf is None:  # pragma: no cover
             with pytest.raises(ValueError):  # noqa: PT011
                 epic_builder(
-                    epic_uuid, ConfCells(conf, cells), entity, groups_token, assets_url, builder.base_image_metadata
+                    epic_uuid,
+                    ConfCells(conf, cells),
+                    entity,
+                    groups_token,
+                    assets_url,
+                    builder.base_image_metadata,  # type: ignore
                 ).get_conf_cells()
             return
 
         built_epic_conf, cells = epic_builder(
-            epic_uuid, ConfCells(conf, cells), entity, groups_token, assets_url, builder.base_image_metadata
+            epic_uuid,
+            ConfCells(conf, cells),
+            entity,
+            groups_token,
+            assets_url,
+            builder.base_image_metadata,  # type: ignore
         ).get_conf_cells()
         assert built_epic_conf is not None
 
@@ -242,6 +264,7 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
 
 
 @pytest.mark.parametrize('entity_path', bad_entity_paths, ids=lambda path: path.name)
+@pytest.mark.requires_full
 def test_entity_to_error(entity_path, mocker):
     mock_zarr_store(entity_path, mocker)
 
@@ -297,6 +320,7 @@ def mock_seg_image_pyramid_builder():
     return MockBuilder(entity, groups_token, assets_url)
 
 
+@pytest.mark.requires_full
 def test_filtered_images_not_found(mock_seg_image_pyramid_builder):
     mock_seg_image_pyramid_builder.seg_image_pyramid_regex = IMAGE_PYRAMID_DIR
     try:
@@ -305,6 +329,7 @@ def test_filtered_images_not_found(mock_seg_image_pyramid_builder):
         assert str(e) == f'Segmentation assay with uuid {mock_seg_image_pyramid_builder._uuid} has no matching files'  # noqa: PT017
 
 
+@pytest.mark.requires_full
 def test_filtered_images_no_regex(mock_seg_image_pyramid_builder):
     mock_seg_image_pyramid_builder.seg_image_pyramid_regex = None
     try:
@@ -313,6 +338,7 @@ def test_filtered_images_no_regex(mock_seg_image_pyramid_builder):
         assert str(e) == 'seg_image_pyramid_regex is not set. Cannot find segmentation images.'  # noqa: PT017
 
 
+@pytest.mark.requires_full
 def test_find_segmentation_images_runtime_error():
     with pytest.raises(RuntimeError) as e:  # noqa: PT012
         try:
@@ -324,6 +350,7 @@ def test_find_segmentation_images_runtime_error():
     assert 'No files found in the directory' in str(e.value)
 
 
+@pytest.mark.requires_full
 def test_get_found_images():
     file_paths = [
         'image_pyramid/sample.ome.tiff',
@@ -335,6 +362,7 @@ def test_get_found_images():
     assert result[0] == 'image_pyramid/sample.ome.tiff'
 
 
+@pytest.mark.requires_full
 def test_get_found_images_error_handling():
     file_paths = [
         'image_pyramid/sample.ome.tiff',

@@ -36,9 +36,18 @@ classifiers = [
   "Topic :: Scientific/Engineering :: Visualization",
   "Topic :: Software Development :: Libraries :: Python Modules",
 ]
-dependencies = [
+# Core install has no dependencies - only provides has_visualization() function
+# For full visualization generation capabilities, install with: pip install portal-visualization[full]
+dependencies = []
+
+[project.optional-dependencies]
+# Full install - required for actual visualization generation
+full = [
   "vitessce==3.7.4",
   "hubmap-commons>=2.0.15",
+  # Flask/werkzeug are needed for the full HuBMAP Search API client functionality
+  "flask>=2.0.0",
+  "werkzeug>=2.0.0",
   "requests>=2.27.1",
   "nbformat>=5.1.3",
   "zarr>=2.17.2",
@@ -46,8 +55,7 @@ dependencies = [
   "fsspec>=2022.1.0",
   "python-datauri>=2.2.0",
 ]
-
-[project.optional-dependencies]
+# Development dependencies
 dev = [
   "pytest>=7.0.0",
   "pytest-mock>=3.7.0",
@@ -55,6 +63,8 @@ dev = [
   "pyyaml>=6.0.2",
   "ruff>=0.8.0",
 ]
+# Convenience: install everything for development
+all = ["portal-visualization[full,dev]"]
 
 [project.scripts]
 vis-preview = "portal_visualization.cli:main"
@@ -87,6 +97,9 @@ python_files = ["test_*.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = ["-vv", "--doctest-modules"]
+markers = [
+  "requires_full: marks tests as requiring the [full] install (deselect with '-m \"not requires_full\"')",
+]
 
 [tool.ruff]
 line-length = 120

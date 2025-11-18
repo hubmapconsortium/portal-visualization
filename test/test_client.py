@@ -1,10 +1,19 @@
 import json
 
 import pytest
-from flask import Flask
 
-from portal_visualization.builders.base_builders import ConfCells
-from src.portal_visualization.client import ApiClient, _create_vitessce_error
+try:
+    from flask import Flask
+
+    from portal_visualization.builders.base_builders import ConfCells
+    from src.portal_visualization.client import ApiClient, _create_vitessce_error
+
+    FULL_DEPS_AVAILABLE = True
+except ImportError:
+    FULL_DEPS_AVAILABLE = False
+
+# Mark all tests in this file as requiring [full] dependencies
+pytestmark = pytest.mark.requires_full
 
 mock_hit_source = {
     'uuid': 'ABC123',

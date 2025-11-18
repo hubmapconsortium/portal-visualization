@@ -2,6 +2,71 @@
 
 Given HuBMAP Dataset JSON (e.g. https://portal.hubmapconsortium.org/browse/dataset/004d4f157df4ba07356cd805131dfc04.json), creates a Vitessce configuration.
 
+## Installation
+
+This package provides two install modes to suit different use cases:
+
+### Thin Install (Default)
+
+For applications that only need to check if a dataset has visualization support without generating actual visualizations:
+
+```bash
+pip install portal-visualization
+```
+
+**Features:**
+
+- Provides `has_visualization()` function to check visualization availability
+- Minimal dependencies (pure Python, <1 MB install size)
+- Fast installation and import times
+- Ideal for services that need to filter/check datasets
+
+**Example usage:**
+
+```python
+from portal_visualization import has_visualization
+
+entity = {"uuid": "abc123", "vitessce-hints": ["is_image", "rna"]}
+if has_visualization(entity, get_entity_fn):
+    print("This dataset can be visualized")
+```
+
+### Full Install
+
+For applications that need complete visualization generation capabilities:
+
+```bash
+pip install portal-visualization[full]
+```
+
+**Features:**
+
+- Complete Vitessce configuration generation
+- All visualization builders and dependencies (~150 MB install size)
+- Required for portal-ui and search-api
+- Includes vitessce, zarr, aiohttp, and other visualization libraries
+
+**Example usage:**
+
+```python
+from portal_visualization.builder_factory import get_view_config_builder
+
+builder = get_view_config_builder(entity, get_entity_fn)
+conf_cells = builder.get_conf_cells(marker="CD45")
+```
+
+### Development Install
+
+For contributors developing the package:
+
+```bash
+pip install portal-visualization[all]
+# or
+pip install -e ".[all]"  # for editable install
+```
+
+This installs both `[full]` and `[dev]` extras (testing, linting tools).
+
 ## Release process
 
 This is a dependency of [portal-ui](https://github.com/hubmapconsortium/portal-ui/search?q=builder_factory) and [search-api](https://github.com/hubmapconsortium/search-api/search?q=builder_factory).
@@ -11,8 +76,11 @@ Updates that are more than housekeeping should result in a new release:
 - bump `VERSION.txt`.
 - make a new git tag: `V=$(cat VERSION.txt); git tag $V; git push origin $V`.
 - make a release on github.
-- in portal-ui, update `pyproject.toml`.
-- in search-api, update `requirements.txt`.
+- **Test both install modes**: `pip install dist/portal_visualization-*.whl` (thin) and `pip install dist/portal_visualization-*.whl[full]` (full)
+- in portal-ui, update `pyproject.toml` to use `portal-visualization[full]`.
+- in search-api, update `requirements.txt` to use `portal-visualization`.
+
+**Note:** Downstream projects which require complete visualization capabilities (e.g. `portal-ui`) should install with `[full]` extras to maintain complete visualization capabilities. Projects which only require the `has_visualization` function (e.g. `search_api`)
 
 ## Development Setup
 
@@ -30,17 +98,27 @@ Install dependencies using uv:
 # Install uv if not already installed
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# Install dependencies (creates virtual environment automatically)
+# For thin install testing (has_visualization only)
 uv sync
 
-# Or install with development dependencies
+# For full install testing (complete functionality)
+uv sync --extra full
+
+# For development (includes all extras)
 uv sync --all-extras
 ```
 
-Alternatively, use pip:
+Alternatively, use pip if desired:
 
 ```bash
-pip install -e ".[dev]"
+# Thin install
+pip install -e .
+
+# Full install
+pip install -e ".[full]"
+
+# Development install
+pip install -e ".[all]"
 ```
 
 ## CLI
@@ -109,17 +187,28 @@ python -m build
 
 ### Running Tests
 
+The test suite supports both thin and full install modes:
+
 ```bash
-# Run the full test suite (includes linting, formatting, and tests)
+# Run the full test suite (requires [full] extras)
 ./test.sh
 
-# Or run individual checks
+# Run only thin install tests (no [full] extras needed)
+uv run pytest -m "not requires_full"
+
+# Run individual checks
 uv run ruff check src/ test/          # Linting
 uv run ruff format --check src/ test/ # Format checking
 uv run ruff format src/ test/         # Auto-format code
 uv run pytest -vv --doctest-modules   # Tests only
 uv run coverage run -m pytest         # With coverage
 ```
+
+**Test organization:**
+
+- Tests marked with `@pytest.mark.requires_full` need the `[full]` install
+- The `has_visualization` function and core logic can be tested without heavy dependencies
+- CI should test both modes to ensure compatibility
 
 All code must:
 
