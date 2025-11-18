@@ -5,14 +5,6 @@ start() { echo "::group::$1"; }
 end() { echo "::endgroup::"; }
 die() { set +v; echo "$*" 1>&2 ; sleep 1; exit 1; }
 
-# Detect if we should use 'uv run' prefix (when using uv virtual environment)
-if command -v uv &> /dev/null && [ -n "$VIRTUAL_ENV" ] && [[ "$VIRTUAL_ENV" == *".venv"* ]]; then
-    RUN_PREFIX="uv run"
-else
-    RUN_PREFIX=""
-fi
-
-
 start changelog
 echo 'TODO: Edit changelog with each PR?'
 end changelog
@@ -29,14 +21,14 @@ fi
 end docs
 
 start ruff-check
-$RUN_PREFIX ruff check src/ test/ || die "Run: ruff check --fix src/ test/"
+uv run ruff check src/ test/ || die "Run: ruff check --fix src/ test/"
 end ruff-check
 
 start ruff-format
-$RUN_PREFIX ruff format --check src/ test/ || die "Run: ruff format src/ test/"
+uv run ruff format --check src/ test/ || die "Run: ruff format src/ test/"
 end ruff-format
 
 start pytest
-PYTHONPATH=. $RUN_PREFIX coverage run --module pytest . -vv --doctest-modules
-$RUN_PREFIX coverage report --show-missing --fail-under 100
+PYTHONPATH=. uv run coverage run --module pytest . -vv --doctest-modules
+uv run coverage report --show-missing --fail-under 100
 end pytest
