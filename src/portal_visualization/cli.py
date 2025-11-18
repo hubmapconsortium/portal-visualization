@@ -7,9 +7,6 @@ from sys import stderr
 from urllib.parse import quote_plus
 from webbrowser import open_new_tab
 
-from portal_visualization.builder_factory import get_view_config_builder
-from portal_visualization.epic_factory import get_epic_builder
-
 # Load defaults from package data
 defaults = json.load((Path(__file__).parent / 'defaults.json').open())
 # Change to prod if needed to access those resources
@@ -17,6 +14,23 @@ ENV = 'dev'
 
 
 def main():  # pragma: no cover
+    """CLI entry point for vis-preview command.
+
+    Note: This command requires the [full] install:
+        pip install portal-visualization[full]
+    """
+    # Import heavy dependencies only when CLI is actually run
+    try:
+        from portal_visualization.builder_factory import get_view_config_builder
+        from portal_visualization.epic_factory import get_epic_builder
+    except ImportError as e:
+        print(
+            'ERROR: The vis-preview CLI requires the [full] installation.\n'
+            'Please install with: pip install portal-visualization[full]\n'
+            f'Missing dependency: {e}',
+            file=stderr,
+        )
+        return 1
     assets_default_url = defaults[ENV]['assets_url']
     parser = argparse.ArgumentParser(
         description="""
