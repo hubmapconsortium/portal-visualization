@@ -16,112 +16,112 @@ def _lazy_import_builder(builder_name):
     >>> builder.__name__
     'NullViewConfBuilder'
     """
-    if builder_name == 'NullViewConfBuilder':
+    if builder_name == "NullViewConfBuilder":
         return NullViewConfBuilder
 
     # AnnData builders
-    elif builder_name == 'MultiomicAnndataZarrViewConfBuilder':
+    elif builder_name == "MultiomicAnndataZarrViewConfBuilder":
         from .builders.anndata_builders import MultiomicAnndataZarrViewConfBuilder
 
         return MultiomicAnndataZarrViewConfBuilder
-    elif builder_name == 'RNASeqAnnDataZarrViewConfBuilder':
+    elif builder_name == "RNASeqAnnDataZarrViewConfBuilder":
         from .builders.anndata_builders import RNASeqAnnDataZarrViewConfBuilder
 
         return RNASeqAnnDataZarrViewConfBuilder
-    elif builder_name == 'SpatialMultiomicAnnDataZarrViewConfBuilder':
+    elif builder_name == "SpatialMultiomicAnnDataZarrViewConfBuilder":
         from .builders.anndata_builders import SpatialMultiomicAnnDataZarrViewConfBuilder
 
         return SpatialMultiomicAnnDataZarrViewConfBuilder
-    elif builder_name == 'SpatialRNASeqAnnDataZarrViewConfBuilder':
+    elif builder_name == "SpatialRNASeqAnnDataZarrViewConfBuilder":
         from .builders.anndata_builders import SpatialRNASeqAnnDataZarrViewConfBuilder
 
         return SpatialRNASeqAnnDataZarrViewConfBuilder
-    elif builder_name == 'XeniumMultiomicAnnDataZarrViewConfBuilder':
+    elif builder_name == "XeniumMultiomicAnnDataZarrViewConfBuilder":
         from .builders.anndata_builders import XeniumMultiomicAnnDataZarrViewConfBuilder
 
         return XeniumMultiomicAnnDataZarrViewConfBuilder
 
     # Imaging builders
-    elif builder_name == 'EpicSegImagePyramidViewConfBuilder':
+    elif builder_name == "EpicSegImagePyramidViewConfBuilder":
         from .builders.imaging_builders import EpicSegImagePyramidViewConfBuilder
 
         return EpicSegImagePyramidViewConfBuilder
-    elif builder_name == 'GeoMxImagePyramidViewConfBuilder':
+    elif builder_name == "GeoMxImagePyramidViewConfBuilder":
         from .builders.imaging_builders import GeoMxImagePyramidViewConfBuilder
 
         return GeoMxImagePyramidViewConfBuilder
-    elif builder_name == 'ImagePyramidViewConfBuilder':
+    elif builder_name == "ImagePyramidViewConfBuilder":
         from .builders.imaging_builders import ImagePyramidViewConfBuilder
 
         return ImagePyramidViewConfBuilder
-    elif builder_name == 'IMSViewConfBuilder':
+    elif builder_name == "IMSViewConfBuilder":
         from .builders.imaging_builders import IMSViewConfBuilder
 
         return IMSViewConfBuilder
-    elif builder_name == 'KaggleSegImagePyramidViewConfBuilder':
+    elif builder_name == "KaggleSegImagePyramidViewConfBuilder":
         from .builders.imaging_builders import KaggleSegImagePyramidViewConfBuilder
 
         return KaggleSegImagePyramidViewConfBuilder
-    elif builder_name == 'NanoDESIViewConfBuilder':
+    elif builder_name == "NanoDESIViewConfBuilder":
         from .builders.imaging_builders import NanoDESIViewConfBuilder
 
         return NanoDESIViewConfBuilder
-    elif builder_name == 'SeqFISHViewConfBuilder':
+    elif builder_name == "SeqFISHViewConfBuilder":
         from .builders.imaging_builders import SeqFISHViewConfBuilder
 
         return SeqFISHViewConfBuilder
 
     # Object by analyte builders
-    elif builder_name == 'ObjectByAnalyteConfBuilder':
+    elif builder_name == "ObjectByAnalyteConfBuilder":
         from .builders.object_by_analyte_builders import ObjectByAnalyteConfBuilder
 
         return ObjectByAnalyteConfBuilder
 
     # Scatterplot builders
-    elif builder_name == 'ATACSeqViewConfBuilder':
+    elif builder_name == "ATACSeqViewConfBuilder":
         from .builders.scatterplot_builders import ATACSeqViewConfBuilder
 
         return ATACSeqViewConfBuilder
-    elif builder_name == 'RNASeqViewConfBuilder':
+    elif builder_name == "RNASeqViewConfBuilder":
         from .builders.scatterplot_builders import RNASeqViewConfBuilder
 
         return RNASeqViewConfBuilder
 
     # SPRM builders
-    elif builder_name == 'MultiImageSPRMAnndataViewConfBuilder':
+    elif builder_name == "MultiImageSPRMAnndataViewConfBuilder":
         from .builders.sprm_builders import MultiImageSPRMAnndataViewConfBuilder
 
         return MultiImageSPRMAnndataViewConfBuilder
-    elif builder_name == 'StitchedCytokitSPRMViewConfBuilder':
+    elif builder_name == "StitchedCytokitSPRMViewConfBuilder":
         from .builders.sprm_builders import StitchedCytokitSPRMViewConfBuilder
 
         return StitchedCytokitSPRMViewConfBuilder
-    elif builder_name == 'TiledSPRMViewConfBuilder':
+    elif builder_name == "TiledSPRMViewConfBuilder":
         from .builders.sprm_builders import TiledSPRMViewConfBuilder
 
         return TiledSPRMViewConfBuilder
 
     else:  # pragma: no cover
-        raise ValueError(f'Unknown builder: {builder_name}')
+        raise ValueError(f"Unknown builder: {builder_name}")
 
 
 # This function processes the hints and returns a tuple of booleans
 # indicating which builder to use for the given entity.
 def process_hints(hints):
     hints = set(hints)
-    is_image = 'is_image' in hints
-    is_rna = 'rna' in hints
-    is_atac = 'atac' in hints
-    is_sprm = 'sprm' in hints
-    is_codex = 'codex' in hints
-    is_anndata = 'anndata' in hints
-    is_json = 'json_based' in hints
-    is_spatial = 'spatial' in hints
-    is_support = 'is_support' in hints
-    is_seg_mask = 'segmentation_mask' in hints
-    is_geomx = 'geomx' in hints
-    is_xenium = 'xenium' in hints
-    is_epic = 'epic' in hints
+    is_image = "is_image" in hints
+    is_rna = "rna" in hints
+    is_atac = "atac" in hints
+    is_sprm = "sprm" in hints
+    is_codex = "codex" in hints
+    is_anndata = "anndata" in hints
+    is_json = "json_based" in hints
+    is_spatial = "spatial" in hints
+    is_support = "is_support" in hints
+    is_seg_mask = "segmentation_mask" in hints
+    is_geomx = "geomx" in hints
+    is_xenium = "xenium" in hints
+    is_epic = "epic" in hints
 
     return (
         is_image,
@@ -174,10 +174,10 @@ def _get_builder_name(entity, get_entity, parent=None, epic_uuid=None):
     :return: Builder class name
     :rtype: str
     """
-    if entity.get('uuid') is None:
-        raise ValueError('Provided entity does not have a uuid')
-    assay_name = entity.get('soft_assaytype')
-    hints = entity.get('vitessce-hints', [])
+    if entity.get("uuid") is None:
+        raise ValueError("Provided entity does not have a uuid")
+    assay_name = entity.get("soft_assaytype")
+    hints = entity.get("vitessce-hints", [])
     (
         is_image,
         is_rna,
@@ -196,78 +196,78 @@ def _get_builder_name(entity, get_entity, parent=None, epic_uuid=None):
 
     # 'epic" is the only hint for object x analyte EPICs
     if is_epic and len(hints) == 1:
-        return 'ObjectByAnalyteConfBuilder'
+        return "ObjectByAnalyteConfBuilder"
 
     # vis-lifted image pyramids
     if parent is not None:
         # TODO: For now epic (base image's) support datasets doesn't have any hints
         if is_seg_mask and epic_uuid:
-            return 'EpicSegImagePyramidViewConfBuilder'
+            return "EpicSegImagePyramidViewConfBuilder"
         elif is_seg_mask:
-            return 'KaggleSegImagePyramidViewConfBuilder'
+            return "KaggleSegImagePyramidViewConfBuilder"
 
         elif is_support and is_image:
-            ancestor_assaytype = get_entity(parent).get('soft_assaytype')
+            ancestor_assaytype = get_entity(parent).get("soft_assaytype")
             if ancestor_assaytype == SEQFISH:
                 # e.g. parent  = c6a254b2dc2ed46b002500ade163a7cc
                 # e.g. support = 9db61adfc017670a196ea9b3ca1852a0
-                return 'SeqFISHViewConfBuilder'
+                return "SeqFISHViewConfBuilder"
             elif ancestor_assaytype == MALDI_IMS:
                 # e.g. parent  = 3bc3ad124014a632d558255626bf38c9
                 # e.g. support = a6116772446f6d1c1f6b3d2e9735cfe0
-                return 'IMSViewConfBuilder'
+                return "IMSViewConfBuilder"
             elif ancestor_assaytype == NANODESI:
                 # e.g. parent  = 6b93107731199733f266bbd0f3bc9747
                 # e.g. support = e1c4370da5523ab5c9be581d1d76ca20
-                return 'NanoDESIViewConfBuilder'
+                return "NanoDESIViewConfBuilder"
             else:
                 # e.g. parent  = 8adc3c31ca84ec4b958ed20a7c4f4919
                 # e.g. support = f9ae931b8b49252f150d7f8bf1d2d13f
-                return 'ImagePyramidViewConfBuilder'
+                return "ImagePyramidViewConfBuilder"
         else:
-            return 'NullViewConfBuilder'
+            return "NullViewConfBuilder"
 
     if is_image:
         if is_rna:
             # e.g. Visium (no probes) [Salmon + Scanpy]
             # sample entity (on dev): 72ec02cf1390428c1e9dc2c88928f5f5
-            return 'SpatialMultiomicAnnDataZarrViewConfBuilder'
+            return "SpatialMultiomicAnnDataZarrViewConfBuilder"
         if is_sprm and is_anndata:
             # e.g. CellDIVE [DeepCell + SPRM]
             # sample entity: c3be5650e93907b68ddbdb22b948db32
-            return 'MultiImageSPRMAnndataViewConfBuilder'
+            return "MultiImageSPRMAnndataViewConfBuilder"
         if is_codex:
             if is_json:
                 # legacy JSON-based dataset, e.g. b69d1e2ad1bf1455eee991fce301b191
-                return 'TiledSPRMViewConfBuilder'
+                return "TiledSPRMViewConfBuilder"
             # e.g. CODEX [Cytokit + SPRM]
             # sample entity: 43213991a54ce196d406707ffe2e86bd
-            return 'StitchedCytokitSPRMViewConfBuilder'
+            return "StitchedCytokitSPRMViewConfBuilder"
         if is_geomx:
-            return 'GeoMxImagePyramidViewConfBuilder'
+            return "GeoMxImagePyramidViewConfBuilder"
         if is_xenium:
-            return 'XeniumMultiomicAnnDataZarrViewConfBuilder'
+            return "XeniumMultiomicAnnDataZarrViewConfBuilder"
     if is_rna:
         # multiomic mudata, e.g. 10x Multiome, SNARE-Seq, etc.
         # e.g. 272789a950b2b5d4b9387a1cf66ad487 on dev
         if is_atac:
-            return 'MultiomicAnndataZarrViewConfBuilder'
+            return "MultiomicAnndataZarrViewConfBuilder"
         if is_json:
             # e.g. c019a1cd35aab4d2b4a6ff221e92aaab
-            return 'RNASeqViewConfBuilder'
+            return "RNASeqViewConfBuilder"
         # if not JSON, assume that the entity is AnnData-backed
         # TODO - once "anndata" hint is added to the hints for this assay, use that instead
         if assay_name == SALMON_RNASSEQ_SLIDE:
             # e.g. 2a590db3d7ab1e1512816b165d95cdcf
-            return 'SpatialRNASeqAnnDataZarrViewConfBuilder'
+            return "SpatialRNASeqAnnDataZarrViewConfBuilder"
         # e.g. e65175561b4b17da5352e3837aa0e497
-        return 'RNASeqAnnDataZarrViewConfBuilder'
+        return "RNASeqAnnDataZarrViewConfBuilder"
     if is_atac:
         # e.g. d4493657cde29702c5ed73932da5317c
-        return 'ATACSeqViewConfBuilder'
+        return "ATACSeqViewConfBuilder"
 
     # any entity with no hints, e.g. 2c2179ea741d3bbb47772172a316a2bf
-    return 'NullViewConfBuilder'
+    return "NullViewConfBuilder"
 
 
 def has_visualization(entity, get_entity, parent=None, epic_uuid=None):
@@ -283,4 +283,4 @@ def has_visualization(entity, get_entity, parent=None, epic_uuid=None):
     :rtype: bool
     """
     builder_name = _get_builder_name(entity, get_entity, parent, epic_uuid)
-    return builder_name != 'NullViewConfBuilder'
+    return builder_name != "NullViewConfBuilder"

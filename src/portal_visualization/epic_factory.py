@@ -10,7 +10,7 @@ def get_epic_builder(epic_uuid):
     :rtype: type
     """
     if epic_uuid is None:
-        raise ValueError('epic_uuid must be provided')
+        raise ValueError("epic_uuid must be provided")
 
     # Lazy import to avoid requiring full dependencies at module load time
     from portal_visualization.builders.epic_builders import SegmentationMaskBuilder

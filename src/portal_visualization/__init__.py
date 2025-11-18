@@ -30,6 +30,6 @@ the full install capabilities.
 # Expose lightweight functions that work with thin install
 from .builder_factory import has_visualization, process_hints
 
-__all__ = ['has_visualization', 'process_hints']
+__all__ = ["has_visualization", "process_hints"]
 
 # pytest doctests fail without this.
