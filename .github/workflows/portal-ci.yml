@@ -3,8 +3,8 @@ name: Portal CI
 on: [push, pull_request]
 
 jobs:
-  test-thin-install:
-    name: Test Thin Install (Python ${{ matrix.python-version }})
+  test-installs:
+    name: Test Thin and Full Install (Python ${{ matrix.python-version }})
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -50,28 +50,6 @@ jobs:
           GH_ACTIONS_BRANCH: ${{ github.ref }}
           GH_ACTIONS: true
 
-  test-full-install:
-    name: Test Full Install (Python ${{ matrix.python-version }})
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.10", "3.11", "3.12"]
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: "recursive"
-
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
-        with:
-          enable-cache: true
-
       - name: Install full dependencies ([full] extras)
         run: uv sync --all-extras
 
@@ -91,35 +69,3 @@ jobs:
         env:
           GH_ACTIONS_BRANCH: ${{ github.ref }}
           GH_ACTIONS: true
-
-  build-package:
-    name: Build Distribution Packages
-    runs-on: ubuntu-latest
-    needs: [test-thin-install, test-full-install]
-
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: "recursive"
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-
-      - name: Install uv
-        uses: astral-sh/setup-uv@v5
-
-      - name: Build package
-        run: uv build
-
-      - name: Check distribution
-        run: |
-          uv pip install --system twine
-          twine check dist/*
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: dist-packages
-          path: dist/

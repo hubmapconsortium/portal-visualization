@@ -7,9 +7,6 @@ from sys import stderr
 from urllib.parse import quote_plus
 from webbrowser import open_new_tab
 
-# from portal_visualization.client import ApiClient
-import requests
-
 from portal_visualization.builder_factory import get_view_config_builder
 from portal_visualization.epic_factory import get_epic_builder
 
@@ -54,6 +51,7 @@ def main():  # pragma: no cover
     headers = get_headers(args.token)
     entity = get_entity_from_args(args.url, args.json, headers)
     # For testing client
+    # from portal_visualization.client import ApiClient
     # client = ApiClient(
     #     groups_token= args.token,
     #     elasticsearch_endpoint=defaults[ENV]['elastic_search_api'],
@@ -105,6 +103,8 @@ def get_headers(token):  # pragma: no cover
 
 
 def get_entity(uuid):  # pragma: no cover
+    import requests
+
     try:
         response = requests.get(f'{defaults[ENV]["dataset_url"]}{uuid}.json', headers=headers)
         if response.status_code != 200:
@@ -121,6 +121,8 @@ def get_entity(uuid):  # pragma: no cover
 
 def get_entity_from_args(url_arg, json_arg, headers):  # pragma: no cover
     if url_arg:
+        import requests
+
         response = requests.get(url_arg, headers=headers)
         if response.status_code == 403:
             raise Exception('Protected data: Download JSON via browser; Redo with --json')
