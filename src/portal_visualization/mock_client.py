@@ -6,7 +6,7 @@ from .builders.base_builders import ConfCells
 from .client import ApiClient
 
 
-class MockApiClient(ApiClient):  # pragma no cover
+class MockApiClient(ApiClient):  # pragma: no cover
     def get_entity(self, uuid=None, hbm_id=None):
         return {
             'created': '2020-01-01 00:00:00',
@@ -22,7 +22,7 @@ class MockApiClient(ApiClient):  # pragma no cover
         return ConfCells(_get_mock_vitessce_conf(), None)
 
 
-def _get_mock_vitessce_conf():  # pragma no cover
+def _get_mock_vitessce_conf():  # pragma: no cover
     cellsData = json.dumps({'cell-id-1': {'mappings': {'t-SNE': [1, 1]}}})
     cellsUri = DataURI.make('text/plain', charset='us-ascii', base64=True, data=cellsData)
     token = 'fake-token'

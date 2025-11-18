@@ -13,6 +13,7 @@ import requests
 from portal_visualization.builder_factory import get_view_config_builder
 from portal_visualization.epic_factory import get_epic_builder
 
+# Load defaults from package data
 defaults = json.load((Path(__file__).parent / 'defaults.json').open())
 # Change to prod if needed to access those resources
 ENV = 'dev'

@@ -45,24 +45,24 @@ pip install -e ".[dev]"
 
 ## CLI
 
-Installing this package locally makes `vis-preview.py` available:
+Installing this package makes the `vis-preview` command available:
 
 ```bash
 # Using uv
 uv sync
-uv run src/vis-preview.py --help
+uv run vis-preview --help
 
 # Or with pip
 pip install .
-src/vis-preview.py --help
+vis-preview --help
 ```
 
 Usage:
 
 ```
-usage: vis-preview.py [-h] (--url URL | --json JSON) [--assets_url URL]
-                      [--token TOKEN] [--marker MARKER] [--to_json]
-                      [--epic_uuid UUID] [--parent_uuid UUID]
+usage: vis-preview [-h] (--url URL | --json JSON) [--assets_url URL]
+                   [--token TOKEN] [--marker MARKER] [--to_json]
+                   [--epic_uuid UUID] [--parent_uuid UUID]
 
 Given HuBMAP Dataset JSON, generate a Vitessce viewconf, and load vitessce.io.
 
@@ -84,7 +84,16 @@ options:
 Notes:
 
 1. The token can be retrieved by looking for Authorization Bearer {token represented by a long string} under `search-api` network calls under the network tab in developer's tool when browsing a dataset in portal while logged in. The token is necessary to access non-public datasets, such as those in QA.
-2. The documentation for the `vis-preview.py` script must match the contents of the readme. When a script argument is added or modified, the README must be updated to match the output of `./vis-preview.py --help`.
+2. The documentation for the `vis-preview` command must match its `--help` output. When a command argument is added or modified, the README must be updated to match the output of `vis-preview --help`.
+
+## Package Structure
+
+The package follows modern Python packaging standards:
+
+- **Entry point**: The CLI is installed as a console script entry point (`vis-preview`) that calls `portal_visualization.cli:main()`
+- **Package data**: `defaults.json` is included as package data via `[tool.setuptools.package-data]`
+- **Source layout**: All code is in `src/portal_visualization/` following the src-layout pattern
+- **Distribution**: `MANIFEST.in` controls what files are included in source distributions
 
 ## Build & Testing
 

@@ -56,8 +56,6 @@ assert len(bad_entity_paths) > 0
 assaytypes_path = Path(__file__).parent / 'assaytype-fixtures'
 assert assaytypes_path.is_dir()
 
-defaults = json.load((Path(__file__).parent.parent / 'src/defaults.json').open())
-
 default_assaytype = {
     'soft_assaytype': 'Null',
     'vitessce-hints': [],

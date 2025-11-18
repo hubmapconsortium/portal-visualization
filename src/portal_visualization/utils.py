@@ -122,7 +122,7 @@ def get_image_metadata(self, img_url):
     meta_data = None
     request_init = self._get_request_init() or {}
     response = get(img_url, **request_init)
-    if response.status_code == 200:  # pragma no cover
+    if response.status_code == 200:  # pragma: no cover
         data = response.json()
         if isinstance(data, dict) and 'PhysicalSizeX' in data and 'PhysicalSizeUnitX' in data:
             meta_data = data

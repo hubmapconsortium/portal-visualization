@@ -11,7 +11,9 @@ echo 'TODO: Edit changelog with each PR?'
 end changelog
 
 start docs
-diff README.md <(src/vis-preview.py --help) | grep '^>' && die "Update vis-preview.py docs in README.md"
+# Compare README with vis-preview --help output after installing the package
+pip install -q -e . > /dev/null 2>&1 || true
+diff README.md <(vis-preview --help 2>&1 | grep -v "UserWarning" | grep -v "warn(" | grep -v "vitessce/__init__.py" || python -m portal_visualization.cli --help 2>&1 | grep -v "UserWarning" | grep -v "warn(" | grep -v "vitessce/__init__.py") | grep '^>' && die "Update vis-preview docs in README.md"
 end docs
 
 start ruff-check

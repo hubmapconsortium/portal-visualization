@@ -1,0 +1,20 @@
+# Include package metadata
+include VERSION.txt
+include LICENSE
+include README.md
+
+# Package data is handled by [tool.setuptools.package-data] in pyproject.toml
+# This MANIFEST.in controls source distribution contents
+
+# Exclude build artifacts
+global-exclude __pycache__
+global-exclude *.py[cod]
+global-exclude .DS_Store
+global-exclude *.so
+global-exclude .git*
+
+# Exclude test artifacts
+prune test
+prune build
+prune dist
+prune *.egg-info

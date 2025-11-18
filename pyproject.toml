@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=42"]
+requires = ["setuptools>=64", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -10,10 +10,31 @@ readme = "README.md"
 license = { text = "MIT" }
 authors = [{ name = "Chuck McCallum", email = "mccallucc@gmail.com" }]
 requires-python = ">=3.10"
+keywords = [
+  "hubmap",
+  "vitessce",
+  "visualization",
+  "bioinformatics",
+  "imaging",
+  "sequencing",
+  "single-cell",
+  "spatial-transcriptomics",
+]
 classifiers = [
-  "Programming Language :: Python :: 3",
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Science/Research",
+  "Intended Audience :: Developers",
   "License :: OSI Approved :: MIT License",
   "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3 :: Only",
+  "Topic :: Scientific/Engineering :: Bio-Informatics",
+  "Topic :: Scientific/Engineering :: Visualization",
+  "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 dependencies = [
   "vitessce==3.7.4",
@@ -35,15 +56,24 @@ dev = [
   "ruff>=0.8.0",
 ]
 
+[project.scripts]
+vis-preview = "portal_visualization.cli:main"
+
 [project.urls]
 Homepage = "https://github.com/hubmapconsortium/portal-visualization"
+"Bug Tracker" = "https://github.com/hubmapconsortium/portal-visualization/issues"
+"Source Code" = "https://github.com/hubmapconsortium/portal-visualization"
+Documentation = "https://github.com/hubmapconsortium/portal-visualization#readme"
+Changelog = "https://github.com/hubmapconsortium/portal-visualization/releases"
 
 [tool.setuptools]
 package-dir = { "" = "src" }
-script-files = ["src/vis-preview.py"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+portal_visualization = ["defaults.json"]
 
 [tool.setuptools.dynamic]
 version = { file = "VERSION.txt" }
