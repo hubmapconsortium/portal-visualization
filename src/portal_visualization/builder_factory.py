@@ -19,88 +19,58 @@ def _lazy_import_builder(builder_name):
     if builder_name == "NullViewConfBuilder":
         return NullViewConfBuilder
 
-    # AnnData builders
-    elif builder_name == "MultiomicAnndataZarrViewConfBuilder":
-        from .builders.anndata_builders import MultiomicAnndataZarrViewConfBuilder
+    # Import all builders at once when needed
+    from .builders.anndata_builders import (
+        MultiomicAnndataZarrViewConfBuilder,
+        RNASeqAnnDataZarrViewConfBuilder,
+        SpatialMultiomicAnnDataZarrViewConfBuilder,
+        SpatialRNASeqAnnDataZarrViewConfBuilder,
+        XeniumMultiomicAnnDataZarrViewConfBuilder,
+    )
+    from .builders.imaging_builders import (
+        EpicSegImagePyramidViewConfBuilder,
+        GeoMxImagePyramidViewConfBuilder,
+        ImagePyramidViewConfBuilder,
+        IMSViewConfBuilder,
+        KaggleSegImagePyramidViewConfBuilder,
+        NanoDESIViewConfBuilder,
+        SeqFISHViewConfBuilder,
+    )
+    from .builders.object_by_analyte_builders import ObjectByAnalyteConfBuilder
+    from .builders.scatterplot_builders import (
+        ATACSeqViewConfBuilder,
+        RNASeqViewConfBuilder,
+    )
+    from .builders.sprm_builders import (
+        MultiImageSPRMAnndataViewConfBuilder,
+        StitchedCytokitSPRMViewConfBuilder,
+        TiledSPRMViewConfBuilder,
+    )
 
-        return MultiomicAnndataZarrViewConfBuilder
-    elif builder_name == "RNASeqAnnDataZarrViewConfBuilder":
-        from .builders.anndata_builders import RNASeqAnnDataZarrViewConfBuilder
+    # Map builder names to classes
+    builders = {
+        "MultiomicAnndataZarrViewConfBuilder": MultiomicAnndataZarrViewConfBuilder,
+        "RNASeqAnnDataZarrViewConfBuilder": RNASeqAnnDataZarrViewConfBuilder,
+        "SpatialMultiomicAnnDataZarrViewConfBuilder": SpatialMultiomicAnnDataZarrViewConfBuilder,
+        "SpatialRNASeqAnnDataZarrViewConfBuilder": SpatialRNASeqAnnDataZarrViewConfBuilder,
+        "XeniumMultiomicAnnDataZarrViewConfBuilder": XeniumMultiomicAnnDataZarrViewConfBuilder,
+        "EpicSegImagePyramidViewConfBuilder": EpicSegImagePyramidViewConfBuilder,
+        "GeoMxImagePyramidViewConfBuilder": GeoMxImagePyramidViewConfBuilder,
+        "ImagePyramidViewConfBuilder": ImagePyramidViewConfBuilder,
+        "IMSViewConfBuilder": IMSViewConfBuilder,
+        "KaggleSegImagePyramidViewConfBuilder": KaggleSegImagePyramidViewConfBuilder,
+        "NanoDESIViewConfBuilder": NanoDESIViewConfBuilder,
+        "SeqFISHViewConfBuilder": SeqFISHViewConfBuilder,
+        "ObjectByAnalyteConfBuilder": ObjectByAnalyteConfBuilder,
+        "ATACSeqViewConfBuilder": ATACSeqViewConfBuilder,
+        "RNASeqViewConfBuilder": RNASeqViewConfBuilder,
+        "MultiImageSPRMAnndataViewConfBuilder": MultiImageSPRMAnndataViewConfBuilder,
+        "StitchedCytokitSPRMViewConfBuilder": StitchedCytokitSPRMViewConfBuilder,
+        "TiledSPRMViewConfBuilder": TiledSPRMViewConfBuilder,
+    }
 
-        return RNASeqAnnDataZarrViewConfBuilder
-    elif builder_name == "SpatialMultiomicAnnDataZarrViewConfBuilder":
-        from .builders.anndata_builders import SpatialMultiomicAnnDataZarrViewConfBuilder
-
-        return SpatialMultiomicAnnDataZarrViewConfBuilder
-    elif builder_name == "SpatialRNASeqAnnDataZarrViewConfBuilder":
-        from .builders.anndata_builders import SpatialRNASeqAnnDataZarrViewConfBuilder
-
-        return SpatialRNASeqAnnDataZarrViewConfBuilder
-    elif builder_name == "XeniumMultiomicAnnDataZarrViewConfBuilder":
-        from .builders.anndata_builders import XeniumMultiomicAnnDataZarrViewConfBuilder
-
-        return XeniumMultiomicAnnDataZarrViewConfBuilder
-
-    # Imaging builders
-    elif builder_name == "EpicSegImagePyramidViewConfBuilder":
-        from .builders.imaging_builders import EpicSegImagePyramidViewConfBuilder
-
-        return EpicSegImagePyramidViewConfBuilder
-    elif builder_name == "GeoMxImagePyramidViewConfBuilder":
-        from .builders.imaging_builders import GeoMxImagePyramidViewConfBuilder
-
-        return GeoMxImagePyramidViewConfBuilder
-    elif builder_name == "ImagePyramidViewConfBuilder":
-        from .builders.imaging_builders import ImagePyramidViewConfBuilder
-
-        return ImagePyramidViewConfBuilder
-    elif builder_name == "IMSViewConfBuilder":
-        from .builders.imaging_builders import IMSViewConfBuilder
-
-        return IMSViewConfBuilder
-    elif builder_name == "KaggleSegImagePyramidViewConfBuilder":
-        from .builders.imaging_builders import KaggleSegImagePyramidViewConfBuilder
-
-        return KaggleSegImagePyramidViewConfBuilder
-    elif builder_name == "NanoDESIViewConfBuilder":
-        from .builders.imaging_builders import NanoDESIViewConfBuilder
-
-        return NanoDESIViewConfBuilder
-    elif builder_name == "SeqFISHViewConfBuilder":
-        from .builders.imaging_builders import SeqFISHViewConfBuilder
-
-        return SeqFISHViewConfBuilder
-
-    # Object by analyte builders
-    elif builder_name == "ObjectByAnalyteConfBuilder":
-        from .builders.object_by_analyte_builders import ObjectByAnalyteConfBuilder
-
-        return ObjectByAnalyteConfBuilder
-
-    # Scatterplot builders
-    elif builder_name == "ATACSeqViewConfBuilder":
-        from .builders.scatterplot_builders import ATACSeqViewConfBuilder
-
-        return ATACSeqViewConfBuilder
-    elif builder_name == "RNASeqViewConfBuilder":
-        from .builders.scatterplot_builders import RNASeqViewConfBuilder
-
-        return RNASeqViewConfBuilder
-
-    # SPRM builders
-    elif builder_name == "MultiImageSPRMAnndataViewConfBuilder":
-        from .builders.sprm_builders import MultiImageSPRMAnndataViewConfBuilder
-
-        return MultiImageSPRMAnndataViewConfBuilder
-    elif builder_name == "StitchedCytokitSPRMViewConfBuilder":
-        from .builders.sprm_builders import StitchedCytokitSPRMViewConfBuilder
-
-        return StitchedCytokitSPRMViewConfBuilder
-    elif builder_name == "TiledSPRMViewConfBuilder":
-        from .builders.sprm_builders import TiledSPRMViewConfBuilder
-
-        return TiledSPRMViewConfBuilder
-
+    if builder_name in builders:
+        return builders[builder_name]
     else:  # pragma: no cover
         raise ValueError(f"Unknown builder: {builder_name}")
 
