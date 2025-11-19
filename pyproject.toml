@@ -10,7 +10,7 @@ readme = "README.md"
 license = { text = "MIT" }
 authors = [{ name = "Chuck McCallum", email = "mccallucc@gmail.com" }]
 maintainers = [
-  { name = "HIDIVE Lab at Harvard Medical School" },
+  { name = "HIDIVE Lab at Harvard Medical School", email = "hidive@hms.harvard.edu" },
   { name = "Nikolay Akhmetov", email = "nikolay_akhmetov@hms.harvard.edu" },
   { name = "Tabassum Kakar", email = "tabassum_kakar@hms.harvard.edu" },
   { name = "John Conroy", email = "john_conroy@hms.harvard.edu" },
