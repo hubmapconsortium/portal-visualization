@@ -3,10 +3,11 @@
 This package provides two install modes:
 
 1. **Thin Install** (default): `pip install portal-visualization`
-   - Provides only the has_visualization() function
+   - Provides only the has_visualization() and process_hints() functions
    - No heavy dependencies (vitessce, zarr, etc.)
    - Use for checking if a dataset has visualization support
    - Very lightweight install
+   - Does not support visualization generation
 
 2. **Full Install**: `pip install portal-visualization[full]`
    - Provides complete visualization generation capabilities
