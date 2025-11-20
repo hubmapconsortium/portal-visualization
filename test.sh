@@ -14,7 +14,11 @@ start docs
 # Skip this check if running with thin install (no full dependencies)
 if python -c "import sys; import vitessce" 2>/dev/null; then
     pip install -q -e . > /dev/null 2>&1 || true
-    diff README.md <(vis-preview --help 2>&1 | grep -v "UserWarning" | grep -v "warn(" | grep -v "vitessce/__init__.py" || python -m portal_visualization.cli --help 2>&1 | grep -v "UserWarning" | grep -v "warn(" | grep -v "vitessce/__init__.py") | grep '^>' && die "Update vis-preview docs in README.md"
+    HELP_OUTPUT=$(
+        vis-preview --help 2>&1 | grep -v "UserWarning" | grep -v "warn(" | grep -v "vitessce/__init__.py" \
+        || python -m portal_visualization.cli --help 2>&1 | grep -v "UserWarning" | grep -v "warn(" | grep -v "vitessce/__init__.py"
+    )
+    diff README.md <(echo "$HELP_OUTPUT") | grep '^>' && die "Update vis-preview docs in README.md"
 else
     echo "Skipping vis-preview docs check (requires [full] install)"
 fi
