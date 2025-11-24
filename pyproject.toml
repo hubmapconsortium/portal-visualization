@@ -69,6 +69,7 @@ dev = [
   "coverage>=7.6.4",
   "pyyaml>=6.0.2",
   "ruff>=0.8.0",
+  "build>=0.10.0",
 ]
 # Convenience: install everything for development
 all = ["portal-visualization[full,dev]"]
