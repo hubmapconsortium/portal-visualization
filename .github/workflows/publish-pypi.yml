@@ -1,0 +1,164 @@
+name: Publish to PyPI
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Publish to PyPI or TestPyPI"
+        required: true
+        type: choice
+        options:
+          - pypi
+          - testpypi
+        default: "testpypi"
+      confirm_version:
+        description: "Confirm version to publish (must match VERSION.txt)"
+        required: true
+        type: string
+
+jobs:
+  verify-and-publish:
+    name: Verify and Publish to ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ inputs.environment }}
+      url: ${{ steps.set-url.outputs.package_url }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Read VERSION.txt
+        id: read-version
+        run: |
+          VERSION=$(cat VERSION.txt | tr -d '[:space:]')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "📦 VERSION.txt contains: $VERSION"
+
+      - name: Verify version match
+        run: |
+          if [ "${{ steps.read-version.outputs.version }}" != "${{ inputs.confirm_version }}" ]; then
+            echo "❌ ERROR: Confirmed version (${{ inputs.confirm_version }}) does not match VERSION.txt (${{ steps.read-version.outputs.version }})"
+            echo "Please update VERSION.txt first or correct the input version"
+            exit 1
+          fi
+          echo "✅ Version confirmed: ${{ steps.read-version.outputs.version }}"
+
+      - name: Install build dependencies
+        run: uv sync --extra dev
+
+      - name: Run linting checks
+        run: |
+          uv run ruff check src/ test/
+          uv run ruff format --check src/ test/
+
+      - name: Run thin install tests
+        run: uv run pytest -m "not requires_full" -vv --doctest-modules
+        env:
+          GH_ACTIONS: true
+
+      - name: Install full dependencies
+        run: uv sync --all-extras
+
+      - name: Run full test suite
+        run: ./test.sh
+        env:
+          GH_ACTIONS: true
+
+      - name: Clean previous builds
+        run: rm -rf dist/ build/ src/*.egg-info
+
+      - name: Build package
+        run: uv run python -m build
+
+      - name: Check built distributions
+        run: |
+          uv run python -m pip install twine
+          uv run twine check dist/*
+          echo "📦 Built distributions:"
+          ls -lh dist/
+
+      - name: Set package URL
+        id: set-url
+        run: |
+          if [ "${{ inputs.environment }}" = "pypi" ]; then
+            echo "package_url=https://pypi.org/project/portal-visualization/${{ steps.read-version.outputs.version }}/" >> $GITHUB_OUTPUT
+          else
+            echo "package_url=https://test.pypi.org/project/portal-visualization/${{ steps.read-version.outputs.version }}/" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Publish to TestPyPI
+        if: inputs.environment == 'testpypi'
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+          repository-url: https://test.pypi.org/legacy/
+          print-hash: true
+
+      - name: Publish to PyPI
+        if: inputs.environment == 'pypi'
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          print-hash: true
+
+      - name: Installation test (PyPI)
+        if: inputs.environment == 'pypi'
+        run: |
+          sleep 30  # Wait for PyPI to update
+          uv venv test-env
+          source test-env/bin/activate
+          pip install portal-visualization==${{ steps.read-version.outputs.version }}
+          python -c "from portal_visualization import has_visualization; print('✅ Thin install verified')"
+          pip install portal-visualization[full]==${{ steps.read-version.outputs.version }}
+          python -c "import vitessce; print('✅ Full install verified')"
+          deactivate
+
+      - name: Installation test (TestPyPI)
+        if: inputs.environment == 'testpypi'
+        run: |
+          sleep 30  # Wait for TestPyPI to update
+          uv venv test-env
+          source test-env/bin/activate
+          pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ portal-visualization==${{ steps.read-version.outputs.version }}
+          python -c "from portal_visualization import has_visualization; print('✅ TestPyPI thin install verified')"
+          deactivate
+
+      - name: Create GitHub Release
+        if: inputs.environment == 'pypi' && success()
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.read-version.outputs.version }}
+          name: Release ${{ steps.read-version.outputs.version }}
+          body: |
+            ## 📦 Release ${{ steps.read-version.outputs.version }}
+
+            Published to PyPI: https://pypi.org/project/portal-visualization/${{ steps.read-version.outputs.version }}/
+
+            ### Installation
+
+            ```bash
+            # Thin install (check visualization support only)
+            pip install portal-visualization
+
+            # Full install (complete visualization generation)
+            pip install portal-visualization[full]
+
+            # Development install
+            pip install portal-visualization[dev]
+            ```
+
+            ### Changes
+            See commit history for details.
+          draft: false
+          prerelease: false
+          generate_release_notes: true

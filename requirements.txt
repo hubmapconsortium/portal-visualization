@@ -1,2 +1,12 @@
-.
-# Specified in setup.cfg
+# This file is maintained automatically by "uv lock".
+# Use `uv sync` to update the environment based on pyproject.toml
+# For production installs, use: uv pip install -r requirements.txt
+
+vitessce==3.7.4
+hubmap-commons>=2.0.15
+requests>=2.27.1
+nbformat>=5.1.3
+zarr>=2.17.2
+aiohttp>=3.8.1
+fsspec>=2022.1.0
+python-datauri>=2.2.0

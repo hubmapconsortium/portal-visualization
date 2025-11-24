@@ -1,23 +1,33 @@
 #!/usr/bin/env python3
 import argparse
-import yaml
 import json
-from pathlib import Path
-from os import environ
 from dataclasses import dataclass
+from os import environ
+from pathlib import Path
 
 import pytest
-import zarr
 
-from src.portal_visualization.utils import get_found_images, read_zip_zarr
-from src.portal_visualization.epic_factory import get_epic_builder
-from src.portal_visualization.builders.base_builders import ConfCells
-from src.portal_visualization.builders.imaging_builders import KaggleSegImagePyramidViewConfBuilder
 from src.portal_visualization.builder_factory import (
     get_view_config_builder,
     has_visualization,
 )
-from src.portal_visualization.paths import IMAGE_PYRAMID_DIR
+
+# Tests that instantiate builders and generate configs require [full] dependencies
+pytest_requires_full = pytest.mark.requires_full
+
+try:
+    import yaml
+    import zarr
+
+    from src.portal_visualization.builders.base_builders import ConfCells
+    from src.portal_visualization.builders.imaging_builders import KaggleSegImagePyramidViewConfBuilder
+    from src.portal_visualization.epic_factory import get_epic_builder
+    from src.portal_visualization.paths import IMAGE_PYRAMID_DIR
+    from src.portal_visualization.utils import get_found_images, read_zip_zarr
+
+    FULL_DEPS_AVAILABLE = True
+except ImportError:
+    FULL_DEPS_AVAILABLE = False
 
 groups_token = environ.get("GROUPS_TOKEN", "groups_token")
 assets_url = environ.get("ASSETS_URL", "https://example.com")
@@ -38,9 +48,7 @@ class MockResponse:
     content: str
 
 
-good_entity_paths = list(
-    (Path(__file__).parent / "good-fixtures").glob("*/*-entity.json")
-)
+good_entity_paths = list((Path(__file__).parent / "good-fixtures").glob("*/*-entity.json"))
 assert len(good_entity_paths) > 0
 
 image_pyramids = [
@@ -49,9 +57,7 @@ image_pyramids = [
     "NanoDESIViewConfBuilder",
 ]
 
-image_pyramid_paths = [
-    path for path in good_entity_paths if path.parent.name in image_pyramids
-]
+image_pyramid_paths = [path for path in good_entity_paths if path.parent.name in image_pyramids]
 assert len(image_pyramid_paths) > 0
 
 bad_entity_paths = list((Path(__file__).parent / "bad-fixtures").glob("*-entity.json"))
@@ -60,8 +66,6 @@ assert len(bad_entity_paths) > 0
 assaytypes_path = Path(__file__).parent / "assaytype-fixtures"
 assert assaytypes_path.is_dir()
 
-defaults = json.load((Path(__file__).parent.parent / "src/defaults.json").open())
-
 default_assaytype = {
     "soft_assaytype": "Null",
     "vitessce-hints": [],
@@ -69,10 +73,7 @@ default_assaytype = {
 
 
 def get_entity(input):
-    if not isinstance(input, str):
-        uuid = input.get("uuid")
-    else:
-        uuid = input
+    uuid = input.get("uuid") if not isinstance(input, str) else input
     if uuid is None:  # pragma: no cover
         return default_assaytype
     assay = json.loads(assaytypes_path.joinpath(f"{uuid}.json").read_text())
@@ -99,26 +100,21 @@ for path in good_entity_paths:
 @pytest.mark.parametrize(
     "has_vis_entity",
     has_visualization_test_cases,
-    ids=lambda e: (
-        f"has_visualization={e[0]}_uuid={e[1].get('uuid', 'no-uuid')}"
-        if isinstance(e, tuple) else str(e)
-    )
+    ids=lambda e: (f"has_visualization={e[0]}_uuid={e[1].get('uuid', 'no-uuid')}" if isinstance(e, tuple) else str(e)),
 )
 def test_has_visualization(has_vis_entity):
     has_vis, entity = has_vis_entity
     parent = entity.get("parent") or None  # Only used for image pyramids
     hints = entity.get("vitessce-hints", [])
     epic_uuid = (  # For segmentation masks
-        entity.get("uuid")
-        if "epic" in hints and len(hints) > 1
-        else None
+        entity.get("uuid") if "epic" in hints and len(hints) > 1 else None
     )
     assert has_vis == has_visualization(entity, get_entity, parent, epic_uuid)
 
 
 def mock_zarr_store(entity_path, mocker):
     # Need to mock zarr.open to yield correct values for different scenarios
-    z = zarr.open()
+    z = zarr.open_group()
     gene_array = zarr.array(["ENSG00000139618", "ENSG00000139619", "ENSG00000139620"])
     is_annotated = "is-annotated" in entity_path.name
     is_multiome = "multiome" in entity_path.name
@@ -130,12 +126,16 @@ def mock_zarr_store(entity_path, mocker):
         if is_annotated:
             group_names.append("predicted_label")
         if is_pan_azimuth:
-            group_names = ["leiden_wnn", "leiden_rna",
-                           "final_level_labels",
-                           "full_hierarchical_labels",
-                           "CL_Label",
-                           "azimuth_broad", "azimuth_medium", "azimuth_fine"
-                           ]
+            group_names = [
+                "leiden_wnn",
+                "leiden_rna",
+                "final_level_labels",
+                "full_hierarchical_labels",
+                "CL_Label",
+                "azimuth_broad",
+                "azimuth_medium",
+                "azimuth_fine",
+            ]
         groups = obs.create_groups(*group_names)
         for group in groups:
             group["categories"] = zarr.array(["0", "1", "2"])
@@ -143,14 +143,10 @@ def mock_zarr_store(entity_path, mocker):
     obs = z.create_group("obs")
     obs["marker_gene_0"] = gene_array
     if is_annotated:
-        path = (
-            f'{"mod/rna/" if is_multiome else ""}uns/annotation_metadata/is_annotated'
-        )
+        path = f"{'mod/rna/' if is_multiome else ''}uns/annotation_metadata/is_annotated"
         z[path] = True
         if "asct" in entity_path.name:
-            z["obs/predicted.ASCT.celltype"] = (
-                True  # only checked for membership in zarr group
-            )
+            z["obs/predicted.ASCT.celltype"] = True  # only checked for membership in zarr group
         elif "predicted-label" in entity_path.name:
             z["obs/predicted_label"] = True  # only checked for membership in zarr group
             z["obs/predicted_CLID"] = True
@@ -181,6 +177,7 @@ def mock_zarr_store(entity_path, mocker):
     mocker.patch("zarr.open", return_value=z)
 
 
+@pytest.mark.requires_full
 def test_read_zip_zarr_opens_store(mocker):
     # Mock the fsspec filesystem and zarr open
     mock_fs = mocker.Mock()
@@ -201,16 +198,13 @@ def test_read_zip_zarr_opens_store(mocker):
     mock_fs.get_mapper.assert_called_once_with("")
 
 
-@pytest.mark.parametrize(
-    "entity_path", good_entity_paths, ids=lambda path: f"{path.parent.name}/{path.name}"
-)
+@pytest.mark.parametrize("entity_path", good_entity_paths, ids=lambda path: f"{path.parent.name}/{path.name}")
+@pytest.mark.requires_full
 def test_entity_to_vitessce_conf(entity_path, mocker):
     mock_zarr_store(entity_path, mocker)
 
     possible_marker = entity_path.name.split("-")[-2]
-    marker = (
-        possible_marker.split("=")[1] if possible_marker.startswith("marker=") else None
-    )
+    marker = possible_marker.split("=")[1] if possible_marker.startswith("marker=") else None
     epic_uuid = None
     entity = json.loads(entity_path.read_text())
     parent = entity.get("parent") or None  # Only used for image pyramids
@@ -219,8 +213,7 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
         mock_zarr = mocker.Mock()
         mocker.patch("src.portal_visualization.utils.read_zip_zarr", return_value=mock_zarr)
 
-    is_object_by_analyte = "epic" in assay_type["vitessce-hints"] and len(
-        assay_type["vitessce-hints"]) == 1
+    is_object_by_analyte = "epic" in assay_type["vitessce-hints"] and len(assay_type["vitessce-hints"]) == 1
 
     # If "epic" is the only hint, it's object by analyte and doesn't need a parent UUID
     if "epic" in assay_type["vitessce-hints"] and not is_object_by_analyte:
@@ -246,14 +239,24 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
         assert epic_builder is not None
         assert epic_builder.__name__ == entity_path.parent.name
         if conf is None:  # pragma: no cover
-            with pytest.raises(ValueError):
+            with pytest.raises(ValueError):  # noqa: PT011
                 epic_builder(
-                    epic_uuid, ConfCells(conf, cells), entity, groups_token, assets_url, builder.base_image_metadata
+                    epic_uuid,
+                    ConfCells(conf, cells),
+                    entity,
+                    groups_token,
+                    assets_url,
+                    builder.base_image_metadata,  # type: ignore
                 ).get_conf_cells()
             return
 
         built_epic_conf, cells = epic_builder(
-            epic_uuid, ConfCells(conf, cells), entity, groups_token, assets_url, builder.base_image_metadata
+            epic_uuid,
+            ConfCells(conf, cells),
+            entity,
+            groups_token,
+            assets_url,
+            builder.base_image_metadata,  # type: ignore
         ).get_conf_cells()
         assert built_epic_conf is not None
 
@@ -261,50 +264,38 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
 
 
 @pytest.mark.parametrize("entity_path", bad_entity_paths, ids=lambda path: path.name)
+@pytest.mark.requires_full
 def test_entity_to_error(entity_path, mocker):
     mock_zarr_store(entity_path, mocker)
 
     entity = json.loads(entity_path.read_text())
-    with pytest.raises(Exception) as error_info:
+    with pytest.raises(Exception) as error_info:  # noqa: PT011, PT012
         parent = entity.get("parent") or None  # Only used for image pyramids
         Builder = get_view_config_builder(entity, get_entity, parent=parent)
         builder = Builder(entity, "groups_token", "https://example.com/")
         builder.get_conf_cells()
     actual_error = f"{error_info.type.__name__}: {error_info.value.args[0]}"
 
-    error_expected_path = entity_path.parent / entity_path.name.replace(
-        "-entity.json", "-error.txt"
-    )
+    error_expected_path = entity_path.parent / entity_path.name.replace("-entity.json", "-error.txt")
     expected_error = error_expected_path.read_text().strip()
     assert actual_error == expected_error
 
 
 def clean_cells(cells):
     return [
-        {
-            k: v
-            for k, v in dict(c).items()
-            if k not in {"metadata", "id", "execution_count", "outputs"}
-        }
-        for c in cells
+        {k: v for k, v in dict(c).items() if k not in {"metadata", "id", "execution_count", "outputs"}} for c in cells
     ]
 
 
 def compare_confs(entity_path, conf, cells):
-    expected_conf_path = entity_path.parent / entity_path.name.replace(
-        "-entity", "-conf"
-    )
+    expected_conf_path = entity_path.parent / entity_path.name.replace("-entity", "-conf")
     expected_conf = json.loads(expected_conf_path.read_text())
 
     # Compare normalized JSON strings so the diff is easier to read,
     # and there are fewer false positives.
-    assert json.dumps(conf, indent=2, sort_keys=True) == json.dumps(
-        expected_conf, indent=2, sort_keys=True
-    )
+    assert json.dumps(conf, indent=2, sort_keys=True) == json.dumps(expected_conf, indent=2, sort_keys=True)
 
-    expected_cells_path = entity_path.parent / entity_path.name.replace(
-        "-entity.json", "-cells.yaml"
-    )
+    expected_cells_path = entity_path.parent / entity_path.name.replace("-entity.json", "-cells.yaml")
     if expected_cells_path.is_file():
         expected_cells = yaml.safe_load(expected_cells_path.read_text())
 
@@ -323,40 +314,43 @@ def mock_seg_image_pyramid_builder():
 
     entity = json.loads(
         next(
-            (Path(__file__).parent / "good-fixtures")
-            .glob("KaggleSegImagePyramidViewConfBuilder/*-entity.json")
+            (Path(__file__).parent / "good-fixtures").glob("KaggleSegImagePyramidViewConfBuilder/*-entity.json")
         ).read_text()
     )
     return MockBuilder(entity, groups_token, assets_url)
 
 
+@pytest.mark.requires_full
 def test_filtered_images_not_found(mock_seg_image_pyramid_builder):
     mock_seg_image_pyramid_builder.seg_image_pyramid_regex = IMAGE_PYRAMID_DIR
     try:
         mock_seg_image_pyramid_builder._add_segmentation_image(None)
     except FileNotFoundError as e:
-        assert str(e) == f"Segmentation assay with uuid {mock_seg_image_pyramid_builder._uuid} has no matching files"
+        assert str(e) == f"Segmentation assay with uuid {mock_seg_image_pyramid_builder._uuid} has no matching files"  # noqa: PT017
 
 
+@pytest.mark.requires_full
 def test_filtered_images_no_regex(mock_seg_image_pyramid_builder):
     mock_seg_image_pyramid_builder.seg_image_pyramid_regex = None
     try:
         mock_seg_image_pyramid_builder._add_segmentation_image(None)
     except ValueError as e:
-        assert str(e) == "seg_image_pyramid_regex is not set. Cannot find segmentation images."
+        assert str(e) == "seg_image_pyramid_regex is not set. Cannot find segmentation images."  # noqa: PT017
 
 
+@pytest.mark.requires_full
 def test_find_segmentation_images_runtime_error():
-    with pytest.raises(RuntimeError) as e:
+    with pytest.raises(RuntimeError) as e:  # noqa: PT012
         try:
             raise FileNotFoundError("No files found in the directory")
         except Exception as err:
-            raise RuntimeError(f"Error while searching for segmentation images: {err}")
+            raise RuntimeError(f"Error while searching for segmentation images: {err}")  # noqa: B904
 
     assert "Error while searching for segmentation images:" in str(e.value)
     assert "No files found in the directory" in str(e.value)
 
 
+@pytest.mark.requires_full
 def test_get_found_images():
     file_paths = [
         "image_pyramid/sample.ome.tiff",
@@ -368,6 +362,7 @@ def test_get_found_images():
     assert result[0] == "image_pyramid/sample.ome.tiff"
 
 
+@pytest.mark.requires_full
 def test_get_found_images_error_handling():
     file_paths = [
         "image_pyramid/sample.ome.tiff",
@@ -375,11 +370,11 @@ def test_get_found_images_error_handling():
     ]
     regex = "["  # invalid regex, forces re.error
 
-    with pytest.raises(RuntimeError) as excinfo:
+    with pytest.raises(RuntimeError) as excinfo:  # noqa: PT012
         try:
             get_found_images(regex, file_paths)
         except Exception as e:
-            raise RuntimeError(f"Error while searching for pyramid images: {e}")
+            raise RuntimeError(f"Error while searching for pyramid images: {e}")  # noqa: B904
 
     assert "Error while searching for pyramid images" in str(excinfo.value)
 

@@ -2,28 +2,145 @@
 
 Given HuBMAP Dataset JSON (e.g. https://portal.hubmapconsortium.org/browse/dataset/004d4f157df4ba07356cd805131dfc04.json), creates a Vitessce configuration.
 
+## Installation
+
+This package provides two install modes to suit different use cases:
+
+### Thin Install (Default)
+
+For applications that only need to check if a dataset has visualization support without generating actual visualizations:
+
+```bash
+pip install portal-visualization
+```
+
+**Features:**
+
+- Provides `has_visualization()` function to check visualization availability
+- Minimal dependencies (pure Python, <1 MB install size)
+- Fast installation and import times
+- Ideal for services that need to filter/check datasets
+
+**Example usage:**
+
+```python
+from portal_visualization import has_visualization
+
+entity = {"uuid": "abc123", "vitessce-hints": ["is_image", "rna"]}
+if has_visualization(entity, get_entity_fn):
+    print("This dataset can be visualized")
+```
+
+### Full Install
+
+For applications that need complete visualization generation capabilities:
+
+```bash
+pip install portal-visualization[full]
+```
+
+**Features:**
+
+- Complete Vitessce configuration generation
+- All visualization builders and dependencies (~150 MB install size)
+- Required for portal-ui and search-api
+- Includes vitessce, zarr, aiohttp, and other visualization libraries
+
+**Example usage:**
+
+```python
+from portal_visualization.builder_factory import get_view_config_builder
+
+builder = get_view_config_builder(entity, get_entity_fn)
+conf_cells = builder.get_conf_cells(marker="CD45")
+```
+
+### Development Install
+
+For contributors developing the package:
+
+```bash
+pip install portal-visualization[all]
+# or
+pip install -e ".[all]"  # for editable install
+```
+
+This installs both `[full]` and `[dev]` extras (testing, linting tools).
+
 ## Release process
 
 This is a dependency of [portal-ui](https://github.com/hubmapconsortium/portal-ui/search?q=builder_factory) and [search-api](https://github.com/hubmapconsortium/search-api/search?q=builder_factory).
 
 Updates that are more than housekeeping should result in a new release:
+
 - bump `VERSION.txt`.
 - make a new git tag: `V=$(cat VERSION.txt); git tag $V; git push origin $V`.
 - make a release on github.
-- in portal-ui, update `requirements.in` and rebuild `requirements.txt`.
-- in search-api, just update `requirements.txt`.
+- **Test both install modes**: `pip install dist/portal_visualization-*.whl` (thin) and `pip install dist/portal_visualization-*.whl[full]` (full)
+- in portal-ui, update `pyproject.toml` to use `portal-visualization[full]`.
+- in search-api, update `requirements.txt` to use `portal-visualization`.
+
+**Note:** Downstream projects which require complete visualization capabilities (e.g. `portal-ui`) should install with `[full]` extras to maintain complete visualization capabilities. Projects which only require the `has_visualization` function (e.g. `search_api`)
+
+## Development Setup
+
+This project uses modern Python tooling:
+
+- **uv** for fast dependency management and packaging
+- **ruff** for linting and formatting
+- **pytest** for testing with 100% coverage requirement
+
+### Installation
+
+Install dependencies using uv:
+
+```bash
+# Install uv if not already installed
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# For thin install testing (has_visualization only)
+uv sync
+
+# For full install testing (complete functionality)
+uv sync --extra full
+
+# For development (includes all extras)
+uv sync --all-extras
+```
+
+Alternatively, use pip if desired:
+
+```bash
+# Thin install
+pip install -e .
+
+# Full install
+pip install -e ".[full]"
+
+# Development install
+pip install -e ".[all]"
+```
 
 ## CLI
 
-Installing this package locally makes `vis-preview.py` available:
+Installing this package makes the `vis-preview` command available:
+
+```bash
+# Using uv
+uv sync
+uv run vis-preview --help
+
+# Or with pip
+pip install .
+vis-preview --help
 ```
-$ cd portal-visualization
-$ pip install .
-...
-$ src/vis-preview.py --help
-usage: vis-preview.py [-h] (--url URL | --json JSON) [--assets_url URL]
-                      [--token TOKEN] [--marker MARKER] [--to_json]
-                      [--epic_uuid UUID] [--parent_uuid UUID]
+
+Usage:
+
+```
+usage: vis-preview [-h] (--url URL | --json JSON) [--assets_url URL]
+                   [--token TOKEN] [--marker MARKER] [--to_json]
+                   [--epic_uuid UUID] [--parent_uuid UUID]
 
 Given HuBMAP Dataset JSON, generate a Vitessce viewconf, and load vitessce.io.
 
@@ -40,22 +157,67 @@ options:
   --epic_uuid UUID    uuid of the EPIC dataset.
   --parent_uuid UUID  Parent uuid - Only needed for an image-pyramid support
                       dataset.
-  ```
+```
 
+Notes:
 
-  ```
-  Notes:  
-  1. The token can be retrieved by looking for Authorization Bearer {token represented by a long string} under `search-api` network calls under the network tab in developer's tool when browsing a dataset in portal while logged in. The token is necessary to access non-public datasets, such as those in QA.
-  2. The documentation for the `vis-preview.py` script must match the contents of the readme. When a script argument is added or modified, the README must be updated to match the output of `./vis-preview.py --help`.
-  
-  ```
+1. The token can be retrieved by looking for Authorization Bearer {token represented by a long string} under `search-api` network calls under the network tab in developer's tool when browsing a dataset in portal while logged in. The token is necessary to access non-public datasets, such as those in QA.
+2. The documentation for the `vis-preview` command must match its `--help` output. When a command argument is added or modified, the README must be updated to match the output of `vis-preview --help`.
 
+## Package Structure
+
+The package follows modern Python packaging standards:
+
+- **Entry point**: The CLI is installed as a console script entry point (`vis-preview`) that calls `portal_visualization.cli:main()`
+- **Package data**: `defaults.json` is included as package data via `[tool.setuptools.package-data]`
+- **Source layout**: All code is in `src/portal_visualization/` following the src-layout pattern
+- **Distribution**: `MANIFEST.in` controls what files are included in source distributions
 
 ## Build & Testing
-  ``` 
-   To build: `python -m build`   
-  `To run the tests `./test.sh`. Install the `flake8` and `autopep8` packages.
-  
+
+### Building
+
+```bash
+# Using uv (recommended)
+uv build
+
+# Or using standard Python build tools
+python -m build
+```
+
+### Running Tests
+
+The test suite supports both thin and full install modes:
+
+```bash
+# Run the full test suite (requires [full] extras)
+./test.sh
+
+# Run only thin install tests (no [full] extras needed)
+uv run pytest -m "not requires_full"
+
+# Run individual checks
+uv run ruff check src/ test/          # Linting
+uv run ruff format --check src/ test/ # Format checking
+uv run ruff format src/ test/         # Auto-format code
+uv run pytest -vv --doctest-modules   # Tests only
+uv run coverage run -m pytest         # With coverage
+```
+
+**Test organization:**
+
+- Tests marked with `@pytest.mark.requires_full` need the `[full]` install
+- The `has_visualization` function and core logic can be tested without heavy dependencies
+- CI should test both modes to ensure compatibility
+
+All code must:
+
+- Pass ruff linting and formatting checks
+- Maintain 100% test coverage
+- Pass all pytest tests including doctests
+
+  ```
+
   ```
 
 ## Background
@@ -92,15 +254,17 @@ If it is valid in these three senses (viewable in Avivator locally, passes `inge
 
 <details><summary>Is there "spot" data, such as resolved probe locations from a FISH assay that needs to be visualized as a Vitessce molecules data type?</summary>
 
-If the answer is "yes," we should run the image pyramid pipeline + offsets on the appropriate imaging data.  We currently do not have a pipeline for visualizing spot data.
+If the answer is "yes," we should run the image pyramid pipeline + offsets on the appropriate imaging data. We currently do not have a pipeline for visualizing spot data.
 Create a new class that inherits from ViewConfBuilder to visualize the data (raw imaging + spot data) when such a pipeline is created.
 If there is segmentation data coming from the TMC or elsewhere, then that will need to be both processed (via [sprm-to-anndata.cwl from portal-containers](https://github.com/hubmapconsortium/portal-containers/tree/master/containers/sprm-to-anndata) or a different pipeline that ideally outputs zarr-backed AnnData) and visualized as well.
+
 </details>
 
 <details><summary>Will Cytokit + SPRM be run?</summary>
 
 If the answer is "yes," we should run [sprm-to-anndata.cwl from portal-containers](https://github.com/hubmapconsortium/portal-containers/tree/master/containers/sprm-to-anndata) on the output of SPRM and the image pyramid pipeline + offsets on the output of Cytokit.
 Extend [`StitchedCytokitSPRMViewConfBuilder`](https://github.com/hubmapconsortium/portal-visualization/blob/d9e924547d970f8469cf74881ce05cc22500b7fc/src/builders/sprm_builders.py#L287) to handle this assay.
+
 </details>
 
 <details><summary>Will only SPRM be run (on non-Cytokit Segmentations)?</summary>
@@ -108,6 +272,7 @@ Extend [`StitchedCytokitSPRMViewConfBuilder`](https://github.com/hubmapconsortiu
 If the answer is "yes," we should run [sprm-to-anndata.cwl from portal-containers](https://github.com/hubmapconsortium/portal-containers/tree/master/containers/sprm-to-anndata) from portal-containers on the output of SPRM and the image pyramid pipeline + offsets on the raw input data.
 Create a new class that extends `MultiImageSPRMAnndataViewConfBuilder`, similar to [`StitchedCytokitSPRMViewConfBuilder`](https://github.com/hubmapconsortium/portal-visualization/blob/d9e924547d970f8469cf74881ce05cc22500b7fc/src/builders/sprm_builders.py#L287) if needed for multiple images in the same dataset.
 Otherwise you may use [`SPRMAnnDataViewConfBuilder`](https://github.com/hubmapconsortium/portal-visualization/blob/d9e924547d970f8469cf74881ce05cc22500b7fc/src/builders/sprm_builders.py#L138) with the proper arguments.
+
 </details>
 
 <details><summary>For everything else...</summary>
@@ -115,6 +280,7 @@ Otherwise you may use [`SPRMAnnDataViewConfBuilder`](https://github.com/hubmapco
 Run the image pyramid pipeline + offsets on the raw input data.
 Attach the assay to a new class in the portal backend similar to [`SeqFISHViewConfBuilder`](https://github.com/hubmapconsortium/portal-visualization/blob/d9e924547d970f8469cf74881ce05cc22500b7fc/src/builders/imaging_builders.py#L113) or [`ImagePyramidViewConfBuilder`](https://github.com/hubmapconsortium/portal-visualization/blob/d9e924547d970f8469cf74881ce05cc22500b7fc/src/builders/imaging_builders.py#L58).
 This will depend on how you want the layout to look to the end user.
+
 </details>
 
 ### Sequencing Data

@@ -1,9 +1,21 @@
 import json
-from flask import Flask
+
 import pytest
 
-from portal_visualization.builders.base_builders import ConfCells
-from src.portal_visualization.client import ApiClient, _create_vitessce_error
+try:
+    from flask import Flask
+
+    from portal_visualization.builders.base_builders import ConfCells
+    from src.portal_visualization.client import ApiClient, _create_vitessce_error
+
+    FULL_DEPS_AVAILABLE = True
+except ImportError:
+    FULL_DEPS_AVAILABLE = False
+    # Skip entire module during collection if full dependencies not available
+    pytest.skip("requires [full] optional dependencies", allow_module_level=True)
+
+# Mark all tests in this file as requiring [full] dependencies
+pytestmark = pytest.mark.requires_full
 
 mock_hit_source = {
     "uuid": "ABC123",
@@ -24,7 +36,7 @@ mock_es = {
 }
 
 
-@pytest.fixture()
+@pytest.fixture
 def app():
     app = Flask("test")
     app.config.update(
@@ -34,7 +46,7 @@ def app():
             "PORTAL_INDEX_PATH": "/",
         }
     )
-    yield app
+    return app
 
 
 def mock_post_303(path, **kwargs):
@@ -170,33 +182,30 @@ def test_get_dataset_uuids_more_than_10k(app, mocker):
     mocker.patch("requests.post", side_effect=mock_es_post_more_than_10k)
     with app.app_context():
         api_client = ApiClient()
-        with pytest.raises(Exception) as error_info:
+        with pytest.raises(Exception) as error_info:  # noqa: PT011, PT012
             api_client.get_all_dataset_uuids()
-            assert error_info.match("At least 10k datasets")   # pragma: no cover
+            assert error_info.match("At least 10k datasets")  # pragma: no cover
 
 
-@pytest.mark.parametrize("plural_lc_entity_type", ("datasets", "samples", "donors"))
+@pytest.mark.parametrize("plural_lc_entity_type", ["datasets", "samples", "donors"])
 def test_get_entities(app, mocker, plural_lc_entity_type):
     mocker.patch("requests.post", side_effect=mock_es_post)
     with app.app_context():
         api_client = ApiClient()
         entities = api_client.get_entities(plural_lc_entity_type)
-        assert json.dumps(entities, indent=2) == json.dumps(
-            [flattened_hit_source], indent=2
-        )
-    pass
+        assert json.dumps(entities, indent=2) == json.dumps([flattened_hit_source], indent=2)
 
 
 def test_get_entities_more_than_10k(app, mocker):
     mocker.patch("requests.post", side_effect=mock_es_post_more_than_10k)
     with app.app_context():
         api_client = ApiClient()
-        with pytest.raises(Exception) as error_info:
+        with pytest.raises(Exception) as error_info:  # noqa: PT011, PT012
             api_client.get_entities("datasets")
             assert error_info.match("At least 10k datasets")  # pragma: no cover
 
 
-@pytest.mark.parametrize("params", ({"uuid": "uuid"}, {"hbm_id": "hubmap_id"}))
+@pytest.mark.parametrize("params", [{"uuid": "uuid"}, {"hbm_id": "hubmap_id"}])
 def test_get_entity(app, mocker, params):
     mocker.patch("requests.post", side_effect=mock_es_post)
     with app.app_context():
@@ -208,13 +217,12 @@ def test_get_entity(app, mocker, params):
 def test_get_entity_two_ids(app, mocker):
     with app.app_context():
         api_client = ApiClient()
-        with pytest.raises(Exception) as error_info:
+        with pytest.raises(Exception) as error_info:  # noqa: PT011, PT012
             api_client.get_entity(uuid="uuid", hbm_id="hubmap_id")
             assert error_info.match("Only UUID or HBM ID should be provided")  # pragma: no cover
 
 
 def mock_get_revisions(path, **kwargs):
-
     mock_revisions = [
         {"uuid": "ABC123", "revision_number": 10},
         {"uuid": "DEF456", "revision_number": 11},
@@ -237,11 +245,11 @@ def mock_get_revisions(path, **kwargs):
 
 @pytest.mark.parametrize(
     "params",
-    (
+    [
         {"uuid": "uuid", "type": "dataset"},
         {"uuid": "uuid", "type": "sample"},
         {"uuid": "uuid", "type": "donor"},
-    ),
+    ],
 )
 def test_get_latest_entity_uuid(app, mocker, params):
     mocker.patch("requests.get", side_effect=mock_get_revisions)
@@ -252,7 +260,6 @@ def test_get_latest_entity_uuid(app, mocker, params):
 
 
 def mock_files_response(path, **kwargs):
-
     mock_file_response = {
         "hits": {
             "hits": [
@@ -286,13 +293,12 @@ def test_get_files(app, mocker):
 
 
 related_entity_no_files_error = _create_vitessce_error(
-    "Related image entity ABC123 is missing file information "
-    + '(no "files" key found in its metadata).'
+    'Related image entity ABC123 is missing file information (no "files" key found in its metadata).'
 )
 
 
 @pytest.mark.parametrize(
-    "entity, patched_function, side_effect, expected_conf, expected_vis_lifted_uuid",
+    ("entity", "patched_function", "side_effect", "expected_conf", "expected_vis_lifted_uuid"),
     [
         (
             # No metadata in descendant
@@ -348,8 +354,6 @@ def test_get_publication_ancillary_json(app, mocker, groups_token):
         assert result.publication_json == mock_es
         assert result.vis_lifted_uuid == "ABC123"
 
-    pass
-
 
 def test_get_metadata_descriptions(app, mocker):
     mocker.patch("requests.get", side_effect=mock_get_s3_json_file)
@@ -357,4 +361,3 @@ def test_get_metadata_descriptions(app, mocker):
         api_client = ApiClient()
         metadata_descriptions = api_client.get_metadata_descriptions()
         assert metadata_descriptions == mock_es
-    pass

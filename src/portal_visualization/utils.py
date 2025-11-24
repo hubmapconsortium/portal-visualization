@@ -1,12 +1,12 @@
-from pathlib import Path
 import re
 from itertools import groupby
-from requests import get
+from pathlib import Path
 from unicodedata import normalize
 
 import fsspec
-import zarr
 import nbformat
+import zarr
+from requests import get
 from vitessce import VitessceConfig
 
 from .builders.base_builders import ConfCells
@@ -14,18 +14,11 @@ from .constants import image_units
 
 
 def get_matches(files, regex):
-    return list(
-        set(
-            match[0] for match in set(re.search(regex, file) for file in files) if match
-        )
-    )
+    return list({match[0] for match in {re.search(regex, file) for file in files} if match})
 
 
-def create_coordination_values(obs_type='cell', **kwargs):
-    return {
-        'obsType': obs_type,
-        **kwargs
-    }
+def create_coordination_values(obs_type="cell", **kwargs):
+    return {"obsType": obs_type, **kwargs}
 
 
 def _get_path_name(file):
@@ -39,11 +32,7 @@ def group_by_file_name(files):
 
 def get_conf_cells(vc_anything):
     cells = _get_cells_from_anything(vc_anything)
-    conf = (
-        vc_anything.to_dict()
-        if hasattr(vc_anything, 'to_dict')
-        else vc_anything
-    )
+    conf = vc_anything.to_dict() if hasattr(vc_anything, "to_dict") else vc_anything
     return ConfCells(conf, cells)
 
 
@@ -52,13 +41,13 @@ def _get_cells_from_anything(vc):
         return _get_cells_from_dict(vc)
     if isinstance(vc, list):
         return _get_cells_from_list(vc)
-    if hasattr(vc, 'to_python'):
+    if hasattr(vc, "to_python"):
         return _get_cells_from_obj(vc)
-    raise Exception(f'Viewconf is unexpected type {type(vc)}')  # pragma: no cover
+    raise Exception(f"Viewconf is unexpected type {type(vc)}")  # pragma: no cover
 
 
 def _get_cells_from_list(vc_list):
-    cells = [nbformat.v4.new_markdown_cell('Multiple visualizations are available.')]
+    cells = [nbformat.v4.new_markdown_cell("Multiple visualizations are available.")]
     for vc in vc_list:
         cells.extend(_get_cells_from_anything(vc))
     return cells
@@ -72,39 +61,43 @@ def _get_cells_from_dict(vc_dict):
 def _get_cells_from_obj(vc_obj):
     imports, conf_expression = vc_obj.to_python()
     return [
-        nbformat.v4.new_code_cell(f'from vitessce import {", ".join(imports)}'),
-        nbformat.v4.new_code_cell(f'conf = {conf_expression}\nconf.widget()'),
+        nbformat.v4.new_code_cell(f"from vitessce import {', '.join(imports)}"),
+        nbformat.v4.new_code_cell(f"conf = {conf_expression}\nconf.widget()"),
     ]
 
 
 def get_found_images(image_pyramid_regex, file_paths_found):
     try:
         found_images = [
-            path for path in get_matches(
-                file_paths_found, image_pyramid_regex + r".*\.ome\.tiff?$",
+            path
+            for path in get_matches(
+                file_paths_found,
+                image_pyramid_regex + r".*\.ome\.tiff?$",
             )
-            if 'separate/' not in path
+            if "separate/" not in path
         ]
         return found_images
     except Exception as e:
-        raise RuntimeError(f"Error while searching for pyramid images: {e}")
+        raise RuntimeError(f"Error while searching for pyramid images: {e}")  # noqa: B904
 
 
 def obs_has_column(zroot, col_name: str, obs_path: str = "obs") -> bool:
-    """Return True if the raw column exists in obs_path """
+    """Return True if the raw column exists in obs_path"""
     try:
         grp = zroot[obs_path]
     except KeyError:  # pragma: no cover
         return False
-    return (col_name in grp)
+    return col_name in grp
 
 
 def get_found_images_all(file_paths_found):
     found_images = [
-        path for path in get_matches(
-            file_paths_found, r".*\.ome\.tiff?$",
+        path
+        for path in get_matches(
+            file_paths_found,
+            r".*\.ome\.tiff?$",
         )
-        if 'separate/' not in path
+        if "separate/" not in path
     ]
     return found_images
 
@@ -129,9 +122,9 @@ def get_image_metadata(self, img_url):
     meta_data = None
     request_init = self._get_request_init() or {}
     response = get(img_url, **request_init)
-    if response.status_code == 200:  # pragma no cover
+    if response.status_code == 200:  # pragma: no cover
         data = response.json()
-        if isinstance(data, dict) and "PhysicalSizeX" in data and 'PhysicalSizeUnitX' in data:
+        if isinstance(data, dict) and "PhysicalSizeX" in data and "PhysicalSizeUnitX" in data:
             meta_data = data
         else:
             print("Image does not have metadata")
@@ -185,10 +178,11 @@ def get_image_scale(base_metadata, seg_metadata):
     if base_metadata is not None:
         base_x, base_y, base_x_unit, base_y_unit = get_physical_size_units(base_metadata)
 
-    if all([base_x_unit, base_y_unit, seg_x_unit, seg_y_unit]) and \
-            all([unit in image_units for unit in [base_x_unit, base_y_unit, seg_x_unit, seg_y_unit]]):
-        scale_x = (float(base_x) / float(seg_x)) * (image_units[seg_x_unit] / image_units[base_x_unit])
-        scale_y = (float(base_y) / float(seg_y)) * (image_units[seg_y_unit] / image_units[base_y_unit])
+    if all([base_x_unit, base_y_unit, seg_x_unit, seg_y_unit]) and all(
+        unit in image_units for unit in [base_x_unit, base_y_unit, seg_x_unit, seg_y_unit]
+    ):
+        scale_x = (float(base_x) / float(seg_x)) * (image_units[seg_x_unit] / image_units[base_x_unit])  # type: ignore
+        scale_y = (float(base_y) / float(seg_y)) * (image_units[seg_y_unit] / image_units[base_y_unit])  # type: ignore
 
         scale = [round(scale_x, 5), round(scale_y, 5), 1, 1, 1]
     else:
@@ -223,49 +217,49 @@ def get_physical_size_units(metadata):
     """
 
     # size_x and size_y will be one if nothing is provided
-    size_x = metadata['PhysicalSizeX'] if metadata['PhysicalSizeX'] is not None else 1
-    size_y = metadata['PhysicalSizeY'] if metadata['PhysicalSizeY'] is not None else 1
-    size_x_unit = convert_unicode_unit(metadata, 'PhysicalSizeUnitX')
-    size_y_unit = convert_unicode_unit(metadata, 'PhysicalSizeUnitY')
+    size_x = metadata["PhysicalSizeX"] if metadata["PhysicalSizeX"] is not None else 1
+    size_y = metadata["PhysicalSizeY"] if metadata["PhysicalSizeY"] is not None else 1
+    size_x_unit = convert_unicode_unit(metadata, "PhysicalSizeUnitX")
+    size_y_unit = convert_unicode_unit(metadata, "PhysicalSizeUnitY")
 
     return size_x, size_y, size_x_unit, size_y_unit
 
 
 def convert_unicode_unit(metadata, key):
     """
-        Converts any unicode string (e.g., representing image units) in the metadata key to a normalized format.
+    Converts any unicode string (e.g., representing image units) in the metadata key to a normalized format.
 
-        Args:
-            metadata (dict): The metadata dictionary containing the key.
-            key (str): The key for the unit (e.g., 'PhysicalSizeUnitX').
+    Args:
+        metadata (dict): The metadata dictionary containing the key.
+        key (str): The key for the unit (e.g., 'PhysicalSizeUnitX').
 
-        Returns:
-            str or None: The normalized unit as a string, or None if not found.
+    Returns:
+        str or None: The normalized unit as a string, or None if not found.
 
-        Doctest:
+    Doctest:
 
-        >>> metadata = {'PhysicalSizeUnitX': 'mm'}
-        >>> convert_unicode_unit(metadata, 'PhysicalSizeUnitX')
-        'mm'
+    >>> metadata = {'PhysicalSizeUnitX': 'mm'}
+    >>> convert_unicode_unit(metadata, 'PhysicalSizeUnitX')
+    'mm'
 
-        >>> metadata = {'PhysicalSizeUnitY': '\u00b5m'}
-        >>> convert_unicode_unit(metadata, 'PhysicalSizeUnitY')
-        'μm'
+    >>> metadata = {'PhysicalSizeUnitY': '\u00b5m'}
+    >>> convert_unicode_unit(metadata, 'PhysicalSizeUnitY')
+    'μm'
 
-        >>> metadata = {'PhysicalSizeUnitY': None}
-        >>> convert_unicode_unit(metadata, 'PhysicalSizeUnitY')
+    >>> metadata = {'PhysicalSizeUnitY': None}
+    >>> convert_unicode_unit(metadata, 'PhysicalSizeUnitY')
     """
     # Check if the key exists and if the value is a string
     if key in metadata and isinstance(metadata[key], str):
         # Normalize the unicode string
-        return normalize('NFKC', metadata[key])
+        return normalize("NFKC", metadata[key])
 
     # Return None if the key is not present or the value isn't a string
     return None
 
 
 def files_from_response(response_json):
-    '''
+    """
     >>> response_json = {'hits': {'hits': [
     ...     {
     ...         '_id': '1234',
@@ -278,13 +272,9 @@ def files_from_response(response_json):
     ... ]}}
     >>> files_from_response(response_json)
     {'1234': ['abc.txt']}
-    '''
-    hits = response_json['hits']['hits']
-    return {
-        hit['_id']: [
-            file['rel_path'] for file in hit['_source'].get('files', [])
-        ] for hit in hits
-    }
+    """
+    hits = response_json["hits"]["hits"]
+    return {hit["_id"]: [file["rel_path"] for file in hit["_source"].get("files", [])] for hit in hits}
 
 
 def read_zip_zarr(zarr_url, request_init):

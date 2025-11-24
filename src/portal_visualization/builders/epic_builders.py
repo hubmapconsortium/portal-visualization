@@ -1,23 +1,37 @@
-from abc import abstractmethod
-from vitessce import VitessceConfig, ObsSegmentationsOmeTiffWrapper, AnnDataWrapper, \
-    get_initial_coordination_scope_prefix, CoordinationLevel as CL
-from .base_builders import ConfCells, ViewConfBuilder
-from ..utils import get_conf_cells, get_matches, get_image_metadata, get_image_scale
-from requests import get
-import re
 import random
-from ..paths import OFFSETS_DIR, IMAGE_PYRAMID_DIR, SEGMENTATION_SUBDIR, SEGMENTATION_ZARR_STORES, \
-    SEGMENTATION_SUPPORT_IMAGE_SUBDIR, IMAGE_METADATA_DIR
+import re
+from abc import abstractmethod
 
-zarr_path = f'{SEGMENTATION_SUBDIR}/{SEGMENTATION_ZARR_STORES}'
+from requests import get
+from vitessce import (
+    AnnDataWrapper,
+    ObsSegmentationsOmeTiffWrapper,
+    VitessceConfig,
+    get_initial_coordination_scope_prefix,
+)
+from vitessce import CoordinationLevel as CL
+
+from ..paths import (
+    IMAGE_METADATA_DIR,
+    IMAGE_PYRAMID_DIR,
+    OFFSETS_DIR,
+    SEGMENTATION_SUBDIR,
+    SEGMENTATION_SUPPORT_IMAGE_SUBDIR,
+    SEGMENTATION_ZARR_STORES,
+)
+from ..utils import get_conf_cells, get_image_metadata, get_image_scale, get_matches
+from .base_builders import ConfCells, ViewConfBuilder
+
+zarr_path = f"{SEGMENTATION_SUBDIR}/{SEGMENTATION_ZARR_STORES}"
 
 # EPIC builders take in a vitessce conf output by a previous builder and modify it
 # accordingly to add the EPIC-specific configuration.
 
 
 class EPICConfBuilder(ViewConfBuilder):
-    def __init__(self, epic_uuid, base_conf: ConfCells, entity,
-                 groups_token, assets_endpoint, base_image_metadata, **kwargs) -> None:
+    def __init__(
+        self, epic_uuid, base_conf: ConfCells, entity, groups_token, assets_endpoint, base_image_metadata, **kwargs
+    ) -> None:
         super().__init__(entity, groups_token, assets_endpoint, **kwargs)
 
         conf, cells = base_conf
@@ -28,9 +42,7 @@ class EPICConfBuilder(ViewConfBuilder):
         self._is_plural = isinstance(conf, list)
 
         if self._is_plural:  # pragma: no cover
-            self._base_conf = [
-                VitessceConfig.from_dict(conf) for conf in conf
-            ]
+            self._base_conf = [VitessceConfig.from_dict(conf) for conf in conf]
         else:
             self._base_conf: VitessceConfig = VitessceConfig.from_dict(base_conf.conf)
 
@@ -38,11 +50,9 @@ class EPICConfBuilder(ViewConfBuilder):
         self._is_zarr_zip = False
         self.base_image_metadata = base_image_metadata
 
-        pass
-
     def get_conf_cells(self):
         self.apply()
-        if (self._is_plural):  # pragma: no cover
+        if self._is_plural:  # pragma: no cover
             return get_conf_cells([conf.to_dict() for conf in self._base_conf])
         return get_conf_cells(self._base_conf)
 
@@ -62,7 +72,7 @@ class EPICConfBuilder(ViewConfBuilder):
         return adata_url
 
     def segmentations_ome_offset_url(self, img_path):
-        img_url = self._build_assets_url(f'{SEGMENTATION_SUBDIR}/{img_path}')
+        img_url = self._build_assets_url(f"{SEGMENTATION_SUBDIR}/{img_path}")
         return (
             img_url,
             str(
@@ -79,7 +89,6 @@ class EPICConfBuilder(ViewConfBuilder):
                     re.sub(IMAGE_PYRAMID_DIR, IMAGE_METADATA_DIR, img_url),
                 )
             ),
-
         )
 
 
@@ -88,23 +97,22 @@ class SegmentationMaskBuilder(EPICConfBuilder):
         zarr_url = self.zarr_store_url()
         datasets = conf.get_datasets()
         file_paths_found = [file["rel_path"] for file in self._entity["files"]]
-        if any('.zarr.zip' in path for path in file_paths_found):
+        if any(".zarr.zip" in path for path in file_paths_found):
             self._is_zarr_zip = True
-        found_images = [
-            path for path in get_matches(
-                file_paths_found, IMAGE_PYRAMID_DIR + r".*\.ome\.tiff?$",
+        found_images = list(
+            get_matches(
+                file_paths_found,
+                IMAGE_PYRAMID_DIR + r".*\.ome\.tiff?$",
             )
-        ]
+        )
         # Remove the base-image pyramids from the found_images
         filtered_images = [img_path for img_path in found_images if SEGMENTATION_SUPPORT_IMAGE_SUBDIR not in img_path]
         if len(filtered_images) == 0:  # pragma: no cover
             message = f"Image pyramid assay with uuid {self._uuid} has no matching files"
             raise FileNotFoundError(message)
 
-        elif len(filtered_images) >= 1:
-            img_url, offsets_url, metadata_url = self.segmentations_ome_offset_url(
-                filtered_images[0]
-            )
+        if len(filtered_images) >= 1:
+            img_url, offsets_url, metadata_url = self.segmentations_ome_offset_url(filtered_images[0])
         segmentation_metadata = get_image_metadata(self, metadata_url)
 
         segmentation_scale = get_image_scale(self.base_image_metadata, segmentation_metadata)
@@ -113,38 +121,48 @@ class SegmentationMaskBuilder(EPICConfBuilder):
             offsets_url=offsets_url,
             coordinate_transformations=[{"type": "scale", "scale": segmentation_scale}],
             obs_types_from_channel_names=True,
-            coordination_values={
-                "fileUid": "segmentation-mask"
-            }
+            coordination_values={"fileUid": "segmentation-mask"},
         )
 
         mask_names = self.read_metadata_from_url()
-        if (mask_names is not None):  # pragma: no cover
+        if mask_names is not None:  # pragma: no cover
             segmentation_objects, segmentations_CL = create_segmentation_objects(self, zarr_url, mask_names)
             for dataset in datasets:
                 dataset.add_object(segmentations)
                 for obj in segmentation_objects:
                     dataset.add_object(obj)
 
-            spatial_view = conf.get_first_view_by_type('spatialBeta')
-            lc_view = conf.get_first_view_by_type('layerControllerBeta')
-            conf.link_views_by_dict([spatial_view, lc_view], {
-                # Neutralizing the base-image colors
-                'imageLayer': CL([{'photometricInterpretation': 'RGB', }]),
-                "segmentationLayer": CL([
-                    {
-                        "fileUid": "segmentation-mask",
-                        "spatialLayerVisible": True,
-                        "spatialLayerOpacity": 1,
-                        "segmentationChannel": CL(segmentations_CL)
-                    }
-                ])
-
-            }, meta=True, scope_prefix=get_initial_coordination_scope_prefix("A", "obsSegmentations"))
+            spatial_view = conf.get_first_view_by_type("spatialBeta")
+            lc_view = conf.get_first_view_by_type("layerControllerBeta")
+            conf.link_views_by_dict(
+                [spatial_view, lc_view],
+                {
+                    # Neutralizing the base-image colors
+                    "imageLayer": CL(
+                        [
+                            {
+                                "photometricInterpretation": "RGB",
+                            }
+                        ]
+                    ),
+                    "segmentationLayer": CL(
+                        [
+                            {
+                                "fileUid": "segmentation-mask",
+                                "spatialLayerVisible": True,
+                                "spatialLayerOpacity": 1,
+                                "segmentationChannel": CL(segmentations_CL),
+                            }
+                        ]
+                    ),
+                },
+                meta=True,
+                scope_prefix=get_initial_coordination_scope_prefix("A", "obsSegmentations"),
+            )
 
     def read_metadata_from_url(self):  # pragma: no cover
         mask_names = []
-        url = f'{self.zarr_store_url()}/metadata.json'
+        url = f"{self.zarr_store_url()}/metadata.json"
         request_init = self._get_request_init() or {}
         response = get(url, **request_init)
         if response.status_code == 200:
@@ -164,25 +182,22 @@ def create_segmentation_objects(self, base_url, mask_names):  # pragma: no cover
     segmentations_CL = []
     for mask_name in mask_names:
         color_channel = generate_unique_color()
-        mask_url = f'{base_url}/{mask_name}.zarr'
+        mask_url = f"{base_url}/{mask_name}.zarr"
         if self._is_zarr_zip:
-            mask_url = f'{mask_url}.zip'
+            mask_url = f"{mask_url}.zip"
         segmentations_zarr = AnnDataWrapper(
             adata_url=mask_url,
             is_zip=self._is_zarr_zip,
             obs_locations_path="obsm/X_spatial",
             obs_labels_names=mask_name,
-            coordination_values={
-                "obsType": mask_name
-            }
+            coordination_values={"obsType": mask_name},
         )
         seg_CL = {
             "spatialTargetC": mask_name,
             "obsType": mask_name,
             "spatialChannelOpacity": 1,
             "spatialChannelColor": color_channel,
-            "obsHighlight": None
-
+            "obsHighlight": None,
         }
         segmentation_objects.append(segmentations_zarr)
         segmentations_CL.append(seg_CL)

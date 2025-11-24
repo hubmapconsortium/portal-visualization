@@ -1,11 +1,11 @@
 import urllib
-from collections import namedtuple
 from abc import ABC, abstractmethod
+from collections import namedtuple
 
-ConfCells = namedtuple('ConfCells', ['conf', 'cells'])
+ConfCells = namedtuple("ConfCells", ["conf", "cells"])
 
 
-class NullViewConfBuilder():
+class NullViewConfBuilder:
     def __init__(self, entity, groups_token, assets_endpoint, **kwargs):
         # Just so it has the same signature as the other builders
         pass
@@ -35,7 +35,7 @@ class ViewConfBuilder(ABC):
 
     @abstractmethod
     def get_conf_cells(self, **kwargs):  # pragma: no cover
-        raise NotImplementedError()
+        raise NotImplementedError
 
     def _replace_url_in_file(self, file):
         """Replace url in incoming file object

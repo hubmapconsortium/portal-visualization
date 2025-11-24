@@ -1,18 +1,18 @@
-from collections import namedtuple
+import json
 import traceback
+from collections import namedtuple
 from dataclasses import dataclass
+
+import requests
 
 # Flask is safe to import since hubmap_commons is a dependency
 from flask import abort, current_app
-import requests
-import json
 from werkzeug.exceptions import HTTPException
 
-
-from .utils import files_from_response
 from .builder_factory import get_view_config_builder
-from .epic_factory import get_epic_builder
 from .builders.base_builders import ConfCells
+from .epic_factory import get_epic_builder
+from .utils import files_from_response
 
 Entity = namedtuple("Entity", ["uuid", "type", "name"], defaults=["TODO: name"])
 
@@ -42,9 +42,7 @@ def _get_hits(response_json):
 def _handle_request(url, headers=None, body_json=None):
     try:
         response = (
-            requests.post(url, headers=headers, json=body_json)
-            if body_json
-            else requests.get(url, headers=headers)
+            requests.post(url, headers=headers, json=body_json) if body_json else requests.get(url, headers=headers)
         )
     except requests.exceptions.ConnectTimeout as error:  # pragma: no cover
         current_app.logger.error(error)
@@ -94,11 +92,7 @@ class ApiClient:
         self.soft_assay_url = f"{soft_assay_endpoint}/{soft_assay_endpoint_path}"
 
     def _get_headers(self):
-        headers = (
-            {"Authorization": "Bearer " + self.groups_token}
-            if self.groups_token
-            else {}
-        )
+        headers = {"Authorization": "Bearer " + self.groups_token} if self.groups_token else {}
         return headers
 
     def _clean_headers(self, headers):
@@ -168,11 +162,7 @@ class ApiClient:
         query = {
             "query":
             # ES guarantees that _id is unique, so this is best:
-            (
-                {"ids": {"values": [uuid]}}
-                if uuid
-                else {"match": {"hubmap_id.keyword": hbm_id}}
-            )
+            ({"ids": {"values": [uuid]}} if uuid else {"match": {"hubmap_id.keyword": hbm_id}})
             # With default mapping, without ".keyword", it splits into tokens,
             # and we get multiple substring matches, instead of unique match.
         }
@@ -180,9 +170,7 @@ class ApiClient:
         response_json = self._request(self.elasticsearch_url, body_json=query)
 
         hits = _get_hits(response_json)
-        return _get_entity_from_hits(
-            hits, has_token=self.groups_token, uuid=uuid, hbm_id=hbm_id
-        )
+        return _get_entity_from_hits(hits, has_token=self.groups_token, uuid=uuid, hbm_id=hbm_id)
 
     def get_latest_entity_uuid(self, uuid, type):
         lowercase_type = type.lower()
@@ -220,23 +208,18 @@ class ApiClient:
 
             metadata = derived_entity.get("metadata", {})
 
-            if metadata.get(
-                "files"
-            ):  # pragma: no cover  # We have separate tests for the builder logic
+            if metadata.get("files"):  # pragma: no cover  # We have separate tests for the builder logic
                 derived_entity["files"] = metadata.get("files", [])
                 vitessce_conf = self.get_vitessce_conf_cells_and_lifted_uuid(
-                    derived_entity, marker=marker, wrap_error=wrap_error, parent=entity,
-                    epic_uuid=epic_uuid
+                    derived_entity, marker=marker, wrap_error=wrap_error, parent=entity, epic_uuid=epic_uuid
                 ).vitessce_conf
                 vis_lifted_uuid = derived_entity["uuid"]
             else:  # no files
                 error = (
-                    f'Related image entity {derived_entity["uuid"]} '
-                    + 'is missing file information (no "files" key found in its metadata).'
+                    f"Related image entity {derived_entity['uuid']} "
+                    'is missing file information (no "files" key found in its metadata).'
                 )
-                current_app.logger.info(
-                    f'Missing metadata error encountered in dataset {entity["uuid"]}: {error}'
-                )
+                current_app.logger.info(f"Missing metadata error encountered in dataset {entity['uuid']}: {error}")
                 vitessce_conf = _create_vitessce_error(error)
         # If the current entity does not have files and was not determined to have a
         # visualization during search API indexing, stop here and return an empty conf.
@@ -246,43 +229,31 @@ class ApiClient:
         # Otherwise, just try to visualize the data for the entity itself:
         else:  # pragma: no cover  # We have separate tests for the builder logic
             try:
+
                 def get_entity(entity):
-                    if (isinstance(entity, str)):
+                    if isinstance(entity, str):
                         return self.get_entity(uuid=entity)
-                    return self.get_entity(uuid=entity.get('uuid'))
+                    return self.get_entity(uuid=entity.get("uuid"))
+
                 Builder = get_view_config_builder(entity, get_entity, parent, epic_uuid)
                 builder = Builder(entity, self.groups_token, self.assets_endpoint, minimal=minimal)
                 vitessce_conf = builder.get_conf_cells(marker=marker)
             except Exception as e:
                 if not wrap_error:
                     raise e
-                current_app.logger.error(
-                    f"Building vitessce conf threw error: {traceback.format_exc()}"
-                )
+                current_app.logger.error(f"Building vitessce conf threw error: {traceback.format_exc()}")
                 vitessce_conf = _create_vitessce_error(str(e))
 
-        if (
-            epic_uuid is not None and vitessce_conf.conf is not None
-        ):  # pragma: no cover  # TODO
+        if epic_uuid is not None and vitessce_conf.conf is not None:  # pragma: no cover  # TODO
             EPICBuilder = get_epic_builder(epic_uuid)
             vitessce_conf = EPICBuilder(
-                epic_uuid,
-                vitessce_conf,
-                entity,
-                self.groups_token,
-                self.assets_endpoint,
-                builder.base_image_metadata).get_conf_cells()
+                epic_uuid, vitessce_conf, entity, self.groups_token, self.assets_endpoint, builder.base_image_metadata
+            ).get_conf_cells()
 
-        return VitessceConfLiftedUUID(
-            vitessce_conf=vitessce_conf, vis_lifted_uuid=vis_lifted_uuid
-        )
+        return VitessceConfLiftedUUID(vitessce_conf=vitessce_conf, vis_lifted_uuid=vis_lifted_uuid)
 
     def _file_request(self, url):
-        headers = (
-            {"Authorization": "Bearer " + self.groups_token}
-            if self.groups_token
-            else {}
-        )
+        headers = {"Authorization": "Bearer " + self.groups_token} if self.groups_token else {}
 
         if self.groups_token:
             url += f"?token={self.groups_token}"
@@ -334,22 +305,15 @@ class ApiClient:
         """
         publication_json = {}
         publication_ancillary_uuid = None
-        publication_ancillary_descendant = self.get_descendant_to_lift(
-            entity["uuid"], is_publication=True
-        )
+        publication_ancillary_descendant = self.get_descendant_to_lift(entity["uuid"], is_publication=True)
         if publication_ancillary_descendant:
             publication_ancillary_uuid = publication_ancillary_descendant["uuid"]
-            publication_json_path = (
-                f"{self.assets_endpoint}/"
-                f"{publication_ancillary_uuid}/publication_ancillary.json"
-            )
+            publication_json_path = f"{self.assets_endpoint}/{publication_ancillary_uuid}/publication_ancillary.json"
             try:
                 publication_resp = self._file_request(publication_json_path)
                 publication_json = json.loads(publication_resp)
             except HTTPException:  # pragma: no cover
-                current_app.logger.error(
-                    f"Fetching publication ancillary json threw error: {traceback.format_exc()}"
-                )
+                current_app.logger.error(f"Fetching publication ancillary json threw error: {traceback.format_exc()}")
 
         return PublicationJSONLiftedUUID(
             publication_json=publication_json,
@@ -388,11 +352,7 @@ def _make_query(constraints, uuids):
               {'ids': {'values': ['abc', '123']}}]}
     """
     shoulds = [
-        [
-            {"term": {f"{root}.{k}.keyword": v}}
-            for v in v_list
-            for root in ["metadata.metadata", "mapped_metadata"]
-        ]
+        [{"term": {f"{root}.{k}.keyword": v}} for v in v_list for root in ["metadata.metadata", "mapped_metadata"]]
         for k, v_list in constraints.items()
     ]
     musts = [{"bool": {"should": should}} for should in shoulds]
@@ -458,10 +418,7 @@ def _flatten_sources(sources, non_metadata_fields):
             # This gets sample and donor metadata.
             **source.get("metadata", {}),
             # This gets donor metadata, and concatenates nested lists.
-            **{
-                k: ", ".join(str(s) for s in v)
-                for (k, v) in source.get("mapped_metadata", {}).items()
-            },
+            **{k: ", ".join(str(s) for s in v) for (k, v) in source.get("mapped_metadata", {}).items()},
         }
         for source in sources
     ]
@@ -556,12 +513,9 @@ def _get_latest_uuid(revisions):
     'z'
     """
     clean_revisions = [
-        {("uuid" if k.endswith("_uuid") else k): v for k, v in revision.items()}
-        for revision in revisions
+        {("uuid" if k.endswith("_uuid") else k): v for k, v in revision.items()} for revision in revisions
     ]
-    return max(clean_revisions, key=lambda revision: revision["revision_number"])[
-        "uuid"
-    ]
+    return max(clean_revisions, key=lambda revision: revision["revision_number"])["uuid"]
 
 
 def _create_vitessce_error(error):
@@ -574,9 +528,7 @@ def _create_vitessce_error(error):
             "layout": [
                 {
                     "component": "description",
-                    "props": {
-                        "description": f"Error while generating the Vitessce configuration: {error}"
-                    },
+                    "props": {"description": f"Error while generating the Vitessce configuration: {error}"},
                     "x": 0,
                     "y": 0,
                     "w": 12,
