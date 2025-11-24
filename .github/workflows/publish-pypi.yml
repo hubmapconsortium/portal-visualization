@@ -117,10 +117,10 @@ jobs:
           sleep 30  # Wait for PyPI to update
           uv venv test-env
           source test-env/bin/activate
-          pip install portal-visualization==${{ steps.read-version.outputs.version }}
-          python -c "from portal_visualization import has_visualization; print('✅ Thin install verified')"
-          pip install portal-visualization[full]==${{ steps.read-version.outputs.version }}
-          python -c "import vitessce; print('✅ Full install verified')"
+          uv pip install portal-visualization==${{ steps.read-version.outputs.version }}
+          uv run python -c "from portal_visualization import has_visualization; print('✅ Thin install verified')"
+          uv pip install portal-visualization[full]==${{ steps.read-version.outputs.version }}
+          uv run python -c "import vitessce; print('✅ Full install verified')"
           deactivate
 
       - name: Installation test (TestPyPI)
@@ -129,8 +129,8 @@ jobs:
           sleep 30  # Wait for TestPyPI to update
           uv venv test-env
           source test-env/bin/activate
-          pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ portal-visualization==${{ steps.read-version.outputs.version }}
-          python -c "from portal_visualization import has_visualization; print('✅ TestPyPI thin install verified')"
+          uv pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ portal-visualization==${{ steps.read-version.outputs.version }}
+          uv run python -c "from portal_visualization import has_visualization; print('✅ TestPyPI thin install verified')"
           deactivate
 
       - name: Create GitHub Release
