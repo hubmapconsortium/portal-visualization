@@ -179,6 +179,9 @@ def mock_zarr_store(entity_path, mocker):
         mock_response.raise_for_status.return_value = None
         mocker.patch("requests.get", return_value=mock_response)
     mocker.patch("zarr.open", return_value=z)
+    # For zip files, also patch read_zip_zarr to return the same zarr group
+    if "zip" in str(entity_path):
+        mocker.patch("src.portal_visualization.utils.read_zip_zarr", return_value=z)
 
 
 @pytest.mark.requires_full
@@ -213,9 +216,6 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
     entity = json.loads(entity_path.read_text())
     parent = entity.get("parent") or None  # Only used for image pyramids
     assay_type = get_entity(entity["uuid"])
-    if "zip" in str(entity_path):
-        mock_zarr = mocker.Mock()
-        mocker.patch("src.portal_visualization.utils.read_zip_zarr", return_value=mock_zarr)
 
     is_object_by_analyte = "epic" in assay_type["vitessce-hints"] and len(assay_type["vitessce-hints"]) == 1
 

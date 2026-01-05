@@ -88,14 +88,15 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         >>> from pathlib import Path
         >>> import json
         >>> import zarr
-        >>> fixture_path = Path(__file__).parent.parent.parent / "test" / "good-fixtures" / "RNASeqAnnDataZarrViewConfBuilder" / "e65175561b4b17da5352e3837aa0e497-entity.json"
+        >>> fixture_path = Path(__file__).parent.parent.parent.parent / "test" / "good-fixtures" / "RNASeqAnnDataZarrViewConfBuilder" / "fake-is-not-annotated-published-entity.json"
         >>> entity = json.loads(fixture_path.read_text())
         >>> builder = RNASeqAnnDataZarrViewConfBuilder(entity, 'token', 'https://example.com')
         >>> # Mock zarr store with obs index
         >>> z = zarr.open_group()
         >>> obs_group = z.create_group('obs')
         >>> obs_group['_index'] = zarr.array(['cell_0', 'cell_1', 'cell_2'])
-        >>> builder._zarr_store = z
+        >>> # Set the cached property value directly on the instance
+        >>> builder.__dict__['zarr_store'] = z
         >>> builder.n_obs
         3
         """
@@ -129,17 +130,16 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
 
         >>> from pathlib import Path
         >>> import json
-        >>> from unittest.mock import Mock
-        >>> fixture_path = Path(__file__).parent.parent.parent / "test" / "good-fixtures" / "RNASeqAnnDataZarrViewConfBuilder" / "e65175561b4b17da5352e3837aa0e497-entity.json"
+        >>> fixture_path = Path(__file__).parent.parent.parent.parent / "test" / "good-fixtures" / "RNASeqAnnDataZarrViewConfBuilder" / "fake-is-not-annotated-published-entity.json"
         >>> entity = json.loads(fixture_path.read_text())
         >>> builder = RNASeqAnnDataZarrViewConfBuilder(entity, 'token', 'https://example.com')
-        >>> # Test with small dataset
+        >>> # Test with small dataset - set cached n_obs value directly on instance
         >>> builder._minimal = False
-        >>> builder._n_obs = 50000
+        >>> builder.__dict__['n_obs'] = 50000
         >>> builder._should_include_optional_views('heatmap')
         True
         >>> # Test with large dataset
-        >>> builder._n_obs = 150000
+        >>> builder.__dict__['n_obs'] = 150000
         >>> builder._should_include_optional_views('heatmap')
         False
         >>> # Test non-heatmap view with large dataset
@@ -147,7 +147,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         True
         >>> # Test minimal mode
         >>> builder._minimal = True
-        >>> builder._n_obs = 50000
+        >>> builder.__dict__['n_obs'] = 50000
         >>> builder._should_include_optional_views('heatmap')
         False
         """
