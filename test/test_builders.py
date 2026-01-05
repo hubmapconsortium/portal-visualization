@@ -122,6 +122,8 @@ def mock_zarr_store(entity_path, mocker):
     if is_multiome:
         obs = z.create_group("mod/rna/obs")
         var = z.create_group("mod/rna/var")
+        # Add _index for observation count
+        obs["_index"] = gene_array  # Using gene_array as mock obs index (same size)
         group_names = ["leiden_wnn", "leiden_rna", "cluster_cbg", "cluster_cbb"]
         if is_annotated:
             group_names.append("predicted_label")
@@ -141,6 +143,8 @@ def mock_zarr_store(entity_path, mocker):
             group["categories"] = zarr.array(["0", "1", "2"])
 
     obs = z.create_group("obs")
+    # Add _index for observation count (standard anndata structure)
+    obs["_index"] = gene_array  # Using gene_array as mock obs index (same size)
     obs["marker_gene_0"] = gene_array
     if is_annotated:
         path = f"{'mod/rna/' if is_multiome else ''}uns/annotation_metadata/is_annotated"
@@ -377,6 +381,73 @@ def test_get_found_images_error_handling():
             raise RuntimeError(f"Error while searching for pyramid images: {e}")  # noqa: B904
 
     assert "Error while searching for pyramid images" in str(excinfo.value)
+
+
+@pytest.mark.requires_full
+def test_large_dataset_hides_heatmap(mocker):
+    """Test that datasets with >100k observations hide heatmap views."""
+    # Use an existing entity fixture as template
+    fixture_path = (
+        Path(__file__).parent
+        / "good-fixtures"
+        / "RNASeqAnnDataZarrViewConfBuilder"
+        / "fake-is-not-annotated-published-entity.json"
+    )
+    entity = json.loads(fixture_path.read_text())
+
+    # Mock zarr store with large obs count
+    z = zarr.open_group()
+    obs = z.create_group("obs")
+    # Create a large _index array to represent 150k observations
+    obs["_index"] = zarr.array([f"cell_{i}" for i in range(150000)])
+    obs["leiden"] = zarr.array(["cluster_0"] * 150000)
+    obs["marker_gene_0"] = zarr.array(["gene_0"] * 150000)
+
+    mocker.patch("zarr.open", return_value=z)
+
+    Builder = get_view_config_builder(entity, get_entity)
+    builder = Builder(entity, groups_token, assets_url)
+    conf, _ = builder.get_conf_cells()
+
+    # Verify that heatmap is not in the layout
+    layout_str = json.dumps(conf["layout"])
+    assert "heatmap" not in layout_str.lower(), "Heatmap should not be present for large datasets"
+
+    # Verify that other views are still present
+    assert "scatterplot" in layout_str.lower(), "Scatterplot should still be present"
+    assert "cellSets" in layout_str or "obsSets" in layout_str, "Cell sets should still be present"
+
+
+@pytest.mark.requires_full
+def test_small_dataset_includes_heatmap(mocker):
+    """Test that datasets with <100k observations include heatmap views."""
+    # Use an existing entity fixture as template
+    fixture_path = (
+        Path(__file__).parent
+        / "good-fixtures"
+        / "RNASeqAnnDataZarrViewConfBuilder"
+        / "fake-is-not-annotated-published-entity.json"
+    )
+    entity = json.loads(fixture_path.read_text())
+
+    # Mock zarr store with small obs count
+    z = zarr.open_group()
+    obs = z.create_group("obs")
+    gene_array = zarr.array(["ENSG00000139618", "ENSG00000139619", "ENSG00000139620"])
+    # Create a small _index array to represent < 100k observations
+    obs["_index"] = zarr.array([f"cell_{i}" for i in range(50000)])
+    obs["leiden"] = zarr.array(["cluster_0"] * 50000)
+    obs["marker_gene_0"] = gene_array
+
+    mocker.patch("zarr.open", return_value=z)
+
+    Builder = get_view_config_builder(entity, get_entity)
+    builder = Builder(entity, groups_token, assets_url)
+    conf, _ = builder.get_conf_cells()
+
+    # Verify that heatmap IS in the layout
+    layout_str = json.dumps(conf["layout"])
+    assert "heatmap" in layout_str.lower(), "Heatmap should be present for small datasets"
 
 
 if __name__ == "__main__":  # pragma: no cover

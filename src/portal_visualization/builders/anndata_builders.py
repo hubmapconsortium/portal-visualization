@@ -16,7 +16,7 @@ from vitessce import CoordinationLevel as CL
 from vitessce import CoordinationType as ct
 from vitessce import ViewType as vt
 
-from ..constants import MULTIOMIC_ZARR_PATH, XENIUM_ZARR_PATH, ZARR_PATH, ZIP_ZARR_PATH
+from ..constants import MAX_OBS_FOR_HEATMAP, MULTIOMIC_ZARR_PATH, XENIUM_ZARR_PATH, ZARR_PATH, ZIP_ZARR_PATH
 from ..utils import get_conf_cells, obs_has_column, read_zip_zarr
 from .base_builders import ViewConfBuilder
 
@@ -81,15 +81,79 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         else:
             return False
 
+    @cached_property
+    def n_obs(self):
+        """Get the number of observations in the dataset.
+
+        >>> from pathlib import Path
+        >>> import json
+        >>> import zarr
+        >>> fixture_path = Path(__file__).parent.parent.parent / "test" / "good-fixtures" / "RNASeqAnnDataZarrViewConfBuilder" / "e65175561b4b17da5352e3837aa0e497-entity.json"
+        >>> entity = json.loads(fixture_path.read_text())
+        >>> builder = RNASeqAnnDataZarrViewConfBuilder(entity, 'token', 'https://example.com')
+        >>> # Mock zarr store with obs index
+        >>> z = zarr.open_group()
+        >>> obs_group = z.create_group('obs')
+        >>> obs_group['_index'] = zarr.array(['cell_0', 'cell_1', 'cell_2'])
+        >>> builder._zarr_store = z
+        >>> builder.n_obs
+        3
+        """
+        z = self.zarr_store
+        if z is not None and "obs" in z:
+            obs = z["obs"]
+            # obs is a zarr Group containing obs annotations
+            # The _index array contains the observation identifiers
+            if hasattr(obs, "shape"):
+                # If obs happens to be an array (shouldn't be in standard anndata)
+                return obs.shape[0]
+            elif "_index" in obs:
+                # Standard anndata zarr structure
+                return obs["_index"].shape[0]
+            # Fallback: try to get from any obs column
+            for key in obs:
+                if hasattr(obs[key], "shape"):
+                    return obs[key].shape[0]
+        return 0
+
     def compute_scatterplot_w(self):
         return 6
 
     def compute_scatterplot_h(self):
         return 12 if self._minimal else 6
 
-    def _should_include_optional_views(self):
-        """Determine if optional views should be included based on minimal flag."""
-        return not self._minimal
+    def _should_include_optional_views(self, view_type=None):
+        """Determine if optional views should be included based on minimal flag and dataset size.
+
+        For heatmap views, also check if the dataset has too many observations for performance.
+
+        >>> from pathlib import Path
+        >>> import json
+        >>> from unittest.mock import Mock
+        >>> fixture_path = Path(__file__).parent.parent.parent / "test" / "good-fixtures" / "RNASeqAnnDataZarrViewConfBuilder" / "e65175561b4b17da5352e3837aa0e497-entity.json"
+        >>> entity = json.loads(fixture_path.read_text())
+        >>> builder = RNASeqAnnDataZarrViewConfBuilder(entity, 'token', 'https://example.com')
+        >>> # Test with small dataset
+        >>> builder._minimal = False
+        >>> builder._n_obs = 50000
+        >>> builder._should_include_optional_views('heatmap')
+        True
+        >>> # Test with large dataset
+        >>> builder._n_obs = 150000
+        >>> builder._should_include_optional_views('heatmap')
+        False
+        >>> # Test non-heatmap view with large dataset
+        >>> builder._should_include_optional_views('gene_list')
+        True
+        >>> # Test minimal mode
+        >>> builder._minimal = True
+        >>> builder._n_obs = 50000
+        >>> builder._should_include_optional_views('heatmap')
+        False
+        """
+        if self._minimal:
+            return False
+        return not (view_type == "heatmap" and self.n_obs > MAX_OBS_FOR_HEATMAP)
 
     def get_conf_cells(self, marker=None):
         file_paths_found = [file["rel_path"] for file in self._entity["files"]]
@@ -261,8 +325,9 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
 
         gene_list = None
         heatmap = None
-        if self._should_include_optional_views():
+        if self._should_include_optional_views("gene_list"):
             gene_list = vc.add_view(cm.FEATURE_LIST, dataset=dataset)
+        if self._should_include_optional_views("heatmap"):
             heatmap = vc.add_view(cm.HEATMAP, dataset=dataset)
 
         cell_sets_expr = vc.add_view(cm.OBS_SET_FEATURE_VALUE_DISTRIBUTION, dataset=dataset)
@@ -300,13 +365,25 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
                 self._views = [scatterplot, cell_sets_expr]
         else:
             if self._is_spatial:
-                vc.layout(((scatterplot | spatial) / heatmap) | ((cell_sets | gene_list) / cell_sets_expr))
+                if heatmap is not None:
+                    vc.layout(((scatterplot | spatial) / heatmap) | ((cell_sets | gene_list) / cell_sets_expr))
+                else:
+                    # When heatmap is hidden, expand scatterplot/spatial vertically to fill the space
+                    vc.layout((scatterplot | spatial) | ((cell_sets | gene_list) / cell_sets_expr))
+                    scatterplot.set_xywh(x=0, y=0, w=3, h=12)
+                    spatial.set_xywh(x=3, y=0, w=3, h=12)
             else:
-                vc.layout((scatterplot / heatmap) | ((cell_sets | gene_list) / cell_sets_expr))
+                if heatmap is not None:
+                    vc.layout((scatterplot / heatmap) | ((cell_sets | gene_list) / cell_sets_expr))
+                else:
+                    # When heatmap is hidden, expand scatterplot vertically to fill the space
+                    vc.layout(scatterplot | ((cell_sets | gene_list) / cell_sets_expr))
+                    scatterplot.set_xywh(x=0, y=0, w=6, h=12)
             # Adjust the cell sets and gene list to not be as tall,
             # give cell sets expression more height
             cell_sets.set_xywh(x=6, y=0, w=3, h=4)
-            gene_list.set_xywh(x=9, y=0, w=3, h=4)
+            if gene_list is not None:
+                gene_list.set_xywh(x=9, y=0, w=3, h=4)
             cell_sets_expr.set_xywh(x=6, y=4, w=6, h=8)
             self._views = views
 
@@ -407,9 +484,17 @@ class SpatialRNASeqAnnDataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
 
     def _set_visium_config(self, vc, dataset):
         # Add / lay out views
-        umap = vc.add_view(cm.SCATTERPLOT, dataset=dataset, mapping="UMAP", w=3, h=6, x=0, y=0)
-        spatial = vc.add_view("spatialBeta", dataset=dataset, w=3, h=6, x=3, y=0)
-        heatmap = vc.add_view(cm.HEATMAP, dataset=dataset, w=6, h=6, x=0, y=6).set_props(transpose=True)
+        # Conditionally add heatmap based on dataset size
+        heatmap = None
+        if self._should_include_optional_views("heatmap"):
+            # Standard layout with heatmap
+            umap = vc.add_view(cm.SCATTERPLOT, dataset=dataset, mapping="UMAP", w=3, h=6, x=0, y=0)
+            spatial = vc.add_view("spatialBeta", dataset=dataset, w=3, h=6, x=3, y=0)
+            heatmap = vc.add_view(cm.HEATMAP, dataset=dataset, w=6, h=6, x=0, y=6).set_props(transpose=True)
+        else:
+            # Expanded layout without heatmap - extend views to fill vertical space
+            umap = vc.add_view(cm.SCATTERPLOT, dataset=dataset, mapping="UMAP", w=3, h=12, x=0, y=0)
+            spatial = vc.add_view("spatialBeta", dataset=dataset, w=3, h=12, x=3, y=0)
 
         lc = vc.add_view("layerControllerBeta", dataset=dataset, w=6, h=3, x=6, y=0)
 
@@ -421,7 +506,12 @@ class SpatialRNASeqAnnDataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
 
         cell_set_sizes = vc.add_view(cm.OBS_SET_SIZES, dataset=dataset, w=3, h=5, x=9, y=7)
 
-        all_views = [spatial, lc, umap, cell_sets, cell_sets_expr, gene_list, cell_set_sizes, heatmap]
+        all_views = list(
+            filter(
+                lambda v: v is not None,
+                [spatial, lc, umap, cell_sets, cell_sets_expr, gene_list, cell_set_sizes, heatmap],
+            )
+        )
 
         self._views = all_views
         spatial_views = [spatial, lc]
@@ -576,9 +666,18 @@ class XeniumMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewConf
     def _set_xenium_config(self, vc, dataset):
         [obs_color_encoding_scope] = vc.add_coordination("obsColorEncoding")
         obs_color_encoding_scope.set_value("cellSetSelection")
-        umap = vc.add_view(cm.SCATTERPLOT, dataset=dataset, mapping="UMAP", w=3, h=6, x=0, y=0)
-        spatial = vc.add_view("spatialBeta", dataset=dataset, w=3, h=6, x=3, y=0)
-        heatmap = vc.add_view(cm.HEATMAP, dataset=dataset, w=6, h=6, x=0, y=6).set_props(transpose=True)
+
+        # Conditionally add heatmap based on dataset size
+        heatmap = None
+        if self._should_include_optional_views("heatmap"):
+            # Standard layout with heatmap
+            umap = vc.add_view(cm.SCATTERPLOT, dataset=dataset, mapping="UMAP", w=3, h=6, x=0, y=0)
+            spatial = vc.add_view("spatialBeta", dataset=dataset, w=3, h=6, x=3, y=0)
+            heatmap = vc.add_view(cm.HEATMAP, dataset=dataset, w=6, h=6, x=0, y=6).set_props(transpose=True)
+        else:
+            # Expanded layout without heatmap - extend views to fill vertical space
+            umap = vc.add_view(cm.SCATTERPLOT, dataset=dataset, mapping="UMAP", w=3, h=12, x=0, y=0)
+            spatial = vc.add_view("spatialBeta", dataset=dataset, w=3, h=12, x=3, y=0)
 
         lc = vc.add_view("layerControllerBeta", dataset=dataset, w=6, h=3, x=6, y=0)
 
@@ -592,7 +691,12 @@ class XeniumMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewConf
 
         cell_set_sizes = vc.add_view(cm.OBS_SET_SIZES, dataset=dataset, w=3, h=5, x=9, y=7)
 
-        all_views = [spatial, lc, umap, cell_sets, cell_sets_expr, gene_list, cell_set_sizes, heatmap]
+        all_views = list(
+            filter(
+                lambda v: v is not None,
+                [spatial, lc, umap, cell_sets, cell_sets_expr, gene_list, cell_set_sizes, heatmap],
+            )
+        )
 
         self._views = all_views
         vc.link_views(all_views, ["obsType"], ["spot"])
@@ -659,6 +763,22 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
             return z["mod/rna/uns/annotation_metadata/is_annotated"][()]
         else:
             return False
+
+    @cached_property
+    def n_obs(self):
+        """Get the number of observations in the multiomics dataset."""
+        z = self.zarr_store
+        if z is not None and "mod/rna/obs" in z:
+            obs = z["mod/rna/obs"]
+            if hasattr(obs, "shape"):
+                return obs.shape[0]
+            elif "_index" in obs:
+                return obs["_index"].shape[0]
+            # Fallback: try to get from any obs column
+            for key in obs:
+                if hasattr(obs[key], "shape"):
+                    return obs[key].shape[0]
+        return 0
 
     def get_conf_cells(self, marker=None):
         modality_prefix = "mod/rna/obs"
