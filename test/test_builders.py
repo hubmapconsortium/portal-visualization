@@ -277,7 +277,7 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
     conf, cells = builder.get_conf_cells(marker=marker)
 
     # Uncomment to generate a fixture
-    print(json.dumps(conf, indent=2))
+    # print(json.dumps(conf, indent=2))
 
     if "epic" not in assay_type["vitessce-hints"] or is_object_by_analyte:
         assert Builder.__name__ == entity_path.parent.name
@@ -466,9 +466,6 @@ def test_small_dataset_includes_heatmap(entity_path, mocker):
     entity = json.loads(entity_path.read_text())
 
     mock_zarr_store(entity_path, mocker, 5000)
-    # if is_zip_entity(entity_path):
-    #     mock_zarr = mocker.Mock()
-    #     mocker.patch("src.portal_visualization.builders.base_builders.read_zip_zarr", return_value=mock_zarr)
 
     Builder = get_view_config_builder(entity, get_entity)
     builder = Builder(entity, groups_token, assets_url)
