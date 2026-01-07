@@ -430,8 +430,8 @@ def test_get_found_images_error_handling():
 heatmap_test_builders = [
     "RNASeqAnnDataZarrViewConfBuilder",
     "SpatialRNASeqAnnDataZarrViewConfBuilder",
-    # "XeniumMultiomicAnnDataZarrViewConfBuilder",  # Excluded: uses special spatial zarr handling
-    "VisiumAnnDataZarrViewConfBuilder",
+    "SpatialMultiomicAnnDataZarrViewConfBuilder",  # Visium - covers lines 492-493
+    # "XeniumMultiomicAnnDataZarrViewConfBuilder",  # Excluded: uses dual zarr stores (adata + spatial)
 ]
 heatmap_test_paths = [path for path in good_entity_paths if path.parent.name in heatmap_test_builders]
 assert len(heatmap_test_paths) > 0
@@ -477,6 +477,53 @@ def test_small_dataset_includes_heatmap(entity_path, mocker):
     # Verify that heatmap IS in the layout
     layout_str = json.dumps(conf["layout"])
     assert "heatmap" in layout_str.lower(), "Heatmap should be present for small datasets"
+
+
+@pytest.mark.requires_full
+def test_xenium_large_dataset_hides_heatmap(mocker):
+    """Test that Xenium datasets with >100k observations hide heatmap views.
+
+    Xenium uses dual zarr stores (regular adata + spatial data), so it needs special handling.
+    """
+    entity_path = Path("test/good-fixtures/XeniumMultiomicAnnDataZarrViewConfBuilder/fake-xenium-entity.json")
+    entity = json.loads(entity_path.read_text())
+
+    # Create mock zarr store for the regular adata zarr
+    z = zarr.open_group()
+    obs_count = 150000
+    obs_index = [str(i) for i in range(obs_count)]
+
+    # Xenium is multiome, so create mod/rna/obs structure
+    obs = z.create_group("mod/rna/obs")
+    z.create_group("mod/rna/var")  # Required for multiome structure
+    obs["_index"] = zarr.array(obs_index)
+
+    # Add required multiome groups
+    group_names = ["leiden_wnn", "leiden_rna"]
+    groups = obs.create_groups(*group_names)
+    for group in groups:
+        group["categories"] = zarr.array(["0", "1", "2"])
+
+    # Also create regular obs group
+    obs_regular = z.create_group("obs")
+    obs_regular["_index"] = zarr.array(obs_index)
+
+    # Mock zarr.open to return our mocked zarr store
+    mocker.patch("zarr.open", return_value=z)
+
+    # Mock read_zip_zarr for the zip zarr file
+    mocker.patch("src.portal_visualization.builders.anndata_builders.read_zip_zarr", return_value=z)
+
+    Builder = get_view_config_builder(entity, get_entity)
+    builder = Builder(entity, groups_token, assets_url)
+    conf, _ = builder.get_conf_cells()
+
+    # Verify that heatmap is not in the layout
+    layout_str = json.dumps(conf["layout"])
+    assert "heatmap" not in layout_str.lower(), "Heatmap should not be present for large Xenium datasets"
+
+    # Verify spatial view is still present
+    assert "spatial" in layout_str.lower(), "Spatial view should still be present"
 
 
 if __name__ == "__main__":  # pragma: no cover
