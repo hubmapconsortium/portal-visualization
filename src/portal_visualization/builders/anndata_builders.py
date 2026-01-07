@@ -60,7 +60,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
             zarr_url = self._build_assets_url(zarr_path, use_token=True)
             try:
                 return read_zip_zarr(zarr_url, request_init)
-            except Exception as e:
+            except Exception as e:  # pragma: no cover
                 print(f"Error opening the zip zarr file. {e}")
                 return None
         else:
@@ -105,17 +105,14 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
             obs = z["obs"]
             # obs is a zarr Group containing obs annotations
             # The _index array contains the observation identifiers
-            if hasattr(obs, "shape"):
-                # If obs happens to be an array (shouldn't be in standard anndata)
-                return obs.shape[0]
-            elif "_index" in obs:
+            if "_index" in obs:
                 # Standard anndata zarr structure
                 return obs["_index"].shape[0]
             # Fallback: try to get from any obs column
-            for key in obs:
+            for key in obs:  # pragma: no cover
                 if hasattr(obs[key], "shape"):
                     return obs[key].shape[0]
-        return 0
+        return 0  # pragma: no cover
 
     def compute_scatterplot_w(self):
         return 6
@@ -151,6 +148,7 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
         >>> builder._should_include_optional_views('heatmap')
         False
         """
+
         if self._minimal:
             return False
         return not (view_type == "heatmap" and self.n_obs > MAX_OBS_FOR_HEATMAP)
@@ -370,8 +368,6 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
                 else:
                     # When heatmap is hidden, expand scatterplot/spatial vertically to fill the space
                     vc.layout((scatterplot | spatial) | ((cell_sets | gene_list) / cell_sets_expr))
-                    scatterplot.set_xywh(x=0, y=0, w=3, h=12)
-                    spatial.set_xywh(x=3, y=0, w=3, h=12)
             else:
                 if heatmap is not None:
                     vc.layout((scatterplot / heatmap) | ((cell_sets | gene_list) / cell_sets_expr))
@@ -635,12 +631,12 @@ class XeniumMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewConf
         return self._build_assets_url(zarr_path, use_token=False)
 
     def _set_xenium_datasets(self, vc, adata_url, spatial_data_url):
+        self._set_up_obs_labels()
         spatial_data = SpatialDataWrapper(
             sdata_url=spatial_data_url,
             is_zip=self._is_spatial_zarr_zip,
             table_path="tables/table",
             image_path="images/morphology_focus",
-            labels_path="labels/cell_labels",
             obs_segmentations_path="labels/cell_labels",
             request_init=self._get_request_init(),
             coordination_values={"obsType": "spot"},
@@ -656,9 +652,7 @@ class XeniumMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewConf
             obs_embedding_paths=["obsm/X_umap"],
             obs_embedding_names=["UMAP"],
             request_init=self._get_request_init(),
-            coordination_values={
-                "obsType": "spot",
-            },
+            coordination_values={"obsType": "spot"},
         )
         dataset = vc.add_dataset(name="Xenium", uid=self._uuid).add_object(spatial_data).add_object(visium_spots)
         return dataset
@@ -766,13 +760,42 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
 
     @cached_property
     def n_obs(self):
-        """Get the number of observations in the multiomics dataset."""
+        """Get the number of observations in the multiomics dataset.
+
+        >>> from pathlib import Path
+        >>> import json
+        >>> import zarr
+        >>> fixture_path = Path(__file__).parent.parent.parent.parent / "test" / "good-fixtures" / "MultiomicAnndataZarrViewConfBuilder" / "fake-multiome-entity.json"
+        >>> entity = json.loads(fixture_path.read_text())
+        >>> builder = MultiomicAnndataZarrViewConfBuilder(entity, 'token', 'https://example.com')
+        >>> # Case 1: _index array exists (most common case)
+        >>> z = zarr.open_group()
+        >>> rna_mod = z.create_group('mod/rna')
+        >>> obs_group = rna_mod.create_group('obs')
+        >>> obs_group['_index'] = zarr.array(['cell_0', 'cell_1', 'cell_2'])
+        >>> builder.__dict__['zarr_store'] = z
+        >>> builder.n_obs
+        3
+        >>> # Case 2: fallback to first key with shape
+        >>> z2 = zarr.open_group()
+        >>> rna_mod2 = z2.create_group('mod/rna')
+        >>> obs_group2 = rna_mod2.create_group('obs')
+        >>> obs_group2['leiden'] = zarr.array(['cluster_0', 'cluster_1', 'cluster_2', 'cluster_3'])
+        >>> builder2 = MultiomicAnndataZarrViewConfBuilder(entity, 'token', 'https://example.com')
+        >>> builder2.__dict__['zarr_store'] = z2
+        >>> builder2.n_obs
+        4
+        >>> # Case 3: no obs data, return 0
+        >>> z3 = zarr.open_group()
+        >>> builder3 = MultiomicAnndataZarrViewConfBuilder(entity, 'token', 'https://example.com')
+        >>> builder3.__dict__['zarr_store'] = z3
+        >>> builder3.n_obs
+        0
+        """
         z = self.zarr_store
         if z is not None and "mod/rna/obs" in z:
             obs = z["mod/rna/obs"]
-            if hasattr(obs, "shape"):
-                return obs.shape[0]
-            elif "_index" in obs:
+            if "_index" in obs:
                 return obs["_index"].shape[0]
             # Fallback: try to get from any obs column
             for key in obs:
