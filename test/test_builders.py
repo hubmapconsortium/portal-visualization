@@ -222,7 +222,7 @@ def mock_zarr_store(entity_path, mocker, obs_count):
         mock_response.raise_for_status.return_value = None
         mocker.patch("requests.get", return_value=mock_response)
     mocker.patch("zarr.open", return_value=z)
-    if "zip" in str(entity_path):
+    if is_zip_entity(entity_path):
         # Patch read_zip_zarr in the anndata_builders module where it's imported
         mocker.patch("src.portal_visualization.builders.anndata_builders.read_zip_zarr", return_value=z)
 
