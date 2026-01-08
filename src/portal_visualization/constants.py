@@ -10,3 +10,6 @@ ZARR_PATH = "hubmap_ui/anndata-zarr/secondary_analysis.zarr"
 ZIP_ZARR_PATH = f"{ZARR_PATH}.zip"
 MULTIOMIC_ZARR_PATH = "hubmap_ui/mudata-zarr/secondary_analysis.zarr"
 XENIUM_ZARR_PATH = "Xenium.zarr"
+
+# Maximum number of observations to display heatmaps for performance reasons
+MAX_OBS_FOR_HEATMAP = 100_000

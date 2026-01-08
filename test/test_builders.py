@@ -112,16 +112,61 @@ def test_has_visualization(has_vis_entity):
     assert has_vis == has_visualization(entity, get_entity, parent, epic_uuid)
 
 
-def mock_zarr_store(entity_path, mocker):
+def is_annotated_entity(entity_path):
+    return "is-annotated" in entity_path.name
+
+
+def is_multiome_entity(entity_path):
+    return "multiome" in entity_path.name
+
+
+def is_pan_azimuth_entity(entity_path):
+    return "pan-az" in entity_path.name
+
+
+def is_visium_entity(entity_path):
+    return "visium" in entity_path.name
+
+
+def is_xenium_entity(entity_path):
+    return "xenium" in entity_path.name
+
+
+def is_zip_entity(entity_path):
+    return "zip" in entity_path.name
+
+
+def is_marker_entity(entity_path):
+    return "marker" in entity_path.name
+
+
+def is_asct_entity(entity_path):
+    return "asct" in entity_path.name
+
+
+def is_azimuth_labeled_entity(entity_path):
+    return "predicted-label" in entity_path.name
+
+
+def is_object_by_analyte_entity(entity_path):
+    return "object-by-analyte" in entity_path.name
+
+
+def mock_zarr_store(entity_path, mocker, obs_count):
     # Need to mock zarr.open to yield correct values for different scenarios
     z = zarr.open_group()
     gene_array = zarr.array(["ENSG00000139618", "ENSG00000139619", "ENSG00000139620"])
-    is_annotated = "is-annotated" in entity_path.name
-    is_multiome = "multiome" in entity_path.name
-    is_pan_azimuth = "pan-az" in entity_path.name
+    is_annotated = is_annotated_entity(entity_path)
+    is_multiome = is_multiome_entity(entity_path)
+    is_pan_azimuth = is_pan_azimuth_entity(entity_path)
+    is_visium = is_visium_entity(entity_path)
+
+    obs_index = [str(i) for i in range(obs_count)]
     if is_multiome:
         obs = z.create_group("mod/rna/obs")
         var = z.create_group("mod/rna/var")
+        # Add _index for observation count
+        obs["_index"] = zarr.array(obs_index)
         group_names = ["leiden_wnn", "leiden_rna", "cluster_cbg", "cluster_cbb"]
         if is_annotated:
             group_names.append("predicted_label")
@@ -141,23 +186,25 @@ def mock_zarr_store(entity_path, mocker):
             group["categories"] = zarr.array(["0", "1", "2"])
 
     obs = z.create_group("obs")
-    obs["marker_gene_0"] = gene_array
+    obs["_index"] = zarr.array(obs_index)
     if is_annotated:
         path = f"{'mod/rna/' if is_multiome else ''}uns/annotation_metadata/is_annotated"
         z[path] = True
-        if "asct" in entity_path.name:
+        if is_asct_entity(entity_path):
             z["obs/predicted.ASCT.celltype"] = True  # only checked for membership in zarr group
-        elif "predicted-label" in entity_path.name:
+        elif is_azimuth_labeled_entity(entity_path):
             z["obs/predicted_label"] = True  # only checked for membership in zarr group
             z["obs/predicted_CLID"] = True
-        elif "pan-az" in entity_path.name:
+        elif is_pan_azimuth_entity(entity_path):
             z["obs/azimuth_broad"] = True  # only checked for membership in zarr group
             z["obs/azimuth_medium"] = True
             z["obs/azimuth_fine"] = True
             z["obs/CL_Label"] = True
             z["obs/final_level_labels"] = True
             z["obs/full_hierarchical_labels"] = True
-    if "marker" in entity_path.name:
+    if is_marker_entity(entity_path):
+        # Adding marker gene key to obs
+        obs["marker_gene_0"] = zarr.array(obs_index)
         obs.attrs["encoding-version"] = "0.1.0"
         var = z.create_group("var")
         var.attrs["_index"] = "index"
@@ -165,9 +212,9 @@ def mock_zarr_store(entity_path, mocker):
         var["hugo_symbol"] = zarr.array([0, 1, 2])
         var["hugo_symbol"].attrs["categories"] = "hugo_categories"
         var["hugo_categories"] = zarr.array(["gene123", "gene456", "gene789"])
-    if "visium" in entity_path.name:
+    if is_visium:
         z["uns/spatial/visium/scalefactors/spot_diameter_micrometers"] = 200.0
-    if "object-by-analyte" in entity_path.name:
+    if is_object_by_analyte_entity(entity_path):
         entity = json.loads(entity_path.read_text())
         # Mock the HTTP request that would fetch the metadata
         mock_response = mocker.Mock()
@@ -175,6 +222,9 @@ def mock_zarr_store(entity_path, mocker):
         mock_response.raise_for_status.return_value = None
         mocker.patch("requests.get", return_value=mock_response)
     mocker.patch("zarr.open", return_value=z)
+    if is_zip_entity(entity_path):
+        # Patch read_zip_zarr in the anndata_builders module where it's imported
+        mocker.patch("src.portal_visualization.builders.anndata_builders.read_zip_zarr", return_value=z)
 
 
 @pytest.mark.requires_full
@@ -201,7 +251,7 @@ def test_read_zip_zarr_opens_store(mocker):
 @pytest.mark.parametrize("entity_path", good_entity_paths, ids=lambda path: f"{path.parent.name}/{path.name}")
 @pytest.mark.requires_full
 def test_entity_to_vitessce_conf(entity_path, mocker):
-    mock_zarr_store(entity_path, mocker)
+    mock_zarr_store(entity_path, mocker, 5)
 
     possible_marker = entity_path.name.split("-")[-2]
     marker = possible_marker.split("=")[1] if possible_marker.startswith("marker=") else None
@@ -209,13 +259,11 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
     entity = json.loads(entity_path.read_text())
     parent = entity.get("parent") or None  # Only used for image pyramids
     assay_type = get_entity(entity["uuid"])
-    if "zip" in str(entity_path):
-        mock_zarr = mocker.Mock()
-        mocker.patch("src.portal_visualization.utils.read_zip_zarr", return_value=mock_zarr)
 
     is_object_by_analyte = "epic" in assay_type["vitessce-hints"] and len(assay_type["vitessce-hints"]) == 1
 
     # If "epic" is the only hint, it's object by analyte and doesn't need a parent UUID
+    # Otherwise, it's a segmentation mask
     if "epic" in assay_type["vitessce-hints"] and not is_object_by_analyte:
         epic_uuid = entity.get("uuid")
 
@@ -266,7 +314,7 @@ def test_entity_to_vitessce_conf(entity_path, mocker):
 @pytest.mark.parametrize("entity_path", bad_entity_paths, ids=lambda path: path.name)
 @pytest.mark.requires_full
 def test_entity_to_error(entity_path, mocker):
-    mock_zarr_store(entity_path, mocker)
+    mock_zarr_store(entity_path, mocker, 5)
 
     entity = json.loads(entity_path.read_text())
     with pytest.raises(Exception) as error_info:  # noqa: PT011, PT012
@@ -377,6 +425,102 @@ def test_get_found_images_error_handling():
             raise RuntimeError(f"Error while searching for pyramid images: {e}")  # noqa: B904
 
     assert "Error while searching for pyramid images" in str(excinfo.value)
+
+
+heatmap_test_builders = [
+    "RNASeqAnnDataZarrViewConfBuilder",
+    "SpatialRNASeqAnnDataZarrViewConfBuilder",
+    "SpatialMultiomicAnnDataZarrViewConfBuilder",  # Visium - covers lines 492-493
+    # "XeniumMultiomicAnnDataZarrViewConfBuilder",  # Excluded: uses dual zarr stores (adata + spatial)
+]
+heatmap_test_paths = [path for path in good_entity_paths if path.parent.name in heatmap_test_builders]
+assert len(heatmap_test_paths) > 0
+
+
+@pytest.mark.parametrize("entity_path", heatmap_test_paths, ids=lambda path: f"{path.parent.name}/{path.name}")
+@pytest.mark.requires_full
+def test_large_dataset_hides_heatmap(entity_path, mocker):
+    """Test that datasets with >100k observations hide heatmap views."""
+    entity = json.loads(entity_path.read_text())
+    mock_zarr_store(entity_path, mocker, 150000)
+
+    Builder = get_view_config_builder(entity, get_entity)
+    builder = Builder(entity, groups_token, assets_url)
+    conf, _ = builder.get_conf_cells()
+
+    # Verify that heatmap is not in the layout
+    layout_str = json.dumps(conf["layout"])
+    assert "heatmap" not in layout_str.lower(), "Heatmap should not be present for large datasets"
+
+    # Verify that other views are still present
+    assert "scatterplot" in layout_str.lower() or "spatial" in layout_str.lower(), (
+        "Scatterplot/spatial should still be present"
+    )
+    assert "cellSets" in layout_str or "obsSets" in layout_str, "Cell sets should still be present"
+
+
+@pytest.mark.parametrize("entity_path", heatmap_test_paths, ids=lambda path: f"{path.parent.name}/{path.name}")
+@pytest.mark.requires_full
+def test_small_dataset_includes_heatmap(entity_path, mocker):
+    """Test that datasets with <100k observations include heatmap views."""
+    entity = json.loads(entity_path.read_text())
+
+    mock_zarr_store(entity_path, mocker, 5000)
+
+    Builder = get_view_config_builder(entity, get_entity)
+    builder = Builder(entity, groups_token, assets_url)
+    conf, _ = builder.get_conf_cells()
+
+    # Verify that heatmap IS in the layout
+    layout_str = json.dumps(conf["layout"])
+    assert "heatmap" in layout_str.lower(), "Heatmap should be present for small datasets"
+
+
+@pytest.mark.requires_full
+def test_xenium_large_dataset_hides_heatmap(mocker):
+    """Test that Xenium datasets with >100k observations hide heatmap views.
+
+    Xenium uses dual zarr stores (regular adata + spatial data), so it needs special handling.
+    """
+    entity_path = Path("test/good-fixtures/XeniumMultiomicAnnDataZarrViewConfBuilder/fake-xenium-entity.json")
+    entity = json.loads(entity_path.read_text())
+
+    # Create mock zarr store for the regular adata zarr
+    z = zarr.open_group()
+    obs_count = 150000
+    obs_index = [str(i) for i in range(obs_count)]
+
+    # Xenium is multiome, so create mod/rna/obs structure
+    obs = z.create_group("mod/rna/obs")
+    z.create_group("mod/rna/var")  # Required for multiome structure
+    obs["_index"] = zarr.array(obs_index)
+
+    # Add required multiome groups
+    group_names = ["leiden_wnn", "leiden_rna"]
+    groups = obs.create_groups(*group_names)
+    for group in groups:
+        group["categories"] = zarr.array(["0", "1", "2"])
+
+    # Also create regular obs group
+    obs_regular = z.create_group("obs")
+    obs_regular["_index"] = zarr.array(obs_index)
+
+    # Mock zarr.open to return our mocked zarr store
+    mocker.patch("zarr.open", return_value=z)
+
+    # Mock read_zip_zarr for the zip zarr file
+    mocker.patch("src.portal_visualization.builders.anndata_builders.read_zip_zarr", return_value=z)
+
+    Builder = get_view_config_builder(entity, get_entity)
+    builder = Builder(entity, groups_token, assets_url)
+    conf, _ = builder.get_conf_cells()
+
+    # Verify that heatmap is not in the layout
+    layout_str = json.dumps(conf["layout"])
+    assert "heatmap" not in layout_str.lower(), "Heatmap should not be present for large Xenium datasets"
+
+    # Verify spatial view is still present
+    assert "spatial" in layout_str.lower(), "Spatial view should still be present"
 
 
 if __name__ == "__main__":  # pragma: no cover

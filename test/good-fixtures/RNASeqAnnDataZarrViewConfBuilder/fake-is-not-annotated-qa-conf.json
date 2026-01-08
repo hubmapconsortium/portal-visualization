@@ -31,28 +31,7 @@
               "path": "X",
               "initialFeatureFilterPath": "var/marker_genes_for_heatmap"
             },
-            "obsLabels": [
-              {
-                "path": "obs/marker_gene_0",
-                "obsLabelsType": "Marker Gene 0"
-              },
-              {
-                "path": "obs/marker_gene_1",
-                "obsLabelsType": "Marker Gene 1"
-              },
-              {
-                "path": "obs/marker_gene_2",
-                "obsLabelsType": "Marker Gene 2"
-              },
-              {
-                "path": "obs/marker_gene_3",
-                "obsLabelsType": "Marker Gene 3"
-              },
-              {
-                "path": "obs/marker_gene_4",
-                "obsLabelsType": "Marker Gene 4"
-              }
-            ]
+            "obsLabels": []
           },
           "requestInit": {
             "headers": {
@@ -69,13 +48,6 @@
     },
     "embeddingType": {
       "A": "UMAP"
-    },
-    "obsLabelsType": {
-      "A": "Marker Gene 0",
-      "B": "Marker Gene 1",
-      "C": "Marker Gene 2",
-      "D": "Marker Gene 3",
-      "E": "Marker Gene 4"
     }
   },
   "layout": [
@@ -83,14 +55,7 @@
       "component": "scatterplot",
       "coordinationScopes": {
         "dataset": "A",
-        "embeddingType": "A",
-        "obsLabelsType": [
-          "A",
-          "B",
-          "C",
-          "D",
-          "E"
-        ]
+        "embeddingType": "A"
       },
       "x": 0,
       "y": 0,
@@ -100,14 +65,7 @@
     {
       "component": "obsSets",
       "coordinationScopes": {
-        "dataset": "A",
-        "obsLabelsType": [
-          "A",
-          "B",
-          "C",
-          "D",
-          "E"
-        ]
+        "dataset": "A"
       },
       "x": 6,
       "y": 0,
@@ -117,14 +75,7 @@
     {
       "component": "featureList",
       "coordinationScopes": {
-        "dataset": "A",
-        "obsLabelsType": [
-          "A",
-          "B",
-          "C",
-          "D",
-          "E"
-        ]
+        "dataset": "A"
       },
       "x": 9,
       "y": 0,
@@ -134,14 +85,7 @@
     {
       "component": "heatmap",
       "coordinationScopes": {
-        "dataset": "A",
-        "obsLabelsType": [
-          "A",
-          "B",
-          "C",
-          "D",
-          "E"
-        ]
+        "dataset": "A"
       },
       "x": 0,
       "y": 6,
@@ -151,14 +95,7 @@
     {
       "component": "obsSetFeatureValueDistribution",
       "coordinationScopes": {
-        "dataset": "A",
-        "obsLabelsType": [
-          "A",
-          "B",
-          "C",
-          "D",
-          "E"
-        ]
+        "dataset": "A"
       },
       "x": 6,
       "y": 4,
