@@ -78,6 +78,8 @@ def _lazy_import_builder(builder_name):
 # This function processes the hints and returns a tuple of booleans
 # indicating which builder to use for the given entity.
 def process_hints(hints):
+    if not hints:
+        hints = []
     hints = set(hints)
     is_image = "is_image" in hints
     is_rna = "rna" in hints
