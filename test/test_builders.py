@@ -1613,6 +1613,81 @@ def test_read_zip_zarr_opens_store(mocker):
 
 
 @pytest.mark.requires_full
+def test_read_zip_zarr_sends_auth_header():
+    """Non-published assets 403 without the Authorization header, so read_zip_zarr must hand the
+    request_init headers to the filesystem that fetches the archive (ZipFileSystem spells those
+    target_protocol/target_options; the remote_* spelling is silently dropped into **kwargs)."""
+    import http.server
+    import socketserver
+    import tempfile
+    import threading
+
+    zip_path = f"{tempfile.mkdtemp()}/secondary_analysis.zarr.zip"
+    with zarr.storage.ZipStore(zip_path, mode="w") as store:
+        root = zarr.open_group(store, mode="w", zarr_format=2)
+        root.create_group("obs")["_index"] = np.array(["c0", "c1", "c2"])
+
+    with open(zip_path, "rb") as f:
+        zip_bytes = f.read()
+
+    class Handler(http.server.BaseHTTPRequestHandler):
+        """Serves the archive with Range support (fsspec range-reads the zip directory)."""
+
+        def log_message(self, *a):
+            pass
+
+        def _respond(self, body=b""):
+            if self.headers.get("Authorization") != "Bearer token":
+                self.send_error(403, "Forbidden")
+                return
+            start, _, end = self.headers.get("Range", "bytes=-").removeprefix("bytes=").partition("-")
+            lo = int(start) if start else 0
+            hi = int(end) + 1 if end else len(zip_bytes)
+            self.send_response(206 if "Range" in self.headers else 200)
+            self.send_header("Accept-Ranges", "bytes")
+            self.send_header("Content-Length", str(hi - lo))
+            self.end_headers()
+            self.wfile.write(body[lo:hi])
+
+        def do_HEAD(self):
+            self._respond()
+
+        def do_GET(self):
+            self._respond(zip_bytes)
+
+    httpd = socketserver.TCPServer(("127.0.0.1", 0), Handler)
+    threading.Thread(target=httpd.serve_forever, daemon=True).start()
+    url = f"http://127.0.0.1:{httpd.server_address[1]}/secondary_analysis.zarr.zip"
+    try:
+        z = read_zip_zarr(url, {"headers": {"Authorization": "Bearer token"}})
+        assert z["obs"]["_index"].shape[0] == 3
+        with pytest.raises(FileNotFoundError):  # how fsspec surfaces the 403
+            read_zip_zarr(url, {})
+    finally:
+        httpd.shutdown()
+
+
+@pytest.mark.requires_full
+@pytest.mark.parametrize("has_hugo_symbol", [True, False])
+def test_visium_feature_labels_require_hugo_symbol(has_hugo_symbol, mocker):
+    """Some pipelines don't write var/hugo_symbol; pointing featureLabels at a path that isn't in the
+    store breaks the view, so it must only be referenced when it's actually there."""
+    from src.portal_visualization.builders.anndata_builders import SpatialMultiomicAnnDataZarrViewConfBuilder
+
+    z = zarr.open_group()
+    z.create_group("obs")["_index"] = np.asarray(["0", "1", "2"])
+    var = z.create_group("var")
+    if has_hugo_symbol:
+        var["hugo_symbol"] = np.asarray(["gene123", "gene456", "gene789"])
+    mocker.patch("src.portal_visualization.data_access.read_zarr", return_value=z)
+
+    entity = generate_spatial_multiome_test_cases()[0][1]
+    conf, _ = SpatialMultiomicAnnDataZarrViewConfBuilder(entity, groups_token, assets_url).get_conf_cells()
+
+    assert ("var/hugo_symbol" in json.dumps(conf)) == has_hugo_symbol
+
+
+@pytest.mark.requires_full
 def test_read_zarr_tolerates_forbidden_directory_listing():
     """The HuBMAP assets server serves files but returns 403 for directory GETs. zarr v3 enumerates
     group members by listing the directory (zarr v2 read keys by path), so a plain open crashes with

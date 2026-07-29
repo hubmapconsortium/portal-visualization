@@ -450,10 +450,13 @@ def read_zip_zarr(zarr_url, request_init):
     Returns:
         zarr.Group: Opened Zarr store.
     """
+    # ZipFileSystem names these target_protocol/target_options (remote_* is ReferenceFileSystem's
+    # spelling and gets silently swallowed by **kwargs, dropping the auth header -> 403 on any
+    # non-public asset).
     fs = _SafeZipFileSystem(
         fo=zarr_url,
-        remote_protocol="https",
-        remote_options={"client_kwargs": with_config_builder_user_agent(request_init)},
+        target_protocol="https",
+        target_options={"client_kwargs": with_config_builder_user_agent(request_init)},
     )
     # zarr v3 needs an async-capable store; wrap the sync zip filesystem.
     store = zarr.storage.FsspecStore(AsyncFileSystemWrapper(fs, asynchronous=True), read_only=True)
