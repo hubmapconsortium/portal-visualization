@@ -216,7 +216,6 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
     def _set_up_dataset(self, vc):
         zarr_path = ZIP_ZARR_PATH if self._is_zarr_zip else ZARR_PATH
         adata_url = self._build_assets_url(zarr_path, use_token=False)
-        z = self.zarr_store
         dataset = vc.add_dataset(name=self._uuid).add_object(
             AnnDataWrapper(
                 adata_url=adata_url,
@@ -232,7 +231,9 @@ class RNASeqAnnDataZarrViewConfBuilder(ViewConfBuilder):
                 obs_embedding_dims=[[0, 1]],
                 request_init=self._get_request_init(),
                 coordination_values=None,
-                feature_labels_path="var/hugo_symbol" if z is not None and "var" in z else None,
+                # _set_up_marker_gene already resolved this to var/hugo_symbol or None: not every
+                # pipeline writes hugo_symbol, and pointing at a missing path breaks the config.
+                feature_labels_path=self._gene_alias,
                 gene_alias=self._gene_alias,
                 obs_labels_paths=self._obs_labels_paths,
                 obs_labels_names=self._obs_labels_names,
@@ -455,7 +456,7 @@ class SpatialRNASeqAnnDataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
             obs_embedding_paths=["obsm/X_umap", "obsm/X_pca"],
             obs_embedding_names=["UMAP", "PCA"],
             obs_embedding_dims=[[0, 1], [0, 1]],
-            feature_labels_path="var/hugo_symbol",
+            feature_labels_path=self._gene_alias,
             request_init=self._get_request_init(),
             initial_feature_filter_path="var/top_highly_variable",
             coordination_values={
@@ -548,10 +549,12 @@ class SpatialMultiomicAnnDataZarrViewConfBuilder(SpatialRNASeqAnnDataZarrViewCon
 
     def _get_spot_radius(self):
         z = self.zarr_store
-        visium_scalefactor_path = "spatial/visium/scalefactors/spot_diameter_micrometers"
-        if visium_scalefactor_path in z["uns"]:
+        # Full-path membership so a store that failed to open, or has no uns at all, falls through to
+        # the default radius instead of raising.
+        visium_scalefactor_path = "uns/spatial/visium/scalefactors/spot_diameter_micrometers"
+        if z is not None and visium_scalefactor_path in z:
             # Since the scale factor is the diameter, we divide by 2 to get the radius
-            return z["uns"][visium_scalefactor_path][()].tolist() / 2
+            return z[visium_scalefactor_path][()].tolist() / 2
 
     def _set_up_dataset(self, vc):
         file_paths_found = self._get_file_paths()
@@ -886,6 +889,11 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
             atac_cbg_zarr = self._build_assets_url(f"{zarr_path}/mod/atac_cbg", use_token=False)
             rna_prefix = atac_prefix = ""
 
+        # Not every pipeline writes hugo_symbol; the store is always the MuData root, so check there
+        # while emitting the modality-relative path.
+        z = self.zarr_store
+        hugo_symbol_path = f"{rna_prefix}var/hugo_symbol" if z is not None and "mod/rna/var/hugo_symbol" in z else None
+
         # Genomic profiles read from a per-clustering multivec zarr; skip it when there's no cbb
         # (no multivec is generated then) so we don't reference a store that doesn't exist.
         dataset = vc.add_dataset(name=multivec_label if multivec_label is not None else self._uuid)
@@ -912,7 +920,7 @@ class MultiomicAnndataZarrViewConfBuilder(RNASeqAnnDataZarrViewConfBuilder):
                     obs_set_names=self._obs_set_names,
                     obs_feature_matrix_path=f"{rna_prefix}X",
                     initial_feature_filter_path=f"{rna_prefix}var/highly_variable",
-                    feature_labels_path=f"{rna_prefix}var/hugo_symbol",
+                    feature_labels_path=hugo_symbol_path,
                     request_init=self._get_request_init(),
                     # To be explicit that the features represent genes and gene expression, we
                     # specify that here.
