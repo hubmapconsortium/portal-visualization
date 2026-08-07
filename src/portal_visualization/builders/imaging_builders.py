@@ -51,9 +51,9 @@ GEOMX_IMAGE_VIEW_TYPE = "geomx-seg"
 
 # Deterministic color palette for segmentation channels.
 SEGMENTATION_CHANNEL_COLORS = [
-    [155, 165, 31],
-    [31, 119, 180],
-    [227, 66, 52],
+    [255, 0, 0],
+    [0, 255, 0],
+    [0, 0, 255],
     [44, 160, 44],
     [148, 103, 189],
     [255, 127, 14],
