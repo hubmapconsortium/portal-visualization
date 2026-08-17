@@ -202,10 +202,10 @@ Similar usage but may specify `minimal=True` kwarg for lightweight configs
 
 ## Dependencies & Versioning
 
-- **Primary dependency**: `vitessce==3.7.4` (pinned due to downstream conflicts)
+- **Primary dependency**: `vitessce==3.9.2` (pinned due to downstream conflicts)
 - **Dependency structure**: Core has no dependencies; `[full]` extra includes all visualization dependencies
 - **Release process**: Bump `VERSION.txt` → git tag → GitHub release → update `requirements.txt` in portal-ui and search-api with `[full]` extras
-- **Python version**: Requires >=3.10 (see `pyproject.toml`)
+- **Python version**: Requires >=3.12 (see `pyproject.toml`)
 
 ## Common Pitfalls
 
