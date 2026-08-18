@@ -80,10 +80,11 @@ All builders inherit from `ViewConfBuilder` in `builders/base_builders.py`. Core
 - **100% test coverage required** (`fail_under = 100` in pyproject.toml). Use `# pragma: no cover` only for production-only code paths (e.g., Flask abort calls).
 - **Doctests are mandatory** for coverage — `--doctest-modules` is enabled. Functions need inline doctests using `_DocTestBuilder` helper pattern.
 - **README.md must match `vis-preview --help`** output — `test.sh` validates this automatically.
-- **Ruff** for linting and formatting: line length 120, target py310, double quotes.
+- **Ruff** for linting and formatting: line length 120, target py312, double quotes.
 - Mark tests needing heavy dependencies with `@pytest.mark.requires_full`.
 - Version is in `VERSION.txt` (single source of truth).
-- `vitessce==3.7.4` is pinned in dependencies.
+- Python `>=3.12` (`requires-python` in `pyproject.toml`).
+- `vitessce==3.9.2` is pinned — in the `[full]` extra, not the core dependency list, which is empty by design.
 
 ## Adding a New Builder
 
