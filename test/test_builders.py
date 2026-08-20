@@ -2389,6 +2389,82 @@ def test_xenium_large_dataset_hides_heatmap(mocker):
 
 
 @pytest_requires_full
+def test_object_by_analyte_heatmap_gate():
+    """Object-by-analyte builder: the heatmap is dropped above MAX_OBS_FOR_HEATMAP observations
+    (and in minimal mode), and the remaining views expand into the freed grid space.
+
+    The obs count comes from secondary_analysis_metadata.json rather than the zarr store, so
+    seeding that cached property is enough -- no HTTP or zarr mocking needed.
+    """
+    from src.portal_visualization.builders.object_by_analyte_builders import ObjectByAnalyteConfBuilder
+    from src.portal_visualization.constants import MAX_OBS_FOR_HEATMAP
+
+    from .fixtures import make_entity
+
+    def build_conf(n_obs, modality_n_obs=1000, **kwargs):
+        entity = make_entity(
+            uuid="object-by-analyte-uuid",
+            status="Published",
+            hints=["epic"],
+            soft_assaytype="object-x-analyte",
+            files=[{"rel_path": "extras/transformations/hubmap_ui/mudata-zarr/secondary_analysis.zarr.zip"}],
+        )
+        builder = ObjectByAnalyteConfBuilder(entity, groups_token, assets_url, **kwargs)
+        builder.__dict__["_secondary_analysis_metadata"] = {
+            "modalities": [
+                {
+                    "annotations": ["leiden"],
+                    "n_obs": modality_n_obs,
+                    "n_vars": 29078,
+                    "name": "HT_processed",
+                    "obs_keys": ["sample_id"],
+                    "obsm_keys": ["X_umap", "annotation", "leiden"],
+                    "var_keys": ["hugo_symbol"],
+                }
+            ],
+            # Omit the top-level count entirely when it isn't the one under test, to confirm the
+            # per-modality count still drives the gate.
+            **({} if n_obs is None else {"n_obs": n_obs}),
+        }
+        conf, _ = builder.get_conf_cells()
+        return conf
+
+    def views_by_component(conf):
+        return {view["component"]: view for view in conf["layout"]}
+
+    # Small dataset: heatmap present, expression distribution beside it.
+    views = views_by_component(build_conf(1000))
+    assert (views["heatmap"]["x"], views["heatmap"]["w"]) == (0, 7)
+    distribution = views["obsSetFeatureValueDistribution"]
+    assert (distribution["x"], distribution["w"]) == (7, 5)
+    assert views["obsSets"]["h"] == 3
+    assert "featureList" in views
+
+    # Exactly at the threshold still gets a heatmap -- the gate is strictly greater-than.
+    assert "heatmap" in views_by_component(build_conf(MAX_OBS_FOR_HEATMAP))
+
+    # Large dataset: no heatmap, and the distribution spans the whole bottom row.
+    conf = build_conf(MAX_OBS_FOR_HEATMAP + 1)
+    views = views_by_component(conf)
+    assert "heatmap" not in json.dumps(conf["layout"]).lower()
+    distribution = views["obsSetFeatureValueDistribution"]
+    assert (distribution["x"], distribution["w"]) == (0, 12)
+    # Everything else survives.
+    for component in ("scatterplot", "obsSets", "featureList"):
+        assert component in views, f"{component} should still be present"
+
+    # A modality larger than the (absent) top-level count also drops the heatmap.
+    assert "heatmap" not in views_by_component(build_conf(None, modality_n_obs=200_000))
+
+    # Minimal configs drop the heatmap and the gene list regardless of size, and the cell sets
+    # grow to fill the right column.
+    views = views_by_component(build_conf(1000, minimal=True))
+    assert "heatmap" not in views
+    assert "featureList" not in views
+    assert views["obsSets"]["h"] == 6
+
+
+@pytest_requires_full
 def test_multiome_detects_zarr_zip(mocker):
     """Regression: multiome builder must detect .zarr.zip files and open the zip store.
 

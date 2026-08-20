@@ -3,6 +3,7 @@ from functools import cached_property
 from vitessce import AnnDataWrapper
 from vitessce import Component as cm
 
+from ..constants import MAX_OBS_FOR_HEATMAP
 from ..utils import get_conf_cells, read_zip_zarr, with_config_builder_user_agent
 from .base_builders import ViewConfBuilder
 
@@ -97,6 +98,49 @@ class ObjectByAnalyteConfBuilder(ViewConfBuilder):
     @cached_property
     def _get_epic_type(self):  # pragma: no cover
         return self._secondary_analysis_metadata.get("epic_type", [])
+
+    @cached_property
+    def n_obs(self):
+        """The largest number of observations across the mudata modalities.
+
+        Unlike the AnnData and SPRM builders, which read the count out of the zarr store, the
+        count is already in the secondary analysis metadata that this builder fetches to derive
+        the layout -- so gating on it costs nothing extra. A missing count reads as 0, which
+        leaves the heatmap in place.
+
+        >>> entity = {'uuid': 'test', 'status': 'Published', 'files': [{'rel_path': 'x/secondary_analysis.zarr.zip'}]}
+        >>> builder = ObjectByAnalyteConfBuilder(entity, 'token', 'https://example.com')
+        >>> builder.__dict__['_secondary_analysis_metadata'] = {
+        ...     'n_obs': 1000, 'modalities': [{'name': 'rna', 'n_obs': 150_000}, {'name': 'atac'}]}
+        >>> builder.n_obs
+        150000
+        """
+        counts = [modality.get("n_obs") or 0 for modality in self._get_modalities]
+        counts.append(self._secondary_analysis_metadata.get("n_obs") or 0)
+        return max(counts)
+
+    def _should_include_optional_views(self, view_type=None):
+        """Whether an optional view should be added, following the same rules as the other builders:
+        minimal configs drop every optional view, and heatmaps are also dropped for datasets too
+        large to render one performantly.
+
+        >>> entity = {'uuid': 'test', 'status': 'Published', 'files': [{'rel_path': 'x/secondary_analysis.zarr.zip'}]}
+        >>> builder = ObjectByAnalyteConfBuilder(entity, 'token', 'https://example.com')
+        >>> builder.__dict__['n_obs'] = MAX_OBS_FOR_HEATMAP
+        >>> builder._should_include_optional_views('heatmap')
+        True
+        >>> builder.__dict__['n_obs'] = MAX_OBS_FOR_HEATMAP + 1
+        >>> builder._should_include_optional_views('heatmap')
+        False
+        >>> builder._should_include_optional_views('gene_list')
+        True
+        >>> builder._minimal = True
+        >>> builder._should_include_optional_views('gene_list')
+        False
+        """
+        if self._minimal:
+            return False
+        return not (view_type == "heatmap" and self.n_obs > MAX_OBS_FOR_HEATMAP)
 
     def _get_obs_set_keys(self, modality):
         return modality.get("annotations", [])
@@ -264,15 +308,36 @@ class ObjectByAnalyteConfBuilder(ViewConfBuilder):
             spatial_view = vc.add_view("spatialBeta", dataset=dataset, x=4, y=0, w=4, h=3)
             spatial_controller = vc.add_view("layerControllerBeta", dataset=dataset, x=4, y=3, w=4, h=3)
 
-        cell_sets = vc.add_view(
-            cm.OBS_SETS, dataset=dataset, x=cell_sets_and_gene_list_x, y=0, w=cell_sets_and_gene_list_w, h=3
-        )
-        gene_list = vc.add_view(
-            cm.FEATURE_LIST, dataset=dataset, x=cell_sets_and_gene_list_x, y=3, w=cell_sets_and_gene_list_w, h=3
-        )
+        include_gene_list = self._should_include_optional_views("gene_list")
+        include_heatmap = self._should_include_optional_views("heatmap")
 
-        cell_sets_expr = vc.add_view(cm.OBS_SET_FEATURE_VALUE_DISTRIBUTION, dataset=dataset, x=7, y=6, w=5, h=4)
-        heatmap = vc.add_view(cm.HEATMAP, dataset=dataset, x=0, y=6, w=7, h=4)
+        # Without the gene list, the cell sets take over the whole right column.
+        cell_sets = vc.add_view(
+            cm.OBS_SETS,
+            dataset=dataset,
+            x=cell_sets_and_gene_list_x,
+            y=0,
+            w=cell_sets_and_gene_list_w,
+            h=3 if include_gene_list else 6,
+        )
+        gene_list = None
+        if include_gene_list:
+            gene_list = vc.add_view(
+                cm.FEATURE_LIST, dataset=dataset, x=cell_sets_and_gene_list_x, y=3, w=cell_sets_and_gene_list_w, h=3
+            )
+
+        # Without the heatmap, the expression distribution spans the whole bottom row.
+        cell_sets_expr = vc.add_view(
+            cm.OBS_SET_FEATURE_VALUE_DISTRIBUTION,
+            dataset=dataset,
+            x=7 if include_heatmap else 0,
+            y=6,
+            w=5 if include_heatmap else 12,
+            h=4,
+        )
+        heatmap = None
+        if include_heatmap:
+            heatmap = vc.add_view(cm.HEATMAP, dataset=dataset, x=0, y=6, w=7, h=4)
 
         views = list(
             filter(
