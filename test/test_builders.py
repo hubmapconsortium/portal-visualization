@@ -1594,6 +1594,35 @@ def test_seqfish_single_controller_drives_all_tiles(mocker):
 
 
 @pytest.mark.requires_full
+def test_seqfish_shares_z_and_t_between_views(mocker):
+    """Both types are auto-independent in Vitessce, so without an explicit link each view gets its
+    own scope and the layer controller's Z slider never moves the image."""
+    from src.portal_visualization.builders.imaging_builders import SeqFISHViewConfBuilder
+
+    mocker.patch(
+        "src.portal_visualization.builders.imaging_builders.get_ome_tiff_metadata",
+        return_value={"SizeC": 3},
+    )
+    files = []
+    for hc in range(4):
+        files.append({"rel_path": f"ometiff-pyramids/HybCycle_{hc}/MMStack_Pos5.ome.tif"})
+        files.append({"rel_path": f"output_offsets/HybCycle_{hc}/MMStack_Pos5.offsets.json"})
+    entity = {"uuid": "u", "status": "QA", "vitessce-hints": ["is_image"], "files": files}
+
+    conf = SeqFISHViewConfBuilder(entity, groups_token, assets_url).get_conf_cells()[0][0]
+    spatial = next(v for v in conf["layout"] if v["component"] == "spatialBeta")
+    controller = next(v for v in conf["layout"] if v["component"] == "layerControllerBeta")
+
+    for c_type in ("spatialTargetZ", "spatialTargetT"):
+        assert spatial["coordinationScopes"][c_type] == controller["coordinationScopes"][c_type]
+        assert conf["coordinationSpace"][c_type][spatial["coordinationScopes"][c_type]] == 0
+
+    # The hyb cycles all render at once, so volume rendering must not be reachable. The beta layer
+    # controller takes a boolean here; its per-layer-name `disable3d` has no beta equivalent.
+    assert controller["props"]["globalDisable3d"] is True
+
+
+@pytest.mark.requires_full
 def test_read_zip_zarr_opens_store(mocker):
     # Mock the zarr v3 store wiring so no network access occurs.
     mock_zarr_obj = mocker.Mock()

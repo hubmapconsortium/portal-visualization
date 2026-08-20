@@ -372,12 +372,26 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
             scope_prefix=prefix,
         )
 
+    def _link_z_and_t(self, vc, spatial_view, lc_view):
+        """Put the spatial and layer-controller views on one ``spatialTargetZ``/``spatialTargetT`` scope.
+
+        Both types are in Vitessce's ``AUTO_INDEPENDENT_COORDINATION_TYPES``, so under
+        ``initStrategy: auto`` each view is handed its *own* scope and the controller's Z slider
+        never moves the image. Only z-stacked images surface this (seqFISH is 11 slices deep);
+        ``_add_views`` already links them for GeoMx.
+        """
+        target_z, target_t = vc.add_coordination("spatialTargetZ", "spatialTargetT")
+        target_z.set_value(0)
+        target_t.set_value(0)
+        spatial_view.use_coordination(target_z, target_t)
+        lc_view.use_coordination(target_z, target_t)
+
     def _setup_view_config(
         self,
         vc,
         dataset,
         view_type,
-        disable_3d=[],
+        disable_3d=False,
         use_full_resolution=[],
         image_fileuids=None,
         image_channel_count=None,
@@ -388,8 +402,9 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
             )
             vc.add_view(cm.DESCRIPTION, dataset=dataset, x=0, y=8, w=3, h=4)
             lc_view = vc.add_view("layerControllerBeta", dataset=dataset, x=0, y=0, w=3, h=8).set_props(
-                disable3d=disable_3d, disableChannelsIfRgbDetected=True
+                globalDisable3d=disable_3d, disableChannelsIfRgbDetected=True
             )
+            self._link_z_and_t(vc, spatial_view, lc_view)
             self._link_base_image_layers(vc, spatial_view, lc_view, image_fileuids, image_channel_count)
         if view_type == GEOMX_IMAGE_VIEW_TYPE:
             self._add_views(vc, dataset)
@@ -399,8 +414,9 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
                 useFullResolutionImage=use_full_resolution
             )
             lc_view = vc.add_view("layerControllerBeta", dataset=dataset, x=0, y=0, w=4, h=8).set_props(
-                disable3d=disable_3d, disableChannelsIfRgbDetected=True
+                globalDisable3d=disable_3d, disableChannelsIfRgbDetected=True
             )
+            self._link_z_and_t(vc, spatial_view, lc_view)
             # Adding the segmentation mask on top of the image
             if view_type == KAGGLE_IMAGE_VIEW_TYPE:
                 # vc.link_views_by_dict([spatial_view, lc_view])
@@ -800,7 +816,9 @@ class SeqFISHViewConfBuilder(AbstractImagingViewConfBuilder):
                 vc,
                 dataset,
                 self.view_type,
-                disable_3d=[self._get_hybcycle(img_path) for img_path in sorted_images],
+                # Every hyb cycle covers the same field of view and all of them render at once,
+                # so a volume load here would be one whole volume per cycle per channel.
+                disable_3d=True,
                 image_fileuids=image_fileuids,
                 image_channel_count=image_channel_count,
             )
