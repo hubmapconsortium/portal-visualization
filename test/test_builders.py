@@ -2843,6 +2843,77 @@ def test_kaggle1_builder_no_token(mocker):
     # Verify URLs don't have token parameter
     datasets = conf.get("datasets", [])
     assert len(datasets) > 0
+    support_urls = _asset_urls_for_uuid(conf, "support-uuid")
+    assert support_urls
+    assert not [url for url in support_urls if "token=" in url]
+
+
+def _asset_urls_for_uuid(conf, uuid):
+    """Every distinct assets URL in a conf that points at the given entity."""
+    prefix = f"https://example.com/{uuid}/"
+    return sorted({token.strip('"') for token in json.dumps(conf).split() if prefix in token})
+
+
+@pytest_requires_full
+def test_kaggle1_builder_published_support_entity_has_no_token(mocker):
+    """A Published support entity is public, so its base image URLs carry no token."""
+    mocker.patch("src.portal_visualization.builders.imaging_builders.get_image_metadata", return_value=None)
+
+    entity = {
+        "uuid": "test-uuid",
+        "status": "QA",
+        "vitessce-hints": ["segmentation_mask", "pyramid", "is_image"],
+        "files": [
+            {"rel_path": "ometiff-pyramids/seg.segmentations.ome.tif"},
+            {"rel_path": "output_offsets/seg.segmentations.offsets.json"},
+            {"rel_path": "image_metadata/seg.segmentations.metadata.json"},
+        ],
+    }
+
+    support_files = [
+        {"rel_path": "ometiff-pyramids/lab_processed/images/base.ome.tif"},
+        {"rel_path": "output_offsets/lab_processed/images/base.offsets.json"},
+        {"rel_path": "image_metadata/lab_processed/images/base.metadata.json"},
+    ]
+
+    def support_urls(support_status):
+        support_entity = {"uuid": "support-uuid", "files": support_files}
+        if support_status is not None:
+            support_entity["status"] = support_status
+        builder = Kaggle1SegImagePyramidViewConfBuilder(
+            entity,
+            groups_token="groups_token",
+            assets_endpoint="https://example.com",
+            parent="parent-uuid",
+            find_support_entity=lambda uuid: support_entity,
+        )
+        conf, _cells = builder.get_conf_cells()
+        urls = _asset_urls_for_uuid(conf, "support-uuid")
+        assert urls, "expected the conf to reference the support entity"
+        return urls
+
+    # Published: public assets, so no expiring token is leaked into the conf.
+    assert not [url for url in support_urls("Published") if "token=" in url]
+    # Anything else still needs the token to reach the assets API.
+    assert all("token=groups_token" in url for url in support_urls("QA"))
+    assert all("token=groups_token" in url for url in support_urls(None))
+
+    # The segmentation entity's own (QA) files are untouched by this change.
+    published_conf_own_urls = _asset_urls_for_uuid(
+        Kaggle1SegImagePyramidViewConfBuilder(
+            entity,
+            groups_token="groups_token",
+            assets_endpoint="https://example.com",
+            parent="parent-uuid",
+            find_support_entity=lambda uuid: {
+                "uuid": "support-uuid",
+                "status": "Published",
+                "files": support_files,
+            },
+        ).get_conf_cells()[0],
+        "test-uuid",
+    )
+    assert all("token=groups_token" in url for url in published_conf_own_urls)
 
 
 @pytest_requires_full
