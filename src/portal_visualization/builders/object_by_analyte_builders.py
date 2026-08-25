@@ -1,4 +1,5 @@
 from functools import cached_property
+from math import ceil
 
 from vitessce import AnnDataWrapper
 from vitessce import Component as cm
@@ -51,6 +52,20 @@ metadata_example = {
 # would be a second view of the identical array. `X_spatial` is HuBMAP's key and `spatial` is the
 # scanpy/squidpy convention; datasets carry both.
 SPATIAL_OBSM_KEYS = ("X_spatial", "spatial")
+
+# obsm keys that are never useful as a scatterplot embedding. `X_spatial_gpr` is a Gaussian-process
+# regression fitted over the spatial coordinates rather than a projection of the observations, and
+# renders as nothing meaningful. Listed explicitly rather than matched by pattern, so that adding
+# one stays a deliberate decision about a key someone has actually looked at.
+NON_EMBEDDING_OBSM_KEYS = ("X_spatial_gpr",)
+
+# Most scatterplots to lay out, however many embeddings a modality exposes.
+MAX_SCATTERPLOTS = 4
+# Views that summarize expression across every observation. The heatmap's loader densifies the
+# whole feature matrix; the expression-by-cell-set distribution materializes per-observation
+# feature values alongside obs-set membership for the full dataset. Both were measured to exhaust
+# the browser tab on large datasets, so both drop out above MAX_OBS_FOR_HEATMAP.
+EXPRESSION_SUMMARY_VIEWS = ("heatmap", "expression_distribution")
 
 
 class ObjectByAnalyteConfBuilder(ViewConfBuilder):
@@ -128,18 +143,25 @@ class ObjectByAnalyteConfBuilder(ViewConfBuilder):
 
     def _should_include_optional_views(self, view_type=None):
         """Whether an optional view should be added, following the same rules as the other builders:
-        minimal configs drop every optional view, and heatmaps are also dropped for datasets too
-        large to render one performantly -- the heatmap's loader densifies the whole feature matrix.
-        Only the heatmap does that; the expression distribution reads one feature at a time.
+        minimal configs drop every optional view, and the views that summarize expression across
+        every observation (``EXPRESSION_SUMMARY_VIEWS``) are dropped for datasets too large to
+        build that summary in the browser.
 
         >>> entity = {'uuid': 'test', 'status': 'Published', 'files': [{'rel_path': 'x/secondary_analysis.zarr.zip'}]}
         >>> builder = ObjectByAnalyteConfBuilder(entity, 'token', 'https://example.com')
         >>> builder.__dict__['n_obs'] = MAX_OBS_FOR_HEATMAP
         >>> builder._should_include_optional_views('heatmap')
         True
+        >>> builder._should_include_optional_views('expression_distribution')
+        True
         >>> builder.__dict__['n_obs'] = MAX_OBS_FOR_HEATMAP + 1
         >>> builder._should_include_optional_views('heatmap')
         False
+        >>> builder._should_include_optional_views('expression_distribution')
+        False
+
+        The gene list only reads the feature index, so size never affects it:
+
         >>> builder._should_include_optional_views('gene_list')
         True
         >>> builder._minimal = True
@@ -148,7 +170,7 @@ class ObjectByAnalyteConfBuilder(ViewConfBuilder):
         """
         if self._minimal:
             return False
-        return not (view_type == "heatmap" and self.n_obs > MAX_OBS_FOR_HEATMAP)
+        return not (view_type in EXPRESSION_SUMMARY_VIEWS and self.n_obs > MAX_OBS_FOR_HEATMAP)
 
     @cached_property
     def _include_spatial_views(self):
@@ -156,8 +178,9 @@ class ObjectByAnalyteConfBuilder(ViewConfBuilder):
 
         Requires spatial coordinates and a dataset small enough for the spot layer's
         per-observation buffers (see ``MAX_OBS_FOR_SPATIAL_VIEWS``). Over that limit the pair is
-        dropped and the coordinates are shown as a scatterplot instead, which renders the same
-        points far more cheaply -- so nothing is lost but the image layers and their controls.
+        dropped and the spatial coordinates are not rendered at all: a scatterplot over them was
+        still enough to keep the tab from loading at ~2M observations. ``obsLocations`` is then
+        left out of the wrapper too, since nothing remains to read it.
 
         Unlike the other optional views this ignores ``_minimal``: minimal configs have always
         included the spatial view when the data has it, and the marker-gene preview that requests
@@ -192,11 +215,31 @@ class ObjectByAnalyteConfBuilder(ViewConfBuilder):
         return modality.get("annotations", [])
 
     def _get_obs_set_paths(self, modality):
+        """Paths to the annotated cell sets for a modality.
+
+        These labels live twice in the store: as ``obs/<annotation>`` and as a column of the
+        ``obsm/annotation`` dataframe. Prefer ``obs``: the source caches the obs index per obs
+        path, so reading the sets from there reuses the index the rest of the config already
+        loaded, where ``obsm/annotation`` makes it download and materialize a second string array
+        with one entry per observation. On a multi-million-observation dataset that second copy is
+        tens of MB transferred and hundreds of MB of heap for nothing.
+
+        Falls back to ``obsm/annotation`` for an annotation that isn't in ``obs_keys``.
+
+        >>> entity = {'uuid': 'test', 'status': 'Published', 'files': []}
+        >>> builder = ObjectByAnalyteConfBuilder(entity, 'token', 'https://example.com')
+        >>> builder._get_obs_set_paths({'name': 'rna', 'annotations': ['azimuth_label', 'leiden'],
+        ...                            'obs_keys': ['age', 'azimuth_label', 'leiden']})
+        ['mod/rna/obs/azimuth_label', 'mod/rna/obs/leiden']
+
+        >>> builder._get_obs_set_paths({'name': 'rna', 'annotations': ['azimuth_label'],
+        ...                            'obs_keys': ['age']})
+        ['mod/rna/obsm/annotation/azimuth_label']
         """
-        Get the paths to the observation sets for a given modality.
-        """
+        obs_keys = modality.get("obs_keys", [])
+        base = f"mod/{modality.get('name')}"
         return [
-            f"mod/{modality.get('name')}/obsm/annotation/{annotation}"
+            f"{base}/obs/{annotation}" if annotation in obs_keys else f"{base}/obsm/annotation/{annotation}"
             for annotation in self._get_obs_set_keys(modality)
         ]
 
@@ -209,14 +252,14 @@ class ObjectByAnalyteConfBuilder(ViewConfBuilder):
     def _get_obs_embedding_pairs(self, modality):
         """Ordered ``(obsm_key, display_name)`` pairs for one modality's scatterplot embeddings.
 
-        Three kinds of key in ``obsm_keys`` are not scatterplot embeddings:
+        Four kinds of key in ``obsm_keys`` are not scatterplot embeddings:
 
         - ``annotation`` and the annotated cell set keys, which are obs sets.
-        - The spatial coordinate keys, when the modality has them *and* the spatial view is being
-          added. They become ``obsLocations`` and spatialBeta draws them, so a ``SPATIAL``
-          scatterplot would be a second view of the same array. When the dataset is too large for
-          the spatial view, the keys are left in: the scatterplot then becomes the only thing
-          rendering those coordinates.
+        - Anything in ``NON_EMBEDDING_OBSM_KEYS``, which is not a projection of the observations.
+        - The spatial coordinate keys. Where the spatial view is added they are its
+          ``obsLocations``, so a ``SPATIAL`` scatterplot would be a second view of the same array;
+          where it is not, the dataset was too large for the spatial coordinates to render at all.
+          Either way they are not a scatterplot.
         - A key whose display name is already taken. A name is the key's last
           underscore-delimited segment, so distinct keys can collapse onto one -- Vitessce
           addresses an embedding by that name, making the second unreachable, a fetch of a whole
@@ -234,26 +277,24 @@ class ObjectByAnalyteConfBuilder(ViewConfBuilder):
         ...             'obsm_keys': ['X_pca', 'X_spatial', 'X_spatial_gpr', 'X_umap',
         ...                           'spatial', 'annotation', 'leiden']}
 
-        With the spatial view present, both spatial keys are left to ``obsLocations``, while the
-        GPR-smoothed embedding is a genuinely separate projection and stays:
+        The spatial keys and the GPR fit both drop out, whether or not the spatial view is added:
 
         >>> build(True)._get_obs_embedding_pairs(modality)
-        [('X_pca', 'PCA'), ('X_spatial_gpr', 'GPR'), ('X_umap', 'UMAP')]
-
-        Without it -- too many observations for the spot layer -- ``X_spatial`` comes back as a
-        scatterplot, which is then the only view of those coordinates:
-
+        [('X_pca', 'PCA'), ('X_umap', 'UMAP')]
         >>> build(False)._get_obs_embedding_pairs(modality)
-        [('X_pca', 'PCA'), ('X_spatial', 'SPATIAL'), ('X_spatial_gpr', 'GPR'), ('X_umap', 'UMAP')]
+        [('X_pca', 'PCA'), ('X_umap', 'UMAP')]
 
-        A modality with no spatial coordinates never consults the gate, and names still dedupe:
+        Names still dedupe -- ``X_umap`` and ``umap`` both read as ``UMAP``, first key wins:
 
         >>> build(True)._get_obs_embedding_pairs({'name': 'rna', 'obsm_keys': ['X_umap', 'umap', 'X_pca']})
         [('X_umap', 'UMAP'), ('X_pca', 'PCA')]
         """
-        non_embedding_keys = ["annotation", *self._get_obs_set_keys(modality)]
-        if self._is_spatial(modality) and self._include_spatial_views:
-            non_embedding_keys.extend(SPATIAL_OBSM_KEYS)
+        non_embedding_keys = [
+            "annotation",
+            *NON_EMBEDDING_OBSM_KEYS,
+            *SPATIAL_OBSM_KEYS,
+            *self._get_obs_set_keys(modality),
+        ]
         pairs = []
         seen_names = set()
         for key in modality.get("obsm_keys", []):
@@ -303,18 +344,62 @@ class ObjectByAnalyteConfBuilder(ViewConfBuilder):
         return None
 
     def _get_feature_filters_path(self, modality):
+        """Path to the boolean column restricting which features the heatmap loads.
+
+        Only claimed when the modality actually has the column. Emitting it unconditionally
+        pointed at a nonexistent array for every modality without ``highly_variable`` -- inert
+        while no view reads the feature matrix, but a landmine for one that does.
+
+        Where the column exists it is doing real work: it is what keeps the heatmap's loader from
+        densifying all of ``X`` (see ``EXPRESSION_SUMMARY_VIEWS``), so it is kept rather than
+        dropped outright.
+
+        >>> entity = {'uuid': 'test', 'status': 'Published', 'files': []}
+        >>> builder = ObjectByAnalyteConfBuilder(entity, 'token', 'https://example.com')
+        >>> builder._get_feature_filters_path({'name': 'rna', 'var_keys': ['highly_variable']})
+        'mod/rna/var/highly_variable'
+        >>> repr(builder._get_feature_filters_path({'name': 'rna', 'var_keys': ['hugo_symbol']}))
+        'None'
         """
-        Provides the path indicating the highly variable features to include in the heatmap
-        """
+        if "highly_variable" not in modality.get("var_keys", []):
+            return None
         return f"mod/{modality.get('name')}/var/highly_variable"
 
     def _get_feature_matrix_path(self, modality):
-        """
-        Gets the path to the "X" feature matrix for the modality if it exists
-        and has non-zero dimensions
+        """Path to the expression matrix for a modality with non-zero dimensions.
+
+        Prefers ``layers/unscaled`` over ``X`` where the modality looks scaled. ``X`` is written
+        dense, so selecting one gene pulls a whole chunk spanning every observation and
+        decompresses it; ``unscaled`` is CSC, so a gene selection slices
+        ``[indptr[i], indptr[i + 1])`` -- a fraction of the bytes and no large transient
+        allocation. The trade-off is that the values are unscaled, so a feature color scale reads
+        as raw expression rather than z-scores.
+
+        ``secondary_analysis_metadata.json`` does not enumerate ``layers``, so presence is inferred
+        from ``var_keys``: ``mean`` and ``std`` are what a scaling step writes, and their presence
+        is the signal that ``X`` was scaled and the unscaled values were kept alongside it. A
+        modality without them is taken to be unscaled already, and ``X`` is used directly.
+
+        >>> entity = {'uuid': 'test', 'status': 'Published', 'files': []}
+        >>> builder = ObjectByAnalyteConfBuilder(entity, 'token', 'https://example.com')
+        >>> scaled = {'name': 'rna', 'n_obs': 10, 'n_vars': 5,
+        ...           'var_keys': ['hugo_symbol', 'mean', 'std']}
+        >>> builder._get_feature_matrix_path(scaled)
+        'mod/rna/layers/unscaled'
+
+        >>> builder._get_feature_matrix_path({'name': 'rna', 'n_obs': 10, 'n_vars': 5,
+        ...                                   'var_keys': ['hugo_symbol']})
+        'mod/rna/X'
+
+        >>> repr(builder._get_feature_matrix_path({'name': 'rna', 'n_obs': 0, 'n_vars': 5}))
+        'None'
         """
         if (modality.get("n_obs") or 0) > 0 and (modality.get("n_vars") or 0) > 0:
-            return f"mod/{modality.get('name')}/X"
+            base = f"mod/{modality.get('name')}"
+            var_keys = modality.get("var_keys", [])
+            if "mean" in var_keys and "std" in var_keys:
+                return f"{base}/layers/unscaled"
+            return f"{base}/X"
         return None
 
     def _get_obs_labels_path(self, modality):  # pragma: no cover
@@ -336,9 +421,10 @@ class ObjectByAnalyteConfBuilder(ViewConfBuilder):
 
     def _get_spatial(self, modality):
         """
-        Returns the path to the spatial coordinates for the modality if present
+        Returns the path to the spatial coordinates for the modality, if present and if a view
+        will actually render them.
         """
-        if self._is_spatial(modality):
+        if self._is_spatial(modality) and self._include_spatial_views:
             return f"mod/{modality.get('name')}/obsm/X_spatial"
         return None
 
@@ -371,40 +457,43 @@ class ObjectByAnalyteConfBuilder(ViewConfBuilder):
     def _setup_anndata_view_config(self, vc, dataset):
         scatterplot_mappings = self._scatterplot_mappings
 
-        scatterplots = []
-        num_mappings = len(scatterplot_mappings)
+        # Spatial data present, and few enough observations for the spot layer to handle.
+        has_spatial = self._include_spatial_views
 
-        # Scatterplots take up the top left 4x6 area; the initial size of the views depends
-        # on how many scatterplot embeddings are available.
+        # The right-hand column is always 4 wide. The scatterplots get everything to its left, so
+        # when there is no spatial pair the plots widen into that space instead of the cell sets
+        # and gene list stretching across it.
+        cell_sets_and_gene_list_w = 4
+        cell_sets_and_gene_list_x = 8
+        scatterplots_w = 4 if has_spatial else 8
 
         # Small helper function to cut down on repetitive boilerplate
         def add_scatterplot(mapping, x, y, w, h):
             return vc.add_view(cm.SCATTERPLOT, dataset=dataset, mapping=mapping, x=x, y=y, w=w, h=h)
 
-        if num_mappings == 1:
-            scatterplot = add_scatterplot(mapping=scatterplot_mappings[0], x=0, y=0, w=4, h=6)
-            scatterplots.append(scatterplot)
-        elif num_mappings == 2:
-            for i, mapping in enumerate(scatterplot_mappings):
-                scatterplots.append(add_scatterplot(mapping=mapping, x=0, y=i * 3, w=4, h=3))
-        elif num_mappings == 3:
-            for i, mapping in enumerate(scatterplot_mappings):
-                scatterplots.append(add_scatterplot(mapping=mapping, x=0, y=i * 2, w=4, h=2))
-        elif num_mappings >= 4:
-            # Currently supporting up to four scatterplots.
-            available_mappings_for_visualization = scatterplot_mappings[:4]
-            for i, mapping in enumerate(available_mappings_for_visualization):
-                row = i // 2
-                col = i % 2
-                scatterplots.append(add_scatterplot(mapping=mapping, x=col * 2, y=row * 3, w=2, h=3))
-        # Spatial data present, and few enough observations for the spot layer to handle.
-        has_spatial = self._include_spatial_views
+        # Fill the scatterplots_w x 6 region row-major: a single column while three or fewer fit
+        # legibly, two columns beyond that. A modality whose only obsm keys are spatial or
+        # annotations has no embedding to plot at all.
+        mappings = scatterplot_mappings[:MAX_SCATTERPLOTS]
+        scatterplots = []
+        if mappings:
+            cols = 1 if len(mappings) <= 3 else 2
+            rows = ceil(len(mappings) / cols)
+            cell_w = scatterplots_w // cols
+            cell_h = 6 // rows
+            scatterplots = [
+                add_scatterplot(
+                    mapping=mapping,
+                    x=(i % cols) * cell_w,
+                    y=(i // cols) * cell_h,
+                    w=cell_w,
+                    h=cell_h,
+                )
+                for i, mapping in enumerate(mappings)
+            ]
 
         spatial_view = None
         spatial_controller = None
-
-        cell_sets_and_gene_list_w = 4 if has_spatial else 8
-        cell_sets_and_gene_list_x = 8 if has_spatial else 4
 
         if has_spatial:
             # Add spatial views if spatial data is available
@@ -413,6 +502,7 @@ class ObjectByAnalyteConfBuilder(ViewConfBuilder):
 
         include_gene_list = self._should_include_optional_views("gene_list")
         include_heatmap = self._should_include_optional_views("heatmap")
+        include_expression_distribution = self._should_include_optional_views("expression_distribution")
 
         # Without the gene list, the cell sets take over the whole right column.
         cell_sets = vc.add_view(
@@ -429,18 +519,15 @@ class ObjectByAnalyteConfBuilder(ViewConfBuilder):
                 cm.FEATURE_LIST, dataset=dataset, x=cell_sets_and_gene_list_x, y=3, w=cell_sets_and_gene_list_w, h=3
             )
 
-        # Without the heatmap, the expression distribution spans the whole bottom row.
-        cell_sets_expr = vc.add_view(
-            cm.OBS_SET_FEATURE_VALUE_DISTRIBUTION,
-            dataset=dataset,
-            x=7 if include_heatmap else 0,
-            y=6,
-            w=5 if include_heatmap else 12,
-            h=4,
-        )
+        # Both bottom-row views summarize expression over every observation, so they share a gate
+        # and are added together. When it closes the row is gone; the grid is relative, so the
+        # remaining views grow to fill the space rather than leaving a gap.
         heatmap = None
+        cell_sets_expr = None
         if include_heatmap:
             heatmap = vc.add_view(cm.HEATMAP, dataset=dataset, x=0, y=6, w=7, h=4)
+        if include_expression_distribution:
+            cell_sets_expr = vc.add_view(cm.OBS_SET_FEATURE_VALUE_DISTRIBUTION, dataset=dataset, x=7, y=6, w=5, h=4)
 
         views = list(
             filter(
