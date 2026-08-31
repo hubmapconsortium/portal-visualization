@@ -2420,7 +2420,9 @@ def test_xenium_large_dataset_hides_heatmap(mocker):
 @pytest_requires_full
 def test_object_by_analyte_heatmap_gate():
     """Object-by-analyte builder: the heatmap is dropped above MAX_OBS_FOR_HEATMAP observations
-    (and in minimal mode), and the remaining views expand into the freed grid space.
+    (and in minimal mode), and the remaining views expand into the freed grid space. The
+    expression-by-cell-set distribution is not size-gated -- it loads one feature column at a
+    time -- so above the threshold it stays and widens across the whole bottom row.
 
     The obs count comes from secondary_analysis_metadata.json rather than the zarr store, so
     seeding that cached property is enough -- no HTTP or zarr mocking needed.
@@ -2472,31 +2474,34 @@ def test_object_by_analyte_heatmap_gate():
     # Exactly at the threshold still gets a heatmap -- the gate is strictly greater-than.
     assert "heatmap" in views_by_component(build_conf(MAX_OBS_FOR_HEATMAP))
 
-    # Large dataset: both expression-summary views are gone, so the bottom row disappears rather
-    # than the distribution stretching across it. Leaving it there still exhausted the tab at 2M
-    # observations, which is what the measurement on 728d02be5fada1541decd1091a4b17e3 showed.
+    # Large dataset: only the heatmap goes, since only its loader needs the whole feature matrix.
+    # The distribution reads one feature column at a time, so it stays and takes the whole row.
     conf = build_conf(MAX_OBS_FOR_HEATMAP + 1)
     views = views_by_component(conf)
     assert "heatmap" not in json.dumps(conf["layout"]).lower()
-    assert "obsSetFeatureValueDistribution" not in views
-    assert max(view["y"] + view["h"] for view in conf["layout"]) == 6, "no empty bottom row"
+    distribution = views["obsSetFeatureValueDistribution"]
+    assert (distribution["x"], distribution["w"]) == (0, 12)
     # Everything else survives.
     for component in ("scatterplot", "obsSets", "featureList"):
         assert component in views, f"{component} should still be present"
     # The matrix stays declared -- the gene list and per-feature scatterplot coloring need it.
     assert "obsFeatureMatrix" in conf["datasets"][0]["files"][0]["options"]
 
-    # A modality larger than the (absent) top-level count also drops both.
+    # A modality larger than the (absent) top-level count drops the heatmap the same way.
     views = views_by_component(build_conf(None, modality_n_obs=200_000))
     assert "heatmap" not in views
-    assert "obsSetFeatureValueDistribution" not in views
+    distribution = views["obsSetFeatureValueDistribution"]
+    assert (distribution["x"], distribution["w"]) == (0, 12)
 
-    # Minimal configs drop the heatmap and the gene list regardless of size, and the cell sets
-    # grow to fill the right column.
-    views = views_by_component(build_conf(1000, minimal=True))
+    # Minimal configs drop every optional view regardless of size, so the bottom row goes away
+    # entirely and the cell sets grow to fill the right column.
+    conf = build_conf(1000, minimal=True)
+    views = views_by_component(conf)
     assert "heatmap" not in views
     assert "featureList" not in views
+    assert "obsSetFeatureValueDistribution" not in views
     assert views["obsSets"]["h"] == 6
+    assert max(view["y"] + view["h"] for view in conf["layout"]) == 6, "no empty bottom row"
 
 
 def _object_by_analyte_conf(obsm_keys, modality=None, n_obs=1000):

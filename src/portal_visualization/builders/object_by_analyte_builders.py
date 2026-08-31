@@ -61,11 +61,11 @@ NON_EMBEDDING_OBSM_KEYS = ("X_spatial_gpr",)
 
 # Most scatterplots to lay out, however many embeddings a modality exposes.
 MAX_SCATTERPLOTS = 4
-# Views that summarize expression across every observation. The heatmap's loader densifies the
-# whole feature matrix; the expression-by-cell-set distribution materializes per-observation
-# feature values alongside obs-set membership for the full dataset. Both were measured to exhaust
-# the browser tab on large datasets, so both drop out above MAX_OBS_FOR_HEATMAP.
-EXPRESSION_SUMMARY_VIEWS = ("heatmap", "expression_distribution")
+# Views dropped above MAX_OBS_FOR_HEATMAP. Only the heatmap qualifies: its loader densifies the
+# whole feature matrix, and no dataset-side option avoids that. The expression-by-cell-set
+# distribution reads only the selected feature's column plus obs-set membership, so it was gated
+# alongside the heatmap only until vitessce made both of those bounded; it now stays at any size.
+EXPRESSION_SUMMARY_VIEWS = ("heatmap",)
 
 
 class ObjectByAnalyteConfBuilder(ViewConfBuilder):
@@ -143,29 +143,30 @@ class ObjectByAnalyteConfBuilder(ViewConfBuilder):
 
     def _should_include_optional_views(self, view_type=None):
         """Whether an optional view should be added, following the same rules as the other builders:
-        minimal configs drop every optional view, and the views that summarize expression across
-        every observation (``EXPRESSION_SUMMARY_VIEWS``) are dropped for datasets too large to
-        build that summary in the browser.
+        minimal configs drop every optional view, and the views that need more of the feature
+        matrix than a per-feature slice (``EXPRESSION_SUMMARY_VIEWS``) are dropped for datasets
+        too large to build that summary in the browser.
 
         >>> entity = {'uuid': 'test', 'status': 'Published', 'files': [{'rel_path': 'x/secondary_analysis.zarr.zip'}]}
         >>> builder = ObjectByAnalyteConfBuilder(entity, 'token', 'https://example.com')
         >>> builder.__dict__['n_obs'] = MAX_OBS_FOR_HEATMAP
         >>> builder._should_include_optional_views('heatmap')
         True
-        >>> builder._should_include_optional_views('expression_distribution')
-        True
         >>> builder.__dict__['n_obs'] = MAX_OBS_FOR_HEATMAP + 1
         >>> builder._should_include_optional_views('heatmap')
         False
-        >>> builder._should_include_optional_views('expression_distribution')
-        False
 
-        The gene list only reads the feature index, so size never affects it:
+        The gene list only reads the feature index, and the expression distribution only the
+        selected feature's column, so size never affects either:
 
         >>> builder._should_include_optional_views('gene_list')
         True
+        >>> builder._should_include_optional_views('expression_distribution')
+        True
         >>> builder._minimal = True
         >>> builder._should_include_optional_views('gene_list')
+        False
+        >>> builder._should_include_optional_views('expression_distribution')
         False
         """
         if self._minimal:
@@ -539,15 +540,23 @@ class ObjectByAnalyteConfBuilder(ViewConfBuilder):
                 cm.FEATURE_LIST, dataset=dataset, x=cell_sets_and_gene_list_x, y=3, w=cell_sets_and_gene_list_w, h=3
             )
 
-        # Both bottom-row views summarize expression over every observation, so they share a gate
-        # and are added together. When it closes the row is gone; the grid is relative, so the
-        # remaining views grow to fill the space rather than leaving a gap.
+        # The heatmap is the only bottom-row view large datasets lose (see
+        # EXPRESSION_SUMMARY_VIEWS), and without it the distribution takes the whole row. When
+        # both are gone so is the row; the grid is relative, so the views above grow to fill the
+        # space rather than leaving a gap.
         heatmap = None
         cell_sets_expr = None
         if include_heatmap:
             heatmap = vc.add_view(cm.HEATMAP, dataset=dataset, x=0, y=6, w=7, h=4)
         if include_expression_distribution:
-            cell_sets_expr = vc.add_view(cm.OBS_SET_FEATURE_VALUE_DISTRIBUTION, dataset=dataset, x=7, y=6, w=5, h=4)
+            cell_sets_expr = vc.add_view(
+                cm.OBS_SET_FEATURE_VALUE_DISTRIBUTION,
+                dataset=dataset,
+                x=7 if include_heatmap else 0,
+                y=6,
+                w=5 if include_heatmap else 12,
+                h=4,
+            )
 
         views = list(
             filter(
