@@ -368,23 +368,40 @@ class ObjectByAnalyteConfBuilder(ViewConfBuilder):
     def _get_feature_matrix_path(self, modality):
         """Path to the expression matrix for a modality with non-zero dimensions.
 
-        Prefers ``layers/unscaled`` over ``X`` where the modality looks scaled. ``X`` is written
-        dense, so selecting one gene pulls a whole chunk spanning every observation and
-        decompresses it; ``unscaled`` is CSC, so a gene selection slices
-        ``[indptr[i], indptr[i + 1])`` -- a fraction of the bytes and no large transient
-        allocation. The trade-off is that the values are unscaled, so a feature color scale reads
-        as raw expression rather than z-scores.
+        Prefers ``layers/unscaled`` over ``X`` where the modality carries it: the unscaled values
+        read as raw expression rather than z-scores, which is what a feature color scale wants.
+        Since object-by-analyte-to-ui 0.0.7 both are written CSC, so a gene selection slices
+        ``[indptr[i], indptr[i + 1])`` either way.
 
-        ``secondary_analysis_metadata.json`` does not enumerate ``layers``, so presence is inferred
-        from ``var_keys``: ``mean`` and ``std`` are what a scaling step writes, and their presence
-        is the signal that ``X`` was scaled and the unscaled values were kept alongside it. A
-        modality without them is taken to be unscaled already, and ``X`` is used directly.
+        ``layers`` is listed in ``secondary_analysis_metadata.json`` only from that same container
+        version. Where it is present it is authoritative. Without it there is no way to know which
+        layers exist, so fall back to the older inference: ``mean`` and ``std`` are what a scaling
+        step writes to ``var_keys``, and are taken as the signal that ``X`` was scaled and the
+        unscaled values kept alongside it. Layer names come from the submitter rather than the
+        container, so that inference can name a layer the store does not have -- it survives only
+        for already-processed datasets, and goes away as they are reprocessed.
 
         >>> entity = {'uuid': 'test', 'status': 'Published', 'files': []}
         >>> builder = ObjectByAnalyteConfBuilder(entity, 'token', 'https://example.com')
-        >>> scaled = {'name': 'rna', 'n_obs': 10, 'n_vars': 5,
-        ...           'var_keys': ['hugo_symbol', 'mean', 'std']}
-        >>> builder._get_feature_matrix_path(scaled)
+
+        ``layers`` decides it where present:
+
+        >>> builder._get_feature_matrix_path({'name': 'rna', 'n_obs': 10, 'n_vars': 5,
+        ...                                   'layers': ['raw', 'unscaled']})
+        'mod/rna/layers/unscaled'
+
+        including where it contradicts the ``mean``/``std`` inference -- the case that used to
+        yield a path to an array the container never wrote:
+
+        >>> builder._get_feature_matrix_path({'name': 'rna', 'n_obs': 10, 'n_vars': 5,
+        ...                                   'layers': ['normalized', 'raw'],
+        ...                                   'var_keys': ['hugo_symbol', 'mean', 'std']})
+        'mod/rna/X'
+
+        Metadata written before 0.0.7 has no ``layers`` key, and keeps the inference:
+
+        >>> builder._get_feature_matrix_path({'name': 'rna', 'n_obs': 10, 'n_vars': 5,
+        ...                                   'var_keys': ['hugo_symbol', 'mean', 'std']})
         'mod/rna/layers/unscaled'
 
         >>> builder._get_feature_matrix_path({'name': 'rna', 'n_obs': 10, 'n_vars': 5,
@@ -396,6 +413,9 @@ class ObjectByAnalyteConfBuilder(ViewConfBuilder):
         """
         if (modality.get("n_obs") or 0) > 0 and (modality.get("n_vars") or 0) > 0:
             base = f"mod/{modality.get('name')}"
+            layers = modality.get("layers")
+            if layers is not None:
+                return f"{base}/layers/unscaled" if "unscaled" in layers else f"{base}/X"
             var_keys = modality.get("var_keys", [])
             if "mean" in var_keys and "std" in var_keys:
                 return f"{base}/layers/unscaled"
