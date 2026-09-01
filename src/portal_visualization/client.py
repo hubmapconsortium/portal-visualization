@@ -464,9 +464,30 @@ def _get_nested(path, nested):
     True
     >>> _get_nested(path, nested)
     123
+
+    A token that lands on a list maps the rest of the path over its elements.
+    Datasets can descend from several donors, and the singular `donor` on the
+    document is just `donors[0]`, so `donors.hubmap_id` is the only way to see
+    all of them. Before this branch the list had no `.get` and the whole
+    request died with an AttributeError:
+
+    >>> _get_nested('donors.hubmap_id', {'donors': [{'hubmap_id': 'HBM1'},
+    ...                                             {'hubmap_id': 'HBM2'}]})
+    ['HBM1', 'HBM2']
+
+    Empty and missing elements drop out rather than becoming holes:
+
+    >>> _get_nested('donors.hubmap_id', {'donors': [{'hubmap_id': 'HBM1'}, {}]})
+    ['HBM1']
+    >>> _get_nested('donors.hubmap_id', {'donors': []}) is None
+    True
     """
     tokens = path.split(".")
-    for t in tokens:
+    for i, t in enumerate(tokens):
+        if isinstance(nested, list):
+            rest = ".".join(tokens[i:])
+            collected = [_get_nested(rest, item) for item in nested]
+            return [c for c in collected if c is not None] or None
         nested = nested.get(t, {})
     return nested or None
 
