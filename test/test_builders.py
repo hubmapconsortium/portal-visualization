@@ -2542,77 +2542,46 @@ def _object_by_analyte_conf(obsm_keys, modality=None, n_obs=1000):
 
 
 @pytest_requires_full
-def test_object_by_analyte_omits_redundant_spatial_scatterplot():
-    """Spatial coordinates drive obsLocations and the spatialBeta view, so they must not also
-    become a scatterplot embedding -- that rendered the identical array twice.
+def test_object_by_analyte_ignores_spatial_keys():
+    """Object by analyte is specified as objects and features with annotations -- spatial is not
+    part of it, so spatial keys are ignored however they arrive.
 
-    Uses the obsm shape seen on 728d02be5fada1541decd1091a4b17e3, which carries both HuBMAP's
-    X_spatial and the scanpy-convention spatial, plus the X_spatial_gpr fit that is never an
-    embedding.
+    They do arrive: 728d02be5fada1541decd1091a4b17e3 carries both HuBMAP's X_spatial and the
+    scanpy-convention spatial, plus an X_spatial_gpr fit. None of them may become obsLocations, a
+    spatialBeta/layerControllerBeta pair, or a SPATIAL scatterplot standing in for one.
     """
     conf = _object_by_analyte_conf(["X_pca", "X_spatial", "X_spatial_gpr", "X_umap", "spatial", "annotation", "leiden"])
     options = conf["datasets"][0]["files"][0]["options"]
     names = [embedding["embeddingType"] for embedding in options["obsEmbedding"]]
+    components = [view["component"] for view in conf["layout"]]
+    views = {view["component"]: view for view in conf["layout"]}
 
     assert names == ["PCA", "UMAP"], "no SPATIAL embedding, and no GPR"
-    assert options["obsLocations"]["path"] == "mod/RNA_processed/obsm/X_spatial"
+    assert "obsLocations" not in options, "spatial coordinates are not declared at all"
     assert "SPATIAL" not in conf["coordinationSpace"]["embeddingType"].values()
-    components = [view["component"] for view in conf["layout"]]
-    assert "spatialBeta" in components
+    assert "spatialBeta" not in components
+    assert "layerControllerBeta" not in components
     assert components.count("scatterplot") == len(names)
+    # The scatterplots hold the whole width left of the right-hand column.
+    assert views["scatterplot"]["w"] == 8
+    assert (views["obsSets"]["x"], views["obsSets"]["w"]) == (8, 4)
 
-    # A modality with no spatial key gets no spatial view, and its other embeddings are untouched.
+    # Size is irrelevant now that nothing renders the coordinates.
+    options = _object_by_analyte_conf(["X_umap", "X_spatial"], n_obs=2_000_000)["datasets"][0]["files"][0]["options"]
+    assert [e["embeddingType"] for e in options["obsEmbedding"]] == ["UMAP"]
+    assert "obsLocations" not in options
+
+    # A modality with no spatial key at all keeps its embeddings untouched.
     conf = _object_by_analyte_conf(["X_umap", "X_tsne"])
     names = [e["embeddingType"] for e in conf["datasets"][0]["files"][0]["options"]["obsEmbedding"]]
     assert names == ["UMAP", "TSNE"]
-    assert "spatialBeta" not in [view["component"] for view in conf["layout"]]
 
-    # A modality with nothing but spatial coordinates has no embedding left, which must build a
-    # valid spatial-only config rather than raising. (It used to raise IndexError: vitessce
-    # applies obs_embedding_dims positionally, so a hard-coded [[0, 1]] indexed an empty list.)
+    # A modality with nothing but spatial coordinates has no embedding left, which must still
+    # build a valid config rather than raising. (It used to raise IndexError: vitessce applies
+    # obs_embedding_dims positionally, so a hard-coded [[0, 1]] indexed an empty list.)
     conf = _object_by_analyte_conf(["X_spatial", "spatial", "annotation", "leiden"])
     assert conf["datasets"][0]["files"][0]["options"]["obsEmbedding"] == []
-    components = [view["component"] for view in conf["layout"]]
-    assert "scatterplot" not in components
-    assert "spatialBeta" in components, "the spatial view is the only view of these coordinates"
-
-
-@pytest_requires_full
-def test_object_by_analyte_drops_spatial_views_when_too_large():
-    """The spatialBeta/layerControllerBeta pair allocates per-observation buffers in its spot
-    layer, so past MAX_OBS_FOR_SPATIAL_VIEWS it exhausts the browser tab (measured at ~2M
-    observations). Over the limit the pair is dropped, and so are the coordinates: rendering them
-    as a scatterplot instead was still enough to keep the page from loading.
-    """
-    from src.portal_visualization.constants import MAX_OBS_FOR_SPATIAL_VIEWS
-
-    obsm_keys = ["X_umap", "X_pca", "X_spatial", "spatial", "annotation", "leiden"]
-
-    # Under the limit: the spatial pair renders the coordinates, so no SPATIAL scatterplot.
-    conf = _object_by_analyte_conf(obsm_keys, n_obs=MAX_OBS_FOR_SPATIAL_VIEWS)
-    components = [view["component"] for view in conf["layout"]]
-    views = {view["component"]: view for view in conf["layout"]}
-    options = conf["datasets"][0]["files"][0]["options"]
-    assert "spatialBeta" in components
-    assert "layerControllerBeta" in components
-    assert [e["embeddingType"] for e in options["obsEmbedding"]] == ["UMAP", "PCA"]
-    assert options["obsLocations"]["path"] == "mod/RNA_processed/obsm/X_spatial"
-    # Scatterplots share the left third with the spatial pair; right column is 4 wide.
-    assert views["scatterplot"]["w"] == 4
-    assert (views["obsSets"]["x"], views["obsSets"]["w"]) == (8, 4)
-
-    # One observation over: the pair is gone, and the coordinates go with it.
-    conf = _object_by_analyte_conf(obsm_keys, n_obs=MAX_OBS_FOR_SPATIAL_VIEWS + 1)
-    components = [view["component"] for view in conf["layout"]]
-    views = {view["component"]: view for view in conf["layout"]}
-    options = conf["datasets"][0]["files"][0]["options"]
-    assert "spatialBeta" not in components
-    assert "layerControllerBeta" not in components
-    assert [e["embeddingType"] for e in options["obsEmbedding"]] == ["UMAP", "PCA"]
-    assert "obsLocations" not in options, "nothing left to render the coordinates"
-    # The scatterplots take the freed width, not the cell sets / gene list.
-    assert views["scatterplot"]["w"] == 8
-    assert (views["obsSets"]["x"], views["obsSets"]["w"]) == (8, 4)
+    assert "scatterplot" not in [view["component"] for view in conf["layout"]]
 
 
 @pytest_requires_full
@@ -2634,17 +2603,14 @@ def test_object_by_analyte_feature_filter_requires_the_column():
 @pytest_requires_full
 def test_object_by_analyte_drops_non_embedding_obsm_keys():
     """X_spatial_gpr is a Gaussian-process fit over the spatial coordinates, not a projection of
-    the observations, and renders as nothing useful -- so it never becomes a scatterplot, with or
-    without the spatial view."""
-    from src.portal_visualization.constants import MAX_OBS_FOR_SPATIAL_VIEWS
-
-    for n_obs in (1000, MAX_OBS_FOR_SPATIAL_VIEWS + 1):
-        conf = _object_by_analyte_conf(["X_umap", "X_spatial", "X_spatial_gpr"], n_obs=n_obs)
-        options = conf["datasets"][0]["files"][0]["options"]
-        names = [embedding["embeddingType"] for embedding in options["obsEmbedding"]]
-        assert "GPR" not in names, f"GPR should never be an embedding (n_obs={n_obs})"
-        paths = [embedding["path"] for embedding in options["obsEmbedding"]]
-        assert "mod/RNA_processed/obsm/X_spatial_gpr" not in paths
+    the observations, and renders as nothing useful -- so it never becomes a scatterplot. It is
+    listed separately from the spatial keys themselves, which are out of scope for a different
+    reason (see NON_EMBEDDING_OBSM_KEYS)."""
+    options = _object_by_analyte_conf(["X_umap", "X_spatial", "X_spatial_gpr"])["datasets"][0]["files"][0]["options"]
+    names = [embedding["embeddingType"] for embedding in options["obsEmbedding"]]
+    assert "GPR" not in names, "GPR should never be an embedding"
+    paths = [embedding["path"] for embedding in options["obsEmbedding"]]
+    assert "mod/RNA_processed/obsm/X_spatial_gpr" not in paths
 
 
 @pytest_requires_full

@@ -14,17 +14,6 @@ XENIUM_ZARR_PATH = "Xenium.zarr"
 # Maximum number of observations to display heatmaps for performance reasons
 MAX_OBS_FOR_HEATMAP = 125_000
 
-# Maximum number of observations to add the spatialBeta / layerControllerBeta pair for. Its spot
-# layer allocates per-observation GPU attribute and picking buffers, which is far heavier than the
-# scatterplot path -- a 2M-observation dataset exhausts the browser tab while the same points
-# render fine as a scatterplot. A dataset over this limit still gets its spatial coordinates, as a
-# scatterplot embedding instead.
-#
-# The only hard measurement behind this number is that 2M fails, so it is deliberately
-# conservative: a page that loads without the spatial view beats a page that does not load. Raise
-# it if a dataset between here and 2M turns out to render.
-MAX_OBS_FOR_SPATIAL_VIEWS = 500_000
-
 # User-Agent sent on server-side requests made while building a Vitessce config. It must NOT match
 # the back-end's scraping filter, so the config builder's traffic can be whitelisted:
 # ~*(?i)(aiohttp|python-httpx|python-requests|Python-urllib)
