@@ -84,7 +84,7 @@ All builders inherit from `ViewConfBuilder` in `builders/base_builders.py`. Core
 - Mark tests needing heavy dependencies with `@pytest.mark.requires_full`.
 - Version is in `VERSION.txt` (single source of truth).
 - Python `>=3.12` (`requires-python` in `pyproject.toml`).
-- `vitessce==3.9.2` is pinned — in the `[full]` extra, not the core dependency list, which is empty by design.
+- `vitessce==3.9.6` is pinned — in the `[full]` extra, not the core dependency list, which is empty by design.
 
 ## Adding a New Builder
 

@@ -1221,7 +1221,7 @@ requires-dist = [
     { name = "requests", marker = "extra == 'full'", specifier = ">=2.27.1" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.8.0" },
     { name = "tifffile", marker = "extra == 'full'", specifier = ">=2023.7.10" },
-    { name = "vitessce", marker = "extra == 'full'", specifier = "==3.9.2" },
+    { name = "vitessce", marker = "extra == 'full'", specifier = "==3.9.6" },
     { name = "werkzeug", marker = "extra == 'full'", specifier = ">=2.0.0" },
     { name = "zarr", marker = "extra == 'full'", specifier = ">=2.17.2" },
 ]
@@ -1781,7 +1781,7 @@ wheels = [
 
 [[package]]
 name = "vitessce"
-version = "3.9.2"
+version = "3.9.6"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "black" },
@@ -1790,9 +1790,9 @@ dependencies = [
     { name = "scipy" },
     { name = "zarr" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/1a/c3/3b77cc99a691d415d633c63178b2a6afe6cb4b48230b32e2a79612b2598e/vitessce-3.9.2.tar.gz", hash = "sha256:191e45681b8e39f8a5cbe48734bb11ade61267bd1fefed4fe28b36ace5f97dac", size = 261392, upload-time = "2026-06-04T01:25:56.729Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/4a/ba/60bd170b5916d8c1a366c972072a3aba13fe07c5369294d199c3e84d6536/vitessce-3.9.6.tar.gz", hash = "sha256:d18ede356a862378f07d08db85ec1ca547e8af1f40d69f476fd6333deb00c2e7", size = 262710, upload-time = "2026-09-04T10:57:22.992Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/56/df/e8f3ddd021976edaa9caf8459fffe181abc936e5ccc1958ce21308fe129b/vitessce-3.9.2-py3-none-any.whl", hash = "sha256:edac5f899bdf0634f525a071146c832926b2c37bb9167d51cc86623664ebae3e", size = 85703, upload-time = "2026-06-04T01:25:55.076Z" },
+    { url = "https://files.pythonhosted.org/packages/14/c7/aa6b4cbe667fffef01e6666bc175ae95756221d532bca665a612f997c2c7/vitessce-3.9.6-py3-none-any.whl", hash = "sha256:e2fca974896339583c4a1b38da5810fa97206b1494e41b98e02f9a1b2da90d77", size = 86936, upload-time = "2026-09-04T10:57:21.895Z" },
 ]
 
 [[package]]
