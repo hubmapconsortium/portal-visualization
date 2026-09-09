@@ -48,7 +48,7 @@ dependencies = []
 [project.optional-dependencies]
 # Full install - required for actual visualization generation
 full = [
-  "vitessce==3.9.2",
+  "vitessce==3.9.6",
   "hubmap-commons>=2.0.15",
   # Flask/werkzeug are needed for the full HuBMAP Search API client functionality
   "flask>=2.0.0",

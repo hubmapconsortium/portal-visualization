@@ -1594,6 +1594,35 @@ def test_seqfish_single_controller_drives_all_tiles(mocker):
 
 
 @pytest.mark.requires_full
+def test_seqfish_shares_z_and_t_between_views(mocker):
+    """Both types are auto-independent in Vitessce, so without an explicit link each view gets its
+    own scope and the layer controller's Z slider never moves the image."""
+    from src.portal_visualization.builders.imaging_builders import SeqFISHViewConfBuilder
+
+    mocker.patch(
+        "src.portal_visualization.builders.imaging_builders.get_ome_tiff_metadata",
+        return_value={"SizeC": 3},
+    )
+    files = []
+    for hc in range(4):
+        files.append({"rel_path": f"ometiff-pyramids/HybCycle_{hc}/MMStack_Pos5.ome.tif"})
+        files.append({"rel_path": f"output_offsets/HybCycle_{hc}/MMStack_Pos5.offsets.json"})
+    entity = {"uuid": "u", "status": "QA", "vitessce-hints": ["is_image"], "files": files}
+
+    conf = SeqFISHViewConfBuilder(entity, groups_token, assets_url).get_conf_cells()[0][0]
+    spatial = next(v for v in conf["layout"] if v["component"] == "spatialBeta")
+    controller = next(v for v in conf["layout"] if v["component"] == "layerControllerBeta")
+
+    for c_type in ("spatialTargetZ", "spatialTargetT"):
+        assert spatial["coordinationScopes"][c_type] == controller["coordinationScopes"][c_type]
+        assert conf["coordinationSpace"][c_type][spatial["coordinationScopes"][c_type]] == 0
+
+    # The hyb cycles all render at once, so volume rendering must not be reachable. The beta layer
+    # controller takes a boolean here; its per-layer-name `disable3d` has no beta equivalent.
+    assert controller["props"]["globalDisable3d"] is True
+
+
+@pytest.mark.requires_full
 def test_read_zip_zarr_opens_store(mocker):
     # Mock the zarr v3 store wiring so no network access occurs.
     mock_zarr_obj = mocker.Mock()
@@ -2389,6 +2418,231 @@ def test_xenium_large_dataset_hides_heatmap(mocker):
 
 
 @pytest_requires_full
+def test_object_by_analyte_heatmap_gate():
+    """Object-by-analyte builder: the heatmap is dropped above MAX_OBS_FOR_HEATMAP observations
+    (and in minimal mode), and the remaining views expand into the freed grid space. The
+    expression-by-cell-set distribution is not size-gated -- it loads one feature column at a
+    time -- so above the threshold it stays and widens across the whole bottom row.
+
+    The obs count comes from secondary_analysis_metadata.json rather than the zarr store, so
+    seeding that cached property is enough -- no HTTP or zarr mocking needed.
+    """
+    from src.portal_visualization.builders.object_by_analyte_builders import ObjectByAnalyteConfBuilder
+    from src.portal_visualization.constants import MAX_OBS_FOR_HEATMAP
+
+    from .fixtures import make_entity
+
+    def build_conf(n_obs, modality_n_obs=1000, **kwargs):
+        entity = make_entity(
+            uuid="object-by-analyte-uuid",
+            status="Published",
+            hints=["epic"],
+            soft_assaytype="object-x-analyte",
+            files=[{"rel_path": "extras/transformations/hubmap_ui/mudata-zarr/secondary_analysis.zarr.zip"}],
+        )
+        builder = ObjectByAnalyteConfBuilder(entity, groups_token, assets_url, **kwargs)
+        builder.__dict__["_secondary_analysis_metadata"] = {
+            "modalities": [
+                {
+                    "annotations": ["leiden"],
+                    "n_obs": modality_n_obs,
+                    "n_vars": 29078,
+                    "name": "HT_processed",
+                    "obs_keys": ["sample_id"],
+                    "obsm_keys": ["X_umap", "annotation", "leiden"],
+                    "var_keys": ["hugo_symbol"],
+                }
+            ],
+            # Omit the top-level count entirely when it isn't the one under test, to confirm the
+            # per-modality count still drives the gate.
+            **({} if n_obs is None else {"n_obs": n_obs}),
+        }
+        conf, _ = builder.get_conf_cells()
+        return conf
+
+    def views_by_component(conf):
+        return {view["component"]: view for view in conf["layout"]}
+
+    # Small dataset: heatmap present, expression distribution beside it.
+    views = views_by_component(build_conf(1000))
+    assert (views["heatmap"]["x"], views["heatmap"]["w"]) == (0, 7)
+    distribution = views["obsSetFeatureValueDistribution"]
+    assert (distribution["x"], distribution["w"]) == (7, 5)
+    assert views["obsSets"]["h"] == 3
+    assert "featureList" in views
+
+    # Exactly at the threshold still gets a heatmap -- the gate is strictly greater-than.
+    assert "heatmap" in views_by_component(build_conf(MAX_OBS_FOR_HEATMAP))
+
+    # Large dataset: only the heatmap goes, since only its loader needs the whole feature matrix.
+    # The distribution reads one feature column at a time, so it stays and takes the whole row.
+    conf = build_conf(MAX_OBS_FOR_HEATMAP + 1)
+    views = views_by_component(conf)
+    assert "heatmap" not in json.dumps(conf["layout"]).lower()
+    distribution = views["obsSetFeatureValueDistribution"]
+    assert (distribution["x"], distribution["w"]) == (0, 12)
+    # Everything else survives.
+    for component in ("scatterplot", "obsSets", "featureList"):
+        assert component in views, f"{component} should still be present"
+    # The matrix stays declared -- the gene list and per-feature scatterplot coloring need it.
+    assert "obsFeatureMatrix" in conf["datasets"][0]["files"][0]["options"]
+
+    # A modality larger than the (absent) top-level count drops the heatmap the same way.
+    views = views_by_component(build_conf(None, modality_n_obs=200_000))
+    assert "heatmap" not in views
+    distribution = views["obsSetFeatureValueDistribution"]
+    assert (distribution["x"], distribution["w"]) == (0, 12)
+
+    # Minimal configs drop every optional view regardless of size, so the bottom row goes away
+    # entirely and the cell sets grow to fill the right column.
+    conf = build_conf(1000, minimal=True)
+    views = views_by_component(conf)
+    assert "heatmap" not in views
+    assert "featureList" not in views
+    assert "obsSetFeatureValueDistribution" not in views
+    assert views["obsSets"]["h"] == 6
+    assert max(view["y"] + view["h"] for view in conf["layout"]) == 6, "no empty bottom row"
+
+
+def _object_by_analyte_conf(obsm_keys, modality=None, n_obs=1000):
+    """Build an object-by-analyte conf for one modality with the given obsm keys.
+
+    The obs count lives in secondary_analysis_metadata.json rather than the zarr store, so
+    seeding that cached property is enough -- no HTTP or zarr mocking needed.
+    """
+    from src.portal_visualization.builders.object_by_analyte_builders import ObjectByAnalyteConfBuilder
+
+    from .fixtures import make_entity
+
+    entity = make_entity(
+        uuid="object-by-analyte-uuid",
+        status="Published",
+        hints=["epic"],
+        soft_assaytype="object-x-analyte",
+        files=[{"rel_path": "extras/transformations/hubmap_ui/mudata-zarr/secondary_analysis.zarr.zip"}],
+    )
+    builder = ObjectByAnalyteConfBuilder(entity, groups_token, assets_url)
+    builder.__dict__["_secondary_analysis_metadata"] = {
+        "n_obs": n_obs,
+        "modalities": [
+            {
+                "annotations": ["leiden"],
+                "n_obs": n_obs,
+                "n_vars": 29078,
+                "name": "RNA_processed",
+                "obs_keys": ["sample_id", "leiden"],
+                "obsm_keys": obsm_keys,
+                "var_keys": ["hugo_symbol"],
+                **(modality or {}),
+            }
+        ],
+    }
+    conf, _cells = builder.get_conf_cells()
+    return conf
+
+
+@pytest_requires_full
+def test_object_by_analyte_ignores_spatial_keys():
+    """Object by analyte is specified as objects and features with annotations -- spatial is not
+    part of it, so spatial keys are ignored however they arrive.
+
+    They do arrive: 728d02be5fada1541decd1091a4b17e3 carries both HuBMAP's X_spatial and the
+    scanpy-convention spatial, plus an X_spatial_gpr fit. None of them may become obsLocations, a
+    spatialBeta/layerControllerBeta pair, or a SPATIAL scatterplot standing in for one.
+    """
+    conf = _object_by_analyte_conf(["X_pca", "X_spatial", "X_spatial_gpr", "X_umap", "spatial", "annotation", "leiden"])
+    options = conf["datasets"][0]["files"][0]["options"]
+    names = [embedding["embeddingType"] for embedding in options["obsEmbedding"]]
+    components = [view["component"] for view in conf["layout"]]
+    views = {view["component"]: view for view in conf["layout"]}
+
+    assert names == ["PCA", "UMAP"], "no SPATIAL embedding, and no GPR"
+    assert "obsLocations" not in options, "spatial coordinates are not declared at all"
+    assert "SPATIAL" not in conf["coordinationSpace"]["embeddingType"].values()
+    assert "spatialBeta" not in components
+    assert "layerControllerBeta" not in components
+    assert components.count("scatterplot") == len(names)
+    # The scatterplots hold the whole width left of the right-hand column.
+    assert views["scatterplot"]["w"] == 8
+    assert (views["obsSets"]["x"], views["obsSets"]["w"]) == (8, 4)
+
+    # Size is irrelevant now that nothing renders the coordinates.
+    options = _object_by_analyte_conf(["X_umap", "X_spatial"], n_obs=2_000_000)["datasets"][0]["files"][0]["options"]
+    assert [e["embeddingType"] for e in options["obsEmbedding"]] == ["UMAP"]
+    assert "obsLocations" not in options
+
+    # A modality with no spatial key at all keeps its embeddings untouched.
+    conf = _object_by_analyte_conf(["X_umap", "X_tsne"])
+    names = [e["embeddingType"] for e in conf["datasets"][0]["files"][0]["options"]["obsEmbedding"]]
+    assert names == ["UMAP", "TSNE"]
+
+    # A modality with nothing but spatial coordinates has no embedding left, which must still
+    # build a valid config rather than raising. (It used to raise IndexError: vitessce applies
+    # obs_embedding_dims positionally, so a hard-coded [[0, 1]] indexed an empty list.)
+    conf = _object_by_analyte_conf(["X_spatial", "spatial", "annotation", "leiden"])
+    assert conf["datasets"][0]["files"][0]["options"]["obsEmbedding"] == []
+    assert "scatterplot" not in [view["component"] for view in conf["layout"]]
+
+
+@pytest_requires_full
+def test_object_by_analyte_feature_filter_requires_the_column():
+    """initialFeatureFilterPath is only claimed when the modality has highly_variable.
+
+    It used to be emitted unconditionally, pointing at an array that does not exist on a modality
+    without it -- inert while nothing reads the feature matrix, but wrong. Where it does exist it
+    stays: it is what stops the heatmap's loader densifying the whole of X.
+    """
+    conf = _object_by_analyte_conf(["X_umap"], modality={"var_keys": ["hugo_symbol"]})
+    assert "initialFeatureFilterPath" not in conf["datasets"][0]["files"][0]["options"]["obsFeatureMatrix"]
+
+    conf = _object_by_analyte_conf(["X_umap"], modality={"var_keys": ["hugo_symbol", "highly_variable"]})
+    matrix = conf["datasets"][0]["files"][0]["options"]["obsFeatureMatrix"]
+    assert matrix["initialFeatureFilterPath"] == "mod/RNA_processed/var/highly_variable"
+
+
+@pytest_requires_full
+def test_object_by_analyte_drops_non_embedding_obsm_keys():
+    """X_spatial_gpr is a Gaussian-process fit over the spatial coordinates, not a projection of
+    the observations, and renders as nothing useful -- so it never becomes a scatterplot. It is
+    listed separately from the spatial keys themselves, which are out of scope for a different
+    reason (see NON_EMBEDDING_OBSM_KEYS)."""
+    options = _object_by_analyte_conf(["X_umap", "X_spatial", "X_spatial_gpr"])["datasets"][0]["files"][0]["options"]
+    names = [embedding["embeddingType"] for embedding in options["obsEmbedding"]]
+    assert "GPR" not in names, "GPR should never be an embedding"
+    paths = [embedding["path"] for embedding in options["obsEmbedding"]]
+    assert "mod/RNA_processed/obsm/X_spatial_gpr" not in paths
+
+
+@pytest_requires_full
+def test_object_by_analyte_dedupes_embeddings_by_name():
+    """Distinct obsm keys whose display names collide yield a single obsEmbedding entry.
+
+    A name is the key's last underscore-delimited segment, so X_umap and umap both read as UMAP.
+    Vitessce addresses an embedding by that name, so emitting both meant fetching a whole array
+    no view could reach.
+    """
+    options = _object_by_analyte_conf(["X_umap", "umap", "X_pca", "annotation", "leiden"])["datasets"][0]["files"][0][
+        "options"
+    ]
+    embeddings = options["obsEmbedding"]
+    names = [embedding["embeddingType"] for embedding in embeddings]
+
+    assert names == ["UMAP", "PCA"], "one entry per distinct embeddingType, in obsm order"
+    assert len(names) == len(set(names))
+    # First key wins.
+    assert embeddings[0]["path"] == "mod/RNA_processed/obsm/X_umap"
+    # The annotated cell set key is an obs set, never an embedding.
+    assert "mod/RNA_processed/obsm/leiden" not in [embedding["path"] for embedding in embeddings]
+    # ...and the obs set reads from obs/, reusing the obs index the rest of the config loads,
+    # rather than making the source materialize a second per-observation string array.
+    assert [s["path"] for s in options["obsSets"]] == ["mod/RNA_processed/obs/leiden"]
+
+    # A modality with no obs/var counts must not crash, and gets no feature matrix.
+    conf = _object_by_analyte_conf(["X_umap"], modality={"n_obs": None, "n_vars": None})
+    assert "obsFeatureMatrix" not in conf["datasets"][0]["files"][0]["options"]
+
+
+@pytest_requires_full
 def test_multiome_detects_zarr_zip(mocker):
     """Regression: multiome builder must detect .zarr.zip files and open the zip store.
 
@@ -2738,6 +2992,77 @@ def test_kaggle1_builder_no_token(mocker):
     # Verify URLs don't have token parameter
     datasets = conf.get("datasets", [])
     assert len(datasets) > 0
+    support_urls = _asset_urls_for_uuid(conf, "support-uuid")
+    assert support_urls
+    assert not [url for url in support_urls if "token=" in url]
+
+
+def _asset_urls_for_uuid(conf, uuid):
+    """Every distinct assets URL in a conf that points at the given entity."""
+    prefix = f"https://example.com/{uuid}/"
+    return sorted({token.strip('"') for token in json.dumps(conf).split() if prefix in token})
+
+
+@pytest_requires_full
+def test_kaggle1_builder_published_support_entity_has_no_token(mocker):
+    """A Published support entity is public, so its base image URLs carry no token."""
+    mocker.patch("src.portal_visualization.builders.imaging_builders.get_image_metadata", return_value=None)
+
+    entity = {
+        "uuid": "test-uuid",
+        "status": "QA",
+        "vitessce-hints": ["segmentation_mask", "pyramid", "is_image"],
+        "files": [
+            {"rel_path": "ometiff-pyramids/seg.segmentations.ome.tif"},
+            {"rel_path": "output_offsets/seg.segmentations.offsets.json"},
+            {"rel_path": "image_metadata/seg.segmentations.metadata.json"},
+        ],
+    }
+
+    support_files = [
+        {"rel_path": "ometiff-pyramids/lab_processed/images/base.ome.tif"},
+        {"rel_path": "output_offsets/lab_processed/images/base.offsets.json"},
+        {"rel_path": "image_metadata/lab_processed/images/base.metadata.json"},
+    ]
+
+    def support_urls(support_status):
+        support_entity = {"uuid": "support-uuid", "files": support_files}
+        if support_status is not None:
+            support_entity["status"] = support_status
+        builder = Kaggle1SegImagePyramidViewConfBuilder(
+            entity,
+            groups_token="groups_token",
+            assets_endpoint="https://example.com",
+            parent="parent-uuid",
+            find_support_entity=lambda uuid: support_entity,
+        )
+        conf, _cells = builder.get_conf_cells()
+        urls = _asset_urls_for_uuid(conf, "support-uuid")
+        assert urls, "expected the conf to reference the support entity"
+        return urls
+
+    # Published: public assets, so no expiring token is leaked into the conf.
+    assert not [url for url in support_urls("Published") if "token=" in url]
+    # Anything else still needs the token to reach the assets API.
+    assert all("token=groups_token" in url for url in support_urls("QA"))
+    assert all("token=groups_token" in url for url in support_urls(None))
+
+    # The segmentation entity's own (QA) files are untouched by this change.
+    published_conf_own_urls = _asset_urls_for_uuid(
+        Kaggle1SegImagePyramidViewConfBuilder(
+            entity,
+            groups_token="groups_token",
+            assets_endpoint="https://example.com",
+            parent="parent-uuid",
+            find_support_entity=lambda uuid: {
+                "uuid": "support-uuid",
+                "status": "Published",
+                "files": support_files,
+            },
+        ).get_conf_cells()[0],
+        "test-uuid",
+    )
+    assert all("token=groups_token" in url for url in published_conf_own_urls)
 
 
 @pytest_requires_full

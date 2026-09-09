@@ -15,6 +15,23 @@ from .utils import files_from_response
 
 Entity = namedtuple("Entity", ["uuid", "type", "name"], defaults=["TODO: name"])
 
+# Nested relative lists that the indexer attaches to every entity document. Each element is a
+# whole entity (donors keep their own trigger-generated properties), so on a dataset with many
+# ancestors these dominate the document -- tens of thousands of lines apiece -- while nothing that
+# consumes a document for its own sake reads them. Callers that only need the entity itself should
+# pass this as ``source_exclude``; the portal reaches related entities through ``ancestor_ids`` /
+# ``descendant_ids`` and a separate narrow query instead.
+#
+# Deliberately not excluded: ``donor`` (singular, used for titles and metadata), the ``*_ids``
+# lists, ``files``, ``metadata``, ``origin_samples``, ``vitessce-hints`` and ``soft_assaytype``.
+HEAVY_RELATIVE_FIELDS = [
+    "ancestors",
+    "descendants",
+    "immediate_ancestors",
+    "immediate_descendants",
+    "donors",
+]
+
 
 @dataclass
 class VitessceConfLiftedUUID:
@@ -215,7 +232,13 @@ class ApiClient:
         filled_flat_sources = _fill_sources(flat_sources)
         return filled_flat_sources
 
-    def get_entity(self, uuid=None, hbm_id=None):
+    def get_entity(self, uuid=None, hbm_id=None, source_exclude=None):
+        """Fetch a single entity document.
+
+        :param list source_exclude: optional ``_source`` exclusion list. Defaults to None, i.e.
+            the whole document, since callers like the portal's ``.json`` route exist precisely to
+            surface it. Pass ``HEAVY_RELATIVE_FIELDS`` when only the entity itself is needed.
+        """
         if uuid is not None and hbm_id is not None:
             raise Exception("Only UUID or HBM ID should be provided, not both")
         query = {
@@ -225,6 +248,8 @@ class ApiClient:
             # With default mapping, without ".keyword", it splits into tokens,
             # and we get multiple substring matches, instead of unique match.
         }
+        if source_exclude:
+            query["_source"] = {"exclude": list(source_exclude)}
 
         response_json = self._request(self.elasticsearch_url, body_json=query)
 
@@ -288,9 +313,10 @@ class ApiClient:
             try:
 
                 def get_entity(entity):
-                    if isinstance(entity, str):
-                        return self.get_entity(uuid=entity)
-                    return self.get_entity(uuid=entity.get("uuid"))
+                    # Builders use this to read a handful of scalars off a related entity
+                    # (soft_assaytype, hints, files), never its nested relative lists.
+                    uuid = entity if isinstance(entity, str) else entity.get("uuid")
+                    return self.get_entity(uuid=uuid, source_exclude=HEAVY_RELATIVE_FIELDS)
 
                 Builder = get_view_config_builder(entity, get_entity, parent)
                 builder = Builder(
@@ -342,6 +368,9 @@ class ApiClient:
             },
             "sort": [{"last_modified_timestamp": {"order": "desc"}}],
             "size": 1,
+            # This document is handed to a builder as an entity, so only the nested relative
+            # lists can go -- everything a builder reads (files, metadata, hints) must stay.
+            "_source": {"exclude": HEAVY_RELATIVE_FIELDS},
         }
         response_json = self._request(
             self.elasticsearch_url,
@@ -435,9 +464,30 @@ def _get_nested(path, nested):
     True
     >>> _get_nested(path, nested)
     123
+
+    A token that lands on a list maps the rest of the path over its elements.
+    Datasets can descend from several donors, and the singular `donor` on the
+    document is just `donors[0]`, so `donors.hubmap_id` is the only way to see
+    all of them. Before this branch the list had no `.get` and the whole
+    request died with an AttributeError:
+
+    >>> _get_nested('donors.hubmap_id', {'donors': [{'hubmap_id': 'HBM1'},
+    ...                                             {'hubmap_id': 'HBM2'}]})
+    ['HBM1', 'HBM2']
+
+    Empty and missing elements drop out rather than becoming holes:
+
+    >>> _get_nested('donors.hubmap_id', {'donors': [{'hubmap_id': 'HBM1'}, {}]})
+    ['HBM1']
+    >>> _get_nested('donors.hubmap_id', {'donors': []}) is None
+    True
     """
     tokens = path.split(".")
-    for t in tokens:
+    for i, t in enumerate(tokens):
+        if isinstance(nested, list):
+            rest = ".".join(tokens[i:])
+            collected = [_get_nested(rest, item) for item in nested]
+            return [c for c in collected if c is not None] or None
         nested = nested.get(t, {})
     return nested or None
 

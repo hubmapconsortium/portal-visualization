@@ -4,7 +4,7 @@ import logging
 import re
 import zipfile
 from pathlib import Path
-from urllib.parse import urlparse, urlunparse
+from urllib.parse import urlencode, urljoin, urlparse, urlunparse
 
 import requests
 from vitessce import (
@@ -372,12 +372,26 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
             scope_prefix=prefix,
         )
 
+    def _link_z_and_t(self, vc, spatial_view, lc_view):
+        """Put the spatial and layer-controller views on one ``spatialTargetZ``/``spatialTargetT`` scope.
+
+        Both types are in Vitessce's ``AUTO_INDEPENDENT_COORDINATION_TYPES``, so under
+        ``initStrategy: auto`` each view is handed its *own* scope and the controller's Z slider
+        never moves the image. Only z-stacked images surface this (seqFISH is 11 slices deep);
+        ``_add_views`` already links them for GeoMx.
+        """
+        target_z, target_t = vc.add_coordination("spatialTargetZ", "spatialTargetT")
+        target_z.set_value(0)
+        target_t.set_value(0)
+        spatial_view.use_coordination(target_z, target_t)
+        lc_view.use_coordination(target_z, target_t)
+
     def _setup_view_config(
         self,
         vc,
         dataset,
         view_type,
-        disable_3d=[],
+        disable_3d=False,
         use_full_resolution=[],
         image_fileuids=None,
         image_channel_count=None,
@@ -388,8 +402,9 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
             )
             vc.add_view(cm.DESCRIPTION, dataset=dataset, x=0, y=8, w=3, h=4)
             lc_view = vc.add_view("layerControllerBeta", dataset=dataset, x=0, y=0, w=3, h=8).set_props(
-                disable3d=disable_3d, disableChannelsIfRgbDetected=True
+                globalDisable3d=disable_3d, disableChannelsIfRgbDetected=True
             )
+            self._link_z_and_t(vc, spatial_view, lc_view)
             self._link_base_image_layers(vc, spatial_view, lc_view, image_fileuids, image_channel_count)
         if view_type == GEOMX_IMAGE_VIEW_TYPE:
             self._add_views(vc, dataset)
@@ -399,8 +414,9 @@ class AbstractImagingViewConfBuilder(ViewConfBuilder):
                 useFullResolutionImage=use_full_resolution
             )
             lc_view = vc.add_view("layerControllerBeta", dataset=dataset, x=0, y=0, w=4, h=8).set_props(
-                disable3d=disable_3d, disableChannelsIfRgbDetected=True
+                globalDisable3d=disable_3d, disableChannelsIfRgbDetected=True
             )
+            self._link_z_and_t(vc, spatial_view, lc_view)
             # Adding the segmentation mask on top of the image
             if view_type == KAGGLE_IMAGE_VIEW_TYPE:
                 # vc.link_views_by_dict([spatial_view, lc_view])
@@ -653,21 +669,21 @@ class Kaggle1SegImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
 
         # 3. Build URLs using support entity's UUID
         img_path = found_images[0]
-        base_img_url = self._build_support_url(support_uuid, img_path)
+        base_img_url = self._build_support_url(support_entity, img_path)
 
         offsets_path = re.sub(
             r"ome\.tiff?",
             "offsets.json",
             re.sub(IMAGE_PYRAMID_DIR, OFFSETS_DIR, img_path),
         )
-        base_offsets_url = self._build_support_url(support_uuid, offsets_path)
+        base_offsets_url = self._build_support_url(support_entity, offsets_path)
 
         metadata_path = re.sub(
             r"ome\.tiff?",
             "metadata.json",
             re.sub(IMAGE_PYRAMID_DIR, IMAGE_METADATA_DIR, img_path),
         )
-        base_metadata_url = self._build_support_url(support_uuid, metadata_path)
+        base_metadata_url = self._build_support_url(support_entity, metadata_path)
 
         self.base_image_metadata = get_image_metadata(self, base_metadata_url)
 
@@ -699,15 +715,29 @@ class Kaggle1SegImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
             f"Kaggle1SegImagePyramidViewConfBuilder: could not find support entity for parent {self._parent_uuid}"
         )
 
-    def _build_support_url(self, support_uuid, rel_path):
-        """Build an assets URL for a file in the support entity."""
-        import urllib.parse
+    def _build_support_url(self, support_entity, rel_path):
+        """Build an assets URL for a file in the parent's support entity.
 
-        base_url = urllib.parse.urljoin(self._assets_endpoint, f"{support_uuid}/{rel_path}")
-        if self._groups_token:
-            token_param = urllib.parse.urlencode({"token": self._groups_token})
-            return f"{base_url}?{token_param}"
-        return base_url
+        Mirrors ``_build_assets_url``: a Published support entity's assets are public, so an
+        expiring token is unnecessary and would otherwise be leaked into every exported config.
+
+        >>> builder = Kaggle1SegImagePyramidViewConfBuilder(
+        ...   entity={"uuid": "uuid"},
+        ...   groups_token='groups_token',
+        ...   assets_endpoint='https://example.com')
+        >>> builder._build_support_url({"uuid": "support"}, "ometiff-pyramids/base.ome.tif")
+        'https://example.com/support/ometiff-pyramids/base.ome.tif?token=groups_token'
+
+        A Published support entity is public, so no (expiring) token is appended:
+
+        >>> builder._build_support_url(
+        ...   {"uuid": "support", "status": "Published"}, "ometiff-pyramids/base.ome.tif")
+        'https://example.com/support/ometiff-pyramids/base.ome.tif'
+        """
+        base_url = urljoin(self._assets_endpoint, f"{support_entity.get('uuid')}/{rel_path}")
+        if not self._groups_token or support_entity.get("status") == "Published":
+            return base_url
+        return f"{base_url}?{urlencode({'token': self._groups_token})}"
 
 
 class GeoMxImagePyramidViewConfBuilder(AbstractImagingViewConfBuilder):
@@ -800,7 +830,9 @@ class SeqFISHViewConfBuilder(AbstractImagingViewConfBuilder):
                 vc,
                 dataset,
                 self.view_type,
-                disable_3d=[self._get_hybcycle(img_path) for img_path in sorted_images],
+                # Every hyb cycle covers the same field of view and all of them render at once,
+                # so a volume load here would be one whole volume per cycle per channel.
+                disable_3d=True,
                 image_fileuids=image_fileuids,
                 image_channel_count=image_channel_count,
             )

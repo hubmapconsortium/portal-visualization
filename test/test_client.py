@@ -366,6 +366,50 @@ def test_get_entity(app, mocker, params):
         assert json.dumps(entity, indent=2) == json.dumps(mock_hit_source, indent=2)
 
 
+def test_get_entity_source_exclude(app, mocker):
+    """The heavy nested relative lists are opt-in to drop, so the default query stays whole-doc
+    (the portal's ``.json`` route exists to surface it) and the exclusion only appears when asked.
+    """
+    from src.portal_visualization.client import HEAVY_RELATIVE_FIELDS
+
+    bodies = []
+
+    def capture(path, **kwargs):
+        bodies.append(kwargs.get("json"))
+        return mock_es_post(path, **kwargs)
+
+    mocker.patch("requests.post", side_effect=capture)
+    with app.app_context():
+        api_client = ApiClient()
+        api_client.get_entity(uuid="uuid")
+        api_client.get_entity(uuid="uuid", source_exclude=HEAVY_RELATIVE_FIELDS)
+
+    assert "_source" not in bodies[0]
+    assert bodies[1]["_source"] == {"exclude": HEAVY_RELATIVE_FIELDS}
+    # donor (singular) and the id lists are what the portal actually reads; they must survive.
+    for kept in ("donor", "ancestor_ids", "descendant_ids", "files", "metadata"):
+        assert kept not in HEAVY_RELATIVE_FIELDS
+
+
+def test_get_descendant_to_lift_excludes_relatives(app, mocker):
+    """The lifted document is handed to a builder as an entity, so only the nested relative
+    lists may be dropped -- files/metadata/hints must stay."""
+    from src.portal_visualization.client import HEAVY_RELATIVE_FIELDS
+
+    bodies = []
+
+    def capture(path, **kwargs):
+        bodies.append(kwargs.get("json"))
+        return mock_es_post(path, **kwargs)
+
+    mocker.patch("requests.post", side_effect=capture)
+    with app.app_context():
+        api_client = ApiClient()
+        api_client.get_descendant_to_lift("uuid123")
+
+    assert bodies[0]["_source"] == {"exclude": HEAVY_RELATIVE_FIELDS}
+
+
 def test_get_entity_two_ids(app, mocker):
     with app.app_context():
         api_client = ApiClient()
